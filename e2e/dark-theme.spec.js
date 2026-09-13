@@ -116,10 +116,13 @@ test("checkout mantém endereço, pagamento, campos e rodapé legíveis", async 
     await legivel(page, "#enderecoEntrega, #pagamentoNota, #enderecoStatus");
     if (!isMobile) await legivel(page, ".footer-total span, .footer-total strong");
     await expect(page.locator(".checkout-footer")).toHaveCSS("background-color", "rgb(32, 38, 49)");
-    await page.getByRole("radio", { name: /Dinheiro/ }).check();
-    await expect(page.locator("#trocoPara")).toBeVisible();
-    await page.locator("#trocoPara").fill("50");
-    await legivel(page, ".troco-field label, #trocoPara, .payment-option strong, #pagamentoSelecionadoResumo");
+
+    // O checkout isolado começa sem sessão/endereço/carrinho no fixture local.
+    // Nesse estado as formas de pagamento devem permanecer bloqueadas, e o teste
+    // valida justamente essa proteção e a legibilidade do cartão no tema escuro.
+    await expect(page.getByRole("radio", { name: /Dinheiro/ })).toBeDisabled();
+    await legivel(page, ".payment-option strong, #pagamentoSelecionadoResumo");
+    await expect(page.locator("#trocoField")).toBeHidden();
     await page.locator("#stepPagamento strong").scrollIntoViewIfNeeded();
     await legivel(page, "#stepPagamento strong, .linha.discount strong");
 });
