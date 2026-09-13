@@ -1,6 +1,6 @@
 "use strict";
 
-const VERSION = "4.4.6";
+const VERSION = "4.4.8";
 const CACHE = `multi-delivery-v${VERSION}`;
 const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}`;
 const SHELL = [
@@ -15,7 +15,7 @@ const SHELL = [
   "./assets/banner-padrao.svg",
   "./assets/banner1.svg",
   "./css/core/style.css?v=4.2.0",
-  "./css/pages/home-4.2.1.css?v=4.2.1.4",
+  "./css/pages/home-4.2.1.css?v=4.2.1.5",
   "./css/core/paginas.css?v=4.2.0",
   "./css/core/accessibility.css?v=4.2.0",
   "./css/core/enhancements.css?v=4.4.6",
@@ -40,23 +40,11 @@ const SHELL = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE)
-      .then((cache) => cache.addAll(SHELL))
-      .then(() => self.skipWaiting())
-  );
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys()
-      .then((keys) => Promise.all(
-        keys
-          .filter((key) => key.startsWith("multi-delivery-") && key !== CACHE && key !== DYNAMIC_CACHE)
-          .map((key) => caches.delete(key))
-      ))
-      .then(() => self.clients.claim())
-  );
+  event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key.startsWith("multi-delivery-") && key !== CACHE && key !== DYNAMIC_CACHE).map((key) => caches.delete(key)))).then(() => self.clients.claim()));
 });
 
 async function redePrimeiro(request, cacheName, fallback) {
@@ -108,33 +96,19 @@ self.addEventListener("push", (event) => {
   try { payload = { ...payload, ...event.data.json() }; } catch { /* Usa mensagem padrão. */ }
   const tag = payload.tag || undefined;
   const entrega = ["entrega_disponivel", "entrega_atribuida"].includes(payload.tipo);
-  event.waitUntil(self.registration.showNotification(payload.title, {
-    body: payload.body,
-    icon: "./assets/favicon.svg",
-    badge: "./assets/favicon.svg",
-    tag,
-    renotify: Boolean(tag),
-    requireInteraction: entrega,
-    vibrate: entrega ? [180, 100, 180] : [120],
-    data: { url: payload.url, tipo: payload.tipo }
-  }));
+  event.waitUntil(self.registration.showNotification(payload.title, { body: payload.body, icon: "./assets/favicon.svg", badge: "./assets/favicon.svg", tag, renotify: Boolean(tag), requireInteraction: entrega, vibrate: entrega ? [180, 100, 180] : [120], data: { url: payload.url, tipo: payload.tipo } }));
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const recebido = String(event.notification.data?.url || "./html/perfil.html");
-  const normalizado = /^(?:\.\/)?[\w-]+\.html(?:[?#]|$)/i.test(recebido)
-    ? `./html/${recebido.replace(/^\.\//, "")}`
-    : recebido;
+  const normalizado = /^(?:\.\/)?[\w-]+\.html(?:[?#]|$)/i.test(recebido) ? `./html/${recebido.replace(/^\.\//, "")}` : recebido;
   const destino = new URL(normalizado, self.registration.scope).href;
   event.waitUntil(clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (janelas) => {
     const exata = janelas.find((janela) => janela.url === destino);
     if (exata) return exata.focus();
     const aberta = janelas.find((janela) => new URL(janela.url).origin === new URL(destino).origin);
-    if (aberta) {
-      await aberta.navigate(destino);
-      return aberta.focus();
-    }
+    if (aberta) { await aberta.navigate(destino); return aberta.focus(); }
     return clients.openWindow(destino);
   }));
 });
