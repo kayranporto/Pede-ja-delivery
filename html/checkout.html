@@ -20,170 +20,19 @@
   <link rel="stylesheet" href="../css/modules/checkout-4.2.3.css?v=4.2.4"/>
   <link rel="stylesheet" href="../css/core/accessibility.css?v=4.2.0"/>
   <link rel="stylesheet" href="../css/core/enhancements.css?v=4.4.6"/>
+  <link rel="stylesheet" href="../css/core/delivery-redesign-v2.css?v=2.0.0"/>
 </head>
 <body>
   <noscript>Este site precisa de JavaScript habilitado para funcionar.</noscript>
-
-  <header class="checkout-header">
-    <div class="checkout-header-inner">
-      <a class="voltar" href="restaurante.html" aria-label="Voltar ao restaurante">←</a>
-      <div class="checkout-heading">
-        <span>CHECKOUT SEGURO</span>
-        <h1>Finalizar pedido</h1>
-      </div>
-      <div class="checkout-security" aria-label="Ambiente protegido">
-        <span aria-hidden="true">🔒</span>
-        <div><strong>Ambiente protegido</strong><small>Seus dados estão seguros</small></div>
-      </div>
-    </div>
-  </header>
-
-  <nav class="checkout-progress" aria-label="Etapas do checkout">
-    <div class="checkout-progress-inner">
-      <div class="checkout-step" id="stepEndereco" data-estado="pendente"><b>1</b><span><strong>Entrega</strong><small>Endereço e frete</small></span></div>
-      <span class="checkout-progress-line" aria-hidden="true"></span>
-      <div class="checkout-step" id="stepPagamento" data-estado="pendente"><b>2</b><span><strong>Pagamento</strong><small>Escolha a forma</small></span></div>
-      <span class="checkout-progress-line" aria-hidden="true"></span>
-      <div class="checkout-step" id="stepRevisao" data-estado="pendente"><b>3</b><span><strong>Revisão</strong><small>Confira e envie</small></span></div>
-    </div>
-  </nav>
-
-  <main class="checkout-container">
-    <div class="checkout-flow">
-      <div class="checkout-fast-lane" id="checkoutFastLane" role="status">
-        <span class="checkout-fast-icon" aria-hidden="true">⚡</span>
-        <div><strong>Checkout rápido</strong><small id="checkoutFastStatus">Carregando seus dados salvos...</small></div>
-        <span class="checkout-fast-badge" id="checkoutFastBadge">Preparando</span>
-      </div>
-      <section class="checkout-card checkout-card--address" aria-labelledby="tituloEndereco">
-        <div class="card-heading">
-          <span class="card-icon" aria-hidden="true">📍</span>
-          <div><small>ETAPA 1</small><h2 id="tituloEndereco">Endereço de entrega</h2></div>
-        </div>
-        <div class="endereco">
-          <div class="endereco-copy">
-            <span class="endereco-label">ENTREGAR EM</span>
-            <p id="enderecoEntrega">Nenhum endereço informado.</p>
-          </div>
-          <button id="alterarEndereco" type="button">Alterar endereço</button>
-        </div>
-        <div class="delivery-preview">
-          <span aria-hidden="true">🗺️</span>
-          <div>
-            <strong id="previsaoCheckout">Calculando previsão...</strong>
-            <small id="areaCheckout">Confira o endereço e a região atendida.</small>
-          </div>
-          <a id="abrirMapaEndereco" href="https://www.openstreetmap.org" target="_blank" rel="noopener">Ver mapa <span aria-hidden="true">↗</span></a>
-        </div>
-        <p class="pedido-minimo" id="pedidoMinimoMensagem"></p>
-        <p class="checkout-inline-status" id="enderecoStatus" data-tipo="info" role="status">O frete e o total final serão confirmados depois que você selecionar o endereço.</p>
-      </section>
-
-      <section class="checkout-card" aria-labelledby="tituloPagamento">
-        <div class="card-heading">
-          <span class="card-icon" aria-hidden="true">💳</span>
-          <div><small>ETAPA 2</small><h2 id="tituloPagamento">Forma de pagamento</h2></div>
-        </div>
-        <div class="payment-options">
-          <label class="payment-option">
-            <input checked name="pagamento" type="radio" value="PIX"/>
-            <span class="payment-icon" aria-hidden="true">⚡</span>
-            <span class="payment-copy"><strong>PIX na entrega</strong><small>Rápido e sem contato</small></span>
-            <span class="payment-check" aria-hidden="true"></span>
-          </label>
-          <label class="payment-option">
-            <input name="pagamento" type="radio" value="Cartão"/>
-            <span class="payment-icon" aria-hidden="true">💳</span>
-            <span class="payment-copy"><strong>Cartão na entrega</strong><small>Débito ou crédito na maquininha</small></span>
-            <span class="payment-check" aria-hidden="true"></span>
-          </label>
-          <label class="payment-option">
-            <input name="pagamento" type="radio" value="Dinheiro"/>
-            <span class="payment-icon" aria-hidden="true">💵</span>
-            <span class="payment-copy"><strong>Dinheiro</strong><small>Informe o troco se necessário</small></span>
-            <span class="payment-check" aria-hidden="true"></span>
-          </label>
-          <label class="payment-option online-payment-option" data-pagamento-indisponivel="true">
-            <input disabled name="pagamento" type="radio" value="Online"/>
-            <span class="payment-icon" aria-hidden="true">🛡️</span>
-            <span class="payment-copy"><strong>Pagar online</strong><small id="pagamentoOnlineStatus">Temporariamente indisponível</small></span>
-            <span class="payment-badge" id="pagamentoOnlineBadge">EM BREVE</span>
-            <span class="payment-check" aria-hidden="true"></span>
-          </label>
-        </div>
-        <p class="checkout-inline-status checkout-inline-status--ok" id="pagamentoSelecionadoResumo" role="status">Selecionado: PIX na entrega.</p>
-        <p class="pagamento-note" id="pagamentoNota">O pagamento será realizado diretamente ao restaurante na entrega. Nenhum dado de cartão é solicitado neste site.</p>
-        <div class="troco-field" id="trocoField" hidden>
-          <label for="trocoPara">Precisa de troco para quanto?</label>
-          <input id="trocoPara" inputmode="decimal" maxlength="20" placeholder="Ex.: 100,00"/>
-        </div>
-      </section>
-
-      <details class="checkout-card checkout-optional" id="observacoesDetalhes">
-        <summary class="card-heading">
-          <span class="card-icon" aria-hidden="true">📝</span>
-          <div><small>OPCIONAL</small><h2 id="tituloObservacoes">Observações</h2></div>
-          <span class="checkout-optional-action" id="observacoesStatus">Adicionar</span>
-        </summary>
-        <div class="checkout-optional-body">
-          <textarea aria-label="Observações do pedido" id="observacoesPedido" maxlength="500" placeholder="Ex.: sem cebola, molho à parte ou outra preferência..."></textarea>
-          <div class="field-helper"><span>O restaurante receberá esta mensagem com o pedido.</span><span id="observacoesContador">0/500</span></div>
-        </div>
-      </details>
-
-      <details class="checkout-card checkout-optional" id="cupomDetalhes">
-        <summary class="card-heading">
-          <span class="card-icon" aria-hidden="true">🎟️</span>
-          <div><small>ECONOMIZE</small><h2 id="tituloCupom">Cupom de desconto</h2></div>
-          <span class="checkout-optional-action" id="cupomStatus">Adicionar</span>
-        </summary>
-        <div class="checkout-optional-body">
-          <div class="cupom-box">
-            <input aria-label="Cupom de desconto" autocomplete="off" id="cupom" maxlength="40" placeholder="Digite seu cupom" type="text"/>
-            <button id="btnCupom" type="button">Aplicar cupom</button>
-          </div>
-          <p class="checkout-inline-status" id="cupomFeedback" data-tipo="info" role="status">Cupom é opcional e será validado novamente ao enviar o pedido.</p>
-        </div>
-      </details>
-    </div>
-
-    <aside class="checkout-card checkout-summary" id="checkoutResumo" aria-labelledby="tituloResumo">
-      <div class="summary-heading">
-        <div><small>SEU PEDIDO</small><h2 id="tituloResumo">Resumo</h2></div>
-        <span class="summary-badge">Revise antes de enviar</span>
-      </div>
-      <div class="summary-context" id="summaryContext" aria-live="polite">Conferindo restaurante e itens...</div>
-      <div id="listaResumo"></div>
-      <div class="summary-totals">
-        <div class="linha"><span>Subtotal</span><strong id="subtotal">R$ 0,00</strong></div>
-        <div class="linha"><span>Taxa de entrega</span><strong id="taxa">R$ 0,00</strong></div>
-        <div class="linha discount"><span>Desconto</span><strong id="desconto">− R$ 0,00</strong></div>
-        <div class="linha total"><span>Total</span><strong id="total">R$ 0,00</strong></div>
-      </div>
-      <div class="summary-trust"><span aria-hidden="true">✓</span><p><strong>Compra protegida</strong><small>Confira os dados antes de confirmar.</small></p></div>
-    </aside>
-  </main>
-
-  <footer class="checkout-footer">
-    <div class="checkout-footer-inner">
-      <div class="footer-total"><span>Total do pedido</span><strong id="footerTotal">R$ 0,00</strong></div>
-      <div class="checkout-submit-copy">
-        <p id="checkoutSubmitStatus" role="status">Revise o total e confirme quando estiver pronto.</p>
-        <small>Envio em um toque, com proteção contra pedido duplicado.</small>
-      </div>
-      <button id="finalizarPedido" type="button"><span id="finalizarPedidoTexto">Preparando checkout...</span><span aria-hidden="true">→</span></button>
-    </div>
-  </footer>
-
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
-  <script defer src="../js/core/app-utils.js?v=4.4.6"></script>
-  <script defer src="../js/core/config.js?v=4.4.6"></script>
-  <script defer src="../js/core/supabase.js?v=4.2.0"></script>
-  <script defer src="../js/core/dialogs.js?v=4.2.0"></script>
-  <script defer src="../js/core/cart-store.js?v=4.2.0"></script>
-  <script defer src="../js/core/monitoring.js?v=4.2.0"></script>
-  <script defer src="../js/pages/checkout.js?v=4.4.6.1"></script>
-  <script defer src="../js/modules/checkout-4.2.3.js?v=4.2.4"></script>
-  <script defer src="../js/core/site-enhancements.js?v=4.4.6"></script>
-</body>
-</html>
+  <header class="checkout-header"><div class="checkout-header-inner"><a class="voltar" href="restaurante.html" aria-label="Voltar ao restaurante">←</a><div class="checkout-heading"><span>CHECKOUT SEGURO</span><h1>Finalizar pedido</h1></div><div class="checkout-security" aria-label="Ambiente protegido"><span aria-hidden="true">🔒</span><div><strong>Ambiente protegido</strong><small>Seus dados estão seguros</small></div></div></div></header>
+  <nav class="checkout-progress" aria-label="Etapas do checkout"><div class="checkout-progress-inner"><div class="checkout-step" id="stepEndereco" data-estado="pendente"><b>1</b><span><strong>Entrega</strong><small>Endereço e frete</small></span></div><span class="checkout-progress-line" aria-hidden="true"></span><div class="checkout-step" id="stepPagamento" data-estado="pendente"><b>2</b><span><strong>Pagamento</strong><small>Escolha a forma</small></span></div><span class="checkout-progress-line" aria-hidden="true"></span><div class="checkout-step" id="stepRevisao" data-estado="pendente"><b>3</b><span><strong>Revisão</strong><small>Confira e envie</small></span></div></div></nav>
+  <main class="checkout-container"><div class="checkout-flow">
+    <div class="checkout-fast-lane" id="checkoutFastLane" role="status"><span class="checkout-fast-icon" aria-hidden="true">⚡</span><div><strong>Checkout rápido</strong><small id="checkoutFastStatus">Carregando seus dados salvos...</small></div><span class="checkout-fast-badge" id="checkoutFastBadge">Preparando</span></div>
+    <section class="checkout-card checkout-card--address" aria-labelledby="tituloEndereco"><div class="card-heading"><span class="card-icon" aria-hidden="true">📍</span><div><small>ETAPA 1</small><h2 id="tituloEndereco">Endereço de entrega</h2></div></div><div class="endereco"><div class="endereco-copy"><span class="endereco-label">ENTREGAR EM</span><p id="enderecoEntrega">Nenhum endereço informado.</p></div><button id="alterarEndereco" type="button">Alterar endereço</button></div><div class="delivery-preview"><span aria-hidden="true">🗺️</span><div><strong id="previsaoCheckout">Calculando previsão...</strong><small id="areaCheckout">Confira o endereço e a região atendida.</small></div><a id="abrirMapaEndereco" href="https://www.openstreetmap.org" target="_blank" rel="noopener">Ver mapa <span aria-hidden="true">↗</span></a></div><p class="pedido-minimo" id="pedidoMinimoMensagem"></p><p class="checkout-inline-status" id="enderecoStatus" data-tipo="info" role="status">O frete e o total final serão confirmados depois que você selecionar o endereço.</p></section>
+    <section class="checkout-card" aria-labelledby="tituloPagamento"><div class="card-heading"><span class="card-icon" aria-hidden="true">💳</span><div><small>ETAPA 2</small><h2 id="tituloPagamento">Forma de pagamento</h2></div></div><div class="payment-options"><label class="payment-option"><input checked name="pagamento" type="radio" value="PIX"/><span class="payment-icon" aria-hidden="true">⚡</span><span class="payment-copy"><strong>PIX na entrega</strong><small>Rápido e sem contato</small></span><span class="payment-check" aria-hidden="true"></span></label><label class="payment-option"><input name="pagamento" type="radio" value="Cartão"/><span class="payment-icon" aria-hidden="true">💳</span><span class="payment-copy"><strong>Cartão na entrega</strong><small>Débito ou crédito na maquininha</small></span><span class="payment-check" aria-hidden="true"></span></label><label class="payment-option"><input name="pagamento" type="radio" value="Dinheiro"/><span class="payment-icon" aria-hidden="true">💵</span><span class="payment-copy"><strong>Dinheiro</strong><small>Informe o troco se necessário</small></span><span class="payment-check" aria-hidden="true"></span></label><label class="payment-option online-payment-option" data-pagamento-indisponivel="true"><input disabled name="pagamento" type="radio" value="Online"/><span class="payment-icon" aria-hidden="true">🛡️</span><span class="payment-copy"><strong>Pagar online</strong><small id="pagamentoOnlineStatus">Temporariamente indisponível</small></span><span class="payment-badge" id="pagamentoOnlineBadge">EM BREVE</span><span class="payment-check" aria-hidden="true"></span></label></div><p class="checkout-inline-status checkout-inline-status--ok" id="pagamentoSelecionadoResumo" role="status">Selecionado: PIX na entrega.</p><p class="pagamento-note" id="pagamentoNota">O pagamento será realizado diretamente ao restaurante na entrega. Nenhum dado de cartão é solicitado neste site.</p><div class="troco-field" id="trocoField" hidden><label for="trocoPara">Precisa de troco para quanto?</label><input id="trocoPara" inputmode="decimal" maxlength="20" placeholder="Ex.: 100,00"/></div></section>
+    <details class="checkout-card checkout-optional" id="observacoesDetalhes"><summary class="card-heading"><span class="card-icon" aria-hidden="true">📝</span><div><small>OPCIONAL</small><h2 id="tituloObservacoes">Observações</h2></div><span class="checkout-optional-action" id="observacoesStatus">Adicionar</span></summary><div class="checkout-optional-body"><textarea aria-label="Observações do pedido" id="observacoesPedido" maxlength="500" placeholder="Ex.: sem cebola, molho à parte ou outra preferência..."></textarea><div class="field-helper"><span>O restaurante receberá esta mensagem com o pedido.</span><span id="observacoesContador">0/500</span></div></div></details>
+    <details class="checkout-card checkout-optional" id="cupomDetalhes"><summary class="card-heading"><span class="card-icon" aria-hidden="true">🎟️</span><div><small>ECONOMIZE</small><h2 id="tituloCupom">Cupom de desconto</h2></div><span class="checkout-optional-action" id="cupomStatus">Adicionar</span></summary><div class="checkout-optional-body"><div class="cupom-box"><input aria-label="Cupom de desconto" autocomplete="off" id="cupom" maxlength="40" placeholder="Digite seu cupom" type="text"/><button id="btnCupom" type="button">Aplicar cupom</button></div><p class="checkout-inline-status" id="cupomFeedback" data-tipo="info" role="status">Cupom é opcional e será validado novamente ao enviar o pedido.</p></div></details>
+  </div><aside class="checkout-card checkout-summary" id="checkoutResumo" aria-labelledby="tituloResumo"><div class="summary-heading"><div><small>SEU PEDIDO</small><h2 id="tituloResumo">Resumo</h2></div><span class="summary-badge">Revise antes de enviar</span></div><div class="summary-context" id="summaryContext" aria-live="polite">Conferindo restaurante e itens...</div><div id="listaResumo"></div><div class="summary-totals"><div class="linha"><span>Subtotal</span><strong id="subtotal">R$ 0,00</strong></div><div class="linha"><span>Taxa de entrega</span><strong id="taxa">R$ 0,00</strong></div><div class="linha discount"><span>Desconto</span><strong id="desconto">− R$ 0,00</strong></div><div class="linha total"><span>Total</span><strong id="total">R$ 0,00</strong></div></div><div class="summary-trust"><span aria-hidden="true">✓</span><p><strong>Compra protegida</strong><small>Confira os dados antes de confirmar.</small></p></div></aside></main>
+  <footer class="checkout-footer"><div class="checkout-footer-inner"><div class="footer-total"><span>Total do pedido</span><strong id="footerTotal">R$ 0,00</strong></div><div class="checkout-submit-copy"><p id="checkoutSubmitStatus" role="status">Revise o total e confirme quando estiver pronto.</p><small>Envio em um toque, com proteção contra pedido duplicado.</small></div><button id="finalizarPedido" type="button"><span id="finalizarPedidoTexto">Preparando checkout...</span><span aria-hidden="true">→</span></button></div></footer>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script><script defer src="../js/core/app-utils.js?v=4.4.6"></script><script defer src="../js/core/config.js?v=4.4.6"></script><script defer src="../js/core/supabase.js?v=4.2.0"></script><script defer src="../js/core/dialogs.js?v=4.2.0"></script><script defer src="../js/core/cart-store.js?v=4.2.0"></script><script defer src="../js/core/monitoring.js?v=4.2.0"></script><script defer src="../js/pages/checkout.js?v=4.4.6.1"></script><script defer src="../js/modules/checkout-4.2.3.js?v=4.2.4"></script><script defer src="../js/core/site-enhancements.js?v=4.4.6"></script>
+</body></html>
