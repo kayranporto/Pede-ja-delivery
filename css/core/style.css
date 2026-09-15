@@ -57,6 +57,57 @@ textarea {
 button {
     cursor: pointer;
 }
+
+/* Sistema visual compartilhado: superfícies leves, foco claro e ritmo de marketplace. */
+:root {
+    --delivery-red: #e51b2a;
+    --delivery-red-dark: #c91423;
+    --delivery-orange: #ff9f1c;
+    --delivery-ink: #171a21;
+    --delivery-muted: #687080;
+    --delivery-bg: #f6f7f9;
+    --delivery-surface: #ffffff;
+    --delivery-line: #e7e9ee;
+    --delivery-soft: #fff1f2;
+    --delivery-shadow: 0 18px 50px rgba(23, 26, 33, .08);
+}
+
+body:not(.home-page) {
+    background: var(--delivery-bg);
+    color: var(--delivery-ink);
+}
+
+body:not(.home-page) > header,
+body:not(.home-page) .header {
+    border-bottom-color: var(--delivery-line);
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 5px 22px rgba(23, 26, 33, .05);
+}
+
+body:not(.home-page) main > section,
+body:not(.home-page) main > .container,
+body:not(.home-page) .page-container {
+    width: min(calc(100% - 40px), var(--max-width));
+    margin-inline: auto;
+}
+
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 3px solid rgba(229, 27, 42, .32);
+    outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+    .container-header, .topbar-inner, .banner-content, .section-title, .cupom-box,
+    .categoria-lista, .restaurant-tools, .hero-stats, .steps-grid, .partner-content,
+    .footer-container { width: min(calc(100% - 20px), var(--max-width)); }
+    body:not(.home-page) main > section,
+    body:not(.home-page) main > .container,
+    body:not(.home-page) .page-container { width: min(calc(100% - 24px), var(--max-width)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
 .btn-primary img{width:30px;height:30px;object-fit:cover;border:2px solid rgba(255,255,255,.7);border-radius:50%}.btn-primary{display:inline-flex!important;align-items:center;gap:8px}
 
 body,
