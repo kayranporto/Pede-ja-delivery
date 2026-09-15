@@ -1,6 +1,6 @@
 "use strict";
 
-const VERSION = "4.4.6";
+const VERSION = "5.1.0";
 const CACHE = `multi-delivery-v${VERSION}`;
 const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}`;
 const SHELL = [
@@ -15,7 +15,8 @@ const SHELL = [
   "./assets/banner-padrao.svg",
   "./assets/banner1.svg",
   "./css/core/style.css?v=4.2.0",
-  "./css/pages/home-4.2.1.css?v=4.2.1.5",
+  "./css/pages/home-4.2.1.css?v=4.2.1.4",
+  "./css/pages/home-marketplace.css?v=1.0.0",
   "./css/core/paginas.css?v=4.2.0",
   "./css/core/accessibility.css?v=4.2.0",
   "./css/core/enhancements.css?v=4.4.6",
