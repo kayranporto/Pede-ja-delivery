@@ -46,13 +46,42 @@
             return Array.isArray(itensLegados) ? itensLegados.map(normalizarItem) : [];
         } catch { return []; }
     };
-    const meta = () => window.CartStore?.meta?.() || null;
-    const totalItem = (item) => (numero(item.preco) + (item.adicionais || [])
-        .reduce((soma, adicional) => soma + numero(adicional.preco), 0)) * item.quantidade;
-    const total = (itens = ler) => (Array.isArray(itens) ? itens : itens()).reduce((soma, item) => soma + totalItem(item), 0);
+    const meta = () => {
+        const dados = window.CartStore?.meta?.();
+        if (dados && typeof dados === "object") return dados;
+        try {
+            const legado = JSON.parse(localStorage.getItem("carrinhoMeta") || "null");
+            return legado && typeof legado === "object" ? legado : null;
+        } catch { return null; }
+    };
+    const salvar = (itens, dadosMeta = meta()) => {
+        const normalizados = (Array.isArray(itens) ? itens : []).map(normalizarItem);
+        if (window.CartStore?.salvar) {
+            window.CartStore.salvar(normalizados, dadosMeta);
+        } else {
+            localStorage.setItem("carrinho", JSON.stringify(normalizados));
+            if (dadosMeta) localStorage.setItem("carrinhoMeta", JSON.stringify(dadosMeta));
+            else localStorage.removeItem("carrinhoMeta");
+            window.dispatchEvent(new CustomEvent("carrinho-sincronizar"));
+        }
+        return normalizados;
+    };
+    const totalItem = (item) => {
+        const adicionais = (Array.isArray(item?.adicionais) ? item.adicionais : [])
+            .reduce((soma, adicional) => soma + numero(adicional?.preco), 0);
+        return (numero(item?.preco) + adicionais) * Math.max(1, numero(item?.quantidade, 1));
+    };
+    const total = (itens = ler) => {
+        const lista = Array.isArray(itens) ? itens : itens();
+        return lista.reduce((soma, item) => soma + totalItem(item), 0);
+    };
+    const encontrar = (identificador, itens = ler()) => {
+        const lista = Array.isArray(itens) ? itens : itens();
+        return lista.find((item) => String(item?.chave || chaveItem(item)) === String(identificador)) || null;
+    };
 
     window.CarrinhoUnificado = Object.freeze({
-        ler, meta, normalizarItem, chaveItem, totalItem, total,
+        ler, meta, salvar, normalizarItem, chaveItem, totalItem, total, encontrar,
         limiteQuantidade: MAX_QUANTIDADE, limiteObservacao: MAX_OBSERVACAO,
     });
     window.dispatchEvent(new CustomEvent("carrinho-unificado-pronto"));
