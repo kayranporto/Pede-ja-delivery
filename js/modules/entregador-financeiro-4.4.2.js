@@ -93,8 +93,7 @@
   }
 
   async function carregarResumo() {
-    const { data, error } = await window.db.rpc("entregador_meu_resumo_ganhos");
-    if (error) throw error;
+    const data = await window.DeliveryAPI.entregadorResumoGanhos();
     if (!data?.cadastrado) return false;
 
     document.getElementById("ganhosHoje").textContent = dinheiro(data.hoje_ganhos);
@@ -151,9 +150,7 @@
     if (botao) botao.disabled = true;
     const atual = offset;
     try {
-      const { data, error } = await window.db.rpc("entregador_meu_historico_ganhos", { p_limite: limite, p_offset: atual });
-      if (error) throw error;
-      const itens = Array.isArray(data) ? data : [];
+      const itens = await window.DeliveryAPI.entregadorHistoricoGanhos(limite, atual);
       renderHistorico(itens, atual > 0);
       offset += itens.length;
       if (botao) botao.hidden = itens.length < limite;
