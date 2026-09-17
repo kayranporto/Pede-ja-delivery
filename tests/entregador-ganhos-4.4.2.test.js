@@ -29,7 +29,7 @@ test("somente pedidos entregues entram no resumo e histórico", () => {
 test("histórico financeiro não consulta endereço ou telefone do cliente", () => {
   assert.doesNotMatch(entregadorJs, /cliente_telefone|endereco\b/i);
   assert.doesNotMatch(entregadorJs, /\.from\s*\(\s*["']pedidos["']\s*\)/i);
-  assert.match(entregadorJs, /entregador_meu_historico_ganhos/);
+  assert.match(entregadorJs, /DeliveryAPI\.entregadorHistoricoGanhos/);
 });
 
 test("RPC administrativa histórica permanece auditada na migration", () => {
