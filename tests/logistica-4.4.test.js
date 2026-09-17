@@ -72,8 +72,8 @@ test("entregador online atualiza posição e usa fila de proximidade", () => {
   const source = read("js/modules/entregador-logistica-4.4.js");
   const html = read("entregador.html");
   assert.match(html, /entregador-logistica-4\.4\.js/);
-  assert.match(source, /entregador_atualizar_posicao/);
-  assert.match(source, /listar_entregas_disponiveis_proximidade/);
+  assert.match(source, /atualizarLocalizacaoEntregador/);
+  assert.match(source, /entregasEntregador/);
   assert.match(source, /30000/);
   assert.match(source, /km até a coleta/);
 });
