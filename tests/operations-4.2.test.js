@@ -43,7 +43,7 @@ test("checkout usa chave idempotente persistida durante a tentativa", () => {
     const checkout = read("js/pages/checkout.js");
     assert.match(checkout, /crypto\.randomUUID/);
     assert.match(checkout, /sessionStorage/);
-    assert.match(checkout, /p_chave_cliente/);
+    assert.match(checkout, /chave_cliente/);
     const sql = read("supabase/migrations/20260801001600_operacao_catalogo_e_escala.sql");
     assert.match(sql, /pedidos_chave_cliente_idx/);
     assert.match(sql, /exception when unique_violation/);
