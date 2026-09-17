@@ -35,7 +35,7 @@ test("API expõe somente logística empresarial", () => {
     "/v1/entregador/pedidos",
     "/v1/entregador/entregas",
     "/v1/entregador/status",
-    "empresa/pedidos/",
+    "empresa\\/pedidos",
     "/v1/empresa/entregadores"
   ]) assert.ok(api.includes(trecho), `API sem ${trecho}`);
   assert.ok(openapi.paths["/v1/empresa/entregadores"]);
