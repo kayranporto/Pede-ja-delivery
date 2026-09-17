@@ -1,392 +1,375 @@
 "use strict";
 (() => {
-
-let carrinho = window.CartStore?.ler() || App.lerJSON("carrinho", []);
-let carrinhoMeta = window.CartStore?.meta() || App.lerJSON("carrinhoMeta", null);
-if (!carrinhoMeta || typeof carrinhoMeta !== "object" || Array.isArray(carrinhoMeta)) carrinhoMeta = null;
-
-const drawer = document.getElementById("carrinho");
-const overlay = document.getElementById("overlay");
-const fecharBtn = document.getElementById("fecharCarrinho");
-const listaItens = document.querySelector(".carrinho-itens");
-const subtotalElemento = document.getElementById("subtotal");
-const taxaElemento = document.getElementById("taxaEntrega");
-const totalElemento = document.getElementById("total");
-const contadorTopo = document.querySelector(".cart span");
-const cartButton = document.querySelector(".cart");
-const btnCheckout = document.getElementById("btnCheckout");
-const quantidadeResumo = document.getElementById("carrinhoQuantidadeResumo");
-const restauranteResumo = document.getElementById("carrinhoRestaurante");
-const minimoBloco = document.getElementById("carrinhoMinimo");
-const minimoTexto = document.getElementById("carrinhoMinimoTexto");
-const minimoValor = document.getElementById("carrinhoMinimoValor");
-const minimoBarra = minimoBloco?.querySelector(".carrinho-minimo-barra");
-const checkoutTexto = document.getElementById("btnCheckoutTexto");
-const checkoutTotal = document.getElementById("btnCheckoutTotal");
-const continuarComprando = document.getElementById("continuarComprando");
-const limparCarrinhoBtn = document.getElementById("limparCarrinhoBtn");
-let focoAnteriorCarrinho = null;
-
-function focaveisCarrinho() {
-    return [...(drawer?.querySelectorAll("button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])") || [])];
-}
-
-function normalizarCarrinho() {
-    carrinho = (Array.isArray(carrinho) ? carrinho : [])
-        .map((item) => {
-            const quantidade = Math.min(99, Math.max(1, Number.parseInt(item?.quantidade, 10) || 1));
-            const adicionais = (Array.isArray(item?.adicionais) ? item.adicionais : [])
-                .map((adicional) => ({
-                    id: String(adicional?.id || ""),
-                    nome: String(adicional?.nome || "Adicional"),
-                    preco: Number(adicional?.preco || 0)
-                }))
-                .filter((adicional) => adicional.id && Number.isFinite(adicional.preco) && adicional.preco >= 0);
-            const produto = {
-                id: String(item?.id || ""),
-                nome: String(item?.nome || "Produto").slice(0, 150),
-                imagem: String(item?.imagem || "../assets/produto-padrao.svg"),
-                preco: Number(item?.preco || 0),
-                variante_id: item?.variante_id ? String(item.variante_id) : null,
-                variante_nome: item?.variante_nome ? String(item.variante_nome).slice(0, 100) : null,
-                quantidade,
-                adicionais,
-                observacao: String(item?.observacao || "").trim().slice(0, 300),
-                empresa_id: item?.empresa_id ? String(item.empresa_id) : null
-            };
-            produto.chave = chaveProduto(produto);
-            return produto;
-        })
-        .filter((item) => item.id && Number.isFinite(item.preco) && item.preco >= 0);
-
-    if (!carrinho.length) carrinhoMeta = null;
-}
-
-function metaAtual() {
-    const valor = App.lerJSON("empresaAtual", null);
-    return valor && valor.empresa_id ? valor : null;
-}
-
-function salvarCarrinho() {
-    if (window.CartStore) window.CartStore.salvar(carrinho, carrinhoMeta);
-    else {
-        App.salvarJSON("carrinho", carrinho);
-        if (carrinhoMeta) App.salvarJSON("carrinhoMeta", carrinhoMeta);
-        else localStorage.removeItem("carrinhoMeta");
-    }
-}
-
-function avisarCarrinho(mensagem, tipo = "error") {
-    if (window.AppToast) window.AppToast("Carrinho", mensagem, tipo);
-    else alert(mensagem);
-}
-
-function abrirCarrinho() {
-    if (!drawer || !overlay) return;
-    drawer.classList.add("aberto");
-    overlay.classList.add("aberto");
-    focoAnteriorCarrinho = document.activeElement;
-    drawer.removeAttribute("inert");
-    drawer.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-    fecharBtn?.focus();
-}
-
-function fecharCarrinho() {
-    if (!drawer || !overlay) return;
-    drawer.classList.remove("aberto");
-    overlay.classList.remove("aberto");
-    drawer.setAttribute("aria-hidden", "true");
-    drawer.setAttribute("inert", "");
-    document.body.style.overflow = "";
-    (focoAnteriorCarrinho || cartButton)?.focus?.();
-}
-
-function chaveProduto(produto) {
-    const adicionais = (produto.adicionais || []).map((item) => String(item.id)).sort().join("-");
-    return `${produto.id}|${produto.variante_id || "sem-variante"}|${adicionais}|${produto.observacao || ""}`;
-}
-
-async function adicionarAoCarrinho(produto) {
-    const atual = metaAtual();
-    if (!atual) return avisarCarrinho("Não foi possível identificar o restaurante. Atualize a página e tente novamente.");
-    if (atual.status === false) return avisarCarrinho("Este restaurante está fechado e não está recebendo pedidos agora.");
-
-    const empresaDoCarrinho = carrinhoMeta?.empresa_id || carrinho[0]?.empresa_id;
-    if (carrinho.length && (!empresaDoCarrinho || String(empresaDoCarrinho) !== String(atual.empresa_id))) {
-        const nomeAnterior = carrinhoMeta?.empresa_nome || "outro restaurante";
-        const nomeAtual = atual.empresa_nome || "este restaurante";
-        const trocar = window.AppConfirm
-            ? await window.AppConfirm({ titulo: "Trocar de restaurante?", mensagem: `Seu carrinho contém itens de ${nomeAnterior}. Para pedir de ${nomeAtual}, os itens anteriores serão removidos.`, confirmar: "Trocar restaurante", perigoso: true })
-            : confirm(`Seu carrinho contém itens de ${nomeAnterior}. Deseja limpar o carrinho e pedir de ${nomeAtual}?`);
-        if (!trocar) return;
-        carrinho = [];
-    }
-
-    const quantidade = Math.min(99, Math.max(1, Number.parseInt(produto.quantidade, 10) || 1));
-    const itemNovo = {
-        id: String(produto.id || ""),
-        nome: String(produto.nome || "Produto").slice(0, 150),
-        imagem: String(produto.imagem || "../assets/produto-padrao.svg"),
-        preco: Number(produto.preco || 0),
-        variante_id: produto.variante_id ? String(produto.variante_id) : null,
-        variante_nome: produto.variante_nome ? String(produto.variante_nome).slice(0, 100) : null,
-        quantidade,
-        observacao: String(produto.observacao || "").trim().slice(0, 300),
-        adicionais: (Array.isArray(produto.adicionais) ? produto.adicionais : []).filter((adicional) =>
-            adicional?.id && Number.isFinite(Number(adicional.preco)) && Number(adicional.preco) >= 0
-        ),
-        empresa_id: String(atual.empresa_id)
+    const EventoCarrinho = globalThis.CustomEvent || function EventoCarrinho(type, init = {}) {
+        this.type = type;
+        this.detail = init && init.detail;
     };
-    if (!itemNovo.id || !Number.isFinite(itemNovo.preco) || itemNovo.preco < 0) {
-        avisarCarrinho("Este produto possui dados inválidos e não pôde ser adicionado.");
+
+    function adicionarAoCarrinho(produto) {
+        if (!produto || !produto.id) return null;
+
+        const metaEmpresa = App?.lerJSON?.("empresaAtual", null) || App?.lerJSON?.("carrinhoMeta", {}) || {};
+        const itensAtuais = App?.lerJSON?.("carrinho", []) || [];
+        const quantidade = Math.max(1, Number(produto.quantidade || 1));
+        const item = {
+            id: String(produto.id),
+            nome: produto.nome || "Produto",
+            imagem: produto.imagem || "../assets/produto-padrao.svg",
+            preco: Number(produto.preco || 0),
+            quantidade,
+            observacao: String(produto.observacao || "").trim().slice(0, 300),
+            variante_id: produto.variante_id ? String(produto.variante_id) : null,
+            variante_nome: produto.variante_nome || null,
+            adicionais: Array.isArray(produto.adicionais) ? produto.adicionais.map((adicional) => ({
+                id: String(adicional.id),
+                nome: adicional.nome || "Adicional",
+                preco: Number(adicional.preco || 0)
+            })) : [],
+            empresa_id: metaEmpresa?.empresa_id || metaEmpresa?.id || null,
+            empresa_nome: metaEmpresa?.empresa_nome || metaEmpresa?.nome || null,
+            chave: ""
+        };
+        item.chave = `${item.id}|${item.variante_id || "sem-variante"}|${(item.adicionais || []).map((adicional) => String(adicional.id)).sort().join("-")}|${item.observacao || ""}`;
+
+        const existe = itensAtuais.findIndex((it) => String(it.chave || `${it.id}|${it.variante_id || "sem-variante"}|${(it.adicionais || []).map((adicional) => String(adicional.id)).sort().join("-")}|${it.observacao || ""}`) === item.chave);
+        if (existe >= 0) {
+            itensAtuais[existe].quantidade = Math.min(99, Number(itensAtuais[existe].quantidade || 1) + quantidade);
+            itensAtuais[existe].observacao = item.observacao || itensAtuais[existe].observacao || "";
+            itensAtuais[existe].adicionais = item.adicionais.length ? item.adicionais : itensAtuais[existe].adicionais || [];
+            itensAtuais[existe].chave = `${itensAtuais[existe].id}|${itensAtuais[existe].variante_id || "sem-variante"}|${(itensAtuais[existe].adicionais || []).map((adicional) => String(adicional.id)).sort().join("-")}|${itensAtuais[existe].observacao || ""}`;
+        } else {
+            itensAtuais.push(item);
+        }
+
+        App?.salvarJSON?.("carrinho", itensAtuais);
+        if (metaEmpresa && typeof metaEmpresa === "object") App?.salvarJSON?.("carrinhoMeta", metaEmpresa);
+        window.dispatchEvent?.(new EventoCarrinho("carrinho-atualizado", { detail: { itens: itensAtuais, meta: metaEmpresa || null } }));
+        return itensAtuais;
+    }
+
+    const registrarApiGlobal = (nome, valor) => {
+        const anterior = typeof window[nome] === "function" ? window[nome] : null;
+        const final = typeof anterior === "function" && anterior !== valor
+            ? (...args) => {
+                try { anterior(...args); } catch (erro) { console.warn(`API global ${nome} anterior falhou:`, erro); }
+                try { return valor(...args); } catch (erro) { console.warn(`API global ${nome} atual falhou:`, erro); }
+                return undefined;
+            }
+            : valor;
+        try {
+            Object.defineProperty(window, nome, {
+                value: final,
+                configurable: true,
+                writable: true,
+                enumerable: false
+            });
+        } catch {
+            window[nome] = final;
+        }
+    };
+
+    window.__multiDeliveryCarrinhoConsolidado = true;
+
+    registrarApiGlobal("abrirCarrinho", () => {});
+    registrarApiGlobal("fecharCarrinho", () => {});
+    registrarApiGlobal("adicionarAoCarrinho", adicionarAoCarrinho);
+
+    const drawer = document.getElementById("carrinho");
+    const overlay = document.getElementById("overlay");
+    const fecharCarrinhoBtn = document.getElementById("fecharCarrinho");
+    const listaItens = document.querySelector(".carrinho-itens");
+    const resumoQuantidade = document.getElementById("carrinhoQuantidadeResumo");
+    const subtotalEl = document.getElementById("subtotal");
+    const taxaEntregaEl = document.getElementById("taxaEntrega");
+    const totalEl = document.getElementById("total");
+    const btnCheckout = document.getElementById("btnCheckout");
+    const btnCheckoutTexto = document.getElementById("btnCheckoutTexto");
+    const btnCheckoutTotal = document.getElementById("btnCheckoutTotal");
+    const carrinhoMinimo = document.getElementById("carrinhoMinimo");
+    const carrinhoMinimoTexto = document.getElementById("carrinhoMinimoTexto");
+    const carrinhoMinimoValor = document.getElementById("carrinhoMinimoValor");
+    const minimoBarra = document.querySelector(".carrinho-minimo-barra");
+    const continuarComprandoBtn = document.getElementById("continuarComprando");
+    const limparCarrinhoBtn = document.getElementById("limparCarrinhoBtn");
+
+    if (!drawer || !listaItens || !btnCheckout || !btnCheckoutTexto || !btnCheckoutTotal) {
         return;
     }
-    itemNovo.chave = chaveProduto(itemNovo);
-    carrinhoMeta = atual;
 
-    const existente = carrinho.find((item) => item.chave === itemNovo.chave);
-    if (existente) existente.quantidade = Math.min(99, existente.quantidade + quantidade);
-    else carrinho.push(itemNovo);
-
-    salvarCarrinho();
-    atualizarCarrinho();
-    abrirCarrinho();
-}
-
-function alterarQuantidade(chave, delta) {
-    const item = carrinho.find((produto) => produto.chave === chave);
-    if (!item) return;
-    item.quantidade = Math.min(99, item.quantidade + delta);
-    if (item.quantidade <= 0) carrinho = carrinho.filter((produto) => produto.chave !== chave);
-    if (!carrinho.length) carrinhoMeta = null;
-    salvarCarrinho();
-    atualizarCarrinho();
-}
-
-function remover(chave) {
-    carrinho = carrinho.filter((item) => item.chave !== chave);
-    if (!carrinho.length) carrinhoMeta = null;
-    salvarCarrinho();
-    atualizarCarrinho();
-}
-
-function limparCarrinho() {
-    carrinho = [];
-    carrinhoMeta = null;
-    salvarCarrinho();
-    atualizarCarrinho();
-}
-
-function valorUnitario(item) {
-    return Number(item.preco || 0) + (item.adicionais || []).reduce((soma, adicional) => soma + Number(adicional.preco || 0), 0);
-}
-
-function calcularSubtotal() {
-    return carrinho.reduce((total, item) => total + valorUnitario(item) * item.quantidade, 0);
-}
-
-function criarItem(item) {
-    const container = document.createElement("article");
-    container.className = "item-carrinho";
-    container.dataset.chave = item.chave;
-
-    const imagem = document.createElement("img");
-    imagem.src = item.imagem || "../assets/produto-padrao.svg";
-    imagem.alt = item.nome;
-    imagem.loading = "lazy";
-    imagem.addEventListener("error", () => { imagem.src = "../assets/produto-padrao.svg"; }, { once: true });
-
-    const info = document.createElement("div");
-    info.className = "info-item";
-    const tituloLinha = document.createElement("div");
-    tituloLinha.className = "item-carrinho-titulo";
-    const titulo = document.createElement("h4");
-    titulo.textContent = item.nome;
-    const valor = document.createElement("strong");
-    valor.className = "item-carrinho-total";
-    valor.textContent = App.dinheiro(valorUnitario(item) * item.quantidade);
-    tituloLinha.append(titulo, valor);
-    info.append(tituloLinha);
-
-    if (item.variante_nome) {
-        const variante = document.createElement("small");
-        variante.className = "adicionais";
-        variante.textContent = `Opção: ${item.variante_nome}`;
-        info.append(variante);
+    function dinheiro(valor) {
+        return App?.dinheiro?.(valor) || Number(valor || 0).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL"
+        });
     }
 
-    if (item.adicionais.length) {
-        const adicionais = document.createElement("small");
-        adicionais.className = "adicionais";
-        adicionais.textContent = `Adicionais: ${item.adicionais.map((adicional) => adicional.nome).filter(Boolean).join(", ")}`;
-        info.append(adicionais);
+    function chaveItem(item) {
+        const adicionais = (item.adicionais || []).map((adicional) => String(adicional.id)).sort().join("-");
+        return `${item.id}|${item.variante_id || "sem-variante"}|${adicionais}|${String(item.observacao || "")}`;
     }
 
-    if (item.observacao) {
-        const observacao = document.createElement("small");
-        observacao.className = "observacao";
-        observacao.textContent = `Obs: ${item.observacao}`;
-        info.append(observacao);
+    function precoItem(item) {
+        const base = Number(item.preco || 0);
+        const adicionais = Array.isArray(item.adicionais)
+            ? item.adicionais.reduce((soma, adicional) => soma + Number(adicional.preco || 0), 0)
+            : 0;
+        return Number((base + adicionais).toFixed(2));
     }
 
-    const unitario = document.createElement("small");
-    unitario.className = "item-carrinho-unitario";
-    unitario.textContent = `${App.dinheiro(valorUnitario(item))} por unidade`;
-    info.append(unitario);
-
-    const quantidade = document.createElement("div");
-    quantidade.className = "quantidade";
-    const menos = document.createElement("button");
-    menos.type = "button";
-    menos.dataset.action = "menos";
-    menos.textContent = "−";
-    menos.disabled = item.quantidade <= 1;
-    menos.setAttribute("aria-label", `Diminuir ${item.nome}`);
-    const numero = document.createElement("span");
-    numero.className = "quantidade-valor";
-    numero.textContent = String(item.quantidade);
-    numero.setAttribute("aria-live", "polite");
-    numero.setAttribute("role", "spinbutton");
-    numero.setAttribute("aria-label", `Quantidade de ${item.nome}`);
-    numero.setAttribute("aria-valuemin", "1");
-    numero.setAttribute("aria-valuemax", "99");
-    numero.setAttribute("aria-valuenow", String(item.quantidade));
-    const mais = document.createElement("button");
-    mais.type = "button";
-    mais.dataset.action = "mais";
-    mais.textContent = "+";
-    mais.disabled = item.quantidade >= 99;
-    mais.setAttribute("aria-label", `Aumentar ${item.nome}`);
-    const excluir = document.createElement("button");
-    excluir.type = "button";
-    excluir.className = "remover-item";
-    excluir.dataset.action = "remover";
-    excluir.textContent = "Remover";
-    excluir.setAttribute("aria-label", `Remover ${item.nome}`);
-    quantidade.append(menos, numero, mais, excluir);
-
-    info.append(quantidade);
-    container.append(imagem, info);
-    return container;
-}
-
-function atualizarCarrinho() {
-    if (!listaItens) return;
-    listaItens.replaceChildren();
-
-    if (!carrinho.length) {
-        const vazio = document.createElement("div");
-        vazio.className = "carrinho-vazio";
-        const titulo = document.createElement("h3");
-        titulo.textContent = "Seu carrinho está vazio.";
-        const texto = document.createElement("p");
-        texto.textContent = "Escolha seus favoritos no cardápio para começar o pedido.";
-        const explorar = document.createElement("button");
-        explorar.type = "button";
-        explorar.dataset.action = "continuar";
-        explorar.textContent = "Explorar cardápio";
-        vazio.append(titulo, texto, explorar);
-        listaItens.append(vazio);
-    } else {
-        carrinho.forEach((item) => listaItens.append(criarItem(item)));
+    function lerCarrinho() {
+        if (window.CartStore?.ler) return window.CartStore.ler();
+        return App?.lerJSON?.("carrinho", []) || [];
     }
 
-    const subtotal = calcularSubtotal();
-    const taxa = carrinho.length ? Number(carrinhoMeta?.taxa_entrega || 0) : 0;
-    const total = subtotal + taxa;
-    const quantidadeTotal = carrinho.reduce((soma, item) => soma + item.quantidade, 0);
-    const minimo = Number(carrinhoMeta?.pedido_minimo || 0);
-    if (subtotalElemento) subtotalElemento.textContent = App.dinheiro(subtotal);
-    if (taxaElemento) taxaElemento.textContent = carrinho.length && taxa === 0 ? "Grátis" : App.dinheiro(taxa);
-    if (totalElemento) totalElemento.textContent = App.dinheiro(total);
-    if (contadorTopo) contadorTopo.textContent = String(quantidadeTotal);
-    if (quantidadeResumo) quantidadeResumo.textContent = `${quantidadeTotal} ${quantidadeTotal === 1 ? "item" : "itens"}`;
-    if (restauranteResumo) restauranteResumo.textContent = carrinhoMeta?.empresa_nome || "Revise os itens antes de continuar";
-    if (checkoutTexto) checkoutTexto.textContent = "Ir para o checkout";
-    if (checkoutTotal) checkoutTotal.textContent = App.dinheiro(total);
-    if (cartButton) cartButton.setAttribute("aria-label", quantidadeTotal ? `Abrir carrinho, ${quantidadeTotal} ${quantidadeTotal === 1 ? "item" : "itens"}` : "Abrir carrinho vazio");
-    drawer?.classList.toggle("carrinho-sem-itens", !carrinho.length);
-    if (limparCarrinhoBtn) limparCarrinhoBtn.hidden = !carrinho.length;
-    if (minimoBloco) {
-        minimoBloco.hidden = !carrinho.length || minimo <= 0;
-        if (carrinho.length && minimo > 0) {
-            const falta = Math.max(0, minimo - subtotal);
-            const progresso = Math.min(100, Math.round((subtotal / minimo) * 100));
-            minimoTexto.textContent = falta > 0 ? "Falta para o pedido mínimo" : "Pedido mínimo atingido";
-            minimoValor.textContent = falta > 0 ? App.dinheiro(falta) : "Tudo certo";
-            minimoBarra?.setAttribute("aria-valuenow", String(progresso));
-            minimoBarra?.classList.toggle("concluido", falta === 0);
-            minimoBarra?.querySelector("span")?.style.setProperty("width", `${progresso}%`);
+    function lerMeta() {
+        if (window.CartStore?.meta) return window.CartStore.meta();
+        return App?.lerJSON?.("carrinhoMeta", {}) || {};
+    }
+
+    function salvarCarrinho(itens, meta) {
+        if (window.CartStore?.salvar) {
+            window.CartStore.salvar(itens, meta || null);
+            return;
+        }
+        App?.salvarJSON?.("carrinho", itens);
+        if (meta) App?.salvarJSON?.("carrinhoMeta", meta);
+        else localStorage.removeItem("carrinhoMeta");
+        window.dispatchEvent?.(new EventoCarrinho("carrinho-atualizado", { detail: { itens: itens || [], meta: meta || null } }));
+    }
+
+    function abrirCarrinho() {
+        drawer.classList.add("aberto");
+        overlay?.classList.add("aberto");
+        drawer.setAttribute("aria-hidden", "false");
+        drawer.removeAttribute("inert");
+    }
+
+    function fecharCarrinho() {
+        drawer.classList.remove("aberto");
+        overlay?.classList.remove("aberto");
+        drawer.setAttribute("aria-hidden", "true");
+        drawer.setAttribute("inert", "");
+    }
+
+    function adicionarAoCarrinho(produto) {
+        if (!produto || !produto.id) return null;
+
+        const metaEmpresa = App?.lerJSON?.("empresaAtual", null) || lerMeta();
+        const itensAtuais = lerCarrinho();
+        const quantidade = Math.max(1, Number(produto.quantidade || 1));
+        const item = {
+            id: String(produto.id),
+            nome: produto.nome || "Produto",
+            imagem: produto.imagem || "../assets/produto-padrao.svg",
+            preco: Number(produto.preco || 0),
+            quantidade,
+            observacao: String(produto.observacao || "").trim().slice(0, 300),
+            variante_id: produto.variante_id ? String(produto.variante_id) : null,
+            variante_nome: produto.variante_nome || null,
+            adicionais: Array.isArray(produto.adicionais) ? produto.adicionais.map((adicional) => ({
+                id: String(adicional.id),
+                nome: adicional.nome || "Adicional",
+                preco: Number(adicional.preco || 0)
+            })) : [],
+            empresa_id: metaEmpresa?.empresa_id || metaEmpresa?.id || null,
+            empresa_nome: metaEmpresa?.empresa_nome || metaEmpresa?.nome || null,
+            chave: ""
+        };
+        item.chave = chaveItem(item);
+
+        const existe = itensAtuais.findIndex((it) => String(it.chave || chaveItem(it)) === item.chave);
+        if (existe >= 0) {
+            itensAtuais[existe].quantidade = Math.min(99, Number(itensAtuais[existe].quantidade || 1) + quantidade);
+            itensAtuais[existe].observacao = item.observacao || itensAtuais[existe].observacao || "";
+            itensAtuais[existe].adicionais = item.adicionais.length ? item.adicionais : itensAtuais[existe].adicionais || [];
+            itensAtuais[existe].chave = chaveItem(itensAtuais[existe]);
+        } else {
+            itensAtuais.push(item);
+        }
+
+        const metaFinal = metaEmpresa && typeof metaEmpresa === "object" ? metaEmpresa : { empresa_id: null };
+        salvarCarrinho(itensAtuais, metaFinal);
+        window.dispatchEvent?.(new CustomEvent("carrinho-atualizado", { detail: { itens: itensAtuais, meta: metaFinal } }));
+        return itensAtuais;
+    }
+
+    function atualizarQuantidadeCarrinho(itemChave, delta) {
+        const itens = lerCarrinho();
+        const indice = itens.findIndex((item) => String(item.chave || chaveItem(item)) === String(itemChave));
+        if (indice < 0) return;
+        const item = itens[indice];
+        const novaQuantidade = Math.max(1, Number(item.quantidade || 1) + delta);
+        item.quantidade = novaQuantidade;
+        item.chave = chaveItem(item);
+        salvarCarrinho(itens, lerMeta());
+    }
+
+    function removerItem(itemChave) {
+        const itens = lerCarrinho().filter((item) => String(item.chave || chaveItem(item)) !== String(itemChave));
+        salvarCarrinho(itens, lerMeta());
+    }
+
+    function renderizarItens() {
+        const itens = lerCarrinho();
+        const meta = lerMeta() || {};
+        const quantidadeTotal = itens.reduce((total, item) => total + Number(item.quantidade || 1), 0);
+        const subtotal = itens.reduce((total, item) => total + precoItem(item) * Number(item.quantidade || 1), 0);
+        const taxaEntrega = Number(meta.taxa_entrega || 0);
+        const pedidoMinimo = Number(meta.pedido_minimo || 0);
+        const total = subtotal + taxaEntrega;
+
+        if (resumoQuantidade) {
+            const plural = quantidadeTotal === 1 ? "item" : "itens";
+            resumoQuantidade.textContent = `${quantidadeTotal} ${plural}`;
+        }
+
+        listaItens.replaceChildren();
+        if (!itens.length) {
+            const vazio = document.createElement("div");
+            vazio.className = "carrinho-vazio";
+            vazio.innerHTML = "<p>Seu carrinho está vazio.</p><button type=\"button\" class=\"btn-secundario\">Explorar cardápio</button>";
+            const botao = vazio.querySelector("button");
+            botao?.addEventListener("click", fecharCarrinho);
+            listaItens.append(vazio);
+            subtotalEl.textContent = dinheiro(0);
+            taxaEntregaEl.textContent = dinheiro(0);
+            totalEl.textContent = dinheiro(0);
+            btnCheckoutTexto.textContent = "Ir para o checkout";
+            btnCheckoutTotal.textContent = dinheiro(0);
+            btnCheckout.disabled = true;
+            if (carrinhoMinimo) carrinhoMinimo.hidden = true;
+            return;
+        }
+
+        itens.forEach((item) => {
+            const card = document.createElement("div");
+            card.className = "item-carrinho";
+            card.dataset.chave = String(item.chave || chaveItem(item));
+
+            const imagem = document.createElement("img");
+            imagem.src = item.imagem || "../assets/produto-padrao.svg";
+            imagem.alt = item.nome || "Produto";
+            imagem.loading = "lazy";
+            imagem.decoding = "async";
+            imagem.onerror = () => { imagem.src = "../assets/produto-padrao.svg"; };
+
+            const conteudo = document.createElement("div");
+            conteudo.className = "info-item";
+
+            const titulo = document.createElement("h4");
+            titulo.textContent = item.nome || "Produto";
+
+            const detalhes = document.createElement("p");
+            const descricao = [];
+            if (item.variante_nome) descricao.push(item.variante_nome);
+            if (Array.isArray(item.adicionais) && item.adicionais.length) {
+                descricao.push(item.adicionais.map((adicional) => adicional.nome || "Adicional").join(", "));
+            }
+            detalhes.textContent = descricao.length ? descricao.join(" • ") : `${dinheiro(precoItem(item))} por unidade`;
+
+            const valor = document.createElement("strong");
+            valor.textContent = dinheiro(precoItem(item) * Number(item.quantidade || 1));
+
+            const controles = document.createElement("div");
+            controles.className = "quantidade";
+
+            const menos = document.createElement("button");
+            menos.type = "button";
+            menos.setAttribute("aria-label", "Diminuir quantidade");
+            menos.textContent = "−";
+            menos.addEventListener("click", () => atualizarQuantidadeCarrinho(card.dataset.chave, -1));
+
+            const quantidade = document.createElement("span");
+            quantidade.textContent = String(item.quantidade || 1);
+
+            const mais = document.createElement("button");
+            mais.type = "button";
+            mais.setAttribute("aria-label", "Aumentar quantidade");
+            mais.textContent = "+";
+            mais.addEventListener("click", () => atualizarQuantidadeCarrinho(card.dataset.chave, 1));
+
+            const remover = document.createElement("button");
+            remover.type = "button";
+            remover.textContent = "Remover";
+            remover.className = "remover-item";
+            remover.addEventListener("click", () => removerItem(card.dataset.chave));
+
+            controles.append(menos, quantidade, mais);
+            conteudo.append(titulo, detalhes, valor, controles, remover);
+            card.append(imagem, conteudo);
+            listaItens.append(card);
+        });
+
+        subtotalEl.textContent = dinheiro(subtotal);
+        taxaEntregaEl.textContent = dinheiro(taxaEntrega);
+        totalEl.textContent = dinheiro(total);
+        btnCheckoutTotal.textContent = dinheiro(total);
+
+        if (carrinhoMinimo) {
+            carrinhoMinimo.hidden = false;
+            const progresso = pedidoMinimo > 0 ? Math.min(100, Math.max(0, (subtotal / pedidoMinimo) * 100)) : 100;
+            if (minimoBarra) {
+                const fill = minimoBarra.querySelector("span");
+                if (fill) fill.style.width = `${progresso}%`;
+                minimoBarra.setAttribute("aria-valuenow", String(Math.round(progresso)));
+            }
+
+            if (pedidoMinimo > 0 && subtotal < pedidoMinimo) {
+                carrinhoMinimoTexto.textContent = "Falta para o pedido mínimo";
+                carrinhoMinimoValor.textContent = dinheiro(pedidoMinimo - subtotal);
+                btnCheckoutTexto.textContent = "Falta para o pedido mínimo";
+                btnCheckout.disabled = true;
+            } else {
+                carrinhoMinimoTexto.textContent = "Pedido mínimo atingido";
+                carrinhoMinimoValor.textContent = dinheiro(Math.max(pedidoMinimo, 0));
+                btnCheckoutTexto.textContent = "Ir para o checkout";
+                btnCheckout.disabled = false;
+            }
+        }
+        if (pedidoMinimo <= 0) {
+            if (carrinhoMinimo) carrinhoMinimo.hidden = true;
+            btnCheckoutTexto.textContent = "Ir para o checkout";
+            btnCheckout.disabled = false;
         }
     }
-    if (btnCheckout) btnCheckout.disabled = !carrinho.length;
-}
 
-listaItens?.addEventListener("click", (event) => {
-    const acaoGeral = event.target.closest("button")?.dataset.action;
-    if (acaoGeral === "continuar") {
-        fecharCarrinho();
-        document.getElementById("pesquisaProduto")?.focus();
-        return;
+    function limparCarrinho() {
+        salvarCarrinho([], lerMeta());
     }
-    const item = event.target.closest(".item-carrinho");
-    const acao = acaoGeral;
-    if (!item || !acao) return;
-    if (acao === "mais") alterarQuantidade(item.dataset.chave, 1);
-    if (acao === "menos") alterarQuantidade(item.dataset.chave, -1);
-    if (acao === "remover") remover(item.dataset.chave);
-});
 
-cartButton?.addEventListener("click", abrirCarrinho);
-cartButton?.setAttribute("aria-label", "Abrir carrinho");
-fecharBtn?.addEventListener("click", fecharCarrinho);
-overlay?.addEventListener("click", fecharCarrinho);
-continuarComprando?.addEventListener("click", () => {
-    fecharCarrinho();
-    document.getElementById("pesquisaProduto")?.focus();
-});
-limparCarrinhoBtn?.addEventListener("click", async () => {
-    const confirmar = window.AppConfirm
-        ? await window.AppConfirm({ titulo: "Limpar carrinho?", mensagem: "Todos os itens deste pedido serão removidos.", confirmar: "Limpar carrinho", cancelar: "Manter itens", perigoso: true })
-        : confirm("Deseja remover todos os itens do carrinho?");
-    if (confirmar) limparCarrinho();
-});
-document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && drawer?.classList.contains("aberto")) fecharCarrinho();
-    if (event.key === "Tab" && drawer?.classList.contains("aberto")) {
-        const elementos = focaveisCarrinho();
-        if (!elementos.length) return;
-        const primeiro = elementos[0];
-        const ultimo = elementos[elementos.length - 1];
-        if (event.shiftKey && document.activeElement === primeiro) {
-            event.preventDefault();
-            ultimo.focus();
-        } else if (!event.shiftKey && document.activeElement === ultimo) {
-            event.preventDefault();
-            primeiro.focus();
+    btnCheckout.addEventListener("click", (event) => {
+        event.preventDefault();
+        const itens = lerCarrinho();
+        const meta = lerMeta();
+        const subtotal = itens.reduce((total, item) => total + precoItem(item) * Number(item.quantidade || 1), 0);
+        const pedidoMinimo = Number(meta.pedido_minimo || 0);
+
+        if (!itens.length) {
+            window.AppToast?.("Carrinho", "Seu carrinho está vazio.", "info");
+            return;
         }
-    }
-});
 
-btnCheckout?.addEventListener("click", () => {
-    const subtotal = calcularSubtotal();
-    const minimo = Number(carrinhoMeta?.pedido_minimo || 0);
-    if (!carrinho.length) return avisarCarrinho("Seu carrinho está vazio.", "info");
-    if (subtotal < minimo) return avisarCarrinho(`O pedido mínimo deste restaurante é ${App.dinheiro(minimo)}.`);
-    window.location.href = "checkout.html";
-});
+        if (pedidoMinimo > 0 && subtotal < pedidoMinimo) {
+            window.AppToast?.("Carrinho", `Falta para o pedido mínimo: ${dinheiro(pedidoMinimo - subtotal)}.`, "error");
+            return;
+        }
 
-normalizarCarrinho();
-salvarCarrinho();
-window.addEventListener("empresa-carregada", atualizarCarrinho);
-window.addEventListener("carrinho-sincronizar", () => {
-    carrinho = window.CartStore?.ler() || [];
-    carrinhoMeta = window.CartStore?.meta() || null;
-    normalizarCarrinho(); atualizarCarrinho();
-});
-window.abrirCarrinho = abrirCarrinho;
-window.adicionarAoCarrinho = adicionarAoCarrinho;
-window.limparCarrinho = limparCarrinho;
-atualizarCarrinho();
+        if (window.location.pathname.endsWith("restaurante.html")) {
+            window.location.href = "checkout.html";
+            return;
+        }
+
+        window.location.href = "../html/checkout.html";
+    });
+
+    continuarComprandoBtn?.addEventListener("click", fecharCarrinho);
+    limparCarrinhoBtn?.addEventListener("click", limparCarrinho);
+    fecharCarrinhoBtn?.addEventListener("click", fecharCarrinho);
+    overlay?.addEventListener("click", fecharCarrinho);
+    document.addEventListener("carrinho-atualizado", renderizarItens);
+    window.addEventListener("carrinho-sincronizar", renderizarItens);
+    registrarApiGlobal("abrirCarrinho", abrirCarrinho);
+    registrarApiGlobal("fecharCarrinho", fecharCarrinho);
+    registrarApiGlobal("adicionarAoCarrinho", adicionarAoCarrinho);
+    renderizarItens();
 })();

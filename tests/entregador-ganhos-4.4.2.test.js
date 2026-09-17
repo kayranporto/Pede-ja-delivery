@@ -32,11 +32,18 @@ test("histórico financeiro não consulta endereço ou telefone do cliente", () 
   assert.match(entregadorJs, /entregador_meu_historico_ganhos/);
 });
 
-test("tarifa é configurada por RPC administrativo auditado", () => {
+test("RPC administrativa histórica permanece auditada na migration", () => {
   assert.match(migration, /admin_definir_valor_entregador/);
   assert.match(migration, /private\.is_admin\(\)/);
   assert.match(migration, /entregador_valor_por_entrega/);
-  assert.match(adminJs, /admin_definir_valor_entregador/);
+});
+
+test("admin não expõe mais operação global de entregadores", () => {
+  assert.match(adminJs, /A operação de entrega deixou de ser uma frota global/);
+  assert.match(adminJs, /empresa_entregadores/);
+  assert.match(adminJs, /getElementById\("entregadores"\)/);
+  assert.match(adminJs, /secao\?\.remove\(\)/);
+  assert.doesNotMatch(adminJs, /admin_definir_valor_entregador/);
   assert.doesNotMatch(adminJs, /\.update\s*\(/);
 });
 

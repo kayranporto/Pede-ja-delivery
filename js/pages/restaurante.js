@@ -193,22 +193,29 @@ async function carregarProdutos() {
 
     if (error) throw new Error(error.message);
     produtos = Array.isArray(data) ? data : [];
+
     const ids = produtos.map((produto) => String(produto.id));
     if (ids.length) {
-        const { data: variantes, error: erroVariantes } = await window.db.from("produto_variantes")
-            .select("id,produto_id,nome,preco,promocao,ordem")
-            .in("produto_id", ids)
-            .eq("ativo", true)
-            .order("ordem");
-        if (erroVariantes) throw new Error(erroVariantes.message);
-        const porProduto = new Map();
-        (variantes || []).forEach((variante) => {
-            const chave = String(variante.produto_id);
-            if (!porProduto.has(chave)) porProduto.set(chave, []);
-            porProduto.get(chave).push(variante);
-        });
-        produtos = produtos.map((produto) => ({ ...produto, variantes: porProduto.get(String(produto.id)) || [] }));
+        try {
+            const { data: variantes, error: erroVariantes } = await window.db.from("produto_variantes")
+                .select("id,produto_id,nome,preco,promocao,ordem")
+                .in("produto_id", ids)
+                .eq("ativo", true)
+                .order("ordem");
+            if (erroVariantes) throw erroVariantes;
+            const porProduto = new Map();
+            (variantes || []).forEach((variante) => {
+                const chave = String(variante.produto_id);
+                if (!porProduto.has(chave)) porProduto.set(chave, []);
+                porProduto.get(chave).push(variante);
+            });
+            produtos = produtos.map((produto) => ({ ...produto, variantes: porProduto.get(String(produto.id)) || [] }));
+        } catch (errorVariantes) {
+            console.warn("Variantes do catálogo indisponíveis; exibindo produtos sem variantes.", errorVariantes);
+            produtos = produtos.map((produto) => ({ ...produto, variantes: [] }));
+        }
     }
+
     renderizarProdutos(produtos);
 }
 

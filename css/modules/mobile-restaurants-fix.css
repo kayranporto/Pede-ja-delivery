@@ -1,0 +1,25 @@
+/* Correção de visibilidade da home em dispositivos móveis.
+   Evita que a animação de entrada mantenha as seções invisíveis quando
+   o IntersectionObserver não dispara corretamente. */
+@media (max-width: 768px), (pointer: coarse) {
+  .home-page .categorias,
+  .home-page .restaurantes,
+  .home-page .destaques,
+  .home-page .beneficios,
+  .home-page .cupom {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+  }
+
+  .home-page #listaRestaurantes {
+    min-height: 120px;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .home-page #listaRestaurantes .card {
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}

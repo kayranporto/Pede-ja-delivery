@@ -11,15 +11,15 @@ const read = (file) => {
   return fs.readFileSync(fs.existsSync(direct) ? direct : path.join(root, "html", file), "utf8");
 };
 
-test("painel do entregador esconde estados marcados como hidden", () => {
-  const css = read("css/core/enhancements.css");
-  for (const seletor of [
-    ".driver-loading[hidden]",
-    ".pending-card[hidden]",
-    "#entregadorApp[hidden]",
-    "#cadastroEntregador[hidden]"
-  ]) assert.ok(css.includes(seletor), `faltou proteção para ${seletor}`);
-  assert.match(css, /driver-loading\[hidden\][\s\S]*display:none!important/);
+test("painel do entregador mantém estados hidden no HTML", () => {
+  const html = read("entregador.html");
+  assert.match(html, /class="driver-loading" id="entregadorLoading"/);
+  for (const selector of [
+    /class="pending-card" id="entregadorPendente"[^>]*\bhidden\b/,
+    /id="entregadorApp"[^>]*\bhidden\b/,
+    /id="cadastroEntregador"[^>]*\bhidden\b/
+  ]) assert.match(html, selector);
+  assert.match(read("js/pages/entregador.js"), /\.hidden\s*=\s*(true|false)/);
 });
 
 test("fluxo do entregador encerra o loading antes de decidir o estado da conta", () => {
