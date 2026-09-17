@@ -184,7 +184,8 @@ async function solicitarCancelamento(pedido, botao) {
     const motivo = await pedirMotivoCancelamento(pedido);
     if (!motivo) return;
     App.definirCarregando(botao, true, "Enviando...");
-    const { error } = await db.rpc("cliente_solicitar_cancelamento", { p_pedido_id: pedido.id, p_motivo: motivo });
+    let error = null;
+    try { await window.DeliveryAPI.request(`/v1/pedidos/${encodeURIComponent(String(pedido.id))}/cancelar`, { method: "POST", body: JSON.stringify({ motivo }) }); } catch (erro) { error = erro; }
     App.definirCarregando(botao, false);
     if (error) {
         window.AppToast?.("Não foi possível solicitar", App.mensagemErro(error), "error");
@@ -219,22 +220,14 @@ function renderizar() {
 }
 
 async function buscarPedidos() {
-    const { data, error } = await db.from("pedidos")
-        .select("*, pedido_itens(*)")
-        .eq("usuario_id", usuarioAtual.id)
-        .order("created_at", { ascending: false });
-    if (error) throw error;
-    pedidos = Array.isArray(data) ? data : [];
-
+    pedidos = await window.DeliveryAPI.meusPedidos();
     const ids = pedidos.map((pedido) => pedido.id).filter(Boolean);
     avaliacoes = new Map();
     if (ids.length) {
-        const { data: notas, error: erroNotas } = await db.from("avaliacoes")
-            .select("id,pedido_id,nota")
-            .eq("usuario_id", usuarioAtual.id)
-            .in("pedido_id", ids);
-        if (erroNotas) console.warn("Não foi possível carregar as avaliações:", erroNotas);
-        else avaliacoes = new Map((notas || []).map((avaliacao) => [String(avaliacao.pedido_id), avaliacao]));
+        const notas = await Promise.all(ids.map(async (id) => {
+            try { return await window.DeliveryAPI.minhasAvaliacao(id); } catch { return null; }
+        }));
+        avaliacoes = new Map(notas.filter(Boolean).map((avaliacao) => [String(avaliacao.pedido_id || ""), avaliacao]));
     }
     renderizar();
 }
