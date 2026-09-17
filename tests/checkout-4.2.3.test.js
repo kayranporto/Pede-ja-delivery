@@ -30,10 +30,10 @@ test("checkout 4.2.3 mantém idempotência no envio e adiciona bloqueio visual",
 
 test("checkout 4.2.3 preserva as regras do fluxo existente", () => {
     const core = ler("js/pages/checkout.js");
-    assert.match(core, /calcular_entrega_empresa/);
-    assert.match(core, /criar_pedido_operacional/);
-    assert.match(core, /pedido_definir_pagamento_online/);
-    assert.match(core, /functions\.invoke\("criar-pagamento"/);
+    assert.match(core, /DeliveryAPI\.calcularEntrega\(/);
+    assert.match(core, /DeliveryAPI\.criarPedido\(/);
+    assert.match(core, /DeliveryAPI\.request\("\/v1\/pagamentos\/criar"/);
+    assert.match(core, /pagamentoOnlineAtivo/);
 });
 
 test("checkout rápido recolhe opcionais e reaproveita preferências", () => {
