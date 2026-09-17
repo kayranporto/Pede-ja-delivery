@@ -21,7 +21,7 @@ test("scripts externos não bloqueiam a renderização das páginas", () => {
 
 test("home inicia conteúdo em paralelo e evita consultas de sessão duplicadas", () => {
     const home = read("js/pages/home.js");
-    assert.match(home, /Promise\.all\(\[\s*window\.db[\s\S]*carregarResumoAvaliacoes\(\)/);
+    assert.match(home, /Promise\.all\(\[\s*window\.DeliveryAPI\.restaurantes\([\s\S]*carregarResumoAvaliacoes\(\)/);
     assert.match(home, /Promise\.allSettled\(\[carregarEmpresas\(\), carregarDestaques\(\)\]\)/);
     assert.equal((home.match(/auth\.getUser\(\)/g) || []).length, 1);
     assert.match(read("js/core/favorites-sync.js"), /ready: async \(usuarioInicial = undefined\)/);
