@@ -325,9 +325,10 @@ async function aplicarCupom() {
     }
 
     if (!cupomDados) return avisarCheckout("Cupom inválido, expirado ou indisponível para este restaurante.", "error", "Cupom");
-    if (calcularSubtotal() < Number(cupomDados.pedido_minimo || 0)) {
+    const cupomMinimo = Number(cupomDados.pedido_minimo || 0);
+    if (calcularSubtotal() < cupomMinimo) {
         cupomDados = null;
-        return avisarCheckout(`Este cupom exige pedido mínimo de ${App.dinheiro(cupomDados?.pedido_minimo || 0)}.`, "info", "Cupom");
+        return avisarCheckout(`Este cupom exige pedido mínimo de ${App.dinheiro(cupomMinimo)}.`, "info", "Cupom");
     }
 
     cupomAplicado = cupom;
