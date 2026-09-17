@@ -249,45 +249,16 @@ function idsValidosParaConsulta(ids) {
 async function sincronizarValores() {
     if (!carrinho.length || !carrinhoMeta?.empresa_id) return false;
     const antes = snapshotValores();
-    const produtoIds = [...new Set(carrinho.map((item) => String(item.id)).filter(Boolean))];
-    const produtoIdsValidos = idsValidosParaConsulta(produtoIds);
-    const adicionalIds = [...new Set(carrinho.flatMap((item) => (item.adicionais || []).map((adicional) => String(adicional.id))).filter(Boolean))];
+    const cardapio = await window.DeliveryAPI.cardapio(carrinhoMeta.empresa_id);
+    const empresa = cardapio?.restaurante;
+    if (!empresa) throw new Error("O restaurante não está publicado ou não foi encontrado.");
 
-    carrinho.forEach((item) => {
-        if (!item || !item.id) {
-            item.indisponivel = true;
-            return;
-        }
-        const id = String(item.id).trim();
-        if (!produtoIdsValidos.includes(id)) item.indisponivel = true;
+    const produtosServidor = new Map((cardapio?.produtos || []).map((produto) => [String(produto.id), produto]));
+    const adicionaisServidor = new Map();
+    (cardapio?.grupos_adicionais || []).forEach((grupo) => {
+        (grupo.adicionais || []).forEach((adicional) => adicionaisServidor.set(String(adicional.id), adicional));
     });
 
-    if (!produtoIdsValidos.length) {
-        renderizarResumo();
-        return false;
-    }
-
-    const [empresaResposta, produtosResposta, adicionaisResposta, variantesResposta] = await Promise.all([
-        window.db.from("empresas_catalogo")
-            .select("id,nome,taxa_entrega,pedido_minimo,status,cidade_atendimento,uf_atendimento,bairros_atendidos,tempo_estimado_min,tempo_estimado_max")
-            .eq("id", String(carrinhoMeta.empresa_id))
-            .maybeSingle(),
-        window.db.from("produtos")
-            .select("id,nome,imagem,preco,promocao,disponivel")
-            .in("id", produtoIdsValidos),
-        adicionalIds.length
-            ? window.db.from("adicionais").select("id,nome,preco,ativo").in("id", adicionalIds.filter((id) => /^\d+$/.test(id) || /^[0-9a-fA-F-]{36}$/.test(id)))
-            : Promise.resolve({ data: [], error: null }),
-        window.db.from("produto_variantes").select("id,produto_id,nome,preco,promocao,ativo").in("produto_id", produtoIdsValidos).eq("ativo", true)
-    ]);
-
-    if (empresaResposta.error) throw empresaResposta.error;
-    if (produtosResposta.error) throw produtosResposta.error;
-    if (adicionaisResposta.error) throw adicionaisResposta.error;
-    if (variantesResposta.error) throw variantesResposta.error;
-    if (!empresaResposta.data) throw new Error("O restaurante não está publicado ou não foi encontrado.");
-
-    const empresa = empresaResposta.data;
     carrinhoMeta = {
         ...carrinhoMeta,
         empresa_nome: empresa.nome,
@@ -303,23 +274,17 @@ async function sincronizarValores() {
 
     if (enderecoSelecionado) await aplicarRegiaoEntrega();
 
-    const produtosServidor = new Map((produtosResposta.data || []).map((produto) => [String(produto.id), produto]));
-    const adicionaisServidor = new Map((adicionaisResposta.data || []).map((adicional) => [String(adicional.id), adicional]));
-    const variantesPorProduto = new Map();
-    (variantesResposta.data || []).forEach((variante) => {
-        const chave = String(variante.produto_id);
-        if (!variantesPorProduto.has(chave)) variantesPorProduto.set(chave, []);
-        variantesPorProduto.get(chave).push(variante);
-    });
     carrinho.forEach((item) => {
         const produto = produtosServidor.get(String(item.id));
-        item.indisponivel = !produto || produto.disponivel === false;
+        item.indisponivel = !produto;
         if (produto) {
             item.nome = produto.nome || item.nome;
             item.imagem = produto.imagem || item.imagem;
-            const variantesAtivas = variantesPorProduto.get(String(item.id)) || [];
-            const variante = item.variante_id ? variantesAtivas.find((opcao) => String(opcao.id) === String(item.variante_id)) : null;
-            if (variantesAtivas.length && !variante) item.indisponivel = true;
+            const variantesAtivas = Array.isArray(produto.variantes) ? produto.variantes : [];
+            const variante = item.variante_id
+                ? variantesAtivas.find((opcao) => String(opcao.id) === String(item.variante_id))
+                : null;
+            if (item.variante_id && !variante) item.indisponivel = true;
             if (variante) {
                 item.variante_nome = variante.nome || item.variante_nome;
                 item.preco = Number(variante.promocao || 0) > 0 ? Number(variante.promocao) : Number(variante.preco || 0);
@@ -331,14 +296,17 @@ async function sincronizarValores() {
         }
         item.adicionais = (item.adicionais || []).map((adicional) => {
             const servidor = adicionaisServidor.get(String(adicional.id));
-            if (!servidor || servidor.ativo === false) return { ...adicional, indisponivel: true };
+            if (!servidor) return { ...adicional, indisponivel: true };
             return { ...adicional, nome: servidor.nome || adicional.nome, preco: Number(servidor.preco || 0) };
         });
         if (item.adicionais.some((adicional) => adicional.indisponivel)) item.indisponivel = true;
     });
 
     if (window.CartStore) window.CartStore.salvar(carrinho, carrinhoMeta);
-    else { App.salvarJSON("carrinho", carrinho); App.salvarJSON("carrinhoMeta", carrinhoMeta); }
+    else {
+        App.salvarJSON("carrinho", carrinho);
+        App.salvarJSON("carrinhoMeta", carrinhoMeta);
+    }
     return antes !== snapshotValores();
 }
 
@@ -350,23 +318,16 @@ async function aplicarCupom() {
 
     if (!cupom) return avisarCheckout("Digite um cupom.", "info", "Cupom");
 
-    const { data, error } = await window.db.from("cupons")
-        .select("id,empresa_id,codigo,tipo,valor,pedido_minimo,max_desconto,primeiro_pedido,inicio,fim,dias_semana,horario_inicio,horario_fim")
-        .ilike("codigo", cupom)
-        .limit(10);
-    if (error) return avisarCheckout(`Não foi possível validar o cupom: ${App.mensagemErro(error)}`, "error", "Cupom");
-    const opcoes = (data || []).filter((item) => item.empresa_id === null || String(item.empresa_id) === String(carrinhoMeta?.empresa_id));
-    cupomDados = opcoes.find((item) => String(item.empresa_id) === String(carrinhoMeta?.empresa_id)) || opcoes.find((item) => item.empresa_id === null) || null;
-    if (!cupomDados) return avisarCheckout("Cupom inválido, expirado ou indisponível para este restaurante.", "error", "Cupom");
-    if (calcularSubtotal() < Number(cupomDados.pedido_minimo || 0)) { cupomDados = null; return avisarCheckout(`Este cupom exige pedido mínimo de ${App.dinheiro(opcoes[0]?.pedido_minimo)}.`, "info", "Cupom"); }
+    try {
+        cupomDados = await window.DeliveryAPI.validarCupom(cupom, carrinhoMeta?.empresa_id);
+    } catch (erro) {
+        return avisarCheckout(`Não foi possível validar o cupom: ${App.mensagemErro(erro)}`, "error", "Cupom");
+    }
 
-    if (cupomDados.primeiro_pedido) {
-        const { data: { user } } = await window.db.auth.getUser();
-        if (user) {
-            const resposta = await window.db.from("pedidos").select("id").eq("usuario_id", user.id).neq("status", "cancelado").limit(1);
-            if (resposta.error) return avisarCheckout(`Não foi possível validar o cupom: ${App.mensagemErro(resposta.error)}`, "error", "Cupom");
-            if (resposta.data?.length) { cupomDados = null; return avisarCheckout("Este cupom é válido somente no primeiro pedido.", "info", "Cupom"); }
-        }
+    if (!cupomDados) return avisarCheckout("Cupom inválido, expirado ou indisponível para este restaurante.", "error", "Cupom");
+    if (calcularSubtotal() < Number(cupomDados.pedido_minimo || 0)) {
+        cupomDados = null;
+        return avisarCheckout(`Este cupom exige pedido mínimo de ${App.dinheiro(cupomDados?.pedido_minimo || 0)}.`, "info", "Cupom");
     }
 
     cupomAplicado = cupom;
@@ -512,12 +473,8 @@ async function finalizarPedido() {
         });
         if (!pedidoCriado?.id) throw new Error("O banco não retornou o pedido criado.");
 
-        const { data: pedidoBanco, error: erroLeitura } = await window.db.from("pedidos")
-            .select("*, pedido_itens(*)")
-            .eq("id", pedidoCriado.id)
-            .eq("usuario_id", user.id)
-            .single();
-        if (erroLeitura) throw erroLeitura;
+        const pedidoBanco = await window.DeliveryAPI.pedidoDetalhe(pedidoCriado.id);
+        if (!pedidoBanco) throw new Error("Não foi possível carregar o pedido criado.");
 
         App.salvarJSON("pedidoAtual", pedidoBanco);
         if (pagamento === "Online") {
