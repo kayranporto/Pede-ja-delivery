@@ -181,7 +181,10 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
                 });
             },
             async atualizarLocalizacaoEntregador(pedidoId, latitude, longitude, precisaoMetros = null) {
-                return apiRequest("/v1/entregador/pedidos/" + encodeURIComponent(String(pedidoId)) + "/localizacao", {
+                const rota = pedidoId
+                    ? "/v1/entregador/pedidos/" + encodeURIComponent(String(pedidoId)) + "/localizacao"
+                    : "/v1/entregador/localizacao";
+                return apiRequest(rota, {
                     method: "POST",
                     body: JSON.stringify({ latitude, longitude, precisao_metros: precisaoMetros })
                 });
