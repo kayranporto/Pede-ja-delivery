@@ -184,23 +184,14 @@ async function carregarPerfil() {
         }
         App.vincularUsuarioLocal(user.id);
 
-        const [resUsuario, resPedidos, resEnderecos, resAdmin] = await Promise.all([
-            window.db.from("usuarios").select("nome,sobrenome,telefone,cpf,avatar_url").eq("id", user.id).maybeSingle(),
-            window.db.from("pedidos")
-                .select("id,numero,empresa_id,empresa_nome,status,total,desconto,created_at")
-                .eq("usuario_id", user.id)
-                .order("created_at", { ascending: false })
-                .limit(100),
-            window.db.from("enderecos").select("id").eq("usuario_id", user.id),
+        const [perfilApi, pedidos, enderecos, resAdmin] = await Promise.all([
+            window.DeliveryAPI.getMe(),
+            window.DeliveryAPI.meusPedidos(),
+            window.DeliveryAPI.meusEnderecos(),
             window.db.rpc("usuario_eh_admin")
         ]);
 
-        if (resUsuario.error) console.error("Erro ao carregar dados do perfil:", resUsuario.error);
-        if (resPedidos.error) console.error("Erro ao carregar resumo dos pedidos:", resPedidos.error);
-        if (resEnderecos.error) console.error("Erro ao carregar endereços:", resEnderecos.error);
-
-        const usuario = resUsuario.data || null;
-        const pedidos = resPedidos.error ? [] : (resPedidos.data || []);
+        const usuario = perfilApi?.usuario || null;
         const nome = [usuario?.nome, usuario?.sobrenome].filter(Boolean).join(" ")
             || user.user_metadata?.nome
             || "Usuário";
@@ -213,7 +204,7 @@ async function carregarPerfil() {
 
         await Promise.all([atualizarResumo(pedidos), carregarFidelidade()]);
         renderizarPedidoDestaque(pedidos);
-        atualizarProgresso(usuario, user, resEnderecos.error ? 0 : (resEnderecos.data || []).length);
+        atualizarProgresso(usuario, user, Array.isArray(enderecos) ? enderecos.length : 0);
         document.getElementById("adminLink").hidden = resAdmin.error || resAdmin.data !== true;
     } catch (erro) {
         console.error("Erro ao carregar perfil:", erro);
