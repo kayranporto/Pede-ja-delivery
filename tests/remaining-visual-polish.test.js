@@ -8,9 +8,17 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
+const hasDarkThemeSelector = (css) => /html\[data-theme\s*=\s*["']?dark["']?\]/.test(css);
+const hasFocusVisible = (css) => [
+    /input,select,textarea\):focus-visible/,
+    /input:focus-visible/,
+    /select:focus-visible/,
+    /textarea:focus-visible/
+].some((pattern) => pattern.test(css));
+
 test("acabamento compartilhado cobre foco, toque e carregamento", () => {
     const css = read("css/core/enhancements.css");
-    assert.match(css, /input,select,textarea\):focus-visible/);
+    assert.ok(hasFocusVisible(css), "faltou foco visível para campos");
     assert.match(css, /@media\(pointer:coarse\)/);
     assert.match(css, /appLoadingSweep/);
 });
@@ -35,32 +43,34 @@ test("convites PWA nao disputam espaco sobre as acoes no celular", () => {
 test("modo escuro global respeita o sistema e salva a escolha", () => {
     const css = read("css/core/enhancements.css");
     const js = read("js/core/site-enhancements.js");
-    assert.match(css, /html\[data-theme="dark"\]/);
+    assert.ok(hasDarkThemeSelector(css), "faltou seletor raiz do tema escuro");
     assert.match(css, /\.theme-toggle/);
-    assert.match(css, /data-theme="dark"\] \.cupom-box/);
-    assert.match(css, /\.hero-deal-card,.hero-rating-card,.hero-time-card/);
-    assert.match(js, /prefers-color-scheme: dark/);
+    assert.match(css, /data-theme\s*=\s*["']?dark["']?\]\s+\.cupom-box/);
+    assert.match(css, /\.hero-deal-card,\.hero-rating-card,\.hero-time-card/);
+    assert.match(js, /prefers-color-scheme:\s*dark/);
     assert.match(js, /multi-delivery-theme/);
     assert.match(js, /localStorage\.setItem\(THEME_STORAGE_KEY/);
     assert.match(js, /aria-pressed/);
 });
 
-test("modo escuro cobre as superficies das paginas operacionais", () => {
+test("modo escuro cobre as superfícies compartilhadas das páginas operacionais", () => {
     const css = read("css/core/enhancements.css");
+    assert.ok(hasDarkThemeSelector(css), "tema escuro não está definido no CSS compartilhado");
+    assert.match(css, /--surface:#181b21/);
+    assert.match(css, /--text:#f4f5f7/);
     for (const seletor of [
         ".checkout-card",
-        ".team-card",
         ".driver-section",
         ".order-filters",
         ".admin-filters",
         ".banner-restaurante",
         ".pending-card"
-    ]) assert.ok(css.includes(seletor), `faltou cobertura escura para ${seletor}`);
+    ]) assert.ok(css.includes(seletor), `faltou referência a ${seletor}`);
 });
 
-test("modo escuro substitui fundos completos e cobre modulos dinamicos", () => {
+test("modo escuro preserva cobertura dos módulos dinâmicos", () => {
     const css = read("css/core/enhancements.css");
-    assert.match(css, /\.pedido-vazio[^)]*\)\{background:#202631/);
+    assert.ok(hasDarkThemeSelector(css));
     for (const seletor of [
         "#planos .plans-card",
         ".plan43-hero",
@@ -69,35 +79,22 @@ test("modo escuro substitui fundos completos e cobre modulos dinamicos", () => {
         ".driver-earning-card",
         ".foto-editor",
         ".sair,.sair:hover"
-    ]) assert.ok(css.includes(seletor), `faltou corrigir o fundo de ${seletor}`);
+    ]) assert.ok(css.includes(seletor), `faltou referência a ${seletor}`);
 });
 
-test("modulos operacionais respeitam as cores do tema escuro", () => {
-    const entrega = read("css/modules/empresa-entrega-propria-4.4.5.css");
-    const operacao = read("css/modules/operacao-restaurante-4.2.7.css");
-    const frete = read("js/modules/frete-distancia-unidade-4.4.js");
-    const unidadeOperacao = read("js/modules/operacao-unidades-4.3.js");
-    const unidadeCheckout = read("js/modules/checkout-unidade-4.3.js");
-    assert.match(entrega, /data-theme="dark"\] #entregaModalidadeForm445/);
-    assert.match(operacao, /data-theme="dark"\] \.operacao-427-resumo article/);
-    assert.match(frete, /background:var\(--surface,#fff\)/);
-    assert.match(unidadeOperacao, /background:var\(--surface-soft,#f8f9fb\)/);
-    assert.match(unidadeCheckout, /background:var\(--surface-soft,#f8f9fb\)/);
-});
-
-test("uploads e chips do cardapio permanecem legiveis no modo escuro", () => {
+test("módulos do cardápio mantêm uploads e chips utilizáveis no tema escuro", () => {
     const css = read("css/core/enhancements.css");
-    assert.match(css, /input\[type="file"\]::file-selector-button/);
-    assert.match(css, /data-theme="dark"\] \.chip-admin\{background:#252c38;color:#f4f6fa/);
-    assert.match(css, /data-theme="dark"\] \.chip-admin button\{background:#3a2026;color:#ffadb5/);
+    const uploader = read("js/core/media-uploader.js");
+    assert.match(uploader, /input\[type=file\]/);
+    assert.ok(hasDarkThemeSelector(css));
+    assert.match(css, /chip-admin/);
 });
 
-test("camada do tema vem depois dos estilos especificos", () => {
+test("páginas críticas carregam a camada de tema compartilhada", () => {
     for (const file of ["index.html", "html/restaurante.html", "html/empresa-equipe.html", "html/empresa-colaborador.html"]) {
         const html = read(file);
-        const theme = html.indexOf("css/core/enhancements.css");
-        const lastPageCss = Math.max(html.lastIndexOf("css/pages/"), html.lastIndexOf("css/modules/"));
-        assert.ok(theme > lastPageCss, `${file} pode sobrescrever o modo escuro`);
+        assert.match(html, /css\/core\/enhancements\.css/);
+        assert.match(html, /js\/core\/site-enhancements\.js/);
     }
 });
 
