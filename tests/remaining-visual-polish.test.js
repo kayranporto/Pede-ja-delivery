@@ -8,8 +8,6 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const sharedCss = () => `${read("css/core/enhancements.css")}\n${read("css/modules/mobile-pwa-4.2.6.css")}`;
-
-const hasDarkThemeSelector = (css) => /html\[data-theme\s*=\s*["']?dark["']?\]/.test(css);
 const hasFocusVisible = (css) => [
     /input,select,textarea\):focus-visible/,
     /input:focus-visible/,
@@ -43,53 +41,13 @@ test("convites PWA nao disputam espaco sobre as acoes no celular", () => {
     assert.match(read("css/modules/mobile-pwa-4.2.6.css"), /\.pwa-update\.show~\.install-app\{display:none!important\}/);
 });
 
-test("modo escuro global respeita o sistema e salva a escolha", () => {
-    const css = sharedCss();
-    const js = read("js/core/site-enhancements.js");
-    assert.ok(hasDarkThemeSelector(css), "faltou seletor raiz do tema escuro");
-    assert.match(css, /\.theme-toggle/);
-    assert.match(css, /data-theme[^\n]*dark/);
-    assert.match(css, /hero-deal-card|produto-card/);
-    assert.match(js, /prefers-color-scheme:\s*dark/);
-    assert.match(js, /multi-delivery-theme/);
-    assert.match(js, /localStorage\.setItem\(THEME_STORAGE_KEY/);
-    assert.match(js, /aria-pressed/);
-});
-
-test("modo escuro cobre superfícies operacionais e conteúdo dinâmico", () => {
-    const css = sharedCss();
-    assert.ok(hasDarkThemeSelector(css), "tema escuro não está definido nas camadas compartilhadas");
-    for (const seletor of [
-        ".checkout-card",
-        ".order-card",
-        ".admin-card",
-        ".produto-card",
-        ".payment-option",
-        ".modal-content"
-    ]) assert.ok(css.includes(seletor), `faltou referência a ${seletor}`);
-});
-
-test("tema escuro mantém os textos críticos com contraste explícito", () => {
-    const css = read("css/modules/mobile-pwa-4.2.6.css");
-    for (const seletor of [
-        ".auth-field label",
-        ".auth-check",
-        ".auth-role-switch a.active",
-        "#infoEntrega",
-        ".produto-card .produto-info strong",
-        "#enderecoEntrega",
-        "#pagamentoNota",
-        "#enderecoStatus"
-    ]) assert.ok(css.includes(seletor), `faltou correção de contraste para ${seletor}`);
-});
-
 test("checkout mobile não bloqueia controles globais com botão final desabilitado", () => {
     const css = read("css/modules/mobile-pwa-4.2.6.css");
     assert.match(css, /#finalizarPedido:disabled\{pointer-events:none!important\}/);
     assert.match(css, /\.checkout-footer\{pointer-events:none\}/);
 });
 
-test("páginas críticas carregam a camada de tema compartilhada", () => {
+test("páginas críticas carregam a camada visual compartilhada", () => {
     for (const file of ["index.html", "html/restaurante.html", "html/empresa-equipe.html", "html/empresa-colaborador.html"]) {
         const html = read(file);
         assert.match(html, /css\/core\/enhancements\.css/);
@@ -103,4 +61,12 @@ test("todas as paginas carregam a camada visual compartilhada", () => {
         assert.match(read(file), /css\/core\/enhancements\.css/, `${file} sem enhancements.css`);
         assert.match(read(file), /js\/core\/site-enhancements\.js/, `${file} sem site-enhancements.js`);
     }
+});
+
+test("modo claro é o único tema disponível", () => {
+    const js = read("js/core/monitoring.js");
+    assert.match(js, /multi-delivery-theme/);
+    assert.match(js, /localStorage\.setItem\(THEME_STORAGE_KEY, "light"\)/);
+    assert.match(js, /data-theme = "light"/);
+    assert.match(js, /\.theme-toggle,\[data-theme-preferences\]/);
 });
