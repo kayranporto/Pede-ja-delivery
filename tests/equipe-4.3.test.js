@@ -41,9 +41,9 @@ test("login separa proprietário e colaborador", () => {
 test("interfaces usam RPCs e colaborador não escreve tabelas diretamente", () => {
   const equipe = read("js/pages/empresa-equipe.js");
   const colaborador = read("js/pages/empresa-colaborador.js");
-  assert.match(equipe, /empresa_listar_funcionarios/);
-  assert.match(equipe, /empresa_salvar_funcionario/);
-  assert.match(equipe, /empresa_remover_funcionario/);
+  assert.match(equipe, /DeliveryAPI\.request|carregarOperacao/);
+  assert.match(equipe, /DeliveryAPI\.salvarFuncionario/);
+  assert.match(equipe, /DeliveryAPI\.removerFuncionario/);
   assert.match(colaborador, /empresa_operador_pedidos/);
   assert.match(colaborador, /empresa_relatorio_financeiro_acesso/);
   assert.doesNotMatch(colaborador, /window\.db\.from\(/);
