@@ -469,9 +469,6 @@ async function atualizarEndereco(user) {
         return;
     }
     locationText.textContent = `${data.apelido || "Entrega"} • ${data.logradouro || data.rua || ""}, ${data.numero || ""} — ${data.bairro || ""}`;
-        return;
-    }
-    locationText.textContent = `${data.apelido || "Entrega"} • ${data.logradouro || data.rua || ""}, ${data.numero || ""} — ${data.bairro || ""}`;
 }
 
 function atualizarContadoresCarrinho() {
