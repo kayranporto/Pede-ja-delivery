@@ -81,7 +81,7 @@ test("dashboard mostra Meu plano sem escrita direta nas tabelas de assinatura", 
   const source = read("js/modules/empresa-plano-4.3.js");
   const loader = read("js/core/site-enhancements.js");
   assert.match(loader, /empresa-plano-4\.3\.js/);
-  assert.match(source, /rpc\("empresa_meu_plano"\)/);
+  assert.match(source, /DeliveryAPI\.empresaPlano/);
   assert.doesNotMatch(source, /from\("(?:planos_plataforma|empresa_assinaturas)"\)/);
   for (const chave of ["unidades", "produtos", "funcionarios", "pedidos_mes"]) {
     assert.ok(source.includes(`renderUso("${chave}"`), `Meu plano sem uso de ${chave}`);
