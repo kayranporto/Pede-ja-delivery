@@ -95,9 +95,8 @@
             }
             usuarioAtual = user;
             document.getElementById("email").value = user.email || "";
-            const { data, error } = await window.db.from("usuarios").select("*").eq("id", user.id).maybeSingle();
-            if (error) throw error;
-            perfilAtual = data || { id: user.id };
+            const conta = await window.DeliveryAPI.getMe();
+            perfilAtual = conta?.usuario || { id: user.id };
             document.getElementById("nome").value = perfilAtual.nome || user.user_metadata?.nome || "";
             document.getElementById("sobrenome").value = perfilAtual.sobrenome || "";
             document.getElementById("telefone").value = perfilAtual.telefone || "";
@@ -148,9 +147,8 @@
             const { data: urlData } = window.db.storage.from("avatars").getPublicUrl(caminho);
             if (!urlData?.publicUrl) throw new Error("Não foi possível gerar o endereço da foto.");
             const avatarUrl = `${urlData.publicUrl}?v=${Date.now()}`;
-            const { error: erroPerfil } = await window.db.from("usuarios").upsert({ id: usuarioAtual.id, avatar_url: avatarUrl, updated_at: new Date().toISOString() }, { onConflict: "id" });
-            if (erroPerfil) throw erroPerfil;
-            perfilAtual = { ...perfilAtual, avatar_url: avatarUrl };
+            const salvo = await window.DeliveryAPI.atualizarMe({ avatar_url: avatarUrl });
+            perfilAtual = { ...perfilAtual, ...(salvo || { avatar_url: avatarUrl }) };
             fotoProcessada = null; fotoInput.value = ""; salvarFoto.disabled = true; removerFoto.hidden = false;
             if (previewTemporario) { URL.revokeObjectURL(previewTemporario); previewTemporario = null; }
             exibirAvatar(avatarUrl);
@@ -176,8 +174,7 @@
             const caminho = `${usuarioAtual.id}/avatar`;
             const { error: erroStorage } = await window.db.storage.from("avatars").remove([caminho]);
             if (erroStorage && !/not found|not_found/i.test(erroStorage.message || "")) throw erroStorage;
-            const { error } = await window.db.from("usuarios").update({ avatar_url: null, updated_at: new Date().toISOString() }).eq("id", usuarioAtual.id);
-            if (error) throw error;
+            await window.DeliveryAPI.atualizarMe({ avatar_url: null });
             perfilAtual = { ...perfilAtual, avatar_url: null };
             fotoProcessada = null; fotoInput.value = ""; salvarFoto.disabled = true; removerFoto.hidden = true;
             if (previewTemporario) { URL.revokeObjectURL(previewTemporario); previewTemporario = null; }
@@ -210,9 +207,8 @@
                 cpf: cpf || null
             };
             if (!payload.nome) throw new Error("Informe seu nome.");
-            const { error } = await window.db.from("usuarios").upsert(payload, { onConflict: "id" });
-            if (error) throw error;
-            perfilAtual = { ...perfilAtual, ...payload };
+            const salvo = await window.DeliveryAPI.atualizarMe(payload);
+            perfilAtual = { ...perfilAtual, ...(salvo || payload) };
             if (!perfilAtual.avatar_url) exibirAvatar(null, nomeCompleto());
             notificar("Dados atualizados", "Suas informações foram salvas.", "success");
         } catch (erro) {
