@@ -356,20 +356,34 @@ async function carregarEmpresas() {
 async function carregarDestaques() {
     const container = document.getElementById("listaProdutos");
     if (!container) return;
-    const { data, error } = await window.db
-        .from("produtos")
-        .select("id,nome,descricao,imagem,preco,promocao,empresa_id")
-        .eq("disponivel", true)
-        .limit(6);
 
-    container.replaceChildren();
-    if (error || !data?.length) {
-        const vazio = criarTexto("p", "sem-restaurantes", "Os produtos em destaque aparecerão aqui em breve.");
-        container.append(vazio);
-        return;
-    }
+    try {
+        const restaurantes = await window.DeliveryAPI.restaurantes({ limite: 8 });
+        const menus = await Promise.allSettled(
+            (Array.isArray(restaurantes) ? restaurantes : [])
+                .filter((empresa) => empresa?.id)
+                .map(async (empresa) => {
+                    const menu = await window.DeliveryAPI.cardapio(empresa.id);
+                    return (menu?.produtos || []).slice(0, 3).map((produto) => ({
+                        ...produto,
+                        empresa_id: produto.empresa_id || empresa.id,
+                        empresa_nome: empresa.nome
+                    }));
+                })
+        );
+        const data = menus
+            .filter((resultado) => resultado.status === "fulfilled")
+            .flatMap((resultado) => resultado.value)
+            .slice(0, 6);
 
-    data.forEach((produto) => {
+        container.replaceChildren();
+        if (!data.length) {
+            const vazio = criarTexto("p", "sem-restaurantes", "Os produtos em destaque aparecerão aqui em breve.");
+            container.append(vazio);
+            return;
+        }
+
+        data.forEach((produto) => {
         const card = document.createElement("a");
         card.className = "produto-destaque";
         card.href = `html/restaurante.html?id=${encodeURIComponent(produto.empresa_id)}`;
@@ -382,8 +396,12 @@ async function carregarDestaques() {
         const preco = criarTexto("strong", "", dinheiro(promocao > 0 ? promocao : produto.preco));
         corpo.append(titulo, descricao, preco);
         card.append(corpo);
-        container.append(card);
-    });
+            container.append(card);
+        });
+    } catch (error) {
+        console.warn("Não foi possível carregar os destaques pela API:", error);
+        container.replaceChildren(criarTexto("p", "sem-restaurantes", "Os produtos em destaque aparecerão aqui em breve."));
+    }
 }
 
 async function atualizarMenuUsuario(user) {
