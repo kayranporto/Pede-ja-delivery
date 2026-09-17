@@ -140,14 +140,13 @@ function atualizarProgresso(usuario, user, totalEnderecos) {
 
 async function carregarFidelidade() {
     const container = document.getElementById("fidelidadePerfil");
-    const { data: saldos, error } = await window.db.rpc("meus_beneficios_fidelidade");
-    if (error) {
+    let saldos;
+    try { saldos = await window.DeliveryAPI.minhaFidelidade(); }
+    catch (error) {
         container.replaceChildren(criar("p", "loyalty-empty", "Os pontos serão exibidos após ativar a migração operacional."));
         return;
     }
-    const ids = (saldos || []).map((item) => item.empresa_id);
-    const { data: empresas } = ids.length ? await window.db.from("empresas_catalogo").select("id,nome").in("id", ids) : { data: [] };
-    const nomes = new Map((empresas || []).map((item) => [String(item.id), item.nome]));
+    const nomes = new Map((saldos || []).map((item) => [String(item.empresa_id), item.empresa_nome || item.nome_empresa || "Restaurante"]));
     const total = (saldos || []).reduce((soma, item) => soma + Number(item.pontos || 0), 0);
     document.getElementById("totalPontosPerfil").textContent = `${total} ${total === 1 ? "ponto" : "pontos"}`;
     container.replaceChildren();
@@ -161,7 +160,10 @@ async function carregarFidelidade() {
             resgatar.addEventListener("click", async () => {
                 if (!confirm(`Trocar ${saldo.pontos_para_beneficio} pontos por ${App.dinheiro(saldo.valor_beneficio)} em desconto?`)) return;
                 App.definirCarregando(resgatar, true, "Resgatando...");
-                const { data: codigo, error: erroResgate } = await window.db.rpc("resgatar_beneficio_fidelidade", { p_empresa_id: saldo.empresa_id });
+                let codigo = null;
+                 let erroResgate = null;
+                 try { codigo = (await window.DeliveryAPI.resgatarFidelidade(saldo.empresa_id))?.codigo || (await window.DeliveryAPI.resgatarFidelidade(saldo.empresa_id)); }
+                 catch (erro) { erroResgate = erro; }
                 App.definirCarregando(resgatar, false);
                 if (erroResgate) return window.AppToast?.("Não foi possível resgatar", App.mensagemErro(erroResgate), "error");
                 try { await navigator.clipboard.writeText(codigo); } catch { /* O código também aparece na mensagem. */ }
@@ -184,14 +186,15 @@ async function carregarPerfil() {
         }
         App.vincularUsuarioLocal(user.id);
 
-        const [perfilApi, pedidos, enderecos, resAdmin] = await Promise.all([
+        const [perfilApi, pedidos, enderecos] = await Promise.all([
             window.DeliveryAPI.getMe(),
             window.DeliveryAPI.meusPedidos(),
             window.DeliveryAPI.meusEnderecos(),
-            window.db.rpc("usuario_eh_admin")
+            Promise.resolve(null)
         ]);
 
         const usuario = perfilApi?.usuario || null;
+         const ehAdmin = perfilApi?.eh_admin === true;
         const nome = [usuario?.nome, usuario?.sobrenome].filter(Boolean).join(" ")
             || user.user_metadata?.nome
             || "Usuário";
