@@ -270,7 +270,7 @@ test("reembolso usa endpoint do provedor e chave de idempotência", () => {
     assert.match(edge, /reconciliar_pagamento_mercado_pago/);
 
     const admin = read("js/modules/operacao-admin.js");
-    assert.match(admin, /functions\.invoke\("processar-reembolso"/);
+    assert.match(admin, /DeliveryAPI\.adminProcessarReembolso/);
     assert.doesNotMatch(admin, /admin_atualizar_reembolso/);
 });
 
@@ -330,7 +330,7 @@ test("painel oferece conciliação financeira e monitoramento correlacionado", (
     assert.match(admin, /id=["']adminConciliacao["']/);
     assert.match(admin, /id=["']opsPagamentos["']/);
     const operation = read("js/modules/operacao-admin.js");
-    assert.match(operation, /admin_conciliacao_pagamentos/);
+    assert.match(operation, /DeliveryAPI\.adminOperacao/);
     const monitoring = read("js/core/monitoring.js");
     assert.match(monitoring, /correlation_id/);
     assert.match(monitoring, /app_version/);
