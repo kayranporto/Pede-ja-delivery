@@ -140,8 +140,8 @@ test("versão 3.5 integra operação, estoque, regiões, fidelidade e suporte", 
     const painel = fs.readFileSync(path.join(root, "html/empresa-dashboard.html"), "utf8");
     for (const id of ["horariosForm", "regiaoForm", "fidelidadeForm", "financeiroResumo", "cancelamentosEmpresa", "produtoControlaEstoque"]) assert.match(painel, new RegExp(`id=["']${id}["']`));
     const checkout = fs.readFileSync(path.join(root, "js/pages/checkout.js"), "utf8");
-    assert.match(checkout, /calcular_entrega_empresa/);
-    assert.match(checkout, /criar_pedido_operacional/);
+    assert.match(checkout, /DeliveryAPI\.calcularEntrega\(/);
+    assert.match(checkout, /DeliveryAPI\.criarPedido\(/);
     const suporte = fs.readFileSync(path.join(root, "html/suporte.html"), "utf8");
     assert.match(suporte, /suporteForm/);
     const admin = fs.readFileSync(path.join(root, "html/admin.html"), "utf8");
