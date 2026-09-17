@@ -74,7 +74,7 @@ test("módulos do restaurante convivem sem colisões globais", () => {
     const codigo = arquivos.map((arquivo) => fs.readFileSync(path.join(root, arquivo), "utf8")).join("\n");
     assert.doesNotThrow(() => new vm.Script(codigo));
     const carrinho = fs.readFileSync(path.join(root, "js/modules/carrinho.js"), "utf8");
-    assert.match(carrinho, /window\.adicionarAoCarrinho\s*=\s*adicionarAoCarrinho/);
+    assert.match(carrinho, /registrarApiGlobal\("adicionarAoCarrinho",\s*adicionarAoCarrinho\)/);
     assert.match(carrinho, /^"use strict";\s*\(\(\) => \{/);
 });
 

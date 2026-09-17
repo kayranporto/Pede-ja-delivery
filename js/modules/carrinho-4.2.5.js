@@ -1,5 +1,20 @@
 "use strict";
 (() => {
+    if (window.__multiDeliveryCarrinhoConsolidado) {
+        window.editarItemCarrinho = window.editarItemCarrinho || ((item) => {
+            if (!item || typeof window.abrirModalProduto !== "function") return null;
+            return window.abrirModalProduto(item);
+        });
+        return;
+    }
+    window.__multiDeliveryCarrinhoLegacy = true;
+    if (typeof window.abrirCarrinho === "function" || typeof window.adicionarAoCarrinho === "function") {
+        window.editarItemCarrinho = window.editarItemCarrinho || ((item) => {
+            if (!item || typeof window.abrirModalProduto !== "function") return null;
+            return window.abrirModalProduto(item);
+        });
+        return;
+    }
     const lista = document.querySelector(".carrinho-itens");
     const btnCheckout = document.getElementById("btnCheckout");
     const modal = document.getElementById("produtoModal");

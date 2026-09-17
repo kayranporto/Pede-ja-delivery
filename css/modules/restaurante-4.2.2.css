@@ -1,26 +1,30 @@
 /* Multi Delivery 4.2.2 — experiência de compra no restaurante e carrinho */
-body{background:#f6f7f9;color:#171a24}
-body>header{min-height:68px;padding-top:9px;padding-bottom:9px;box-shadow:0 8px 30px rgba(15,23,42,.05)}
+body{background:linear-gradient(180deg,#fffaf7 0%,#f7f8fa 18%,#f6f7f9 100%);color:#171a24}
+body>header{min-height:68px;padding-top:9px;padding-bottom:9px;box-shadow:0 8px 30px rgba(15,23,42,.05);background:rgba(255,255,255,.96);backdrop-filter:blur(14px)}
 body>header .logo{font-size:17px;font-weight:800}
-body>header .cart{min-width:48px;min-height:48px;border:1px solid #eceef2;background:#fff;box-shadow:0 8px 22px rgba(15,23,42,.08)}
-.banner-restaurante{width:calc(100% - 32px);height:clamp(230px,20vw,280px);max-width:1320px;margin:18px auto 0;border-radius:28px;background:#f4f1ec;box-shadow:0 18px 45px rgba(17,24,39,.10)}
-.banner-restaurante img{display:block;width:100%;height:100%;object-fit:contain;object-position:center;background:#f4f1ec}
+body>header .cart{min-width:48px;min-height:48px;border:1px solid #eceef2;background:#fff;box-shadow:0 8px 22px rgba(15,23,42,.08);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+body>header .cart:hover,body>header .cart:focus-visible{transform:translateY(-1px);border-color:rgba(234,29,44,.26);box-shadow:0 12px 24px rgba(234,29,44,.12)}
+.banner-restaurante{width:calc(100% - 32px);height:clamp(230px,20vw,280px);max-width:1320px;margin:18px auto 0;border-radius:28px;background:linear-gradient(135deg,#ffeeef,#fff7ee);box-shadow:0 18px 45px rgba(17,24,39,.10);overflow:hidden}
+.banner-restaurante img{display:block;width:100%;height:100%;object-fit:contain;object-position:center;background:linear-gradient(135deg,#ffeeef,#fff7ee)}
 .info-restaurante{max-width:1180px;min-height:106px;margin:-38px auto 18px;align-items:flex-start;padding:0 24px}
-.logo-restaurante{width:106px;height:106px;flex:0 0 106px;border-radius:25px;box-shadow:0 18px 42px rgba(17,24,39,.16)}
+.logo-restaurante{width:106px;height:106px;flex:0 0 106px;border-radius:25px;box-shadow:0 18px 42px rgba(17,24,39,.16);border:4px solid rgba(255,255,255,.8)}
 .info-restaurante>div{min-width:0;padding-top:42px}
 .info-restaurante h1{max-width:100%;margin:0 0 5px;font-size:clamp(28px,3vw,38px);line-height:1.1;overflow-wrap:anywhere}
 .info-restaurante p{margin:4px 0;color:#626977;font-size:13px}
 #infoEntrega{font-weight:600;color:#343a46}
 .restaurante-meta{max-width:1180px;margin:12px auto 18px;padding:0 24px}
-.status-badge,.meta-chip{min-height:38px;padding:8px 13px;font-size:12px;box-shadow:none;border:1px solid #e7e9ee}
-.status-badge{border:0}.meta-chip{background:#fff}
-.restaurant-actions{margin-left:auto}.restaurant-actions .btn-primary{min-width:190px;min-height:44px;border-radius:14px;justify-content:center;box-shadow:0 12px 25px rgba(234,29,44,.18)}
+.status-badge,.meta-chip{min-height:38px;padding:8px 13px;font-size:12px;box-shadow:none;border:1px solid #e7e9ee;border-radius:999px}
+.status-badge{border:0;background:#eafaf1;color:#0f7a4f;font-weight:700}.status-badge.fechado{background:#fff2f2;color:#b42318}.meta-chip{background:#fff}
+.restaurant-actions{margin-left:auto}.restaurant-actions .btn-primary{min-width:190px;min-height:44px;border-radius:14px;justify-content:center;box-shadow:0 12px 25px rgba(234,29,44,.20);background:linear-gradient(135deg,#ea1d2c,#d11124);color:#fff;transition:transform .18s ease,box-shadow .18s ease}
+.restaurant-actions .btn-primary:hover,.restaurant-actions .btn-primary:focus-visible{transform:translateY(-1px);box-shadow:0 16px 30px rgba(234,29,44,.26)}
 .pesquisa-produtos{max-width:1180px;margin:18px auto 10px;padding:0 24px;position:relative}
 .pesquisa-produtos:before{content:'⌕';position:absolute;left:42px;top:50%;transform:translateY(-50%);font-size:18px;color:#7c8390;pointer-events:none}
-.pesquisa-produtos input{padding:15px 18px 15px 48px;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 8px 22px rgba(17,24,39,.04);font-size:14px}
+.pesquisa-produtos input{padding:15px 18px 15px 48px;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 8px 22px rgba(17,24,39,.04);font-size:14px;background:#fff}
+.pesquisa-produtos input:focus{border-color:rgba(234,29,44,.45);box-shadow:0 0 0 4px rgba(234,29,44,.08)}
 .categorias{max-width:1180px;margin:12px auto 22px;padding:5px 24px 10px;gap:9px;scrollbar-width:thin}
-.categorias button{padding:10px 16px;border:1px solid #e7e9ee;border-radius:999px;box-shadow:none;font-size:12px;background:#fff}
-.categorias .ativo{border-color:#ea1d2c;background:#ea1d2c;color:#fff;box-shadow:0 9px 20px rgba(234,29,44,.16)}
+.categorias button{padding:10px 16px;border:1px solid #e7e9ee;border-radius:999px;box-shadow:none;font-size:12px;background:#fff;transition:all .18s ease}
+.categorias button:hover,.categorias button:focus-visible{border-color:rgba(234,29,44,.28);color:#d21b29}
+.categorias .ativo{border-color:#ea1d2c;background:linear-gradient(135deg,#ea1d2c,#d61327);color:#fff;box-shadow:0 9px 20px rgba(234,29,44,.16)}
 /* O style.css global usa .produtos como grade de cards da Home. Nesta página,
    .produtos é apenas o contêiner do cardápio; a grade real é .lista-produtos. */
 .produtos{display:block;max-width:1180px;margin:0 auto 42px;padding:0 24px}
@@ -36,6 +40,33 @@ body>header .cart{min-width:48px;min-height:48px;border:1px solid #eceef2;backgr
 .produto-card .produto-info:after{content:'Personalizar  +';align-self:flex-end;margin-top:-23px;padding:6px 9px;border-radius:10px;background:#fff0f1;color:#d9192b;font-size:10px;font-weight:800}
 .sem-produtos{grid-column:1/-1;padding:42px;border:1px dashed #d8dce3;border-radius:20px;background:#fff;color:#717784;text-align:center}
 
+/* Carrinho */
+#overlay{background:rgba(13,17,26,.52);backdrop-filter:blur(3px)}
+#carrinho{right:-460px;width:440px;background:#f8f9fb;box-shadow:-24px 0 70px rgba(15,23,42,.20)}
+.carrinho-header{padding:19px 20px;background:#fff;border-bottom:1px solid #e8eaf0}
+.carrinho-header h2{font-size:20px}.carrinho-header h2:after{content:'Revise seu pedido antes de finalizar';display:block;margin-top:3px;color:#7b818e;font-size:10px;font-weight:500}
+#fecharCarrinho{display:grid;width:38px;height:38px;place-items:center;border-radius:11px;background:#f1f3f6;font-size:22px}
+.carrinho-itens{padding:14px 16px}
+.item-carrinho{align-items:flex-start;gap:12px;margin:0 0 10px;padding:12px;border:1px solid #e5e8ed;border-radius:17px;background:#fff;box-shadow:0 7px 18px rgba(17,24,39,.035)}
+.item-carrinho img{width:72px;height:72px;border-radius:13px}
+.info-item{min-width:0}.info-item h4{margin:0 0 4px;font-size:13px;line-height:1.35}.info-item>small{display:block;margin:2px 0;color:#747b88;font-size:9px;line-height:1.45}.info-item>strong{display:block;margin-top:6px;font-size:12px}
+.quantidade{gap:7px;margin-top:8px}.quantidade button{display:grid;width:30px;height:30px;place-items:center;border:1px solid #e4e7ec;border-radius:9px;background:#f7f8fa;color:#1c202a;font-size:14px;font-weight:800}.quantidade button:hover{background:#eceff3}.quantidade .remover-item{margin-left:auto;background:#fff1f2;color:#c51d2a;border-color:#ffe0e3}
+.carrinho-vazio{display:grid;min-height:55vh;place-content:center;padding:30px;text-align:center}.carrinho-vazio:before{content:'🛒';margin-bottom:10px;font-size:38px}.carrinho-vazio h3{margin:0 0 5px;font-size:16px}.carrinho-vazio p{color:#7a808d;font-size:11px}
+.carrinho-footer{padding:17px 20px 20px;background:#fff;border-top:1px solid #e5e8ed;box-shadow:0 -12px 30px rgba(17,24,39,.05)}
+.carrinho-footer:before{content:'Resumo';display:block;margin-bottom:12px;font-size:12px;font-weight:800}.linha{margin-bottom:8px;color:#656c78;font-size:12px}.linha strong{color:#1a1e27}.linha.total{margin:12px -2px 0;padding-top:12px;border-top:1px solid #eceef2;color:#171a24;font-size:16px}
+#btnCheckout{margin-top:14px;padding:15px 18px;border-radius:14px;font-size:14px;font-weight:800;box-shadow:0 12px 26px rgba(234,29,44,.20);background:linear-gradient(135deg,#ea1d2c,#d11124);color:#fff}
+#btnCheckout:disabled{background:#c8cbd2;box-shadow:none;cursor:not-allowed}
+
+/* Modal de personalização */
+#produtoModal .modal-content{border-radius:24px;box-shadow:0 30px 90px rgba(15,23,42,.25)}
+#produtoModal #modalImagem{max-height:290px;object-fit:cover}
+#produtoModal .modal-body{padding:20px 22px 24px}
+#produtoModal .modal-body h2{margin-bottom:5px;font-size:22px}
+#produtoModal .modal-body>p{color:#69717f;font-size:12px;line-height:1.55}
+#confirmarProduto{min-height:52px;border-radius:14px;font-weight:800;background:linear-gradient(135deg,#1e1e1e,#2a2a2a);color:#fff}
+
+@media(max-width:900px){.banner-restaurante{width:100%;height:clamp(200px,36vw,260px);margin-top:10px;border-radius:0}.lista-produtos{grid-template-columns:1fr}.produto-card{grid-template-columns:130px minmax(0,1fr)}.produto-card>img{width:130px}}
+@media(max-width:680px){body>header{min-height:60px}.banner-restaurante{height:clamp(170px,55vw,240px)}.info-restaurante{min-height:86px;margin-top:-32px;align-items:flex-start;text-align:left;flex-direction:row;gap:12px;padding:0 15px}.logo-restaurante{width:84px;height:84px;flex-basis:84px;border-width:4px;border-radius:20px}.info-restaurante>div{padding-top:36px}.info-restaurante h1{font-size:22px;line-height:1.16}.info-restaurante p{font-size:11px}.restaurante-meta,.pesquisa-produtos,.categorias,.produtos{padding-left:15px;padding-right:15px}.restaurante-meta{align-items:stretch}.restaurant-actions{width:100%;margin:0}.restaurant-actions .btn-primary{width:100%}.produto-card{grid-template-columns:108px minmax(0,1fr);min-height:132px}.produto-card>img{width:108px;min-height:132px}.produto-card .produto-info{padding:13px}.produto-card .produto-info h3{font-size:13px}.produto-card .produto-info:after{font-size:0;padding:0;background:transparent}}
 /* Carrinho */
 #overlay{background:rgba(13,17,26,.52);backdrop-filter:blur(3px)}
 #carrinho{right:-460px;width:440px;background:#f8f9fb;box-shadow:-24px 0 70px rgba(15,23,42,.20)}

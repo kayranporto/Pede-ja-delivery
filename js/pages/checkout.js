@@ -244,11 +244,32 @@ function snapshotValores() {
     });
 }
 
+function idsValidosParaConsulta(ids) {
+    const padraoUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
+    return [...new Set((ids || []).map((id) => String(id).trim()).filter(Boolean))]
+        .filter((id) => /^\d+$/.test(id) || padraoUuid.test(id));
+}
+
 async function sincronizarValores() {
     if (!carrinho.length || !carrinhoMeta?.empresa_id) return false;
     const antes = snapshotValores();
     const produtoIds = [...new Set(carrinho.map((item) => String(item.id)).filter(Boolean))];
+    const produtoIdsValidos = idsValidosParaConsulta(produtoIds);
     const adicionalIds = [...new Set(carrinho.flatMap((item) => (item.adicionais || []).map((adicional) => String(adicional.id))).filter(Boolean))];
+
+    carrinho.forEach((item) => {
+        if (!item || !item.id) {
+            item.indisponivel = true;
+            return;
+        }
+        const id = String(item.id).trim();
+        if (!produtoIdsValidos.includes(id)) item.indisponivel = true;
+    });
+
+    if (!produtoIdsValidos.length) {
+        renderizarResumo();
+        return false;
+    }
 
     const [empresaResposta, produtosResposta, adicionaisResposta, variantesResposta] = await Promise.all([
         window.db.from("empresas_catalogo")
@@ -257,11 +278,11 @@ async function sincronizarValores() {
             .maybeSingle(),
         window.db.from("produtos")
             .select("id,nome,imagem,preco,promocao,disponivel")
-            .in("id", produtoIds),
+            .in("id", produtoIdsValidos),
         adicionalIds.length
-            ? window.db.from("adicionais").select("id,nome,preco,ativo").in("id", adicionalIds)
+            ? window.db.from("adicionais").select("id,nome,preco,ativo").in("id", adicionalIds.filter((id) => /^\d+$/.test(id) || /^[0-9a-fA-F-]{36}$/.test(id)))
             : Promise.resolve({ data: [], error: null }),
-        window.db.from("produto_variantes").select("id,produto_id,nome,preco,promocao,ativo").in("produto_id", produtoIds).eq("ativo", true)
+        window.db.from("produto_variantes").select("id,produto_id,nome,preco,promocao,ativo").in("produto_id", produtoIdsValidos).eq("ativo", true)
     ]);
 
     if (empresaResposta.error) throw empresaResposta.error;
