@@ -1,0 +1,21 @@
+/* Correções de contraste para o tema escuro — WCAG AA */
+html[data-theme="dark"] #infoEntrega,
+html[data-theme="dark"] .produto-card .produto-info strong,
+html[data-theme="dark"] .produto-card .produto-info p,
+html[data-theme="dark"] #enderecoEntrega,
+html[data-theme="dark"] #pagamentoNota,
+html[data-theme="dark"] #enderecoStatus {
+    color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .produto-card .produto-info p,
+html[data-theme="dark"] #pagamentoNota,
+html[data-theme="dark"] #enderecoStatus {
+    color: #d1d5db !important;
+}
+
+html[data-theme="dark"] .endereco,
+html[data-theme="dark"] .pagamento-note {
+    background: #222831 !important;
+    border-color: #414957 !important;
+}
