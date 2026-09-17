@@ -154,9 +154,13 @@
     };
     const botao = document.getElementById("planoAdminSalvar43");
     botao.disabled = true;
-    const { error } = await window.db.rpc("admin_plano_salvar", { p_plano: payload });
+    try {
+      await window.DeliveryAPI.adminSalvarPlano(payload);
+    } catch (error) {
+      botao.disabled = false;
+      return toast("Não foi possível salvar o plano", App.mensagemErro(error), "error");
+    }
     botao.disabled = false;
-    if (error) return toast("Não foi possível salvar o plano", error.message || "Tente novamente.", "error");
     toast("Plano salvo", `${nome} foi atualizado.`, "success");
     limparForm();
     await carregar();
@@ -171,14 +175,18 @@
     if (status === "trial" && trial !== null && (!Number.isInteger(trial) || trial < 1 || trial > 365)) return toast("Trial inválido", "Use de 1 a 365 dias ou deixe em branco para usar o trial do plano.", "warning");
     const botao = document.getElementById("assinaturaSalvar43");
     botao.disabled = true;
-    const { error } = await window.db.rpc("admin_assinatura_definir", {
-      p_empresa_id: empresaId,
-      p_plano_id: planoId,
-      p_status: status,
-      p_trial_dias: trial
-    });
+    try {
+      await window.DeliveryAPI.adminSalvarAssinatura({
+        empresa_id: empresaId,
+        plano_id: planoId,
+        status,
+        trial_dias: trial
+      });
+    } catch (error) {
+      botao.disabled = false;
+      return toast("Não foi possível aplicar a assinatura", App.mensagemErro(error), "error");
+    }
     botao.disabled = false;
-    if (error) return toast("Não foi possível aplicar a assinatura", error.message || "Tente novamente.", "error");
     toast("Assinatura atualizada", "As novas regras já estão ativas no banco.", "success");
     await carregar();
   }
@@ -235,16 +243,18 @@
   }
 
   async function carregar() {
-    const [resPlanos, resAssinaturas, resEmpresas] = await Promise.all([
-      window.db.rpc("admin_planos_listar"),
-      window.db.rpc("admin_assinaturas_listar"),
-      window.db.from("empresas").select("id,nome").order("nome")
-    ]);
-    const erro = resPlanos.error || resAssinaturas.error || resEmpresas.error;
-    if (erro) return toast("Não foi possível carregar planos", erro.message || "Tente novamente.", "error");
-    planos = Array.isArray(resPlanos.data) ? resPlanos.data : [];
-    assinaturas = Array.isArray(resAssinaturas.data) ? resAssinaturas.data : [];
-    empresas = resEmpresas.data || [];
+    try {
+      const [resPlanos, resAssinaturas, resEmpresas] = await Promise.all([
+        window.DeliveryAPI.adminPlanos(),
+        window.DeliveryAPI.adminAssinaturas(),
+        window.DeliveryAPI.adminEmpresas()
+      ]);
+      planos = Array.isArray(resPlanos) ? resPlanos : [];
+      assinaturas = Array.isArray(resAssinaturas) ? resAssinaturas : [];
+      empresas = Array.isArray(resEmpresas) ? resEmpresas : [];
+    } catch (error) {
+      return toast("Não foi possível carregar planos", App.mensagemErro(error), "error");
+    }
     renderPlanos(); renderSelects(); renderAssinaturas();
   }
 
