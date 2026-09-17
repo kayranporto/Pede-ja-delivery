@@ -33,8 +33,7 @@ function textoEndereco(endereco) {
 
 async function tornarPrincipal(id) {
     if (!usuarioAtual) return;
-    const { error } = await window.db.rpc("endereco_selecionar", { p_endereco_id: id });
-    if (error) throw error;
+    await window.DeliveryAPI.selecionarEndereco(id);
 }
 
 function renderizar() {
