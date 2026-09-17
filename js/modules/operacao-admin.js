@@ -94,11 +94,8 @@
                 const formulario = await solicitarResposta(chamado);
                 if (!formulario) return;
                 responder.disabled = true;
-                const { error } = await window.db.rpc("admin_responder_chamado", {
-                    p_chamado_id: chamado.id,
-                    p_resposta: formulario.resposta,
-                    p_fechar: formulario.fechar
-                });
+                let error = null;
+                try { await window.DeliveryAPI.adminResponderChamado(chamado.id, formulario.resposta, formulario.fechar); } catch (erro) { error = erro; }
                 responder.disabled = false;
                 if (error) return window.AppToast?.("Falha no atendimento", App.mensagemErro(error), "error");
                 chamadoDados = chamadoDados.filter((item) => item.id !== chamado.id);
@@ -123,9 +120,9 @@
         if (!confirmar) return;
 
         App.definirCarregando(botao, true, "Processando...");
-        const { data, error } = await window.db.functions.invoke("processar-reembolso", {
-            body: { pedido_id: pedido.id }
-        });
+        let data = null;
+        let error = null;
+        try { data = await window.DeliveryAPI.adminProcessarReembolso(pedido.id); } catch (erro) { error = erro; }
         App.definirCarregando(botao, false);
 
         if (error || data?.error) {
@@ -163,11 +160,8 @@
 
             const decidir = async (valor, botao) => {
                 botao.disabled = true;
-                const { error } = await window.db.rpc("empresa_decidir_cancelamento", {
-                    p_pedido_id: pedido.id,
-                    p_aprovar: valor,
-                    p_observacao: "Analisado pela administração"
-                });
+                let error = null;
+                try { await window.DeliveryAPI.adminDecidirCancelamento(pedido.id, valor, "Analisado pela administração"); } catch (erro) { error = erro; }
                 botao.disabled = false;
                 if (error) return window.AppToast?.("Falha ao decidir", App.mensagemErro(error), "error");
                 cancelamentoDados = cancelamentoDados.filter((item) => item.id !== pedido.id);
@@ -240,8 +234,8 @@
     }
 
     async function carregarSaude() {
-        const { data, error } = await window.db.rpc("admin_saude_operacao");
-        if (error) throw error;
+        let data = null;
+        try { data = await window.DeliveryAPI.request("/v1/admin/saude"); } catch (error) { throw error; }
 
         $("opsChamados").textContent = String(data.chamados_abertos || 0);
         $("opsCancelamentos").textContent = String(data.cancelamentos_pendentes || 0);
@@ -263,37 +257,11 @@
     }
 
     async function carregar() {
-        const { data: admin } = await window.db.rpc("usuario_eh_admin");
-        if (admin !== true) return;
-
-        const [chamados, reembolsos, cancelamentos, conciliacao] = await Promise.all([
-            window.db.from("chamados_suporte")
-                .select("id,assunto,mensagem,status,prioridade,created_at")
-                .in("status", ["aberto", "em_analise"])
-                .order("prioridade", { ascending: false })
-                .order("created_at")
-                .limit(50),
-            window.db.from("pedidos")
-                .select("id,numero,empresa_nome,cliente_nome,total,reembolso_status,pagamento_reconciliacao_status")
-                .in("reembolso_status", ["aguardando_pagamento", "pendente", "processando", "falhou"])
-                .order("updated_at")
-                .limit(50),
-            window.db.from("pedidos")
-                .select("id,numero,empresa_nome,cliente_nome,cancelamento_motivo")
-                .eq("cancelamento_status", "solicitado")
-                .order("cancelamento_solicitado_em")
-                .limit(50),
-            window.db.rpc("admin_conciliacao_pagamentos", { p_limite: 50 })
-        ]);
-
-        if (chamados.error) throw chamados.error;
-        if (reembolsos.error) throw reembolsos.error;
-        if (cancelamentos.error) throw cancelamentos.error;
-        if (conciliacao.error) throw conciliacao.error;
-        chamadoDados = chamados.data || [];
-        reembolsoDados = reembolsos.data || [];
-        cancelamentoDados = cancelamentos.data || [];
-        conciliacaoDados = conciliacao.data?.pedidos || [];
+                const dados = await window.DeliveryAPI.adminOperacao();
+        chamadoDados = dados?.chamados || [];
+        reembolsoDados = dados?.reembolsos || [];
+        cancelamentoDados = dados?.cancelamentos || [];
+        conciliacaoDados = dados?.conciliacao || [];
         renderizarChamados();
         renderizarReembolsos();
         renderizarConciliacao();
