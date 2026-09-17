@@ -31,13 +31,12 @@
         const { data: { user }, error } = await window.db.auth.getUser();
         if (error || !user) { localStorage.setItem("redirect", "suporte.html"); location.replace("login.html"); return; }
         usuario = user;
-        const [resChamados, resPedidos] = await Promise.all([
-            window.db.from("chamados_suporte").select("*").eq("usuario_id", user.id).order("created_at", { ascending: false }),
-            window.db.from("pedidos").select("id,numero,empresa_nome,created_at").eq("usuario_id", user.id).order("created_at", { ascending: false }).limit(40)
+        const [chamadosApi, resPedidos] = await Promise.all([
+            window.DeliveryAPI.meusSuportes(),
+            window.DeliveryAPI.meusPedidos()
         ]);
-        if (resChamados.error) throw resChamados.error;
-        chamados = resChamados.data || [];
-        (resPedidos.data || []).forEach((pedido) => {
+        chamados = chamadosApi || [];
+        (resPedidos || []).forEach((pedido) => {
             const option = document.createElement("option"); option.value = pedido.id; option.textContent = `#${pedido.numero || String(pedido.id).slice(0, 8)} • ${pedido.empresa_nome}`; $("suportePedido").append(option);
         });
         renderizar();
@@ -46,14 +45,21 @@
     $("suporteForm").addEventListener("submit", async (event) => {
         event.preventDefault(); if (!usuario) return;
         const botao = event.currentTarget.querySelector("button"); App.definirCarregando(botao, true, "Enviando...");
-        const { data, error } = await window.db.rpc("abrir_chamado_suporte", { p_categoria: $("suporteCategoria").value, p_assunto: $("suporteAssunto").value.trim(), p_mensagem: $("suporteMensagem").value.trim(), p_pedido_id: $("suportePedido").value || null });
-        App.definirCarregando(botao, false);
-        if (error) {
+        let novo;
+        try {
+            novo = await window.DeliveryAPI.criarSuporte({
+                categoria: $("suporteCategoria").value,
+                assunto: $("suporteAssunto").value.trim(),
+                mensagem: $("suporteMensagem").value.trim(),
+                pedido_id: $("suportePedido").value || null
+            });
+        } catch (error) {
+            App.definirCarregando(botao, false);
             avisar("Não foi possível enviar", App.mensagemErro(error), "error");
             return;
         }
+        App.definirCarregando(botao, false);
         event.currentTarget.reset();
-        const { data: novo } = await window.db.from("chamados_suporte").select("*").eq("id", data).single();
         if (novo) chamados.unshift(novo);
         renderizar();
         avisar("Solicitação enviada", "A equipe de suporte já pode analisar seu chamado.", "success");
