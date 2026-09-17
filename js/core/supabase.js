@@ -158,6 +158,14 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
                 const data = await apiRequest("/v1/me/suporte");
                 return Array.isArray(data) ? data : [];
             },
+            async minhasAvaliacoes() {
+                const data = await apiRequest("/v1/me/avaliacoes");
+                return Array.isArray(data) ? data : [];
+            },
+            async minhasNotificacoes() {
+                const data = await apiRequest("/v1/me/notificacoes");
+                return Array.isArray(data) ? data : [];
+            },
             async resgatarFidelidade(empresaId) {
                 return apiRequest("/v1/fidelidade/resgatar", { method: "POST", body: JSON.stringify({ empresa_id: String(empresaId) }) });
             },
