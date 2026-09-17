@@ -447,8 +447,8 @@ async function atualizarMenuUsuario(user) {
     const perfil = document.createElement("a");
     perfil.href = "html/perfil.html";
     perfil.className = "btn-primary";
-    if (resPerfil.data?.avatar_url) {
-        const foto = document.createElement("img"); foto.src = resPerfil.data.avatar_url; foto.alt = "";
+    if (perfilUsuario?.avatar_url) {
+        const foto = document.createElement("img"); foto.src = perfilUsuario.avatar_url; foto.alt = "";
         perfil.append(foto);
     }
     const textoPerfil = document.createElement("span"); textoPerfil.textContent = perfilUsuario?.nome || "Minha conta";
