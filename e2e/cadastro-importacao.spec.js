@@ -52,15 +52,15 @@ test.beforeEach(async ({ page }) => {
     });
 });
 
-test("perfil oferece tema no menu e persiste a escolha nas outras páginas", async ({ page }) => {
+test("site permanece no modo claro e não oferece alternância de tema", async ({ page }) => {
     await page.goto("/html/perfil.html");
-    const botao=page.getByRole("button",{name:"Ativar modo escuro",exact:true});
-    await expect(page.locator("[data-theme-preferences]").getByRole("button")).toBeVisible();
-    await expect(botao).toHaveCSS("position","static");
-    await botao.click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await expect(page.locator(".theme-toggle")).toHaveCount(0);
+    await expect(page.locator("[data-theme-preferences]")).toHaveCount(0);
+
     await page.goto("/html/checkout.html");
-    await expect(page.locator("html")).toHaveAttribute("data-theme","dark");
-    await expect(page.getByRole("button",{name:"Ativar modo claro",exact:true})).toHaveCSS("position","static");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await expect(page.locator(".theme-toggle")).toHaveCount(0);
 });
 
 test("cadastro formata letras e números no CNPJ", async ({ page }) => {
