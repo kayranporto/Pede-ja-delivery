@@ -416,7 +416,7 @@ async function atualizarMenuUsuario(user) {
     let conta = null;
     try { conta = await window.DeliveryAPI.getMe(); }
     catch (erro) { console.warn("Não foi possível carregar o estado da conta pela API:", erro); }
-    const perfil = conta?.usuario || null;
+    const perfilUsuario = conta?.usuario || null;
     if (conta?.eh_admin === true) {
         const admin = document.createElement("a");
         admin.href = "html/admin.html";
@@ -451,7 +451,7 @@ async function atualizarMenuUsuario(user) {
         const foto = document.createElement("img"); foto.src = resPerfil.data.avatar_url; foto.alt = "";
         perfil.append(foto);
     }
-    const textoPerfil = document.createElement("span"); textoPerfil.textContent = perfil?.nome || "Minha conta";
+    const textoPerfil = document.createElement("span"); textoPerfil.textContent = perfilUsuario?.nome || "Minha conta";
     perfil.append(textoPerfil);
     menuUsuario.append(perfil);
 }
