@@ -73,25 +73,24 @@ test("funções privilegiadas fecham search_path e restringem execução", () =>
   }
 });
 
-test("painel configura equipe somente por RPC e permite atribuição em pedidos prontos", () => {
-  for (const rpc of [
-    "empresa_unidade_configurar_entrega",
-    "empresa_listar_entregadores_proprios",
-    "empresa_salvar_entregador_proprio",
-    "empresa_remover_entregador_proprio",
-    "empresa_atribuir_entregador_proprio"
-  ]) assert.ok(dashboard.includes(rpc), `painel sem RPC ${rpc}`);
-  assert.doesNotMatch(dashboard, /from\(["']empresa_entregadores["']\)\.(?:insert|update|delete)/);
+test("painel usa API HTTP e mantém atribuição apenas para a equipe própria", () => {
+  for (const trecho of [
+    "/v1/empresa/entregadores",
+    "/v1/empresa/pedidos/",
+    "method: \"POST\""
+  ]) assert.ok(dashboard.includes(trecho), `painel sem integração ${trecho}`);
+  assert.doesNotMatch(dashboard, /window\.db\.(?:from|rpc)/);
   assert.match(read("js/pages/empresa-dashboard.js"), /dataset\.entregaPronta/);
   assert.match(dashboard, /data-entrega-pronta="true"/);
   assert.match(dashboard, /Nenhum próprio disponível/);
+  assert.doesNotMatch(dashboard, /plataforma|hibrida/i);
 });
 
 test("assets do painel e identificação da oferta própria estão publicados", () => {
   const loader = read("js/core/site-enhancements.js");
   const entregador = read("js/modules/entregador-logistica-4.4.js");
-  assert.match(loader, /empresa-entrega-propria-4\.4\.5\.css\?v=4\.4\.5/);
-  assert.match(loader, /empresa-entrega-propria-4\.4\.5\.js\?v=4\.4\.5/);
+  assert.match(loader, /empresa-entrega-propria-4\\.4\\.5\\.css\\?v=4\\.5\\.0/);
+  assert.match(loader, /empresa-entrega-propria-4\\.4\\.5\\.js\\?v=4\\.5\\.0/);
   assert.match(entregador, /item\.oferta_origem === "propria"/);
   assert.match(entregador, /Equipe própria/);
   assert.match(read("css/modules/entregador-push-4.4.3.css"), /delivery-status\.own-team/);
