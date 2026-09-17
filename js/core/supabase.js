@@ -169,6 +169,45 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
             async resgatarFidelidade(empresaId) {
                 return apiRequest("/v1/fidelidade/resgatar", { method: "POST", body: JSON.stringify({ empresa_id: String(empresaId) }) });
             },
+            async empresaPlano() {
+                return apiRequest("/v1/empresa/plano");
+            },
+            async empresaFuncionarios(empresaId) {
+                const data = await apiRequest("/v1/empresa/funcionarios?empresa_id=" + encodeURIComponent(String(empresaId)));
+                return Array.isArray(data) ? data : [];
+            },
+            async salvarFuncionario(empresaId, email, papel) {
+                return apiRequest("/v1/empresa/funcionarios", { method: "POST", body: JSON.stringify({ empresa_id: String(empresaId), email: String(email), papel: String(papel) }) });
+            },
+            async removerFuncionario(empresaId, usuarioId) {
+                return apiRequest("/v1/empresa/funcionarios/" + encodeURIComponent(String(usuarioId)) + "?empresa_id=" + encodeURIComponent(String(empresaId)), { method: "DELETE" });
+            },
+            async entregadorResumoGanhos() {
+                return apiRequest("/v1/entregador/resumo");
+            },
+            async entregadorHistoricoGanhos(limite = 20, offset = 0) {
+                const params = new URLSearchParams({ limite: String(Math.min(Math.max(Number(limite) || 20, 1), 200)), offset: String(Math.max(Number(offset) || 0, 0)) });
+                const data = await apiRequest("/v1/entregador/ganhos?" + params);
+                return Array.isArray(data) ? data : [];
+            },
+            async adminPlanos() {
+                const data = await apiRequest("/v1/admin/planos");
+                return Array.isArray(data) ? data : [];
+            },
+            async adminAssinaturas() {
+                const data = await apiRequest("/v1/admin/assinaturas");
+                return Array.isArray(data) ? data : [];
+            },
+            async adminEmpresas() {
+                const data = await apiRequest("/v1/admin/empresas");
+                return Array.isArray(data) ? data : [];
+            },
+            async adminSalvarPlano(plano) {
+                return apiRequest("/v1/admin/planos", { method: "POST", body: JSON.stringify({ plano }) });
+            },
+            async adminSalvarAssinatura(payload) {
+                return apiRequest("/v1/admin/assinaturas", { method: "POST", body: JSON.stringify(payload || {}) });
+            },
             async salvarEndereco(endereco) {
                 return apiRequest("/v1/me/enderecos", { method: "POST", body: JSON.stringify(endereco) });
             },
