@@ -21,10 +21,20 @@
         return elemento;
     }
 
-    async function rpc(nome, parametros = {}) {
-        const resposta = await window.db.rpc(nome, parametros);
-        if (resposta.error) throw resposta.error;
-        return resposta.data;
+    async function carregarOperacao(nome, parametros = {}) {
+        const rotas = {
+            empresa_meu_acesso: ["/v1/empresa/acesso", "GET"],
+            empresa_listar_funcionarios: ["/v1/empresa/funcionarios?empresa_id=" + encodeURIComponent(String(parametros.p_empresa_id || "")), "GET"]
+        };
+        const rota = rotas[nome];
+        if (!rota) throw new Error("Operação da equipe não suportada pela API.");
+        return window.DeliveryAPI.request(rota[0], { method: rota[1] });
+    }
+    async function salvarFuncionario(empresaId, email, papel) {
+        return window.DeliveryAPI.salvarFuncionario(empresaId, email, papel);
+    }
+    async function removerFuncionario(empresaId, usuarioId) {
+        return window.DeliveryAPI.removerFuncionario(empresaId, usuarioId);
     }
 
     function renderizar() {
@@ -61,11 +71,7 @@
                 const anterior = membro.papel;
                 seletor.disabled = true;
                 try {
-                    await rpc("empresa_salvar_funcionario", {
-                        p_empresa_id: acesso.empresa_id,
-                        p_email: membro.email,
-                        p_papel: seletor.value
-                    });
+                    await salvarFuncionario(acesso.empresa_id, membro.email, seletor.value);
                     membro.papel = seletor.value;
                     status("Papel atualizado com sucesso.", "success");
                     renderizar();
@@ -84,11 +90,11 @@
                 botao.disabled = true;
                 try {
                     if (membro.ativo) {
-                        await rpc("empresa_remover_funcionario", { p_empresa_id: acesso.empresa_id, p_usuario_id: membro.usuario_id });
+                        await removerFuncionario(acesso.empresa_id, membro.usuario_id);
                         membro.ativo = false;
                         status("Acesso do funcionário desativado.", "success");
                     } else {
-                        await rpc("empresa_salvar_funcionario", { p_empresa_id: acesso.empresa_id, p_email: membro.email, p_papel: membro.papel });
+                        await salvarFuncionario(acesso.empresa_id, membro.email, membro.papel);
                         membro.ativo = true;
                         status("Acesso do funcionário reativado.", "success");
                     }
@@ -107,7 +113,7 @@
 
     async function carregarEquipe() {
         status("");
-        const dados = await rpc("empresa_listar_funcionarios", { p_empresa_id: acesso.empresa_id });
+        const dados = await carregarOperacao("empresa_listar_funcionarios", { p_empresa_id: acesso.empresa_id });
         equipe = Array.isArray(dados) ? dados : [];
         renderizar();
     }
@@ -118,7 +124,7 @@
             window.location.replace("empresa-login.html");
             return false;
         }
-        const acessos = await rpc("empresa_meu_acesso");
+        const acessos = await carregarOperacao("empresa_meu_acesso");
         acesso = (Array.isArray(acessos) ? acessos : []).find((item) => item.proprietario === true) || null;
         if (!acesso) {
             window.location.replace("empresa-login.html");
@@ -138,7 +144,7 @@
         if (!email) return status("Informe o e-mail do funcionário.", "error");
         App.definirCarregando(botao, true, "Salvando...");
         try {
-            await rpc("empresa_salvar_funcionario", { p_empresa_id: acesso.empresa_id, p_email: email, p_papel: papel });
+            await salvarFuncionario(acesso.empresa_id, email, papel);
             form.reset();
             $("equipePapel").value = "gerente";
             await carregarEquipe();
