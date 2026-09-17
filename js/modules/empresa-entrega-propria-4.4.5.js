@@ -90,38 +90,6 @@
     }
   }
 
-  async function salvarConfiguracao(event) {
-    event.preventDefault();
-    const id = unidadeId();
-    const modalidade = $("entregaModalidade445").value;
-    const fallback = Number($("entregaFallback445").value || 5);
-    if (!id) return toast("Selecione uma unidade", "Escolha a unidade antes de configurar a entrega.", "warning");
-    if (!Number.isInteger(fallback) || fallback < 1 || fallback > 60) {
-      return toast("Prazo inválido", "Use um prazo entre 1 e 60 minutos.", "warning");
-    }
-    if (false && modalidade === "propria" && !entregadores.some((item) => item.ativo && item.aprovado)) {
-      const continuar = await window.AppConfirm?.({
-        titulo: "Ativar entrega própria sem equipe?",
-        mensagem: "Nenhum entregador aprovado está ativo nesta unidade. Novos pedidos aguardarão até alguém ser vinculado.",
-        confirmar: "Ativar mesmo assim",
-        cancelar: "Voltar",
-        perigoso: true
-      });
-      if (continuar !== true) return;
-    }
-    const botao = $("salvarEntregaModalidade445");
-    window.App?.definirCarregando?.(botao, true, "Salvando...");
-    const { error } = await window.db.rpc("empresa_unidade_configurar_entrega", {
-      p_unidade_id: id,
-      p_modalidade: modalidade,
-      p_fallback_minutos: fallback
-    });
-    window.App?.definirCarregando?.(botao, false);
-    if (error) return toast("Não foi possível salvar", mensagemErro(error), "error");
-    toast("Modalidade de entrega atualizada", atualizarAjudaModalidade() || "A nova regra já vale para esta unidade.", "success");
-    await carregar();
-  }
-
   async function adicionar(event) {
     event.preventDefault();
     const id = unidadeId();
@@ -169,12 +137,16 @@
 
   async function reativar(item, botao) {
     window.App?.definirCarregando?.(botao, true, "Reativando...");
-    const { error } = await window.db.rpc("empresa_salvar_entregador_proprio", {
-      p_unidade_id: unidadeId(),
-      p_email: item.email
-    });
+    try {
+      await window.DeliveryAPI.request("/v1/empresa/entregadores", {
+        method: "POST",
+        body: JSON.stringify({ unidade_id: unidadeId(), email: item.email })
+      });
+    } catch (erro) {
+      window.App?.definirCarregando?.(botao, false);
+      return toast("Não foi possível reativar", mensagemErro(erro), "error");
+    }
     window.App?.definirCarregando?.(botao, false);
-    if (error) return toast("Não foi possível reativar", mensagemErro(error), "error");
     toast("Entregador reativado", "O vínculo voltou a valer nesta unidade.", "success");
     await carregar();
   }
