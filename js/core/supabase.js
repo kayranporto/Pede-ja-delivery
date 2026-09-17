@@ -208,6 +208,18 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
             async adminSalvarAssinatura(payload) {
                 return apiRequest("/v1/admin/assinaturas", { method: "POST", body: JSON.stringify(payload || {}) });
             },
+            async adminOperacao() {
+                return apiRequest("/v1/admin/operacao");
+            },
+            async adminResponderChamado(chamadoId, resposta, fechar = false) {
+                return apiRequest("/v1/admin/chamados/responder", { method: "POST", body: JSON.stringify({ chamado_id: String(chamadoId), resposta: String(resposta), fechar: fechar === true }) });
+            },
+            async adminDecidirCancelamento(pedidoId, aprovar, observacao = null) {
+                return apiRequest("/v1/admin/pedidos/cancelamento", { method: "POST", body: JSON.stringify({ pedido_id: String(pedidoId), aprovar: aprovar === true, observacao }) });
+            },
+            async adminProcessarReembolso(pedidoId) {
+                return apiRequest("/v1/admin/reembolso/processar", { method: "POST", body: JSON.stringify({ pedido_id: String(pedidoId) }) });
+            },
             async salvarEndereco(endereco) {
                 return apiRequest("/v1/me/enderecos", { method: "POST", body: JSON.stringify(endereco) });
             },
