@@ -15,6 +15,7 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .driver-actions button { background:#1b2030; color:#fff; }
 .driver-main { width:min(calc(100% - 32px),1180px); margin:0 auto; padding:34px 0 70px; }
 .driver-loading { display:flex; min-height:48vh; align-items:center; justify-content:center; gap:14px; color:var(--muted); }
+.driver-loading[hidden] { display: none !important; }
 .driver-loading span { width:28px; height:28px; border:3px solid #ddd; border-top-color:var(--red); border-radius:50%; animation:spin .8s linear infinite; }
 .driver-card,.driver-section { padding:28px; border:1px solid var(--line); border-radius:24px; background:var(--surface); box-shadow:var(--shadow); }
 .register-card { max-width:780px; margin:30px auto; }

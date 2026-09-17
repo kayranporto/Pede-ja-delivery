@@ -903,20 +903,79 @@ function aplicarTamanhoFonte(valor) {
     anunciar(`Tamanho das letras: ${{ normal: "normal", large: "grande", xlarge: "extra grande" }[permitido]}.`);
 }
 
+let mostrarSecaoAdmin = () => {};
+
 function configurarNavegacao() {
-    const links = [...document.querySelectorAll(".admin-sidebar nav a")];
-    links.forEach((link) => link.addEventListener("click", () => {
-        links.forEach((item) => item.classList.toggle("active", item === link));
-        adminSidebar.classList.remove("open"); adminOverlay.classList.remove("show");
-    }));
-    if ("IntersectionObserver" in window) {
-        const observador = new IntersectionObserver((entradas) => {
-            const visivel = entradas.filter((entrada) => entrada.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-            if (!visivel) return;
-            links.forEach((link) => link.classList.toggle("active", link.getAttribute("href") === `#${visivel.target.id}`));
-        }, { rootMargin: "-20% 0px -65%", threshold: [0.05, 0.3] });
-        document.querySelectorAll("main section[id]").forEach((secao) => observador.observe(secao));
+    const views = [...document.querySelectorAll("[data-admin-view]")];
+    const links = [...document.querySelectorAll(".admin-sidebar nav a[href^='#']")];
+    const viewIds = new Set(views.map((view) => view.id));
+
+    const titulos = {
+        overview: "Central administrativa",
+        pedidos: "Gestão de pedidos",
+        restaurantes: "Moderação de restaurantes",
+        usuarios: "Usuários da plataforma",
+        entregadores: "Entregadores parceiros",
+        cupons: "Gestão de cupons",
+        relatorios: "Relatórios e inteligência",
+        suporte: "Suporte e pendências"
+    };
+
+    function idSecao(valor = location.hash) {
+        const id = String(valor || "").replace(/^#/, "");
+        return viewIds.has(id) ? id : "overview";
     }
+
+    mostrarSecaoAdmin = function(id, { atualizarHistorico = false, focar = false } = {}) {
+        const secaoId = idSecao(id);
+        views.forEach((view) => {
+            const ativa = view.id === secaoId;
+            view.hidden = !ativa;
+            view.classList.toggle("is-active", ativa);
+            view.setAttribute("aria-hidden", String(!ativa));
+        });
+        links.forEach((link) => {
+            const ativo = link.getAttribute("href") === `#${secaoId}`;
+            link.classList.toggle("active", ativo);
+            if (ativo) link.setAttribute("aria-current", "page");
+            else link.removeAttribute("aria-current");
+        });
+        const headerTitle = document.getElementById("adminHeaderTitle");
+        if (headerTitle && titulos[secaoId]) {
+            headerTitle.textContent = titulos[secaoId];
+        }
+        if (atualizarHistorico && location.hash !== `#${secaoId}`) {
+            history.pushState({ adminView: secaoId }, "", `#${secaoId}`);
+        }
+        adminSidebar?.classList.remove("open");
+        adminOverlay?.classList.remove("show");
+        window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+        if (focar) document.getElementById(secaoId)?.focus({ preventScroll: true });
+    };
+
+    links.forEach((link) => link.addEventListener("click", (event) => {
+        event.preventDefault();
+        mostrarSecaoAdmin(link.hash, { atualizarHistorico: true, focar: true });
+    }));
+
+    document.querySelectorAll("[data-admin-nav]").forEach((elementoNav) => {
+        elementoNav.addEventListener("click", (event) => {
+            event.preventDefault();
+            const destino = elementoNav.getAttribute("data-admin-nav");
+            if (destino) mostrarSecaoAdmin(destino, { atualizarHistorico: true, focar: true });
+        });
+        elementoNav.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                const destino = elementoNav.getAttribute("data-admin-nav");
+                if (destino) mostrarSecaoAdmin(destino, { atualizarHistorico: true, focar: true });
+            }
+        });
+    });
+
+    window.addEventListener("popstate", () => mostrarSecaoAdmin(location.hash));
+    window.addEventListener("hashchange", () => mostrarSecaoAdmin(location.hash));
+    mostrarSecaoAdmin(location.hash);
 }
 
 async function iniciarAdmin() {
@@ -927,7 +986,11 @@ async function iniciarAdmin() {
     if (error || permitido !== true) { alert("Esta conta não possui acesso administrativo."); location.replace("perfil.html"); return; }
     try {
         await carregarDadosAdmin();
-        document.getElementById("adminLoading").hidden = true;
+        const loadingAdmin = document.getElementById("adminLoading");
+        if (loadingAdmin) {
+            loadingAdmin.hidden = true;
+            loadingAdmin.style.display = "none";
+        }
         document.getElementById("adminApp").hidden = false;
         canalAdmin = db.channel("admin-plataforma")
             .on("postgres_changes", { event: "*", schema: "public", table: "pedidos" }, agendarRecarregamento)
@@ -936,7 +999,12 @@ async function iniciarAdmin() {
             .subscribe();
     } catch (erroDados) {
         console.error(erroDados);
-        document.getElementById("adminLoading").replaceChildren(elemento("strong", "", `Não foi possível carregar o painel: ${App.mensagemErro(erroDados)}`));
+        const loadingAdmin = document.getElementById("adminLoading");
+        if (loadingAdmin) {
+            loadingAdmin.hidden = false;
+            loadingAdmin.style.display = "grid";
+            loadingAdmin.replaceChildren(elemento("strong", "", `Não foi possível carregar o painel: ${App.mensagemErro(erroDados)}`));
+        }
     }
 }
 
@@ -976,7 +1044,11 @@ modal.addEventListener("keydown", (evento) => {
     else if (!evento.shiftKey && document.activeElement === ultimo) { evento.preventDefault(); primeiro.focus(); }
 });
 document.addEventListener("keydown", (evento) => {
-    if ((evento.ctrlKey || evento.metaKey) && evento.key.toLowerCase() === "k") { evento.preventDefault(); document.getElementById("buscaAdminPedido").focus(); document.getElementById("pedidos").scrollIntoView({ behavior: "smooth" }); }
+    if ((evento.ctrlKey || evento.metaKey) && evento.key.toLowerCase() === "k") {
+        evento.preventDefault();
+        mostrarSecaoAdmin("pedidos", { atualizarHistorico: true, focar: true });
+        document.getElementById("buscaAdminPedido").focus();
+    }
 });
 document.getElementById("adminLogout").addEventListener("click", async () => { await db.auth.signOut(); App.limparDadosPrivados(); location.replace("login.html"); });
 addEventListener("beforeunload", () => { clearTimeout(recarregarTimer); if (canalAdmin) db.removeChannel(canalAdmin); });

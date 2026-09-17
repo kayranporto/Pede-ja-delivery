@@ -3,6 +3,10 @@
     outline-offset: 3px;
 }
 
+[hidden] {
+    display: none !important;
+}
+
 button,
 [role="button"],
 a {

@@ -38,3 +38,31 @@ test("robots bloqueia as rotas privadas reais em html", () => {
         assert.match(robots, new RegExp(`^Disallow: ${rota.replaceAll(".", "\\.")}$`, "m"), `${rota} deve ficar fora de indexação`);
     }
 });
+
+test("tela de loading do admin é ocultada corretamente após carregar", () => {
+    const adminCss = read("css/pages/admin.css");
+    assert.match(adminCss, /\.admin-loading\[hidden\]\s*\{\s*display:\s*none\s*!important\s*\}/);
+    const accessCss = read("css/core/accessibility.css");
+    assert.ok(accessCss.includes("[hidden] {\r\n    display: none !important;\r\n}") || accessCss.includes("[hidden] {\n    display: none !important;\n}"));
+    const adminJs = read("js/pages/admin.js");
+    assert.match(adminJs, /loadingAdmin\.hidden\s*=\s*true/);
+    assert.match(adminJs, /loadingAdmin\.style\.display\s*=\s*["']none["']/);
+});
+
+test("painel administrativo exibe apenas a seção escolhida e separa o conteúdo", () => {
+    const html = read("html/admin.html");
+    const js = read("js/pages/admin.js");
+    const css = read("css/pages/admin.css");
+    assert.equal((html.match(/data-admin-view/g) || []).length, 8);
+    assert.match(html, /id="overview"[^>]*data-admin-view/);
+    assert.match(html, /id="pedidos"[^>]*data-admin-view[^>]*hidden/);
+    assert.match(html, /id="restaurantes"[^>]*data-admin-view[^>]*hidden/);
+    assert.match(html, /id="relatorios"[^>]*data-admin-view[^>]*hidden/);
+    assert.match(js, /function configurarNavegacao/);
+    assert.match(js, /mostrarSecaoAdmin/);
+    assert.match(js, /history\.pushState/);
+    assert.match(js, /addEventListener\("hashchange"/);
+    assert.match(css, /\.admin-view\[hidden\]\s*\{\s*display:\s*none\s*!important\s*\}/);
+});
+
+
