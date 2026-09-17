@@ -101,10 +101,11 @@ function renderizar() {
             if (!confirmado) return;
 
             remover.disabled = true;
-            const { error } = await window.db.rpc("endereco_remover", { p_endereco_id: endereco.id });
-            if (error) {
+            try {
+                await window.DeliveryAPI.removerEndereco(endereco.id);
+            } catch (erro) {
                 remover.disabled = false;
-                avisarEndereco("Não foi possível remover", App.mensagemErro(error), "error");
+                avisarEndereco("Não foi possível remover", App.mensagemErro(erro), "error");
                 return;
             }
             await carregar();
@@ -118,13 +119,12 @@ function renderizar() {
 }
 
 async function carregar() {
-    const { data, error } = await window.db.from("enderecos")
-        .select("*")
-        .eq("usuario_id", usuarioAtual.id)
-        .order("principal", { ascending: false, nullsFirst: false })
-        .order("created_at", { ascending: false });
-    if (error) throw error;
-    enderecos = data || [];
+    enderecos = await window.DeliveryAPI.meusEnderecos();
+    enderecos.sort((a, b) => {
+        const principal = Number(Boolean(b?.principal)) - Number(Boolean(a?.principal));
+        if (principal) return principal;
+        return new Date(b?.created_at || 0).getTime() - new Date(a?.created_at || 0).getTime();
+    });
     renderizar();
 }
 
@@ -161,8 +161,7 @@ form.addEventListener("submit", async (event) => {
 
     App.definirCarregando(botao, true, "Salvando...");
     try {
-        const { error } = await window.db.rpc("endereco_salvar", { p_endereco: payload });
-        if (error) throw error;
+        await window.DeliveryAPI.salvarEndereco(payload);
         if (voltaAoPedido) { window.location.assign(destino); return; }
         form.reset();
         document.getElementById("apelido").value = "Casa";
