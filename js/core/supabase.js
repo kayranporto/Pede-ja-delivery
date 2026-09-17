@@ -51,6 +51,76 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
                 detectSessionInUrl: true
             }
         });
+
+        const API_BASE = `${SUPABASE_URL}/functions/v1/api-completa`;
+
+        async function apiRequest(path, options = {}) {
+            const headers = new Headers(options.headers || {});
+            headers.set("apikey", SUPABASE_PUBLISHABLE_KEY);
+            headers.set("Accept", "application/json");
+            if (options.body !== undefined && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+
+            try {
+                const { data } = await window.db.auth.getSession();
+                const token = data?.session?.access_token;
+                if (token) headers.set("Authorization", `Bearer ${token}`);
+            } catch (erro) {
+                console.warn("Sessão não pôde ser consultada antes da chamada à API.", erro);
+            }
+
+            const resposta = await fetch(`${API_BASE}${path}`, {
+                ...options,
+                headers,
+                credentials: "omit"
+            });
+            const payload = await resposta.json().catch(() => null);
+            if (!resposta.ok) {
+                const erro = new Error(payload?.error?.message || `Falha HTTP ${resposta.status}`);
+                erro.code = payload?.error?.code || "api_error";
+                erro.status = resposta.status;
+                throw erro;
+            }
+            return payload?.data;
+        }
+
+        window.DeliveryAPI = Object.freeze({
+            baseUrl: API_BASE,
+            request: apiRequest,
+            async restaurantes({ limite = 50, offset = 0, categoria, cidade } = {}) {
+                const params = new URLSearchParams({
+                    limite: String(Math.min(Math.max(Number(limite) || 50, 1), 50)),
+                    offset: String(Math.max(Number(offset) || 0, 0))
+                });
+                if (categoria) params.set("categoria", String(categoria));
+                if (cidade) params.set("cidade", String(cidade));
+                const data = await apiRequest(`/v1/restaurantes?${params}`);
+                return Array.isArray(data) ? data : [];
+            },
+            async cardapio(empresaId) {
+                return apiRequest(`/v1/restaurantes/${encodeURIComponent(String(empresaId))}/cardapio`);
+            },
+            async disponibilidade(empresaId, quando = new Date().toISOString()) {
+                return apiRequest(`/v1/restaurantes/${encodeURIComponent(String(empresaId))}/disponibilidade?quando=${encodeURIComponent(quando)}`);
+            },
+            async avaliacoesResumo(empresaId) {
+                return apiRequest(`/v1/restaurantes/${encodeURIComponent(String(empresaId))}/avaliacoes-resumo`);
+            },
+            async avaliacoesResumoTodos() {
+                return apiRequest("/v1/avaliacoes-resumo");
+            },
+            async avaliacoes(empresaId, limite = 9) {
+                return apiRequest(`/v1/restaurantes/${encodeURIComponent(String(empresaId))}/avaliacoes?limite=${Math.min(Math.max(Number(limite) || 9, 1), 50)}`);
+            },
+            async criarPedido(body) {
+                return apiRequest("/v1/pedidos", { method: "POST", body: JSON.stringify(body) });
+            },
+            async calcularEntrega(body) {
+                return apiRequest("/v1/entrega/calcular", { method: "POST", body: JSON.stringify(body) });
+            },
+            async getMe() {
+                return apiRequest("/v1/me");
+            }
+        });
     } catch (erro) {
         console.error(erro);
         window.db = clienteIndisponivel();
