@@ -36,7 +36,7 @@ test("catálogo 4.2 suporta variações com snapshot no pedido", () => {
     assert.match(modal, /variante_id/);
     const checkout = read("js/pages/checkout.js");
     assert.match(checkout, /variante_id/);
-    assert.match(checkout, /produto_variantes/);
+    assert.match(checkout, /DeliveryAPI\.cardapio/);
 });
 
 test("checkout usa chave idempotente persistida durante a tentativa", () => {
