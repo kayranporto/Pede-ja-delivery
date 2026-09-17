@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Multi Delivery API Completa",
-    "version": "2.9.0",
+    "version": "3.0.0",
     "description": "API HTTP do site Multi Delivery. O catálogo é público; operações autenticadas para clientes, empresas e entregadores seguem RLS e regras de negócio. Entregadores pertencem exclusivamente às empresas."
   },
   "servers": [
@@ -578,6 +578,42 @@
         "responses": {
           "200": {
             "description": "Funcionário removido"
+          }
+        }
+      }
+    },
+    "/v1/admin/operacao": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Pendências da operação administrativa"
+          }
+        }
+      }
+    },
+    "/v1/admin/chamados/responder": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Chamado respondido"
+          }
+        }
+      }
+    },
+    "/v1/admin/pedidos/cancelamento": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Cancelamento decidido"
+          }
+        }
+      }
+    },
+    "/v1/admin/reembolso/processar": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Reembolso processado"
           }
         }
       }
