@@ -15,11 +15,7 @@
 <link href="../css/modules/restaurante-4.2.2.css?v=4.2.4" rel="stylesheet"/>
 <link href="../css/modules/carrinho-4.2.5.css?v=4.2.6" rel="stylesheet"/>
 <link href="../css/core/enhancements.css?v=4.4.6" rel="stylesheet"/>
-<meta content="Confira o cardápio, personalize seus produtos e faça seu pedido pelo Multi Delivery." name="description"/>
-<link rel="manifest" href="../manifest.webmanifest"/>
-<meta name="theme-color" content="#ea1d2c"/>
-<link crossorigin="" href="https://cdn.jsdelivr.net" rel="preconnect"/>
-<link crossorigin="" href="https://wzxsjxdbxonrmlmzufpv.supabase.co" rel="preconnect"/>
+<link href="../css/core/dark-theme-fixes.css?v=4.4.6.1" rel="stylesheet"/>
 </head>
 <body>
 <noscript>Este site precisa de JavaScript habilitado para funcionar.</noscript>
@@ -28,94 +24,14 @@
 <div class="logo">Multi Delivery</div>
 <button class="cart" type="button" aria-label="Abrir carrinho">🛒<span>0</span></button>
 </header>
-<section class="banner-restaurante">
-<img alt="Banner do Restaurante" decoding="async" fetchpriority="high" id="bannerRestaurante" src="../assets/banner-padrao.svg"/>
-</section>
-<section class="info-restaurante">
-<img alt="Logo do Restaurante" class="logo-restaurante" decoding="async" id="logoRestaurante" src="../assets/logo-restaurante.svg"/>
-<div>
-<h1 id="nomeRestaurante">Carregando...</h1>
-<p id="descricaoRestaurante">Aguarde...</p>
-<p id="infoEntrega">Carregando informações...</p>
-</div>
-</section>
-<section class="restaurante-meta">
-<div class="metas">
-<span class="status-badge aberta" id="statusBadge">Carregando status...</span>
-<span class="meta-chip" id="avaliacaoRestaurante">☆ Novo</span>
-<span class="meta-chip" id="tempoEntrega">Tempo de entrega</span>
-<span class="meta-chip" id="pedidoMinimo">Pedido mínimo</span>
-</div>
-<div class="restaurant-actions">
-<button id="btnVerCarrinho" type="button" class="btn-primary">Revisar carrinho • <span id="contadorCarrinho">0</span></button>
-</div>
-</section>
-<section class="pesquisa-produtos">
-<input aria-label="Pesquisar no cardápio" autocomplete="off" id="pesquisaProduto" maxlength="120" placeholder="Buscar no cardápio" type="text"/>
-</section>
+<section class="banner-restaurante"><img alt="Banner do Restaurante" decoding="async" fetchpriority="high" id="bannerRestaurante" src="../assets/banner-padrao.svg"/></section>
+<section class="info-restaurante"><img alt="Logo do Restaurante" class="logo-restaurante" decoding="async" id="logoRestaurante" src="../assets/logo-restaurante.svg"/><div><h1 id="nomeRestaurante">Carregando...</h1><p id="descricaoRestaurante">Aguarde...</p><p id="infoEntrega">Carregando informações...</p></div></section>
+<section class="restaurante-meta"><div class="metas"><span class="status-badge aberta" id="statusBadge">Carregando status...</span><span class="meta-chip" id="avaliacaoRestaurante">☆ Novo</span><span class="meta-chip" id="tempoEntrega">Tempo de entrega</span><span class="meta-chip" id="pedidoMinimo">Pedido mínimo</span></div><div class="restaurant-actions"><button id="btnVerCarrinho" type="button" class="btn-primary">Revisar carrinho • <span id="contadorCarrinho">0</span></button></div></section>
+<section class="pesquisa-produtos"><input aria-label="Pesquisar no cardápio" autocomplete="off" id="pesquisaProduto" maxlength="120" placeholder="Buscar no cardápio" type="text"/></section>
 <section class="categorias" id="categorias" aria-label="Categorias do cardápio"></section>
-<section class="produtos" aria-label="Cardápio">
-<div class="lista-produtos" id="listaProdutos"></div>
-</section>
-<section class="avaliacoes-publicas" aria-labelledby="avaliacoesTitulo">
-<div class="avaliacoes-titulo"><div><small>EXPERIÊNCIAS REAIS</small><h2 id="avaliacoesTitulo">O que os clientes dizem</h2></div><span id="avaliacoesContagem"></span></div>
-<div class="avaliacoes-lista" id="avaliacoesPublicas"><p>Nenhuma avaliação publicada ainda.</p></div>
-</section>
-<div id="overlay"></div>
-<aside id="carrinho" aria-hidden="true" aria-labelledby="carrinhoTitulo" inert>
-<div class="carrinho-header">
-<div class="carrinho-titulo-bloco">
-<span class="carrinho-eyebrow">SEU PEDIDO</span>
-<h2 id="carrinhoTitulo">Seu carrinho <span id="carrinhoQuantidadeResumo" aria-live="polite">0 itens</span></h2>
-<p id="carrinhoRestaurante">Revise os itens antes de continuar</p>
-</div>
-<button aria-label="Fechar carrinho" id="fecharCarrinho" type="button">×</button>
-</div>
-<div class="carrinho-itens"></div>
-<div class="carrinho-footer">
-<div class="carrinho-minimo" id="carrinhoMinimo" role="status" hidden>
-<div><span id="carrinhoMinimoTexto">Pedido mínimo</span><strong id="carrinhoMinimoValor"></strong></div>
-<div class="carrinho-minimo-barra" role="progressbar" aria-label="Progresso do pedido mínimo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
-</div>
-<div class="carrinho-resumo-titulo"><span>Resumo</span><small>Valores antes da confirmação</small></div>
-<div class="linha"><span>Subtotal</span><strong id="subtotal">R$ 0,00</strong></div>
-<div class="linha"><span>Entrega</span><strong id="taxaEntrega">R$ 0,00</strong></div>
-<div class="linha total"><span>Total</span><strong id="total">R$ 0,00</strong></div>
-<button id="btnCheckout" type="button"><span id="btnCheckoutTexto">Ir para o checkout</span><strong id="btnCheckoutTotal">R$ 0,00</strong></button>
-<div class="carrinho-acoes-secundarias">
-<button id="continuarComprando" type="button">Adicionar mais itens</button>
-<button id="limparCarrinhoBtn" type="button">Limpar carrinho</button>
-</div>
-</div>
-</aside>
-<div class="modal" id="produtoModal" aria-hidden="true" inert>
-<div class="modal-content">
-<button class="fechar-modal" type="button">×</button>
-<img alt="Produto" id="modalImagem" src=""/>
-<div class="modal-body">
-<h2 id="modalNome"></h2>
-<p id="modalDescricao"></p>
-<div id="blocoVariantes" hidden><h3>Escolha uma opção</h3><div id="listaVariantes"></div></div>
-<h3>Escolha os adicionais</h3>
-<div id="listaAdicionais"></div>
-<h3>Observações</h3>
-<textarea aria-label="Observações do produto" id="observacao" maxlength="300" placeholder="Ex: sem cebola, molho à parte..."></textarea>
-<div class="quantidade-modal">
-<button id="menosQtd" type="button">−</button><span id="quantidade">1</span><button id="maisQtd" type="button">+</button>
-</div>
-<button id="confirmarProduto" type="button">Adicionar ao carrinho • <span id="precoFinal">R$ 0,00</span></button>
-</div>
-</div>
-</div>
-<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
-<script defer src="../js/core/app-utils.js?v=4.4.6"></script>
-<script defer src="../js/core/supabase.js?v=4.2.0"></script>
-<script defer src="../js/core/dialogs.js?v=4.2.0"></script>
-<script defer src="../js/core/cart-store.js?v=4.2.0"></script>
-<script defer src="../js/pages/restaurante.js?v=4.2.1"></script>
-<script defer src="../js/modules/carrinho.js?v=4.2.6"></script>
-<script defer src="../js/modules/modal.js?v=4.2.0"></script>
-<script defer src="../js/modules/carrinho-4.2.5.js?v=4.2.6"></script>
-<script defer src="../js/core/site-enhancements.js?v=4.4.6"></script>
-</body>
-</html>
+<section class="produtos" aria-label="Cardápio"><div class="lista-produtos" id="listaProdutos"></div></section>
+<section class="avaliacoes-publicas" aria-labelledby="avaliacoesTitulo"><div class="avaliacoes-titulo"><div><small>EXPERIÊNCIAS REAIS</small><h2 id="avaliacoesTitulo">O que os clientes dizem</h2></div><span id="avaliacoesContagem"></span></div><div class="avaliacoes-lista" id="avaliacoesPublicas"><p>Nenhuma avaliação publicada ainda.</p></div></section>
+<div id="overlay"></div><aside id="carrinho" aria-hidden="true" aria-labelledby="carrinhoTitulo" inert><div class="carrinho-header"><div class="carrinho-titulo-bloco"><span class="carrinho-eyebrow">SEU PEDIDO</span><h2 id="carrinhoTitulo">Seu carrinho <span id="carrinhoQuantidadeResumo" aria-live="polite">0 itens</span></h2><p id="carrinhoRestaurante">Revise os itens antes de continuar</p></div><button aria-label="Fechar carrinho" id="fecharCarrinho" type="button">×</button></div><div class="carrinho-itens"></div><div class="carrinho-footer"><div class="carrinho-minimo" id="carrinhoMinimo" role="status" hidden><div><span id="carrinhoMinimoTexto">Pedido mínimo</span><strong id="carrinhoMinimoValor"></strong></div><div class="carrinho-minimo-barra" role="progressbar" aria-label="Progresso do pedido mínimo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div></div><div class="carrinho-resumo-titulo"><span>Resumo</span><small>Valores antes da confirmação</small></div><div class="linha"><span>Subtotal</span><strong id="subtotal">R$ 0,00</strong></div><div class="linha"><span>Entrega</span><strong id="taxaEntrega">R$ 0,00</strong></div><div class="linha total"><span>Total</span><strong id="total">R$ 0,00</strong></div><button id="btnCheckout" type="button"><span id="btnCheckoutTexto">Ir para o checkout</span><strong id="btnCheckoutTotal">R$ 0,00</strong></button><div class="carrinho-acoes-secundarias"><button id="continuarComprando" type="button">Adicionar mais itens</button><button id="limparCarrinhoBtn" type="button">Limpar carrinho</button></div></div></aside>
+<div class="modal" id="produtoModal" aria-hidden="true" inert><div class="modal-content"><button class="fechar-modal" type="button">×</button><img alt="Produto" id="modalImagem" src=""/><div class="modal-body"><h2 id="modalNome"></h2><p id="modalDescricao"></p><div id="blocoVariantes" hidden><h3>Escolha uma opção</h3><div id="listaVariantes"></div></div><h3>Escolha os adicionais</h3><div id="listaAdicionais"></div><h3>Observações</h3><textarea aria-label="Observações do produto" id="observacao" maxlength="300" placeholder="Ex: sem cebola, molho à parte..."></textarea><div class="quantidade-modal"><button id="menosQtd" type="button">−</button><span id="quantidade">1</span><button id="maisQtd" type="button">+</button></div><button id="confirmarProduto" type="button">Adicionar ao carrinho • <span id="precoFinal">R$ 0,00</span></button></div></div></div>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script><script defer src="../js/core/app-utils.js?v=4.4.6"></script><script defer src="../js/core/supabase.js?v=4.2.0"></script><script defer src="../js/core/dialogs.js?v=4.2.0"></script><script defer src="../js/core/cart-store.js?v=4.2.0"></script><script defer src="../js/pages/restaurante.js?v=4.2.1"></script><script defer src="../js/modules/carrinho.js?v=4.2.6"></script><script defer src="../js/modules/modal.js?v=4.2.0"></script><script defer src="../js/modules/carrinho-4.2.5.js?v=4.2.6"></script><script defer src="../js/core/site-enhancements.js?v=4.4.6"></script>
+</body></html>
