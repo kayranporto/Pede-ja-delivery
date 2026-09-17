@@ -10,7 +10,7 @@ const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 test("Home usa horário real no filtro Aberto agora", () => {
     const home = read("js/pages/home.js");
-    assert.match(home, /rpc\("empresa_disponibilidade"/);
+    assert.match(home, /DeliveryAPI\.disponibilidade\(/);
     assert.match(home, /abertaAgora:\s*data\?\.aberto\s*===\s*true/);
     assert.match(home, /!filtros\.abertoAgora\s*\|\|\s*empresa\.abertaAgora\s*===\s*true/);
     assert.match(read("index.html"), /js\/pages\/home\.js\?v=4\.4\.6/);
