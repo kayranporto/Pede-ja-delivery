@@ -41,7 +41,7 @@ test("API expõe somente logística empresarial", () => {
   assert.ok(openapi.paths["/v1/empresa/entregadores"]);
   assert.ok(openapi.paths["/v1/entregador/me"]);
   assert.ok(openapi.paths["/v1/entregador/pedidos"]);
-  assert.equal(openapi.info.version, "2.8.0");
+  assert.equal(openapi.info.version, "2.9.0");
 });
 
 test("painel da empresa não oferece plataforma ou modo híbrido", () => {
