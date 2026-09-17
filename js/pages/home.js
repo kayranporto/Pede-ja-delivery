@@ -183,40 +183,16 @@ function imagemComFallback(src, alt, fallback = "assets/logo-restaurante.svg") {
 }
 
 async function carregarResumoAvaliacoes() {
-    const { data, error } = await window.db
-        .from("avaliacoes_resumo")
-        .select("empresa_id,quantidade_avaliacoes,nota_media");
-
-    if (!error) {
+    try {
+        const data = await window.DeliveryAPI.avaliacoesResumoTodos();
         return new Map((data || []).map((item) => [String(item.empresa_id), {
             quantidade: Number(item.quantidade_avaliacoes || 0),
             media: Number(item.nota_media || 0)
         }]));
-    }
-
-    // Compatibilidade durante a publicação: a tabela já existe desde a
-    // migração 004, enquanto a view resumida é criada pela migração 006.
-    const { data: avaliacoesBrutas, error: erroFallback } = await window.db
-        .from("avaliacoes")
-        .select("empresa_id,nota")
-        .limit(5000);
-    if (erroFallback) {
-        console.warn("Não foi possível carregar as avaliações:", erroFallback);
+    } catch (error) {
+        console.warn("Não foi possível carregar os resumos de avaliações pela API:", error);
         return new Map();
     }
-
-    const totais = new Map();
-    (avaliacoesBrutas || []).forEach((avaliacao) => {
-        const id = String(avaliacao.empresa_id);
-        const atual = totais.get(id) || { quantidade: 0, soma: 0 };
-        atual.quantidade += 1;
-        atual.soma += Number(avaliacao.nota || 0);
-        totais.set(id, atual);
-    });
-    return new Map([...totais].map(([id, item]) => [id, {
-        quantidade: item.quantidade,
-        media: item.quantidade ? item.soma / item.quantidade : 0
-    }]));
 }
 
 async function carregarDisponibilidadeEmpresas(lista) {
@@ -224,14 +200,7 @@ async function carregarDisponibilidadeEmpresas(lista) {
     return Promise.all(lista.map(async (empresa) => {
         if (empresa.status === false) return { ...empresa, abertaAgora: false };
         try {
-            const { data, error } = await window.db.rpc("empresa_disponibilidade", {
-                p_empresa_id: String(empresa.id),
-                p_quando: momento
-            });
-            if (error) {
-                console.warn(`Disponibilidade de ${empresa.nome || empresa.id}:`, error);
-                return { ...empresa, abertaAgora: true };
-            }
+            const data = await window.DeliveryAPI.disponibilidade(empresa.id, momento);
             return { ...empresa, abertaAgora: data?.aberto === true };
         } catch (erro) {
             console.warn(`Disponibilidade de ${empresa.nome || empresa.id}:`, erro);
@@ -359,28 +328,26 @@ function aplicarFiltros() {
 async function carregarEmpresas() {
     cards.innerHTML = '<div class="loading">Carregando restaurantes...</div>';
 
-    const [empresasResposta, resumoAvaliacoes] = await Promise.all([
-        window.db
-            .from("empresas_catalogo")
-            .select("id,nome,descricao,categoria,tipo,logo,banner,taxa_entrega,pedido_minimo,status,cidade_atendimento,uf_atendimento,tempo_estimado_min,tempo_estimado_max")
-            .order("nome"),
-        carregarResumoAvaliacoes()
-    ]);
-    const { data, error } = empresasResposta;
-
-    if (error) {
-        console.error("Erro ao carregar empresas:", error);
-        cards.replaceChildren(criarTexto("p", "sem-restaurantes", "Não foi possível carregar os restaurantes. Verifique o Supabase e as políticas de acesso."));
+    let data = [];
+    let resumoAvaliacoes;
+    try {
+        [data, resumoAvaliacoes] = await Promise.all([
+            window.DeliveryAPI.restaurantes({ limite: 50 }),
+            carregarResumoAvaliacoes()
+        ]);
+    } catch (error) {
+        console.error("Erro ao carregar empresas pela API:", error);
+        cards.replaceChildren(criarTexto("p", "sem-restaurantes", "Não foi possível carregar os restaurantes. Tente novamente em instantes."));
         return;
     }
 
     const catalogo = (Array.isArray(data) ? data : [])
-    .filter((empresa) => empresa?.id && empresa?.nome)
-    .map((empresa) => ({
-        ...empresa,
-        nota_media: resumoAvaliacoes.get(String(empresa.id))?.media || 0,
-        quantidade_avaliacoes: resumoAvaliacoes.get(String(empresa.id))?.quantidade || 0
-    }));
+        .filter((empresa) => empresa?.id && empresa?.nome)
+        .map((empresa) => ({
+            ...empresa,
+            nota_media: resumoAvaliacoes.get(String(empresa.id))?.media || 0,
+            quantidade_avaliacoes: resumoAvaliacoes.get(String(empresa.id))?.quantidade || 0
+        }));
     empresas = await carregarDisponibilidadeEmpresas(catalogo);
     aplicarFiltros();
 }
