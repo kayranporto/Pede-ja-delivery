@@ -27,19 +27,6 @@
     return entregadores.filter((item) => item.ativo && item.aprovado && item.online && localizacaoRecente(item));
   }
 
-  function atualizarAjudaModalidade() {
-    const modalidade = $("entregaModalidade445")?.value || "plataforma";
-    const ajuda = $("entregaModalidadeAjuda445");
-    const fallback = $("entregaFallbackBox445");
-    if (fallback) fallback.hidden = modalidade !== "hibrida";
-    if (!ajuda) return;
-    ajuda.textContent = {
-      propria: "Somente a equipe vinculada a esta unidade recebe as entregas.",
-      plataforma: "A plataforma chama automaticamente os entregadores online mais próximos.",
-      hibrida: "A equipe própria recebe primeiro; depois do prazo, a plataforma amplia a busca."
-    }[modalidade];
-  }
-
   function renderizarEquipe() {
     const lista = $("entregaEquipeLista445");
     const total = $("entregaEquipeTotal445");
@@ -81,25 +68,17 @@
     carregando = true;
     card.setAttribute("aria-busy", "true");
     try {
-      const [config, equipe] = await Promise.all([
-        window.db.from("empresa_unidades")
-          .select("id,nome,entrega_modalidade,entrega_hibrida_fallback_minutos")
-          .eq("id", id)
-          .maybeSingle(),
-        window.db.rpc("empresa_listar_entregadores_proprios", { p_unidade_id: id })
-      ]);
+      const resposta = await window.DeliveryAPI.request("/v1/empresa/entregadores?unidade_id=" + encodeURIComponent(id));
       if (id !== unidadeId()) return;
-      if (config.error || !config.data) {
+      const unidade = resposta?.unidade;
+      const equipe = Array.isArray(resposta?.entregadores) ? resposta.entregadores : [];
+      if (!unidade) {
         card.hidden = true;
         return;
       }
-      if (equipe.error) throw equipe.error;
       card.hidden = false;
-      $("entregaModalidade445").value = config.data.entrega_modalidade || "plataforma";
-      $("entregaFallback445").value = String(config.data.entrega_hibrida_fallback_minutos || 5);
-      $("entregaUnidadeNome445").textContent = config.data.nome || "Unidade";
-      entregadores = Array.isArray(equipe.data) ? equipe.data : [];
-      atualizarAjudaModalidade();
+      $("entregaUnidadeNome445").textContent = unidade.nome || "Unidade";
+      entregadores = equipe;
       renderizarEquipe();
       decorarPedidos();
     } catch (erro) {
@@ -120,7 +99,7 @@
     if (!Number.isInteger(fallback) || fallback < 1 || fallback > 60) {
       return toast("Prazo inválido", "Use um prazo entre 1 e 60 minutos.", "warning");
     }
-    if (modalidade === "propria" && !entregadores.some((item) => item.ativo && item.aprovado)) {
+    if (false && modalidade === "propria" && !entregadores.some((item) => item.ativo && item.aprovado)) {
       const continuar = await window.AppConfirm?.({
         titulo: "Ativar entrega própria sem equipe?",
         mensagem: "Nenhum entregador aprovado está ativo nesta unidade. Novos pedidos aguardarão até alguém ser vinculado.",
@@ -150,12 +129,16 @@
     if (!id || !email) return;
     const botao = $("entregaAdicionar445");
     window.App?.definirCarregando?.(botao, true, "Vinculando...");
-    const { error } = await window.db.rpc("empresa_salvar_entregador_proprio", {
-      p_unidade_id: id,
-      p_email: email
-    });
+    try {
+      await window.DeliveryAPI.request("/v1/empresa/entregadores", {
+        method: "POST",
+        body: JSON.stringify({ unidade_id: id, email })
+      });
+    } catch (erro) {
+      window.App?.definirCarregando?.(botao, false);
+      return toast("Não foi possível vincular", mensagemErro(erro), "error");
+    }
     window.App?.definirCarregando?.(botao, false);
-    if (error) return toast("Não foi possível vincular", mensagemErro(error), "error");
     $("entregaEntregadorEmail445").value = "";
     toast("Entregador vinculado", "Ele já pode receber ofertas desta unidade quando estiver aprovado, online e com GPS recente.", "success");
     await carregar();
@@ -171,12 +154,15 @@
     });
     if (confirmado !== true) return;
     window.App?.definirCarregando?.(botao, true, "Removendo...");
-    const { error } = await window.db.rpc("empresa_remover_entregador_proprio", {
-      p_unidade_id: unidadeId(),
-      p_entregador_id: item.entregador_id
-    });
+    try {
+      await window.DeliveryAPI.request("/v1/empresa/entregadores/" + encodeURIComponent(String(item.entregador_id)) + "?unidade_id=" + encodeURIComponent(unidadeId()), {
+        method: "DELETE"
+      });
+    } catch (erro) {
+      window.App?.definirCarregando?.(botao, false);
+      return toast("Não foi possível desvincular", mensagemErro(erro), "error");
+    }
     window.App?.definirCarregando?.(botao, false);
-    if (error) return toast("Não foi possível desvincular", mensagemErro(error), "error");
     toast("Entregador desvinculado", "Corridas já atribuídas não foram alteradas.", "success");
     await carregar();
   }
@@ -196,12 +182,18 @@
   async function atribuir(pedidoId, entregadorId, botao) {
     if (!entregadorId) return toast("Escolha o entregador", "Selecione quem fará esta corrida.", "warning");
     window.App?.definirCarregando?.(botao, true, "Atribuindo...");
-    const { data, error } = await window.db.rpc("empresa_atribuir_entregador_proprio", {
-      p_pedido_id: pedidoId,
-      p_entregador_id: entregadorId
-    });
+    let data;
+    try {
+      data = await window.DeliveryAPI.request("/v1/empresa/pedidos/" + encodeURIComponent(String(pedidoId)) + "/entregador", {
+        method: "POST",
+        body: JSON.stringify({ entregador_id: String(entregadorId) })
+      });
+    } catch (erro) {
+      window.App?.definirCarregando?.(botao, false);
+      return toast("Não foi possível atribuir", mensagemErro(erro), "error");
+    }
     window.App?.definirCarregando?.(botao, false);
-    if (error || data !== true) return toast("Não foi possível atribuir", mensagemErro(error), "error");
+    if (data !== true) return toast("Não foi possível atribuir", "O pedido não pôde ser atribuído a este entregador.", "error");
     toast("Entregador atribuído", "O pedido já está reservado para este entregador.", "success");
     if (typeof window.carregarPainel === "function") await window.carregarPainel();
     else location.reload();
@@ -246,61 +238,49 @@
 
   function montarCard(secao) {
     if ($("entregaPropriaCard445")) return;
+
     const card = criar("section", undefined, "management-card entrega-propria-card445");
     card.id = "entregaPropriaCard445";
     card.hidden = true;
 
     const cabecalho = criar("header", undefined, "entrega-propria-head445");
     const tituloBox = criar("div");
-    tituloBox.append(criar("span", "LOGÍSTICA DA UNIDADE", "entrega-kicker445"), criar("h3", "Quem faz as entregas?"), criar("p", "Configure a chamada automática e sua equipe própria por unidade."));
+    tituloBox.append(
+      criar("span", "LOGÍSTICA DA UNIDADE", "entrega-kicker445"),
+      criar("h3", "Entregadores da empresa"),
+      criar("p", "Esta unidade usa exclusivamente entregadores vinculados à própria empresa.")
+    );
     const unidade = criar("strong", "Unidade", "entrega-unidade445");
     unidade.id = "entregaUnidadeNome445";
     cabecalho.append(tituloBox, unidade);
 
-    const grade = criar("div", undefined, "entrega-config-grid445");
-    const form = document.createElement("form");
-    form.id = "entregaModalidadeForm445";
-    const modalidadeLabel = criar("label", "Modalidade");
-    const modalidade = document.createElement("select");
-    modalidade.id = "entregaModalidade445";
-    [["propria", "Equipe própria"], ["plataforma", "Entregadores da plataforma"], ["hibrida", "Híbrida: própria + plataforma"]].forEach(([valor, texto]) => {
-      const option = document.createElement("option"); option.value = valor; option.textContent = texto; modalidade.append(option);
-    });
-    modalidade.addEventListener("change", atualizarAjudaModalidade);
-    modalidadeLabel.append(modalidade);
-    const ajuda = criar("p", "", "entrega-modalidade-ajuda445");
-    ajuda.id = "entregaModalidadeAjuda445";
-    ajuda.setAttribute("role", "status");
-    const fallbackBox = criar("label", "Liberar a plataforma após", "entrega-fallback445");
-    fallbackBox.id = "entregaFallbackBox445";
-    const fallbackLinha = criar("span");
-    const fallback = document.createElement("input");
-    fallback.id = "entregaFallback445"; fallback.type = "number"; fallback.min = "1"; fallback.max = "60"; fallback.step = "1"; fallback.value = "5";
-    fallbackLinha.append(fallback, document.createTextNode(" minutos"));
-    fallbackBox.append(fallbackLinha);
-    const salvar = criar("button", "Salvar modalidade", "btn primary");
-    salvar.id = "salvarEntregaModalidade445"; salvar.type = "submit";
-    form.append(modalidadeLabel, ajuda, fallbackBox, salvar);
-    form.addEventListener("submit", salvarConfiguracao);
-
     const equipe = criar("section", undefined, "entrega-equipe445");
     const equipeHead = criar("div", undefined, "entrega-equipe-head445");
-    const equipeTitulo = criar("h4", "Equipe própria");
-    const total = criar("span", "0 ativos"); total.id = "entregaEquipeTotal445";
-    equipeHead.append(equipeTitulo, total);
+    equipeHead.append(criar("h4", "Equipe própria"), criar("span", "0 ativos"));
+    equipeHead.lastElementChild.id = "entregaEquipeTotal445";
+
     const adicionarForm = document.createElement("form");
     adicionarForm.id = "entregaAdicionarForm445";
     const email = document.createElement("input");
-    email.id = "entregaEntregadorEmail445"; email.type = "email"; email.autocomplete = "email"; email.required = true; email.placeholder = "E-mail do entregador cadastrado";
+    email.id = "entregaEntregadorEmail445";
+    email.type = "email";
+    email.autocomplete = "email";
+    email.required = true;
+    email.placeholder = "E-mail do entregador cadastrado";
     const adicionarBotao = criar("button", "Vincular", "btn");
-    adicionarBotao.id = "entregaAdicionar445"; adicionarBotao.type = "submit";
+    adicionarBotao.id = "entregaAdicionar445";
+    adicionarBotao.type = "submit";
     adicionarForm.append(email, adicionarBotao);
     adicionarForm.addEventListener("submit", adicionar);
-    const nota = criar("small", "O entregador precisa ter cadastro na plataforma. Para receber corridas, também deve estar aprovado, online e com GPS recente.");
-    const lista = criar("div"); lista.id = "entregaEquipeLista445"; lista.className = "entrega-equipe-lista445"; lista.setAttribute("aria-live", "polite");
+
+    const nota = criar("small", "O entregador precisa ter uma conta de entregador e ser aprovado antes de receber corridas. A empresa controla o vínculo por unidade.");
+    const lista = criar("div");
+    lista.id = "entregaEquipeLista445";
+    lista.className = "entrega-equipe-lista445";
+    lista.setAttribute("aria-live", "polite");
+
     equipe.append(equipeHead, adicionarForm, nota, lista);
-    grade.append(form, equipe);
-    card.append(cabecalho, grade);
+    card.append(cabecalho, equipe);
 
     const referencia = $("freteDistanciaCard44") || $("operacaoUnidade43");
     if (referencia?.parentElement === secao) referencia.insertAdjacentElement("afterend", card);
@@ -312,7 +292,7 @@
     for (let tentativa = 0; tentativa < 120; tentativa += 1) {
       const secao = $("operacao");
       const select = $("unidadePainelSelect");
-      if (secao && select?.options?.length && window.db) {
+      if (secao && select?.options?.length && window.DeliveryAPI) {
         iniciado = true;
         montarCard(secao);
         select.addEventListener("change", () => setTimeout(carregar, 80));
