@@ -169,16 +169,12 @@ function selecionarNota(nota) {
 
 async function carregarAvaliacao() {
     if (!pedidoAtual || pedidoAtual.status !== "entregue" || !usuarioAtual) return;
-    const { data, error } = await db.from("avaliacoes")
-        .select("id,nota,comentario,resposta,created_at,updated_at")
-        .eq("pedido_id", pedidoAtual.id)
-        .eq("usuario_id", usuarioAtual.id)
-        .maybeSingle();
-    if (error) {
+    try {
+        avaliacaoAtual = await window.DeliveryAPI.minhasAvaliacao(pedidoAtual.id);
+    } catch (error) {
         console.warn("Não foi possível carregar a avaliação:", error);
         return;
     }
-    avaliacaoAtual = data || null;
     selecionarNota(avaliacaoAtual?.nota || 0);
     document.getElementById("comentarioAvaliacao").value = avaliacaoAtual?.comentario || "";
     document.getElementById("salvarAvaliacao").textContent = avaliacaoAtual ? "Atualizar avaliação" : "Enviar avaliação";
@@ -220,12 +216,17 @@ function atualizarMapa(localizacao) {
 }
 
 async function carregarRecursosTempoReal(id) {
-    const [resMensagens, resLocalizacao] = await Promise.all([
-        db.from("pedido_mensagens").select("*").eq("pedido_id", id).order("created_at"),
-        db.from("entrega_localizacoes").select("*").eq("pedido_id", id).maybeSingle()
-    ]);
-    if (!resMensagens.error) { mensagensPedido = resMensagens.data || []; renderizarMensagens(); }
-    if (!resLocalizacao.error) atualizarMapa(resLocalizacao.data);
+    try {
+        const [mensagens, localizacao] = await Promise.all([
+            window.DeliveryAPI.pedidoMensagens(id),
+            window.DeliveryAPI.pedidoLocalizacao(id)
+        ]);
+        mensagensPedido = mensagens || [];
+        renderizarMensagens();
+        atualizarMapa(localizacao);
+    } catch (error) {
+        console.warn("Não foi possível carregar os recursos do pedido pela API:", error);
+    }
 }
 
 async function salvarAvaliacao(event) {
@@ -244,28 +245,8 @@ async function salvarAvaliacao(event) {
     document.getElementById("statusAvaliacao").textContent = "";
 
     try {
-        let resposta;
-        if (avaliacaoAtual) {
-            resposta = await db.from("avaliacoes")
-                .update({ nota: notaAtual, comentario: comentario || null, updated_at: new Date().toISOString() })
-                .eq("id", avaliacaoAtual.id)
-                .eq("usuario_id", usuarioAtual.id)
-                .select("id,nota,comentario,created_at,updated_at")
-                .single();
-        } else {
-            resposta = await db.from("avaliacoes")
-                .insert({
-                    pedido_id: pedidoAtual.id,
-                    usuario_id: usuarioAtual.id,
-                    empresa_id: String(pedidoAtual.empresa_id),
-                    nota: notaAtual,
-                    comentario: comentario || null
-                })
-                .select("id,nota,comentario,created_at,updated_at")
-                .single();
-        }
-        if (resposta.error) throw resposta.error;
-        avaliacaoAtual = resposta.data;
+        avaliacaoAtual = await window.DeliveryAPI.salvarAvaliacao(pedidoAtual.id, notaAtual, comentario);
+
         document.getElementById("statusAvaliacao").textContent = "Obrigado! Sua avaliação foi salva.";
         botao.textContent = "Atualizar avaliação";
         window.AppToast?.("Avaliação enviada", "Obrigado por compartilhar sua experiência!", "success");
@@ -289,12 +270,8 @@ async function carregar() {
     }
     usuarioAtual = user;
     App.vincularUsuarioLocal(user.id);
-    const { data, error } = await db.from("pedidos")
-        .select("*, pedido_itens(*)")
-        .eq("id", id)
-        .eq("usuario_id", user.id)
-        .maybeSingle();
-    if (error || !data) {
+    const data = await window.DeliveryAPI.pedidoDetalhe(id);
+    if (!data) {
         App.mostrarErroPagina("Pedido não encontrado ou indisponível.");
         return;
     }
@@ -337,15 +314,32 @@ document.getElementById("mensagemForm").addEventListener("submit", async (event)
     event.preventDefault();
     const input = document.getElementById("mensagemTexto"); const mensagem = input.value.trim(); if (!mensagem || !pedidoAtual) return;
     const botao = event.currentTarget.querySelector("button"); App.definirCarregando(botao, true, "Enviando...");
-    const { error } = await db.from("pedido_mensagens").insert({ pedido_id: pedidoAtual.id, autor_id: usuarioAtual.id, autor_tipo: "cliente", mensagem });
-    App.definirCarregando(botao, false); if (error) return alert(`Não foi possível enviar: ${App.mensagemErro(error)}`); input.value = "";
+    try {
+        await window.DeliveryAPI.request(`/v1/pedidos/${encodeURIComponent(String(pedidoAtual.id))}/mensagens`, {
+            method: "POST",
+            body: JSON.stringify({ mensagem, autor_tipo: "cliente" })
+        });
+        input.value = "";
+    } catch (error) {
+        alert(`Não foi possível enviar: ${App.mensagemErro(error)}`);
+    } finally {
+        App.definirCarregando(botao, false);
+    }
 });
 document.getElementById("pagarOnline").addEventListener("click", async (event) => {
     if (!pedidoAtual) return; App.definirCarregando(event.currentTarget, true, "Abrindo pagamento...");
-    const { data, error } = await db.functions.invoke("criar-pagamento", { body: { pedido_id: pedidoAtual.id } });
-    App.definirCarregando(event.currentTarget, false);
-    if (error || !data?.checkout_url) return alert(`Não foi possível abrir o pagamento: ${App.mensagemErro(error, data?.error)}`);
-    location.href = data.checkout_url;
+    try {
+        const data = await window.DeliveryAPI.request("/v1/pagamentos/criar", {
+            method: "POST",
+            body: JSON.stringify({ pedido_id: pedidoAtual.id })
+        });
+        if (!data?.checkout_url) throw new Error("O gateway de pagamento não retornou a URL de checkout.");
+        location.href = data.checkout_url;
+    } catch (error) {
+        alert(`Não foi possível abrir o pagamento: ${App.mensagemErro(error)}`);
+    } finally {
+        App.definirCarregando(event.currentTarget, false);
+    }
 });
 document.getElementById("pedirNovamente").addEventListener("click", (event) => {
     if (pedidoAtual) window.PosPedido?.pedirNovamente(pedidoAtual, event.currentTarget);
