@@ -89,8 +89,8 @@ test("painel usa API HTTP e mantém atribuição apenas para a equipe própria",
 test("assets do painel e identificação da oferta própria estão publicados", () => {
   const loader = read("js/core/site-enhancements.js");
   const entregador = read("js/modules/entregador-logistica-4.4.js");
-  assert.match(loader, /empresa-entrega-propria-4\\.4\\.5\\.css\\?v=4\\.5\\.0/);
-  assert.match(loader, /empresa-entrega-propria-4\\.4\\.5\\.js\\?v=4\\.5\\.0/);
+  assert.ok(loader.includes("empresa-entrega-propria-4.4.5.css?v=4.5.0"));
+  assert.ok(loader.includes("empresa-entrega-propria-4.4.5.js?v=4.5.0"));
   assert.match(entregador, /item\.oferta_origem === "propria"/);
   assert.match(entregador, /Equipe própria/);
   assert.match(read("css/modules/entregador-push-4.4.3.css"), /delivery-status\.own-team/);
