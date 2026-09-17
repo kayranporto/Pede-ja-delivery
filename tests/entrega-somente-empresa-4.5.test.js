@@ -30,14 +30,14 @@ test("entregador só fica online e aceita corrida dentro da própria empresa", (
 test("API expõe somente logística empresarial", () => {
   const api = read("supabase/functions/api-completa/index.ts");
   const openapi = JSON.parse(read("supabase/functions/api-completa/openapi.json"));
-  for (const rota of [
+  for (const trecho of [
     "/v1/entregador/me",
     "/v1/entregador/pedidos",
     "/v1/entregador/entregas",
     "/v1/entregador/status",
-    "/v1/entregador/pedidos/",
+    "empresa/pedidos/",
     "/v1/empresa/entregadores"
-  ]) assert.ok(api.includes(rota.split("/:")[0]), `API sem ${rota}`);
+  ]) assert.ok(api.includes(trecho), `API sem ${trecho}`);
   assert.ok(openapi.paths["/v1/empresa/entregadores"]);
   assert.ok(openapi.paths["/v1/entregador/me"]);
   assert.ok(openapi.paths["/v1/entregador/pedidos"]);
