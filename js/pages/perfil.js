@@ -162,7 +162,7 @@ async function carregarFidelidade() {
                 App.definirCarregando(resgatar, true, "Resgatando...");
                 let codigo = null;
                  let erroResgate = null;
-                 try { codigo = (await window.DeliveryAPI.resgatarFidelidade(saldo.empresa_id))?.codigo || (await window.DeliveryAPI.resgatarFidelidade(saldo.empresa_id)); }
+                 try { codigo = await window.DeliveryAPI.resgatarFidelidade(saldo.empresa_id); }
                  catch (erro) { erroResgate = erro; }
                 App.definirCarregando(resgatar, false);
                 if (erroResgate) return window.AppToast?.("Não foi possível resgatar", App.mensagemErro(erroResgate), "error");
@@ -189,8 +189,7 @@ async function carregarPerfil() {
         const [perfilApi, pedidos, enderecos] = await Promise.all([
             window.DeliveryAPI.getMe(),
             window.DeliveryAPI.meusPedidos(),
-            window.DeliveryAPI.meusEnderecos(),
-            Promise.resolve(null)
+            window.DeliveryAPI.meusEnderecos()
         ]);
 
         const usuario = perfilApi?.usuario || null;
@@ -208,7 +207,7 @@ async function carregarPerfil() {
         await Promise.all([atualizarResumo(pedidos), carregarFidelidade()]);
         renderizarPedidoDestaque(pedidos);
         atualizarProgresso(usuario, user, Array.isArray(enderecos) ? enderecos.length : 0);
-        document.getElementById("adminLink").hidden = resAdmin.error || resAdmin.data !== true;
+        document.getElementById("adminLink").hidden = !ehAdmin;
     } catch (erro) {
         console.error("Erro ao carregar perfil:", erro);
         App.mostrarErroPagina("Não foi possível carregar sua área do cliente agora.");
