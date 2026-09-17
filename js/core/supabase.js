@@ -150,6 +150,55 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
             async minhaFidelidade() {
                 const data = await apiRequest("/v1/me/fidelidade");
                 return Array.isArray(data) ? data : [];
+            },
+            async entregadorMe() {
+                return apiRequest("/v1/entregador/me");
+            },
+            async entregasEntregador() {
+                const data = await apiRequest("/v1/entregador/entregas");
+                return Array.isArray(data) ? data : [];
+            },
+            async pedidosEntregador() {
+                const data = await apiRequest("/v1/entregador/pedidos");
+                return Array.isArray(data) ? data : [];
+            },
+            async definirEntregadorOnline(online) {
+                return apiRequest("/v1/entregador/status", {
+                    method: "POST",
+                    body: JSON.stringify({ online: online === true })
+                });
+            },
+            async aceitarEntrega(pedidoId) {
+                return apiRequest("/v1/entregador/pedidos/" + encodeURIComponent(String(pedidoId)) + "/aceitar", {
+                    method: "POST",
+                    body: JSON.stringify({})
+                });
+            },
+            async atualizarStatusEntregador(pedidoId, status, pagamentoRecebido = false) {
+                return apiRequest("/v1/entregador/pedidos/" + encodeURIComponent(String(pedidoId)) + "/status", {
+                    method: "POST",
+                    body: JSON.stringify({ status, pagamento_recebido: pagamentoRecebido })
+                });
+            },
+            async atualizarLocalizacaoEntregador(pedidoId, latitude, longitude, precisaoMetros = null) {
+                return apiRequest("/v1/entregador/pedidos/" + encodeURIComponent(String(pedidoId)) + "/localizacao", {
+                    method: "POST",
+                    body: JSON.stringify({ latitude, longitude, precisao_metros: precisaoMetros })
+                });
+            },
+            async listarEntregadoresEmpresa(unidadeId) {
+                return apiRequest("/v1/empresa/entregadores?unidade_id=" + encodeURIComponent(String(unidadeId)));
+            },
+            async vincularEntregadorEmpresa(unidadeId, email) {
+                return apiRequest("/v1/empresa/entregadores", {
+                    method: "POST",
+                    body: JSON.stringify({ unidade_id: String(unidadeId), email: String(email) })
+                });
+            },
+            async removerEntregadorEmpresa(unidadeId, entregadorId) {
+                return apiRequest("/v1/empresa/entregadores/" + encodeURIComponent(String(entregadorId)) + "?unidade_id=" + encodeURIComponent(String(unidadeId)), {
+                    method: "DELETE"
+                });
             }
         });
     } catch (erro) {
