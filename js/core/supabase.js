@@ -120,6 +120,9 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
             async getMe() {
                 return apiRequest("/v1/me");
             },
+            async atualizarMe(perfil) {
+                return apiRequest("/v1/me", { method: "PATCH", body: JSON.stringify(perfil || {}) });
+            },
             async meusEnderecos() {
                 const data = await apiRequest("/v1/me/enderecos");
                 return Array.isArray(data) ? data : [];
