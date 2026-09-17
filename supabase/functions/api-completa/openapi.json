@@ -479,6 +479,51 @@
           }
         }
       }
+    },
+    "/v1/enderecos/principal": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Endereço principal selecionado"
+          }
+        }
+      }
+    },
+    "/v1/me/suporte": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Chamados do cliente"
+          }
+        }
+      }
+    },
+    "/v1/cupons/validar": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Cupom validado"
+          }
+        }
+      }
+    },
+    "/v1/fidelidade/resgatar": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Benefício resgatado"
+          }
+        }
+      }
+    },
+    "/v1/pedidos/{id}/localizacao": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Última localização do pedido"
+          }
+        }
+      }
     }
   },
   "components": {
