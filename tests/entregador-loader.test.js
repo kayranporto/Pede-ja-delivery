@@ -25,11 +25,11 @@ test("painel do entregador mantém estados hidden no HTML", () => {
 test("fluxo do entregador encerra o loading antes de decidir o estado da conta", () => {
   const js = read("js/pages/entregador.js");
   const esconder = js.indexOf("loading.hidden = true");
-  const erro = js.indexOf("if (error)", esconder);
-  const semCadastro = js.indexOf("if (!data)", esconder);
-  const pendente = js.indexOf("if (!data.aprovado)", esconder);
+  const semCadastro = js.indexOf("if (!entregador)", esconder);
+  const semVinculo = js.indexOf("if (!vinculos.length)", esconder);
+  const naoAprovado = js.indexOf("if (!entregador.aprovado)", esconder);
   assert.ok(esconder >= 0, "loading não é encerrado");
-  assert.ok(erro > esconder && semCadastro > esconder && pendente > esconder, "loading deve encerrar antes dos estados finais");
+  assert.ok(semCadastro > esconder && semVinculo > esconder && naoAprovado > esconder, "loading deve encerrar antes dos estados finais");
 });
 
 test("entregador força a versão corrigida do enhancements", () => {
