@@ -43,12 +43,12 @@
     if (!online() || document.hidden) return false;
     try {
       const coords = await obterPosicao();
-      const { error } = await window.db.rpc("entregador_atualizar_posicao", {
-        p_latitude: coords.latitude,
-        p_longitude: coords.longitude,
-        p_precisao_metros: Number.isFinite(coords.accuracy) ? coords.accuracy : null
-      });
-      if (error) throw error;
+      await window.DeliveryAPI.atualizarLocalizacaoEntregador(
+        null,
+        coords.latitude,
+        coords.longitude,
+        Number.isFinite(coords.accuracy) ? coords.accuracy : null
+      );
       ultimaPosicaoEm = Date.now();
       const status = document.getElementById("statusLocalizacao");
       if (status && !document.querySelector("#minhasEntregas .delivery-card")) status.textContent = "Disponível";
@@ -63,11 +63,18 @@
     botao.disabled = true;
     const texto = botao.textContent;
     botao.textContent = "Aceitando...";
-    const { data, error } = await window.db.rpc("entregador_aceitar_pedido", { p_pedido_id: item.pedido_id });
-    if (error || data !== true) {
+    let data;
+    try {
+      data = await window.DeliveryAPI.aceitarEntrega(item.pedido_id);
+    } catch (erro) {
       botao.disabled = false;
       botao.textContent = texto;
-      return toast("Não foi possível aceitar", error?.message || "A entrega já foi aceita ou esta oferta expirou.", "error");
+      return toast("Não foi possível aceitar", erro?.message || "A entrega já foi aceita ou esta oferta expirou.", "error");
+    }
+    if (data !== true) {
+      botao.disabled = false;
+      botao.textContent = texto;
+      return toast("Não foi possível aceitar", "A entrega já foi aceita ou esta oferta expirou.", "error");
     }
     toast("Entrega aceita", `Pedido #${item.numero} agora está na sua rota.`, "success");
     if (ofertaFoco === String(item.pedido_id)) history.replaceState(null, "", location.pathname);
@@ -148,8 +155,7 @@
     buscando = true;
     try {
       if (!ultimaPosicaoEm || Date.now() - ultimaPosicaoEm > 45000) await atualizarPosicao(true);
-      const { data, error } = await window.db.rpc("listar_entregas_disponiveis_proximidade");
-      if (error) throw error;
+      const data = await window.DeliveryAPI.entregasEntregador();
       renderProximidade(Array.isArray(data) ? data : []);
     } catch (erro) {
       console.warn("Proximidade logística:", erro);
@@ -161,16 +167,14 @@
   async function adicionarWhatsAppAtivos() {
     const container = document.getElementById("minhasEntregas");
     if (!container || !container.querySelector(".delivery-card")) return;
-    const { data: auth } = await window.db.auth.getUser();
-    if (!auth?.user) return;
-    const { data, error } = await window.db.from("pedidos")
-      .select("id,numero,cliente_nome,cliente_telefone,status")
-      .eq("entregador_id", auth.user.id)
-      .in("status", ["preparando", "saiu_para_entrega"])
-      .order("created_at");
-    if (error) return;
+    let data;
+    try {
+      data = await window.DeliveryAPI.pedidosEntregador();
+    } catch {
+      return;
+    }
 
-    (data || []).forEach((pedido) => {
+    (data || []).filter((pedido) => ["preparando", "saiu_para_entrega"].includes(pedido.status)).forEach((pedido) => {
       const numero = telefoneWhatsApp(pedido.cliente_telefone);
       if (!numero) return;
       const card = [...container.querySelectorAll(".delivery-card")].find((item) => item.querySelector("h3")?.textContent?.includes(`#${pedido.numero}`));
