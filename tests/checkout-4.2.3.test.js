@@ -21,7 +21,7 @@ test("checkout 4.2.3 inclui navegação de etapas e feedbacks", () => {
 test("checkout 4.2.3 mantém idempotência no envio e adiciona bloqueio visual", () => {
     const core = ler("js/pages/checkout.js");
     const ux = ler("js/modules/checkout-4.2.3.js");
-    assert.match(core, /p_chave_cliente:\s*chaveIdempotenciaCheckout\(\)/);
+    assert.match(core, /chave_cliente:\s*chaveIdempotenciaCheckout\(\)/);
     assert.match(core, /crypto\.randomUUID\(\)/);
     assert.match(ux, /cliqueProtegido/);
     assert.match(ux, /stopImmediatePropagation\(\)/);
