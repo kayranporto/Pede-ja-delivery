@@ -67,6 +67,6 @@ test("modo claro é o único tema disponível", () => {
     const js = read("js/core/monitoring.js");
     assert.match(js, /multi-delivery-theme/);
     assert.match(js, /localStorage\.setItem\(THEME_STORAGE_KEY, "light"\)/);
-    assert.match(js, /data-theme = "light"/);
+    assert.match(js, /dataset\.theme = "light"/);
     assert.match(js, /\.theme-toggle,\[data-theme-preferences\]/);
 });
