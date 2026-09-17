@@ -146,10 +146,13 @@
   async function carregar() {
     const botao = document.getElementById("atualizarPlano43");
     if (botao) botao.disabled = true;
-    const { data, error } = await window.db.rpc("empresa_meu_plano");
+    try {
+      plano = await window.DeliveryAPI.empresaPlano();
+    } catch (error) {
+      if (botao) botao.disabled = false;
+      return toast("Não foi possível carregar o plano", App.mensagemErro(error), "error");
+    }
     if (botao) botao.disabled = false;
-    if (error) return toast("Não foi possível carregar o plano", error.message || "Tente novamente.", "error");
-    plano = data;
     render();
   }
 
