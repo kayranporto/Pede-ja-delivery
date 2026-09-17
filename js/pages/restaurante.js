@@ -21,6 +21,7 @@ const params = new URLSearchParams(window.location.search);
 const empresaId = params.get("id");
 let produtos = [];
 let categoriaSelecionada = "";
+let dadosCardapioAPI = null;
 
 function dinheiro(valor) {
     return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -52,38 +53,28 @@ window.addEventListener("carrinho-sincronizar", atualizarCarrinhoTopo);
 
 async function carregarAvaliacaoRestaurante() {
     if (!avaliacaoRestaurante || !empresaId) return;
-    const { data, error } = await window.db.from("avaliacoes_resumo")
-        .select("nota_media,quantidade_avaliacoes")
-        .eq("empresa_id", String(empresaId))
-        .maybeSingle();
-    if (!error && data) {
-        const quantidade = Number(data.quantidade_avaliacoes || 0);
+    try {
+        const data = await window.DeliveryAPI.avaliacoesResumo(empresaId);
+        const quantidade = Number(data?.quantidade_avaliacoes || 0);
         avaliacaoRestaurante.textContent = quantidade
             ? `⭐ ${Number(data.nota_media || 0).toFixed(1)} • ${quantidade} ${quantidade === 1 ? "avaliação" : "avaliações"}`
             : "☆ Novo";
-        return;
-    }
-
-    const { data: avaliacoes, error: erroFallback } = await window.db.from("avaliacoes")
-        .select("nota")
-        .eq("empresa_id", String(empresaId))
-        .limit(5000);
-    if (erroFallback || !avaliacoes?.length) {
+    } catch (error) {
+        console.warn("Resumo de avaliações via API indisponível:", error);
         avaliacaoRestaurante.textContent = "☆ Novo";
-        return;
     }
-    const media = avaliacoes.reduce((soma, item) => soma + Number(item.nota || 0), 0) / avaliacoes.length;
-    avaliacaoRestaurante.textContent = `⭐ ${media.toFixed(1)} • ${avaliacoes.length} ${avaliacoes.length === 1 ? "avaliação" : "avaliações"}`;
 }
 
 async function carregarAvaliacoesPublicas() {
     const box = document.getElementById("avaliacoesPublicas");
-    const { data, error } = await window.db.from("avaliacoes")
-        .select("nota,comentario,resposta,autor_nome,autor_avatar_url,created_at")
-        .eq("empresa_id", String(empresaId))
-        .order("created_at", { ascending: false })
-        .limit(9);
-    if (error || !data?.length) return;
+    let data = [];
+    try {
+        data = await window.DeliveryAPI.avaliacoes(empresaId, 9);
+    } catch (error) {
+        console.warn("Avaliações públicas via API indisponíveis:", error);
+        return;
+    }
+    if (!data?.length) return;
     box.replaceChildren(); document.getElementById("avaliacoesContagem").textContent = `${data.length} avaliações recentes`;
     data.forEach((avaliacao) => {
         const card = document.createElement("article"); card.className = "avaliacao-publica";
@@ -101,9 +92,10 @@ async function carregarAvaliacoesPublicas() {
 }
 
 async function carregarEmpresa() {
-    const { data, error } = await window.db.from("empresas_catalogo").select("id,nome,descricao,categoria,tipo,logo,banner,taxa_entrega,pedido_minimo,status,cidade_atendimento,uf_atendimento,bairros_atendidos,tempo_estimado_min,tempo_estimado_max").eq("id", empresaId).single();
-
-    if (error || !data) throw new Error(error?.message || "Empresa não encontrada.");
+    const resposta = await window.DeliveryAPI.cardapio(empresaId);
+    const data = resposta?.restaurante;
+    if (!data) throw new Error("Empresa não encontrada.");
+    dadosCardapioAPI = resposta;
 
     banner.src = data.banner || "../assets/banner-padrao.svg";
     banner.onerror = () => { banner.src = "../assets/banner-padrao.svg"; };
@@ -113,8 +105,12 @@ async function carregarEmpresa() {
     descricao.textContent = data.descricao || "Confira nosso cardápio.";
     let aberta = data.status !== false;
     if (aberta) {
-        const disponibilidade = await window.db.rpc("empresa_disponibilidade", { p_empresa_id: String(data.id), p_quando: new Date().toISOString() });
-        if (!disponibilidade.error) aberta = disponibilidade.data?.aberto === true;
+        try {
+            const disponibilidade = await window.DeliveryAPI.disponibilidade(data.id);
+            aberta = disponibilidade?.aberto === true;
+        } catch (erro) {
+            console.warn("Disponibilidade via API indisponível; mantendo o status publicado.", erro);
+        }
     }
     const tempoMin = Number(data.tempo_estimado_min || 25);
     const tempoMax = Number(data.tempo_estimado_max || 45);
@@ -153,17 +149,7 @@ btnVerCarrinho?.addEventListener("click", () => {
 });
 
 async function carregarCategorias() {
-    const { data, error } = await window.db
-        .from("categorias")
-        .select("*")
-        .eq("empresa_id", empresaId)
-        .eq("ativo", true)
-        .order("ordem");
-
-    if (error) {
-        console.error("Erro ao carregar categorias:", error);
-        return;
-    }
+    const data = dadosCardapioAPI?.categorias || [];
 
     categoriasContainer.replaceChildren();
     const todas = document.createElement("button");
@@ -184,38 +170,7 @@ async function carregarCategorias() {
 
 async function carregarProdutos() {
     listaProdutos.innerHTML = '<p class="sem-produtos">Carregando produtos...</p>';
-    const { data, error } = await window.db
-        .from("produtos")
-        .select("*")
-        .eq("empresa_id", empresaId)
-        .eq("disponivel", true)
-        .order("nome");
-
-    if (error) throw new Error(error.message);
-    produtos = Array.isArray(data) ? data : [];
-
-    const ids = produtos.map((produto) => String(produto.id));
-    if (ids.length) {
-        try {
-            const { data: variantes, error: erroVariantes } = await window.db.from("produto_variantes")
-                .select("id,produto_id,nome,preco,promocao,ordem")
-                .in("produto_id", ids)
-                .eq("ativo", true)
-                .order("ordem");
-            if (erroVariantes) throw erroVariantes;
-            const porProduto = new Map();
-            (variantes || []).forEach((variante) => {
-                const chave = String(variante.produto_id);
-                if (!porProduto.has(chave)) porProduto.set(chave, []);
-                porProduto.get(chave).push(variante);
-            });
-            produtos = produtos.map((produto) => ({ ...produto, variantes: porProduto.get(String(produto.id)) || [] }));
-        } catch (errorVariantes) {
-            console.warn("Variantes do catálogo indisponíveis; exibindo produtos sem variantes.", errorVariantes);
-            produtos = produtos.map((produto) => ({ ...produto, variantes: [] }));
-        }
-    }
-
+    produtos = Array.isArray(dadosCardapioAPI?.produtos) ? dadosCardapioAPI.produtos : [];
     renderizarProdutos(produtos);
 }
 
