@@ -139,13 +139,12 @@ function atualizarMensagemPedidoMinimo() {
 
 async function aplicarRegiaoEntrega() {
     if (!enderecoSelecionado || !carrinhoMeta?.empresa_id) return false;
-    const { data, error } = await window.db.rpc("calcular_entrega_empresa", {
-        p_empresa_id: String(carrinhoMeta.empresa_id),
-        p_cidade: enderecoSelecionado.cidade || "",
-        p_uf: enderecoSelecionado.uf || enderecoSelecionado.estado || "",
-        p_bairro: enderecoSelecionado.bairro || ""
+    const data = await window.DeliveryAPI.calcularEntrega({
+        empresa_id: String(carrinhoMeta.empresa_id),
+        cidade: enderecoSelecionado.cidade || "",
+        uf: enderecoSelecionado.uf || enderecoSelecionado.estado || "",
+        bairro: enderecoSelecionado.bairro || ""
     });
-    if (error) throw new Error(`A operação por região ainda não está disponível: ${App.mensagemErro(error)}`);
     carrinhoMeta.regiao_atendida = data?.atendido === true;
     carrinhoMeta.aberto_por_horario = data?.aberto !== false;
     carrinhoMeta.mensagem_entrega = data?.mensagem || "";
@@ -503,17 +502,17 @@ async function finalizarPedido() {
     }));
 
     try {
-        const { data: pedidoCriado, error: erroPedido } = await window.db.rpc("criar_pedido_operacional", {
-            p_empresa_id: String(carrinhoMeta.empresa_id),
-            p_endereco_id: enderecoSelecionado.id,
-            p_pagamento: pagamento === "Online" ? "Cartão" : pagamento,
-            p_observacoes: observacoesFinais,
-            p_cupom: cupomAplicado || null,
-            p_itens: itens,
-            p_agendado_para: null,
-            p_chave_cliente: chaveIdempotenciaCheckout()
+        const pedidoCriado = await window.DeliveryAPI.criarPedido({
+            empresa_id: String(carrinhoMeta.empresa_id),
+            endereco_id: enderecoSelecionado.id,
+            endereco,
+            pagamento: pagamento === "Online" ? "Cartão" : pagamento,
+            observacoes: observacoesFinais,
+            cupom: cupomAplicado || null,
+            itens,
+            agendado_para: null,
+            chave_cliente: chaveIdempotenciaCheckout()
         });
-        if (erroPedido) throw erroPedido;
         if (!pedidoCriado?.id) throw new Error("O banco não retornou o pedido criado.");
 
         const { data: pedidoBanco, error: erroLeitura } = await window.db.from("pedidos")
@@ -525,18 +524,15 @@ async function finalizarPedido() {
 
         App.salvarJSON("pedidoAtual", pedidoBanco);
         if (pagamento === "Online") {
-            const { error: erroModalidade } = await window.db.rpc("pedido_definir_pagamento_online", { p_pedido_id: pedidoBanco.id });
-            if (erroModalidade) throw erroModalidade;
+            const respostaOnline = await window.DeliveryAPI.request("/v1/pagamentos/criar", {
+                method: "POST",
+                body: JSON.stringify({ pedido_id: pedidoBanco.id })
+            });
+            if (!respostaOnline?.checkout_url) throw new Error("O gateway de pagamento não retornou a URL de checkout.");
             pedidoBanco.pagamento_modalidade = "online";
             App.salvarJSON("pedidoAtual", pedidoBanco);
-            const { data: pagamentoCriado, error: erroPagamento } = await window.db.functions.invoke("criar-pagamento", { body: { pedido_id: pedidoBanco.id } });
             limparCheckoutConcluido();
-            if (erroPagamento || !pagamentoCriado?.checkout_url) {
-                avisarCheckout("O pedido foi criado, mas o pagamento online não pôde ser iniciado. Você poderá tentar novamente no acompanhamento.", "info", "Pedido criado");
-                window.location.href = `acompanhamento.html?id=${encodeURIComponent(pedidoBanco.id)}`;
-                return;
-            }
-            window.location.href = pagamentoCriado.checkout_url;
+            window.location.href = respostaOnline.checkout_url;
             return;
         }
         limparCheckoutConcluido();
