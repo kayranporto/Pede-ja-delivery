@@ -119,6 +119,40 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
             },
             async getMe() {
                 return apiRequest("/v1/me");
+            },
+            async meusEnderecos() {
+                const data = await apiRequest("/v1/me/enderecos");
+                return Array.isArray(data) ? data : [];
+            },
+            async meusPedidos() {
+                const data = await apiRequest("/v1/me/pedidos");
+                return Array.isArray(data) ? data : [];
+            },
+            async salvarEndereco(endereco) {
+                return apiRequest("/v1/me/enderecos", { method: "POST", body: JSON.stringify(endereco) });
+            },
+            async selecionarEndereco(enderecoId) {
+                return apiRequest("/v1/enderecos/" + encodeURIComponent(String(enderecoId)), { method: "POST", body: JSON.stringify({}) });
+            },
+            async removerEndereco(enderecoId) {
+                return apiRequest("/v1/enderecos/" + encodeURIComponent(String(enderecoId)), { method: "DELETE" });
+            },
+            async criarSuporte(body) {
+                return apiRequest("/v1/suporte", { method: "POST", body: JSON.stringify(body) });
+            },
+            async meusFavoritos() {
+                const data = await apiRequest("/v1/me/favoritos");
+                return Array.isArray(data) ? data : [];
+            },
+            async adicionarFavorito(empresaId) {
+                return apiRequest("/v1/favoritos", { method: "POST", body: JSON.stringify({ empresa_id: String(empresaId) }) });
+            },
+            async removerFavorito(empresaId) {
+                return apiRequest("/v1/favoritos/" + encodeURIComponent(String(empresaId)), { method: "DELETE" });
+            },
+            async minhaFidelidade() {
+                const data = await apiRequest("/v1/me/fidelidade");
+                return Array.isArray(data) ? data : [];
             }
         });
     } catch (erro) {
