@@ -100,7 +100,7 @@
   if (/empresa-dashboard\.html$/i.test(location.pathname)) {
     const entregaPropriaCss = document.createElement("link");
     entregaPropriaCss.rel = "stylesheet";
-    entregaPropriaCss.href = `${assetRoot}css/modules/empresa-entrega-propria-4.4.5.css?v=4.4.5.1`;
+    entregaPropriaCss.href = `${assetRoot}css/modules/empresa-entrega-propria-4.4.5.css?v=4.5.0`;
     document.head.append(entregaPropriaCss);
 
     const operacaoCss = document.createElement("link");
@@ -149,7 +149,7 @@
     document.body.append(freteDistanciaJs);
 
     const entregaPropriaJs = document.createElement("script");
-    entregaPropriaJs.src = `${assetRoot}js/modules/empresa-entrega-propria-4.4.5.js?v=4.4.5.1`;
+    entregaPropriaJs.src = `${assetRoot}js/modules/empresa-entrega-propria-4.4.5.js?v=4.5.0`;
     entregaPropriaJs.async = false;
     document.body.append(entregaPropriaJs);
   }
