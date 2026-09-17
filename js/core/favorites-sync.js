@@ -14,16 +14,20 @@
             usuario = data?.user || null;
         }
         if (!usuario) return [...ids];
-        const { data: salvos, error } = await window.db.from("favoritos").select("empresa_id").eq("usuario_id", usuario.id);
-        if (error) {
+        let salvos = [];
+        try {
+            salvos = await window.DeliveryAPI.meusFavoritos();
+        } catch (error) {
             console.warn("Favoritos em nuvem indisponíveis:", error);
             return [...ids];
         }
         (salvos || []).forEach((item) => ids.add(String(item.empresa_id)));
         if (ids.size) {
-            const registros = [...ids].slice(0, 200).map((empresa_id) => ({ usuario_id: usuario.id, empresa_id }));
-            const { error: migracaoErro } = await window.db.from("favoritos").upsert(registros, { onConflict: "usuario_id,empresa_id", ignoreDuplicates: true });
-            if (migracaoErro) console.warn("Não foi possível migrar favoritos locais:", migracaoErro);
+            try {
+                await Promise.all([...ids].slice(0, 200).map((empresa_id) => window.DeliveryAPI.adicionarFavorito(empresa_id)));
+            } catch (migracaoErro) {
+                console.warn("Não foi possível migrar favoritos locais:", migracaoErro);
+            }
         }
         window.App.salvarJSON("favoritos", [...ids]);
         return [...ids];
@@ -37,10 +41,11 @@
         if (!id) return false;
         const remover = ids.has(id);
         if (usuario) {
-            const resposta = remover
-                ? await window.db.from("favoritos").delete().eq("usuario_id", usuario.id).eq("empresa_id", id)
-                : await window.db.from("favoritos").insert({ usuario_id: usuario.id, empresa_id: id });
-            if (resposta.error && resposta.error.code !== "23505") throw resposta.error;
+            if (remover) {
+                await window.DeliveryAPI.removerFavorito(id);
+            } else {
+                await window.DeliveryAPI.adicionarFavorito(id);
+            }
         }
         remover ? ids.delete(id) : ids.add(id);
         window.App.salvarJSON("favoritos", [...ids]);
