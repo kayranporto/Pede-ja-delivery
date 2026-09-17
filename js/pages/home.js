@@ -413,13 +413,11 @@ async function atualizarMenuUsuario(user) {
     // O atalho administrativo só é exibido após a permissão ser confirmada
     // pelo banco. Em instalações que ainda não receberam a migração 007, a
     // falha da RPC é ignorada e o menu do cliente continua funcionando.
-    const [resAdmin, resEntregador, resPerfil] = await Promise.all([
-        window.db.rpc("usuario_eh_admin"),
-        window.db.from("entregadores").select("aprovado").eq("id", user.id).maybeSingle(),
-        window.db.from("usuarios").select("nome,avatar_url").eq("id", user.id).maybeSingle()
-    ]);
-    const { data: ehAdmin, error: erroAdmin } = resAdmin;
-    if (!erroAdmin && ehAdmin === true) {
+    let conta = null;
+    try { conta = await window.DeliveryAPI.getMe(); }
+    catch (erro) { console.warn("Não foi possível carregar o estado da conta pela API:", erro); }
+    const perfil = conta?.usuario || null;
+    if (conta?.eh_admin === true) {
         const admin = document.createElement("a");
         admin.href = "html/admin.html";
         admin.className = "btn-admin";
@@ -437,7 +435,7 @@ async function atualizarMenuUsuario(user) {
         menuUsuario.append(admin);
     }
 
-    if (!resEntregador.error && resEntregador.data?.aprovado === true) {
+    if (conta?.entregador?.aprovado === true && (conta.entregador.vinculos || []).length) {
         const entregas = document.createElement("a");
         entregas.href = "html/entregador.html";
         entregas.className = "btn-driver";
@@ -453,7 +451,7 @@ async function atualizarMenuUsuario(user) {
         const foto = document.createElement("img"); foto.src = resPerfil.data.avatar_url; foto.alt = "";
         perfil.append(foto);
     }
-    const textoPerfil = document.createElement("span"); textoPerfil.textContent = resPerfil.data?.nome || "Minha conta";
+    const textoPerfil = document.createElement("span"); textoPerfil.textContent = perfil?.nome || "Minha conta";
     perfil.append(textoPerfil);
     menuUsuario.append(perfil);
 }
@@ -464,15 +462,13 @@ async function atualizarEndereco(user) {
         locationText.textContent = "Selecionar endereço";
         return;
     }
-    const { data, error } = await window.db.from("enderecos")
-        .select("apelido,logradouro,rua,numero,bairro,cidade,uf,estado")
-        .eq("usuario_id", user.id)
-        .order("principal", { ascending: false, nullsFirst: false })
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-    if (error || !data) {
+    const enderecos = await window.DeliveryAPI.meusEnderecos();
+    const data = Array.isArray(enderecos) ? enderecos[0] : null;
+    if (!data) {
         locationText.textContent = "Cadastrar endereço";
+        return;
+    }
+    locationText.textContent = `${data.apelido || "Entrega"} • ${data.logradouro || data.rua || ""}, ${data.numero || ""} — ${data.bairro || ""}`;
         return;
     }
     locationText.textContent = `${data.apelido || "Entrega"} • ${data.logradouro || data.rua || ""}, ${data.numero || ""} — ${data.bairro || ""}`;
