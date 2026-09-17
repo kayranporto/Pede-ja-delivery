@@ -128,6 +128,36 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
                 const data = await apiRequest("/v1/me/pedidos");
                 return Array.isArray(data) ? data : [];
             },
+            async selecionarEndereco(enderecoId) {
+                return apiRequest("/v1/enderecos/principal", { method: "POST", body: JSON.stringify({ endereco_id: String(enderecoId) }) });
+            },
+            async validarCupom(codigo, empresaId) {
+                return apiRequest("/v1/cupons/validar", { method: "POST", body: JSON.stringify({ codigo: String(codigo), empresa_id: String(empresaId) }) });
+            },
+            async minhasAvaliacao(pedidoId) {
+                return apiRequest("/v1/pedidos/" + encodeURIComponent(String(pedidoId)) + "/avaliacao");
+            },
+            async salvarAvaliacao(pedidoId, nota, comentario) {
+                return apiRequest("/v1/pedidos/" + encodeURIComponent(String(pedidoId)) + "/avaliacao", { method: "POST", body: JSON.stringify({ nota, comentario: comentario || null }) });
+            },
+            async pedidoDetalhe(pedidoId) {
+                const data = await apiRequest("/v1/pedidos/" + encodeURIComponent(String(pedidoId)));
+                return Array.isArray(data) ? (data[0] || null) : data || null;
+            },
+            async pedidoMensagens(pedidoId) {
+                const data = await apiRequest("/v1/pedidos/" + encodeURIComponent(String(pedidoId)) + "/mensagens");
+                return Array.isArray(data) ? data : [];
+            },
+            async pedidoLocalizacao(pedidoId) {
+                return apiRequest("/v1/pedidos/" + encodeURIComponent(String(pedidoId)) + "/localizacao");
+            },
+            async meusSuportes() {
+                const data = await apiRequest("/v1/me/suporte");
+                return Array.isArray(data) ? data : [];
+            },
+            async resgatarFidelidade(empresaId) {
+                return apiRequest("/v1/fidelidade/resgatar", { method: "POST", body: JSON.stringify({ empresa_id: String(empresaId) }) });
+            },
             async salvarEndereco(endereco) {
                 return apiRequest("/v1/me/enderecos", { method: "POST", body: JSON.stringify(endereco) });
             },
