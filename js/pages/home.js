@@ -11,10 +11,60 @@ const verTodos = document.getElementById("verTodosRestaurantes");
 const filtroAberto = document.getElementById("toggleAberto");
 const ordenarTaxa = document.getElementById("ordenarTaxa");
 const resumoResultado = document.getElementById("resultadoResumo");
-const carts = document.querySelectorAll("#abrirCarrinho, #floatingCart");
+const carts = document.querySelectorAll("#botaoAbrirCarrinho, #floatingCart");
 const topbar = document.querySelector(".topbar");
 const topbarClose = document.getElementById("fecharTopbar");
 const TOPBAR_STORAGE_KEY = "multi-delivery-topbar-hidden";
+
+function registrarApiGlobal(nome, valor) {
+    const anterior = typeof window[nome] === "function" ? window[nome] : null;
+    const final = typeof anterior === "function" && anterior !== valor
+        ? (...args) => {
+            try { anterior(...args); } catch (erro) { console.warn(`API global ${nome} anterior falhou:`, erro); }
+            try { return valor(...args); } catch (erro) { console.warn(`API global ${nome} atual falhou:`, erro); }
+            return undefined;
+        }
+        : valor;
+    try {
+        Object.defineProperty(window, nome, {
+            value: final,
+            configurable: true,
+            writable: true,
+            enumerable: false
+        });
+    } catch (error) {
+        window[nome] = final;
+    }
+}
+
+registrarApiGlobal("abrirCarrinho", () => {
+    const drawer = document.getElementById("carrinho");
+    drawer?.classList?.add("aberto");
+    drawer?.setAttribute?.("aria-hidden", "false");
+    drawer?.removeAttribute?.("inert");
+    document.getElementById("overlay")?.classList?.add("aberto");
+});
+registrarApiGlobal("fecharCarrinho", () => {
+    const drawer = document.getElementById("carrinho");
+    drawer?.classList?.remove("aberto");
+    drawer?.setAttribute?.("aria-hidden", "true");
+    drawer?.setAttribute?.("inert", "");
+    document.getElementById("overlay")?.classList?.remove("aberto");
+});
+registrarApiGlobal("adicionarAoCarrinho", (produto) => {
+    if (!produto || !produto.id) return null;
+    const itens = App?.lerJSON?.("carrinho", []) || [];
+    const meta = App?.lerJSON?.("empresaAtual", null) || App?.lerJSON?.("carrinhoMeta", {}) || {};
+    const item = { ...produto, quantidade: Math.max(1, Number(produto.quantidade || 1)), empresa_id: meta?.empresa_id || meta?.id || null, empresa_nome: meta?.empresa_nome || meta?.nome || null };
+    const chave = `${item.id}|${item.variante_id || "sem-variante"}|${String(item.observacao || "")}`;
+    const indice = itens.findIndex((atual) => `${atual.id}|${atual.variante_id || "sem-variante"}|${String(atual.observacao || "")}` === chave);
+    if (indice >= 0) itens[indice].quantidade = Math.min(99, Number(itens[indice].quantidade || 1) + Number(item.quantidade || 1));
+    else itens.push(item);
+    App?.salvarJSON?.("carrinho", itens);
+    if (meta && typeof meta === "object") App?.salvarJSON?.("carrinhoMeta", meta);
+    window.dispatchEvent?.(new CustomEvent("carrinho-atualizado", { detail: { itens, meta } }));
+    return itens;
+});
 
 if (topbar) {
     try {
@@ -444,16 +494,19 @@ async function atualizarEndereco(user) {
 }
 
 function atualizarContadoresCarrinho() {
-    const carrinhoSalvo = App.lerJSON("carrinho", []);
+    const carrinhoSalvo = App?.lerJSON?.("carrinho", []) || [];
     const carrinho = Array.isArray(carrinhoSalvo) ? carrinhoSalvo : [];
     const quantidade = carrinho.reduce((soma, item) => {
         const valor = Number(item?.quantidade || 0);
         return soma + (Number.isFinite(valor) && valor > 0 ? valor : 0);
     }, 0);
-    document.querySelectorAll(".cart span, .floating-cart span").forEach((span) => {
-        span.textContent = quantidade;
+    document.querySelectorAll(".cart span, .floating-cart span, .cart-count").forEach((span) => {
+        span.textContent = String(quantidade);
     });
 }
+
+window.addEventListener("carrinho-atualizado", atualizarContadoresCarrinho);
+window.addEventListener("carrinho-sincronizar", atualizarContadoresCarrinho);
 
 cards?.addEventListener("click", async (event) => {
     const favorito = event.target.closest("[data-favorite-id]");
@@ -550,9 +603,10 @@ carts.forEach((cart) => {
     cart.setAttribute("aria-label", "Abrir carrinho");
 
     const abrir = () => {
-        const carrinhoSalvo = App.lerJSON("carrinho", []);
+        const carrinhoSalvo = App?.lerJSON?.("carrinho", []) || [];
         const carrinho = Array.isArray(carrinhoSalvo) ? carrinhoSalvo : [];
         if (!carrinho.length) {
+            window.AppToast?.("Carrinho vazio", "Adicione pelo menos um item para seguir para o checkout.", "info");
             document.getElementById("restaurantes")?.scrollIntoView({ behavior: "smooth" });
             return;
         }
