@@ -1,6 +1,22 @@
 "use strict";
 
 (() => {
+    // O checkout usa OrderUtils antes que outras camadas possam carregá-lo.
+    // Mantemos uma implementação mínima e compatível aqui como fallback para
+    // impedir ReferenceError quando a página é aberta diretamente.
+    if (!window.OrderUtils) {
+        const calcularDesconto = ({ tipo, valor = 0, subtotal = 0, taxa = 0, maximo = null } = {}) => {
+            const base = Math.max(0, Number(subtotal) || 0);
+            let desconto = 0;
+            if (tipo === "percentual") desconto = Math.round(base * Math.min(100, Math.max(0, Number(valor) || 0))) / 100;
+            if (tipo === "fixo") desconto = Math.min(base, Math.max(0, Number(valor) || 0));
+            if (tipo === "frete") desconto = Math.max(0, Number(taxa) || 0);
+            if (maximo !== null && maximo !== undefined && maximo !== "") desconto = Math.min(desconto, Math.max(0, Number(maximo) || 0));
+            return Math.round(desconto * 100) / 100;
+        };
+        window.OrderUtils = Object.freeze({ calcularDesconto });
+    }
+
     let enviados = 0;
     const limitePorPagina = 10;
     const appVersion = window.DELIVERY_CONFIG?.appVersion || "desconhecida";
