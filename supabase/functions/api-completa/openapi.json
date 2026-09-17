@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Multi Delivery API Completa",
-    "version": "2.6.0",
+    "version": "2.7.0",
     "description": "API HTTP do site Multi Delivery. O catálogo é público; operações autenticadas para clientes, empresas e entregadores seguem RLS e regras de negócio. Entregadores pertencem exclusivamente às empresas."
   },
   "servers": [
