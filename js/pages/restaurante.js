@@ -155,10 +155,11 @@ btnVerCarrinho?.addEventListener("click", () => {
 async function carregarCategorias() {
     const { data, error } = await window.db
         .from("categorias")
-        .select("*")
+        .select("id,nome,ordem")
         .eq("empresa_id", empresaId)
         .eq("ativo", true)
-        .order("ordem");
+        .order("ordem")
+        .order("nome");
 
     if (error) {
         console.error("Erro ao carregar categorias:", error);
@@ -186,7 +187,7 @@ async function carregarProdutos() {
     listaProdutos.innerHTML = '<p class="sem-produtos">Carregando produtos...</p>';
     const { data, error } = await window.db
         .from("produtos")
-        .select("*")
+        .select("id,categoria_id,nome,descricao,imagem,preco,promocao")
         .eq("empresa_id", empresaId)
         .eq("disponivel", true)
         .order("nome");
@@ -200,8 +201,10 @@ async function carregarProdutos() {
             .in("produto_id", ids)
             .eq("ativo", true)
             .order("ordem");
-        if (erroVariantes) throw new Error(erroVariantes.message);
         const porProduto = new Map();
+        if (erroVariantes) {
+            console.warn("Variantes indisponíveis; exibindo produtos base", erroVariantes.message);
+        }
         (variantes || []).forEach((variante) => {
             const chave = String(variante.produto_id);
             if (!porProduto.has(chave)) porProduto.set(chave, []);
