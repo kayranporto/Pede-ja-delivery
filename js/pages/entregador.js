@@ -42,28 +42,36 @@ function atualizarMetricas() {
 
 async function aceitar(pedidoId, botao) {
     App.definirCarregando(botao, true, "Aceitando...");
-    const { data, error } = await db.rpc("entregador_aceitar_pedido", { p_pedido_id: pedidoId });
-    App.definirCarregando(botao, false);
-    if (error || data !== true) {
-        avisarEntregador("Não foi possível aceitar", App.mensagemErro(error, "A entrega já foi aceita."), "error");
+    try {
+        const data = await window.DeliveryAPI.request("/v1/entregador/pedidos/" + encodeURIComponent(String(pedidoId)) + "/aceitar", {
+            method: "POST",
+            body: JSON.stringify({})
+        });
+        if (data !== true) throw new Error("A entrega já foi aceita ou não está disponível.");
+    } catch (erro) {
+        App.definirCarregando(botao, false);
+        avisarEntregador("Não foi possível aceitar", App.mensagemErro(erro, "A entrega já foi aceita."), "error");
         return;
     }
+    App.definirCarregando(botao, false);
     await carregarEntregas();
     avisarEntregador("Entrega aceita", "O endereço completo e as ações de rota já estão disponíveis.", "success");
 }
 
 async function mudarStatus(pedido, status, pagamentoRecebido, botao) {
     App.definirCarregando(botao, true, "Atualizando...");
-    const { data, error } = await db.rpc("entregador_atualizar_status", {
-        p_pedido_id: pedido.id,
-        p_status: status,
-        p_pagamento_recebido: pagamentoRecebido
-    });
-    App.definirCarregando(botao, false);
-    if (error || data !== true) {
-        avisarEntregador("Não foi possível atualizar", App.mensagemErro(error), "error");
+    try {
+        const data = await window.DeliveryAPI.request("/v1/entregador/pedidos/" + encodeURIComponent(String(pedido.id)) + "/status", {
+            method: "POST",
+            body: JSON.stringify({ status, pagamento_recebido: pagamentoRecebido })
+        });
+        if (data !== true) throw new Error("O status não pôde ser atualizado.");
+    } catch (erro) {
+        App.definirCarregando(botao, false);
+        avisarEntregador("Não foi possível atualizar", App.mensagemErro(erro), "error");
         return;
     }
+    App.definirCarregando(botao, false);
     await carregarEntregas();
     avisarEntregador(
         status === "entregue" ? "Entrega concluída" : "Status atualizado",
@@ -140,17 +148,23 @@ function pedirRespostaChat(pedido, historico) {
 }
 
 async function abrirChat(pedido) {
-    const { data, error } = await db.from("pedido_mensagens").select("autor_tipo,mensagem,created_at").eq("pedido_id", pedido.id).order("created_at").limit(30);
-    if (error) {
-        avisarEntregador("Não foi possível abrir o chat", App.mensagemErro(error), "error");
+    let data;
+    try {
+        data = await window.DeliveryAPI.request("/v1/pedidos/" + encodeURIComponent(String(pedido.id)) + "/mensagens");
+    } catch (erro) {
+        avisarEntregador("Não foi possível abrir o chat", App.mensagemErro(erro), "error");
         return;
     }
     const historico = (data || []).map((item) => `[${new Date(item.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}] ${item.autor_tipo}: ${item.mensagem}`).join("\n") || "Ainda não há mensagens.";
     const resposta = await pedirRespostaChat(pedido, historico);
     if (!resposta) return;
-    const { error: envioErro } = await db.from("pedido_mensagens").insert({ pedido_id: pedido.id, autor_id: usuario.id, autor_tipo: "entregador", mensagem: resposta });
-    if (envioErro) {
-        avisarEntregador("Não foi possível enviar", App.mensagemErro(envioErro), "error");
+    try {
+        await window.DeliveryAPI.request("/v1/pedidos/" + encodeURIComponent(String(pedido.id)) + "/mensagens", {
+            method: "POST",
+            body: JSON.stringify({ mensagem: resposta, autor_tipo: "entregador" })
+        });
+    } catch (erro) {
+        avisarEntregador("Não foi possível enviar", App.mensagemErro(erro), "error");
         return;
     }
     avisarEntregador("Mensagem enviada", "A conversa da entrega foi atualizada.", "success");
@@ -204,13 +218,12 @@ function renderizar() {
 }
 
 async function carregarEntregas() {
-    const [resMinhas, resDisponiveis] = await Promise.all([
-        db.from("pedidos").select("*,pedido_itens(*)").eq("entregador_id", usuario.id).order("created_at", { ascending: false }).limit(100),
-        entregador.online ? db.rpc("listar_entregas_disponiveis") : Promise.resolve({ data: [], error: null })
+    const [minhasData, disponiveisData] = await Promise.all([
+        window.DeliveryAPI.request("/v1/entregador/pedidos"),
+        entregador.online ? window.DeliveryAPI.request("/v1/entregador/entregas") : Promise.resolve([])
     ]);
-    if (resMinhas.error) throw resMinhas.error;
-    if (resDisponiveis.error) throw resDisponiveis.error;
-    minhas = resMinhas.data || []; disponiveis = resDisponiveis.data || [];
+    minhas = Array.isArray(minhasData) ? minhasData : [];
+    disponiveis = Array.isArray(disponiveisData) ? disponiveisData : [];
     renderizar(); gerenciarLocalizacao();
 }
 
@@ -228,13 +241,18 @@ function gerenciarLocalizacao() {
         document.getElementById("statusLocalizacao").textContent = "Compartilhando";
         const pedidoAtivo = minhas.find((pedido) => ["preparando", "saiu_para_entrega"].includes(pedido.status));
         if (!pedidoAtivo) return;
-        const { error } = await db.rpc("entregador_atualizar_localizacao", {
-            p_pedido_id: pedidoAtivo.id,
-            p_latitude: posicao.coords.latitude,
-            p_longitude: posicao.coords.longitude,
-            p_precisao_metros: posicao.coords.accuracy
-        });
-        if (error) window.Monitoramento?.registrar("warning", "localizacao_entregador", App.mensagemErro(error));
+        try {
+            await window.DeliveryAPI.request("/v1/entregador/pedidos/" + encodeURIComponent(String(pedidoAtivo.id)) + "/localizacao", {
+                method: "POST",
+                body: JSON.stringify({
+                    latitude: posicao.coords.latitude,
+                    longitude: posicao.coords.longitude,
+                    precisao_metros: posicao.coords.accuracy
+                })
+            });
+        } catch (erro) {
+            window.Monitoramento?.registrar("warning", "localizacao_entregador", App.mensagemErro(erro));
+        }
     }, () => {
         document.getElementById("statusLocalizacao").textContent = "Permissão necessária";
         avisarEntregador("Localização necessária", "Permita o acesso à localização para compartilhar a rota durante uma entrega.", "warning");
@@ -243,13 +261,19 @@ function gerenciarLocalizacao() {
 
 online.addEventListener("change", async () => {
     online.disabled = true;
-    const { data, error } = await db.rpc("entregador_definir_online", { p_online: online.checked });
-    online.disabled = false;
-    if (error || data !== true) {
+    try {
+        const data = await window.DeliveryAPI.request("/v1/entregador/status", {
+            method: "POST",
+            body: JSON.stringify({ online: online.checked })
+        });
+        if (data !== true) throw new Error("Você precisa estar vinculado a uma empresa para ficar online.");
+    } catch (erro) {
         online.checked = !online.checked;
-        avisarEntregador("Não foi possível alterar seu status", App.mensagemErro(error), "error");
+        online.disabled = false;
+        avisarEntregador("Não foi possível alterar seu status", App.mensagemErro(erro), "error");
         return;
     }
+    online.disabled = false;
     entregador.online = online.checked;
     document.getElementById("textoEntregadorOnline").textContent = online.checked ? "Online" : "Offline";
     avisarEntregador(online.checked ? "Você está online" : "Você está offline", online.checked ? "Novas entregas disponíveis serão exibidas aqui." : "Você não receberá novas entregas enquanto estiver offline.", "info");
@@ -258,33 +282,75 @@ online.addEventListener("change", async () => {
 
 document.getElementById("entregadorForm").addEventListener("submit", async (event) => {
     event.preventDefault(); const botao = event.currentTarget.querySelector("button"); App.definirCarregando(botao, true, "Enviando...");
-    const { data, error } = await db.rpc("cadastrar_entregador", {
-        p_nome: document.getElementById("entregadorNome").value.trim(),
-        p_telefone: document.getElementById("entregadorTelefone").value.trim(),
-        p_veiculo: document.getElementById("entregadorVeiculo").value,
-        p_documento: document.getElementById("entregadorDocumento").value.trim() || null,
-        p_placa: document.getElementById("entregadorPlaca").value.trim() || null
-    });
-    App.definirCarregando(botao, false);
-    if (error) {
-        avisarEntregador("Não foi possível enviar", App.mensagemErro(error), "error");
+    let data;
+    try {
+        data = await window.DeliveryAPI.request("/v1/entregador/cadastro", {
+            method: "POST",
+            body: JSON.stringify({
+                nome: document.getElementById("entregadorNome").value.trim(),
+                telefone: document.getElementById("entregadorTelefone").value.trim(),
+                veiculo: document.getElementById("entregadorVeiculo").value,
+                documento: document.getElementById("entregadorDocumento").value.trim() || null,
+                placa: document.getElementById("entregadorPlaca").value.trim() || null
+            })
+        });
+    } catch (erro) {
+        App.definirCarregando(botao, false);
+        avisarEntregador("Não foi possível enviar", App.mensagemErro(erro), "error");
         return;
     }
-    entregador = data; cadastro.hidden = true; pendente.hidden = false;
-    avisarEntregador("Cadastro enviado", "Seu cadastro foi recebido e aguarda aprovação.", "success");
+    App.definirCarregando(botao, false);
+    entregador = data;
+    cadastro.hidden = true;
+    pendente.hidden = false;
+    avisarEntregador("Cadastro enviado", "Agora sua empresa precisa vincular sua conta à unidade antes de você ficar online.", "success");
 });
 
 async function iniciar() {
     const { data: { user } } = await db.auth.getUser();
     if (!user) { localStorage.setItem("redirect", "entregador.html"); location.replace("login.html"); return; }
     usuario = user;
-    const { data, error } = await db.from("entregadores").select("*").eq("id", user.id).maybeSingle();
+
+    let perfil;
+    try {
+        perfil = await window.DeliveryAPI.request("/v1/entregador/me");
+    } catch (erro) {
+        loading.hidden = true;
+        return App.mostrarErroPagina(`Não foi possível carregar o cadastro: ${App.mensagemErro(erro)}`);
+    }
+
     loading.hidden = true;
-    if (error) return App.mostrarErroPagina(`Não foi possível carregar o cadastro: ${App.mensagemErro(error)}`);
-    if (!data) { cadastro.hidden = false; return; }
-    entregador = data;
-    if (!data.aprovado) { pendente.hidden = false; return; }
-    app.hidden = false; document.getElementById("nomeEntregador").textContent = data.nome.split(/\s+/)[0]; online.checked = data.online; document.getElementById("textoEntregadorOnline").textContent = data.online ? "Online" : "Offline";
+    entregador = perfil?.entregador || null;
+
+    if (!entregador) {
+        cadastro.hidden = false;
+        return;
+    }
+
+    const vinculos = Array.isArray(perfil?.vinculos) ? perfil.vinculos : [];
+    if (!vinculos.length) {
+        pendente.hidden = false;
+        const titulo = pendente.querySelector("strong");
+        const mensagem = pendente.querySelector("p");
+        if (titulo) titulo.textContent = "Aguardando vínculo com uma empresa";
+        if (mensagem) mensagem.textContent = "Sua conta de entregador existe, mas ainda não está vinculada a uma empresa. Envie seu e-mail para o responsável pelo restaurante.";
+        return;
+    }
+
+    if (!entregador.aprovado) {
+        pendente.hidden = false;
+        const titulo = pendente.querySelector("strong");
+        const mensagem = pendente.querySelector("p");
+        if (titulo) titulo.textContent = "Cadastro aguardando aprovação";
+        if (mensagem) mensagem.textContent = "Sua empresa já vinculou sua conta. Você poderá ficar online depois da aprovação do cadastro.";
+        return;
+    }
+
+    app.hidden = false;
+    document.getElementById("nomeEntregador").textContent = (entregador.nome || "Entregador").split(/\s+/)[0];
+    online.checked = entregador.online === true;
+    document.getElementById("textoEntregadorOnline").textContent = online.checked ? "Online" : "Offline";
+
     await carregarEntregas();
     canal = db.channel(`entregador-${user.id}`)
         .on("postgres_changes", { event: "*", schema: "public", table: "pedidos" }, () => carregarEntregas())
@@ -292,6 +358,6 @@ async function iniciar() {
 }
 
 document.getElementById("atualizarEntregas").addEventListener("click", carregarEntregas);
-document.getElementById("sairEntregador").addEventListener("click", async () => { if (entregador?.online) await db.rpc("entregador_definir_online", { p_online: false }); await db.auth.signOut(); App.limparDadosPrivados(); location.replace("login.html"); });
+document.getElementById("sairEntregador").addEventListener("click", async () => { try { if (entregador?.online) await window.DeliveryAPI.request("/v1/entregador/status", { method: "POST", body: JSON.stringify({ online: false }) }); } finally { await db.auth.signOut(); App.limparDadosPrivados(); location.replace("login.html"); } });
 addEventListener("beforeunload", () => { if (canal) db.removeChannel(canal); if (localizacaoWatch !== null) navigator.geolocation.clearWatch(localizacaoWatch); });
 iniciar().catch((error) => { loading.hidden = true; App.mostrarErroPagina(`Falha ao iniciar: ${App.mensagemErro(error)}`); });
