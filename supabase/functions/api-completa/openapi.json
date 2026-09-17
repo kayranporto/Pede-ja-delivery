@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Multi Delivery API Completa",
-    "version": "2.8.0",
+    "version": "2.9.0",
     "description": "API HTTP do site Multi Delivery. O catálogo é público; operações autenticadas para clientes, empresas e entregadores seguem RLS e regras de negócio. Entregadores pertencem exclusivamente às empresas."
   },
   "servers": [
@@ -344,6 +344,13 @@
             "description": "Planos"
           }
         }
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Plano salvo"
+          }
+        }
       }
     },
     "/v1/admin/assinaturas": {
@@ -351,6 +358,13 @@
         "responses": {
           "200": {
             "description": "Assinaturas"
+          }
+        }
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Assinatura atualizada"
           }
         }
       }
@@ -530,6 +544,40 @@
         "responses": {
           "200": {
             "description": "Avaliações do cliente"
+          }
+        }
+      }
+    },
+    "/v1/admin/empresas": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Empresas disponíveis para administração"
+          }
+        }
+      }
+    },
+    "/v1/empresa/funcionarios": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Equipe da empresa"
+          }
+        }
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Funcionário salvo"
+          }
+        }
+      }
+    },
+    "/v1/empresa/funcionarios/{id}": {
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Funcionário removido"
           }
         }
       }
