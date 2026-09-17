@@ -131,9 +131,6 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
             async salvarEndereco(endereco) {
                 return apiRequest("/v1/me/enderecos", { method: "POST", body: JSON.stringify(endereco) });
             },
-            async selecionarEndereco(enderecoId) {
-                return apiRequest("/v1/enderecos/" + encodeURIComponent(String(enderecoId)), { method: "POST", body: JSON.stringify({}) });
-            },
             async removerEndereco(enderecoId) {
                 return apiRequest("/v1/enderecos/" + encodeURIComponent(String(enderecoId)), { method: "DELETE" });
             },
