@@ -5,13 +5,27 @@ html[data-theme="dark"] .produto-card .produto-info p,
 html[data-theme="dark"] #enderecoEntrega,
 html[data-theme="dark"] #pagamentoNota,
 html[data-theme="dark"] #enderecoStatus {
-    color: #f1f5f9 !important;
+    color: #f8fafc !important;
 }
 
 html[data-theme="dark"] .produto-card .produto-info p,
 html[data-theme="dark"] #pagamentoNota,
 html[data-theme="dark"] #enderecoStatus {
-    color: #d1d5db !important;
+    color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] #infoEntrega,
+html[data-theme="dark"] #enderecoEntrega,
+html[data-theme="dark"] #pagamentoNota,
+html[data-theme="dark"] #enderecoStatus,
+html[data-theme="dark"] .produto-card .produto-info {
+    background-color: #191e27 !important;
+    border-color: #303846 !important;
+}
+
+html[data-theme="dark"] .produto-card .produto-info strong,
+html[data-theme="dark"] .produto-card .produto-info p {
+    text-shadow: none !important;
 }
 
 html[data-theme="dark"] .endereco,
