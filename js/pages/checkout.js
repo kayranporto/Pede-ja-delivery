@@ -104,16 +104,13 @@ async function carregarEndereco() {
     }
 
     App.vincularUsuarioLocal(user.id);
-    const { data, error } = await window.db.from("enderecos")
-        .select("*")
-        .eq("usuario_id", user.id)
-        .order("principal", { ascending: false, nullsFirst: false })
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-    if (error) throw error;
-    enderecoSelecionado = data || null;
+    const enderecos = await window.DeliveryAPI.meusEnderecos();
+    enderecos.sort((a, b) => {
+        const principal = Number(Boolean(b?.principal)) - Number(Boolean(a?.principal));
+        if (principal) return principal;
+        return new Date(b?.created_at || 0).getTime() - new Date(a?.created_at || 0).getTime();
+    });
+    enderecoSelecionado = enderecos[0] || null;
     enderecoElemento.textContent = enderecoSelecionado
         ? enderecoCompleto(enderecoSelecionado)
         : "Nenhum endereço cadastrado. Adicione um endereço antes de finalizar.";
