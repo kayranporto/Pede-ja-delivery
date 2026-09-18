@@ -22,8 +22,13 @@ function cors(request: Request) {
   const configured = (Deno.env.get("ALLOWED_ORIGINS") || Deno.env.get("SITE_URL") || "")
     .split(",").map((v: string) => v.trim().replace(/\/$/, "")).filter(Boolean);
   const origin = request.headers.get("origin")?.replace(/\/$/, "") || "";
+  const allowed = new Set([
+    ...configured,
+    "https://kayranporto.github.io",
+    "https://site-delivery-42.vercel.app",
+  ]);
   return {
-    "Access-Control-Allow-Origin": configured.length === 0 ? "*" : (configured.includes(origin) ? origin : ""),
+    "Access-Control-Allow-Origin": origin && allowed.has(origin) ? origin : (configured.length === 0 ? "*" : ""),
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-request-id",
     "Access-Control-Allow-Methods": METHODS.join(", "),
     "Vary": "Origin",
