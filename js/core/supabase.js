@@ -86,11 +86,12 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
         window.DeliveryAPI = Object.freeze({
             baseUrl: API_BASE,
             request: apiRequest,
-            async restaurantes({ limite = 50, offset = 0, categoria, cidade } = {}) {
+            async restaurantes({ limite = 50, offset = 0, categoria, cidade, ids } = {}) {
                 const params = new URLSearchParams({
                     limite: String(Math.min(Math.max(Number(limite) || 50, 1), 50)),
                     offset: String(Math.max(Number(offset) || 0, 0))
                 });
+                if (Array.isArray(ids) && ids.length) params.set("ids", ids.map(String).join(","));
                 if (categoria) params.set("categoria", String(categoria));
                 if (cidade) params.set("cidade", String(cidade));
                 const data = await apiRequest(`/v1/restaurantes?${params}`);
