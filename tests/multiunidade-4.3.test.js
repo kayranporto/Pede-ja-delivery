@@ -55,11 +55,13 @@ test("status público acompanha a unidade selecionada", () => {
 });
 
 test("checkout roteia cálculo, disponibilidade e criação pela unidade", () => {
-  const source = read("js/modules/checkout-unidade-4.3.js");
-  assert.match(source, /DeliveryAPI/);
-  assert.match(source, /unidade_id/);
+  const source = read("js/pages/checkout.js");
+  assert.match(source, /DeliveryAPI\.calcularEntrega/);
+  assert.match(source, /DeliveryAPI\.criarPedido/);
+  assert.match(source, /unidade_id: carrinhoMeta\.unidade_id/);
   assert.doesNotMatch(source, /window\.db\.rpc/);
-  assert.match(source, /p_unidade_id: String\(meta\.unidade_id\)/);
+  const module = read("js/modules/checkout-unidade-4.3.js");
+  assert.match(module, /unidade_id/);
 });
 
 test("migration pública valida unidade e rejeita produto de outra unidade", () => {
