@@ -214,9 +214,6 @@
       box.innerHTML = "<p>Histórico operacional temporariamente indisponível.</p>";
       return;
     }
-      box.innerHTML = "<p>Histórico operacional temporariamente indisponível.</p>";
-      return;
-    }
     historicoCarregado = true;
     box.replaceChildren();
     if (!data?.length) {
