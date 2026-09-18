@@ -208,10 +208,12 @@
     if (!box || !emp?.id || !window.db) return;
     if (forcar) box.innerHTML = "<p>Atualizando histórico...</p>";
     let data = [];
-    try { data = await window.DeliveryAPI.empresaPedidoEventos(emp.id); }
-    catch (error) { console.warn("Histórico operacional:", error); }
-      .limit(12);
-    if (false) {
+    try { data = (await window.DeliveryAPI.empresaPedidoEventos(emp.id)).slice(0, 12); }
+    catch (error) {
+      console.warn("Histórico operacional:", error);
+      box.innerHTML = "<p>Histórico operacional temporariamente indisponível.</p>";
+      return;
+    }
       box.innerHTML = "<p>Histórico operacional temporariamente indisponível.</p>";
       return;
     }
