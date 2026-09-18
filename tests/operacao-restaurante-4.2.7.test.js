@@ -36,7 +36,7 @@ test("painel 4.2.7 oferece aceite, recusa, SLA e indicadores do dia", () => {
     "Tempo estimado de preparo",
     "op427Atrasados",
     "pedidoAtrasado",
-    "pedido_operacao_eventos"
+    "DeliveryAPI.empresaPedidoEventos"
   ]) assert.ok(js.includes(trecho), `operação 4.2.7 sem ${trecho}`);
 });
 
