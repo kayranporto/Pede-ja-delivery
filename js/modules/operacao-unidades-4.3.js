@@ -89,13 +89,13 @@
 
   async function excluirPausa(pausa, botao) {
     botao.disabled = true;
-    const { error } = await window.db.from("empresa_pausas")
-      .delete()
-      .eq("id", pausa.id)
-      .eq("empresa_id", empresaId)
-      .eq("unidade_id", unidadeId);
+    try {
+      await window.DeliveryAPI.empresaOperacaoAcao({ acao: "pausa_remover", empresa_id: empresaId, unidade_id: unidadeId, id: pausa.id });
+    } catch (error) {
+      botao.disabled = false;
+      return toast("Não foi possível excluir a pausa", mensagemErro(error), "error");
+    }
     botao.disabled = false;
-    if (error) return toast("Não foi possível excluir a pausa", mensagemErro(error), "error");
     pausas = pausas.filter((item) => String(item.id) !== String(pausa.id));
     renderizarPausas();
     atualizarDisponibilidade();
@@ -125,12 +125,11 @@
   }
 
   async function alternarRegiao(regiao) {
-    const { error } = await window.db.from("empresa_regioes")
-      .update({ ativo: !regiao.ativo, updated_at: new Date().toISOString() })
-      .eq("id", regiao.id)
-      .eq("empresa_id", empresaId)
-      .eq("unidade_id", unidadeId);
-    if (error) return toast("Não foi possível atualizar a região", mensagemErro(error), "error");
+    try {
+      await window.DeliveryAPI.empresaOperacaoAcao({ acao: "regiao_toggle", empresa_id: empresaId, unidade_id: unidadeId, id: regiao.id, ativo: !regiao.ativo });
+    } catch (error) {
+      return toast("Não foi possível atualizar a região", mensagemErro(error), "error");
+    }
     regiao.ativo = !regiao.ativo;
     renderizarRegioes();
   }
@@ -146,12 +145,11 @@
       etiqueta: "Multiunidade"
     }) : false;
     if (!confirmou) return;
-    const { error } = await window.db.from("empresa_regioes")
-      .delete()
-      .eq("id", regiao.id)
-      .eq("empresa_id", empresaId)
-      .eq("unidade_id", unidadeId);
-    if (error) return toast("Não foi possível excluir a região", mensagemErro(error), "error");
+    try {
+      await window.DeliveryAPI.empresaOperacaoAcao({ acao: "regiao_remover", empresa_id: empresaId, unidade_id: unidadeId, id: regiao.id });
+    } catch (error) {
+      return toast("Não foi possível excluir a região", mensagemErro(error), "error");
+    }
     regioes = regioes.filter((item) => String(item.id) !== String(regiao.id));
     renderizarRegioes();
   }
@@ -184,37 +182,31 @@
   async function atualizarDisponibilidade() {
     const status = $("operacaoStatus");
     if (!status || !empresaId || !unidadeId) return;
-    const { data, error } = await window.db.rpc("empresa_disponibilidade_unidade", {
-      p_empresa_id: empresaId,
-      p_unidade_id: unidadeId,
-      p_quando: new Date().toISOString()
-    });
-    if (error) {
+    try {
+      const dados = await window.DeliveryAPI.empresaOperacao(empresaId, unidadeId);
+      const data = dados?.disponibilidade;
+      status.textContent = data?.aberto ? "● Unidade aberta pelo horário" : "● Unidade fechada pelo horário";
+      status.classList.toggle("closed", !data?.aberto);
+    } catch (error) {
       status.textContent = "● Status da unidade indisponível";
       status.classList.add("closed");
-      return;
     }
-    status.textContent = data?.aberto ? "● Unidade aberta pelo horário" : "● Unidade fechada pelo horário";
-    status.classList.toggle("closed", !data?.aberto);
   }
 
   async function carregarDadosUnidade() {
     unidadeId = unidadeSelecionada();
     if (!empresaId || !unidadeId) return false;
     atualizarIndicador();
-    const [resHorarios, resPausas, resRegioes] = await Promise.all([
-      window.db.from("empresa_horarios").select("*").eq("empresa_id", empresaId).eq("unidade_id", unidadeId).order("dia_semana"),
-      window.db.from("empresa_pausas").select("*").eq("empresa_id", empresaId).eq("unidade_id", unidadeId).order("inicio"),
-      window.db.from("empresa_regioes").select("*").eq("empresa_id", empresaId).eq("unidade_id", unidadeId).order("bairro")
-    ]);
-    const erro = resHorarios.error || resPausas.error || resRegioes.error;
-    if (erro) {
-      toast("Não foi possível carregar a operação da unidade", mensagemErro(erro), "error");
+    let dados;
+    try {
+      dados = await window.DeliveryAPI.empresaOperacao(empresaId, unidadeId);
+    } catch (error) {
+      toast("Não foi possível carregar a operação da unidade", mensagemErro(error), "error");
       return false;
     }
-    horarios = resHorarios.data || [];
-    pausas = resPausas.data || [];
-    regioes = resRegioes.data || [];
+    horarios = dados?.horarios || [];
+    pausas = dados?.pausas || [];
+    regioes = dados?.regioes || [];
     renderizarHorarios();
     renderizarPausas();
     renderizarRegioes();
@@ -242,11 +234,14 @@
       }));
       const botao = form.querySelector("button[type='submit']");
       App.definirCarregando(botao, true, "Salvando...");
-      const { data, error } = await window.db.from("empresa_horarios")
-        .upsert(registros, { onConflict: "empresa_id,unidade_id,dia_semana" })
-        .select("*");
+      let data;
+      try {
+        data = await window.DeliveryAPI.empresaOperacaoAcao({ acao: "horarios", empresa_id: empresaId, unidade_id: unidadeId, registros });
+      } catch (error) {
+        App.definirCarregando(botao, false);
+        return toast("Não foi possível salvar os horários", mensagemErro(error), "error");
+      }
       App.definirCarregando(botao, false);
-      if (error) return toast("Não foi possível salvar os horários", mensagemErro(error), "error");
       horarios = data || registros;
       renderizarHorarios();
       await atualizarDisponibilidade();
@@ -268,14 +263,19 @@
       if (!Number.isFinite(inicio.getTime()) || !Number.isFinite(fim.getTime()) || fim <= inicio) {
         return toast("Intervalo inválido", "Informe início e fim válidos para a pausa.", "warning");
       }
-      const { data, error } = await window.db.from("empresa_pausas").insert({
-        empresa_id: empresaId,
-        unidade_id: unidadeId,
-        inicio: inicio.toISOString(),
-        fim: fim.toISOString(),
-        motivo: $("pausaMotivo").value.trim() || null
-      }).select("*").single();
-      if (error) return toast("Não foi possível programar a pausa", mensagemErro(error), "error");
+      let data;
+      try {
+        data = await window.DeliveryAPI.empresaOperacaoAcao({
+          acao: "pausa_criar",
+          empresa_id: empresaId,
+          unidade_id: unidadeId,
+          inicio: inicio.toISOString(),
+          fim: fim.toISOString(),
+          motivo: $("pausaMotivo").value.trim() || null
+        });
+      } catch (error) {
+        return toast("Não foi possível programar a pausa", mensagemErro(error), "error");
+      }
       pausas.push(data);
       form.reset();
       renderizarPausas();
@@ -312,8 +312,12 @@
         || payload.taxa_entrega < 0 || payload.pedido_minimo < 0 || payload.tempo_min < 5 || payload.tempo_max < payload.tempo_min) {
         return toast("Valores inválidos", "Revise taxa, pedido mínimo e tempos de entrega.", "warning");
       }
-      const { data, error } = await window.db.from("empresa_regioes").insert(payload).select("*").single();
-      if (error) return toast("Não foi possível cadastrar a região", mensagemErro(error), "error");
+      let data;
+      try {
+        data = await window.DeliveryAPI.empresaOperacaoAcao({ acao: "regiao_criar", ...payload });
+      } catch (error) {
+        return toast("Não foi possível cadastrar a região", mensagemErro(error), "error");
+      }
       regioes.push(data);
       regioes.sort((a, b) => String(a.bairro).localeCompare(String(b.bairro), "pt-BR"));
       form.reset();
