@@ -240,19 +240,23 @@ function pedidosVisiveis() {
 async function atualizarPedido(pedido, alteracoes, botao, motivo = "") {
     if (botao) botao.disabled = true;
     const anterior = { status: pedido.status, pagamento_status: pedido.pagamento_status };
-    let resposta;
-    if (alteracoes.pagamento_status === "pago" && Object.keys(alteracoes).length === 1) {
-        resposta = await window.db.rpc("empresa_marcar_pagamento_offline", { p_pedido_id: pedido.id });
-    } else if (alteracoes.status === "cancelado" && Object.keys(alteracoes).length === 1) {
-        resposta = await window.db.rpc("empresa_cancelar_pedido_nao_pago", {
-            p_pedido_id: pedido.id,
-            p_motivo: String(motivo || "").trim().slice(0, 500)
-        });
-    } else {
-        resposta = { data: null, error: new Error("Alteração direta de pedido não permitida.") };
+    let data;
+    try {
+        if (alteracoes.pagamento_status === "pago" && Object.keys(alteracoes).length === 1) {
+            data = await window.DeliveryAPI.empresaPainelAcao({ acao: "pedido_pagamento_offline", empresa_id: String(empresa.id), pedido_id: pedido.id });
+        } else if (alteracoes.status === "cancelado" && Object.keys(alteracoes).length === 1) {
+            data = await window.DeliveryAPI.empresaPainelAcao({ acao: "pedido_cancelar_nao_pago", empresa_id: String(empresa.id), pedido_id: pedido.id, motivo: String(motivo || "").trim().slice(0, 500) });
+        } else {
+            throw new Error("Alteração direta de pedido não permitida.");
+        }
+    } catch (error) {
+        if (botao) botao.disabled = false;
+        pedido.status = anterior.status;
+        pedido.pagamento_status = anterior.pagamento_status;
+        alert(`Não foi possível atualizar o pedido: ${App.mensagemErro(error)}`);
+        return false;
     }
     if (botao) botao.disabled = false;
-    const { data, error } = resposta;
     if (error || !data) {
         pedido.status = anterior.status; pedido.pagamento_status = anterior.pagamento_status;
         alert(`Não foi possível atualizar o pedido: ${App.mensagemErro(error)}`);
@@ -266,15 +270,17 @@ async function atualizarPedido(pedido, alteracoes, botao, motivo = "") {
 
 async function executarAcaoOperacional(pedido, acao, botao, preparoEstimado = null, observacao = null) {
     if (botao) App.definirCarregando(botao, true, "Atualizando...");
-    const { data, error } = await window.db.rpc("empresa_atualizar_operacao_pedido", {
-        p_pedido_id: pedido.id,
-        p_acao: acao,
-        p_preparo_estimado: preparoEstimado,
-        p_observacao: observacao
-    });
-    if (botao) App.definirCarregando(botao, false);
-    if (error || !data) {
+    let data;
+    try {
+        data = await window.DeliveryAPI.empresaPainelAcao({ acao: "pedido_operacao", empresa_id: String(empresa.id), pedido_id: pedido.id, operacao: acao, preparo_estimado: preparoEstimado, observacao });
+    } catch (error) {
+        if (botao) App.definirCarregando(botao, false);
         alert(`Não foi possível atualizar a operação: ${App.mensagemErro(error)}`);
+        return false;
+    }
+    if (botao) App.definirCarregando(botao, false);
+    if (!data) {
+        alert("Não foi possível atualizar a operação: a API não retornou o pedido.");
         return false;
     }
     const atualizado = Array.isArray(data) ? data[0] : data;
@@ -355,13 +361,20 @@ function criarCardPedido(pedido, indice) {
 }
 
 async function abrirChatPedido(pedido) {
-    const { data, error } = await window.db.from("pedido_mensagens").select("autor_tipo,mensagem,created_at").eq("pedido_id", pedido.id).order("created_at").limit(30);
-    if (error) return alert(`Não foi possível abrir o chat: ${App.mensagemErro(error)}`);
+    let data;
+    try {
+        data = await window.DeliveryAPI.pedidoMensagens(pedido.id);
+    } catch (error) {
+        return alert(`Não foi possível abrir o chat: ${App.mensagemErro(error)}`);
+    }
     const historico = (data || []).map((item) => `[${new Date(item.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}] ${item.autor_tipo}: ${item.mensagem}`).join("\n") || "Ainda não há mensagens.";
     const resposta = prompt(`Conversa do pedido #${pedido.numero}\n\n${historico}\n\nDigite uma resposta:`);
     if (!resposta?.trim()) return;
-    const { error: erroEnvio } = await window.db.from("pedido_mensagens").insert({ pedido_id: pedido.id, autor_id: empresa.usuario_id, autor_tipo: "restaurante", mensagem: resposta.trim().slice(0, 1000) });
-    if (erroEnvio) alert(`Não foi possível enviar: ${App.mensagemErro(erroEnvio)}`);
+    try {
+        await window.DeliveryAPI.empresaPainelAcao({ acao: "mensagem_enviar", empresa_id: String(empresa.id), pedido_id: pedido.id, mensagem: resposta.trim().slice(0, 1000) });
+    } catch (error) {
+        alert(`Não foi possível enviar: ${App.mensagemErro(error)}`);
+    }
 }
 
 function textoBeneficioCupom(cupom) {
@@ -380,8 +393,19 @@ function renderizarCuponsEmpresa() {
         const validade = cupom.fim ? `Válido até ${new Date(cupom.fim).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}` : "Sem data final";
         const footer = criarElemento("footer"); const alternar = criarElemento("button", "", cupom.ativo ? "Pausar" : "Ativar"); const remover = criarElemento("button", "", "Excluir");
         alternar.type = remover.type = "button";
-        alternar.addEventListener("click", async () => { const { error } = await db.from("cupons").update({ ativo: !cupom.ativo, updated_at: new Date().toISOString() }).eq("id", cupom.id); if (!error) { cupom.ativo = !cupom.ativo; renderizarCuponsEmpresa(); } });
-        remover.addEventListener("click", async () => { if (!confirm(`Excluir o cupom ${cupom.codigo}?`)) return; const { error } = await db.from("cupons").delete().eq("id", cupom.id); if (!error) { cuponsEmpresa = cuponsEmpresa.filter((item) => item.id !== cupom.id); renderizarCuponsEmpresa(); } });
+        alternar.addEventListener("click", async () => {
+            try {
+                await window.DeliveryAPI.empresaPainelAcao({ acao: "cupom_toggle", empresa_id: String(empresa.id), id: cupom.id, ativo: !cupom.ativo });
+                cupom.ativo = !cupom.ativo; renderizarCuponsEmpresa();
+            } catch (error) { alert(`Não foi possível atualizar o cupom: ${App.mensagemErro(error)}`); }
+        });
+        remover.addEventListener("click", async () => {
+            if (!confirm(`Excluir o cupom ${cupom.codigo}?`)) return;
+            try {
+                await window.DeliveryAPI.empresaPainelAcao({ acao: "cupom_remover", empresa_id: String(empresa.id), id: cupom.id });
+                cuponsEmpresa = cuponsEmpresa.filter((item) => item.id !== cupom.id); renderizarCuponsEmpresa();
+            } catch (error) { alert(`Não foi possível excluir o cupom: ${App.mensagemErro(error)}`); }
+        });
         footer.append(alternar, remover); card.append(header, criarElemento("p", "", `${validade} • ${cupom.usos || 0}${cupom.limite_usos ? `/${cupom.limite_usos}` : ""} usos • ${cupom.limite_por_usuario || 1} por cliente`), footer); box.append(card);
     });
 }
@@ -397,7 +421,18 @@ function renderizarAvaliacoesEmpresa() {
         else identidade.append(criarElemento("span", "review-initial", (avaliacao.autor_nome || "C").charAt(0).toUpperCase()));
         const titulo = criarElemento("div"); titulo.append(criarElemento("strong", "", avaliacao.autor_nome || "Cliente"), criarElemento("span", "review-stars", "★".repeat(avaliacao.nota) + "☆".repeat(5 - avaliacao.nota)), criarElemento("small", "", new Date(avaliacao.created_at).toLocaleDateString("pt-BR"))); identidade.append(titulo); header.append(identidade, criarElemento("small", "", `Pedido ${String(avaliacao.pedido_id).slice(0, 8)}`));
         const form = criarElemento("form", "review-response-form"); const input = document.createElement("input"); input.maxLength = 1000; input.placeholder = "Escreva uma resposta pública..."; input.value = avaliacao.resposta || ""; const enviar = criarElemento("button", "", avaliacao.resposta ? "Atualizar" : "Responder"); enviar.type = "submit"; form.append(input, enviar);
-        form.addEventListener("submit", async (event) => { event.preventDefault(); App.definirCarregando(enviar, true, "Salvando..."); const { error } = await db.rpc("empresa_responder_avaliacao", { p_avaliacao_id: avaliacao.id, p_resposta: input.value.trim() || null }); App.definirCarregando(enviar, false); if (error) return alert(`Não foi possível responder: ${App.mensagemErro(error)}`); avaliacao.resposta = input.value.trim(); renderizarAvaliacoesEmpresa(); });
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault(); App.definirCarregando(enviar, true, "Salvando...");
+            try {
+                await window.DeliveryAPI.empresaPainelAcao({ acao: "avaliacao_responder", empresa_id: String(empresa.id), id: avaliacao.id, resposta: input.value.trim() || null });
+            } catch (error) {
+                App.definirCarregando(enviar, false);
+                return alert(`Não foi possível responder: ${App.mensagemErro(error)}`);
+            }
+            App.definirCarregando(enviar, false);
+            avaliacao.resposta = input.value.trim();
+            renderizarAvaliacoesEmpresa();
+        });
         card.append(header, criarElemento("p", "", avaliacao.comentario || "Cliente deixou apenas a nota."), form); box.append(card);
     });
 }
