@@ -31,7 +31,7 @@ test("catálogo 4.2 suporta variações com snapshot no pedido", () => {
         "for share", "v_itens_normalizados"
     ]) assert.ok(sql.includes(trecho), `variações sem ${trecho}`);
     const modal = read("js/modules/modal.js");
-    assert.match(modal, /produto_variantes/);
+    assert.match(modal, /DeliveryAPI\.cardapio/);
     assert.match(modal, /varianteSelecionada/);
     assert.match(modal, /variante_id/);
     const checkout = read("js/pages/checkout.js");
