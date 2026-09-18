@@ -211,6 +211,54 @@
         }
       }
     },
+    "/v1/empresa/unidades": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Unidades da empresa"
+          }
+        }
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Unidade salva"
+          }
+        }
+      }
+    },
+    "/v1/empresa/operacao": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Operação da empresa"
+          }
+        }
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Ação operacional"
+          }
+        }
+      }
+    },
+    "/v1/empresa/painel": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Dados do painel empresarial"
+          }
+        }
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Ação do painel empresarial"
+          }
+        }
+      }
+    },
     "/v1/empresa/plano": {
       "get": {
         "responses": {
