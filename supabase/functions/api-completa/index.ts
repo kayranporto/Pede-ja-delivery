@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.111.0";
 
-const API_VERSION = "3.1.0";
+const API_VERSION = "3.0.0";
 const METHODS = ["GET", "POST", "PATCH", "DELETE", "HEAD", "OPTIONS"] as const;
 const PUBLIC_PREFIXES = [
   /^\/$/, /^\/v1\/?$/, /^\/v1\/status\/?$/,
