@@ -80,16 +80,12 @@ if (!form || !submitButton) {
                 throw new Error("A confirmação de e-mail ainda está habilitada no Supabase. Desative Confirm email em Auth > Providers > Email para permitir acesso imediato.");
             }
 
-            let { data: empresa, error: erroEmpresa } = await window.db.from("empresas")
-                .select("*").eq("usuario_id", user.id).maybeSingle();
-            if (erroEmpresa) throw erroEmpresa;
-            if (!empresa) {
-                const resposta = await window.db.from("empresas").insert({
-                    usuario_id: user.id, nome, email, telefone, cnpj, status: false, taxa_entrega: 0, pedido_minimo: 0
-                }).select("*").single();
-                if (resposta.error) throw resposta.error;
-                empresa = resposta.data;
-            }
+            const respostaEmpresa = await window.DeliveryAPI.request("/v1/empresa/inicializar", {
+                method: "POST",
+                body: JSON.stringify({ nome, email, telefone, cnpj })
+            });
+            const empresa = respostaEmpresa?.data || null;
+            if (!empresa) throw new Error("Não foi possível inicializar o restaurante.");
 
             App.vincularUsuarioLocal(user.id);
             App.salvarJSON("empresaLogada", empresa);
