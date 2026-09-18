@@ -75,10 +75,7 @@ form.addEventListener("submit", async (event) => {
             throw new Error("A confirmação de e-mail ainda está habilitada no Supabase. Desative Confirm email em Auth > Providers > Email para permitir acesso imediato.");
         }
 
-        const { error: erroUsuario } = await window.db.from("usuarios").upsert({
-            id: data.user.id, nome, sobrenome, telefone, cpf: cpf || null
-        }, { onConflict: "id" });
-        if (erroUsuario) throw erroUsuario;
+        await window.DeliveryAPI.atualizarMe({ nome, sobrenome, telefone, cpf: cpf || null });
 
         const solicitado = localStorage.getItem("redirect");
         localStorage.removeItem("redirect");
