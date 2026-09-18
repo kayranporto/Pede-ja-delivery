@@ -210,8 +210,14 @@
         } catch (error) {
             return erro(error);
         }
-        if (!empresaAtual) return;
-        loja = empresaAtual;
+        if (!empresaAtual?.empresa_id) return;
+        try {
+            const painel = await window.DeliveryAPI.empresaPainel(empresaAtual.empresa_id);
+            loja = painel?.empresa || null;
+        } catch (error) {
+            return erro(error);
+        }
+        if (!loja) return;
         $("regiaoCidade").value = loja.cidade_atendimento || "";
         $("regiaoUf").value = loja.uf_atendimento || "";
         $("regiaoMinimo").value = Number(loja.pedido_minimo || 0).toFixed(2);
