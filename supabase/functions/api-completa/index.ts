@@ -215,6 +215,166 @@ async function companyOperationAction(ctx: RouteContext, body: Json) {
   }
   return error(ctx.request,404,"operacao_nao_encontrada","Operação da empresa não encontrada.");
 }
+async function companyPanel(ctx: RouteContext) {
+  const empresaId = str(ctx.url.searchParams.get("empresa_id"), 100);
+  const unidadeId = str(ctx.url.searchParams.get("unidade_id"), 100);
+  if (!empresaId) return error(ctx.request, 400, "parametro_invalido", "empresa_id é obrigatório.");
+  if (unidadeId && !uuid(unidadeId)) return error(ctx.request, 400, "parametro_invalido", "unidade_id inválido.");
+  const pedidosQuery = ctx.db.from("pedidos").select("*, pedido_itens(*)").eq("empresa_id", empresaId).order("created_at", { ascending: false });
+  const produtosQuery = ctx.db.from("produtos").select("*").eq("empresa_id", empresaId).order("nome");
+  const categoriasQuery = ctx.db.from("categorias").select("*").eq("empresa_id", empresaId).order("ordem").order("nome");
+  if (unidadeId) {
+    pedidosQuery.eq("unidade_id", unidadeId);
+    produtosQuery.eq("unidade_id", unidadeId);
+    categoriasQuery.eq("unidade_id", unidadeId);
+  }
+  const [empresaQ, pedidosQ, produtosQ, categoriasQ, gruposQ, cuponsQ, avaliacoesQ, movimentosQ] = await Promise.all([
+    ctx.db.from("empresas").select("*").eq("id", empresaId).maybeSingle(),
+    pedidosQuery,
+    produtosQuery,
+    categoriasQuery,
+    ctx.db.from("grupos_adicionais").select("*").eq("empresa_id", empresaId).order("nome"),
+    ctx.db.from("cupons").select("*").eq("empresa_id", empresaId).order("created_at", { ascending: false }),
+    ctx.db.from("avaliacoes").select("id,pedido_id,nota,comentario,resposta,autor_nome,autor_avatar_url,created_at,updated_at").eq("empresa_id", empresaId).order("created_at", { ascending: false }).limit(200),
+    ctx.db.from("estoque_movimentos").select("*").eq("empresa_id", empresaId).order("created_at", { ascending: false }).limit(50)
+  ]);
+  const baseErro = empresaQ.error || pedidosQ.error || produtosQ.error || categoriasQ.error || gruposQ.error || cuponsQ.error || avaliacoesQ.error || movimentosQ.error;
+  if (baseErro || !empresaQ.data) return error(ctx.request, 502, "painel_indisponivel", "Não foi possível carregar o painel da empresa.");
+  const produtoIds = (produtosQ.data || []).map((item:any) => String(item.id));
+  const grupoIds = (gruposQ.data || []).map((item:any) => String(item.id));
+  const [adicionaisQ, vinculosQ, variantesQ] = await Promise.all([
+    grupoIds.length ? ctx.db.from("adicionais").select("*").in("grupo_id", grupoIds).order("nome") : Promise.resolve({ data: [], error: null }),
+    produtoIds.length ? ctx.db.from("produto_grupos").select("*").in("produto_id", produtoIds) : Promise.resolve({ data: [], error: null }),
+    produtoIds.length ? ctx.db.from("produto_variantes").select("*").in("produto_id", produtoIds).order("ordem").order("nome") : Promise.resolve({ data: [], error: null })
+  ]);
+  if (adicionaisQ.error || vinculosQ.error || variantesQ.error) return error(ctx.request, 502, "painel_indisponivel", "Não foi possível carregar o catálogo do painel.");
+  return response(ctx.request,{data:{
+    empresa: empresaQ.data,
+    pedidos: pedidosQ.data || [], produtos: produtosQ.data || [], categorias: categoriasQ.data || [],
+    grupos_adicionais: gruposQ.data || [], cupons: cuponsQ.data || [], avaliacoes: avaliacoesQ.data || [],
+    adicionais: adicionaisQ.data || [], vinculos_produto_grupo: vinculosQ.data || [], variantes_produto: variantesQ.data || [],
+    estoque_movimentos: movimentosQ.data || []
+  }});
+}
+async function companyPanelAction(ctx: RouteContext, body: Json) {
+  const acao = str(body.acao, 60), empresaId = str(body.empresa_id,100);
+  if (!acao || !empresaId) return error(ctx.request,400,"parametro_invalido","acao e empresa_id são obrigatórios.");
+  if (acao === "pedido_pagamento_offline") {
+    const id=str(body.pedido_id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","pedido_id inválido.");
+    return rpc(ctx.db,ctx.request,"empresa_marcar_pagamento_offline",{p_pedido_id:id});
+  }
+  if (acao === "pedido_cancelar_nao_pago") {
+    const id=str(body.pedido_id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","pedido_id inválido.");
+    return rpc(ctx.db,ctx.request,"empresa_cancelar_pedido_nao_pago",{p_pedido_id:id,p_motivo:str(body.motivo,500)});
+  }
+  if (acao === "pedido_operacao") {
+    const id=str(body.pedido_id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","pedido_id inválido.");
+    return rpc(ctx.db,ctx.request,"empresa_atualizar_operacao_pedido",{p_pedido_id:id,p_acao:str(body.operacao,100),p_preparo_estimado:int(body.preparo_estimado,1,1440),p_observacao:str(body.observacao,2000)});
+  }
+  if (acao === "mensagem_enviar") {
+    const id=str(body.pedido_id,100), mensagem=str(body.mensagem,2000);
+    if(!uuid(id)||!mensagem) return error(ctx.request,400,"parametro_invalido","pedido_id e mensagem são obrigatórios.");
+    const {data,error:e}=await ctx.db.from("pedido_mensagens").insert({pedido_id:id,autor_id:ctx.userId,autor_tipo:"restaurante",mensagem:mensagem.slice(0,1000)}).select().single();
+    return e ? error(ctx.request,400,"mensagem_recusada",e.message) : response(ctx.request,{data});
+  }
+  if (acao === "cupom_criar") {
+    const payload={empresa_id:empresaId,codigo:str(body.codigo,100),tipo:str(body.tipo,30),valor:Number(body.valor||0),pedido_minimo:Number(body.pedido_minimo||0),max_desconto:body.max_desconto==null?null:Number(body.max_desconto),limite_usos:body.limite_usos==null?null:Number(body.limite_usos),limite_por_usuario:Number(body.limite_por_usuario||1),primeiro_pedido:body.primeiro_pedido===true,fim:body.fim?new Date(String(body.fim)).toISOString():null,ativo:true};
+    if(!payload.codigo || !payload.tipo || !Number.isFinite(payload.valor)||payload.valor<0||!Number.isFinite(payload.pedido_minimo)||payload.pedido_minimo<0) return error(ctx.request,400,"cupom_invalido","Dados do cupom inválidos.");
+    const {data,error:e}=await ctx.db.from("cupons").insert(payload).select("*").single();
+    return e ? error(ctx.request,e.code==="23505"?409:400,e.code==="23505"?"cupom_duplicado":"cupom_recusado",e.message) : response(ctx.request,{data});
+  }
+  if (acao === "cupom_toggle") {
+    const id=str(body.id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","id do cupom inválido.");
+    const {data,error:e}=await ctx.db.from("cupons").update({ativo:body.ativo===true,updated_at:new Date().toISOString()}).eq("id",id).eq("empresa_id",empresaId).select("*").single();
+    return e ? error(ctx.request,400,"cupom_recusado",e.message) : response(ctx.request,{data});
+  }
+  if (acao === "cupom_remover") {
+    const id=str(body.id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","id do cupom inválido.");
+    const {error:e}=await ctx.db.from("cupons").delete().eq("id",id).eq("empresa_id",empresaId);
+    return e ? error(ctx.request,400,"cupom_recusado",e.message) : response(ctx.request,{data:true});
+  }
+  if (acao === "avaliacao_responder") {
+    const id=str(body.id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","id da avaliação inválido.");
+    return rpc(ctx.db,ctx.request,"empresa_responder_avaliacao",{p_avaliacao_id:id,p_resposta:str(body.resposta,1000)||null});
+  }
+  if (acao === "categoria_remover") {
+    const id=str(body.id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","id da categoria inválido.");
+    const upd=await ctx.db.from("produtos").update({categoria_id:null}).eq("empresa_id",empresaId).eq("categoria_id",id);
+    if(upd.error) return error(ctx.request,400,"categoria_recusada",upd.error.message);
+    const del=await ctx.db.from("categorias").delete().eq("id",id).eq("empresa_id",empresaId);
+    return del.error ? error(ctx.request,400,"categoria_recusada",del.error.message) : response(ctx.request,{data:true});
+  }
+  if (acao === "produto_disponibilidade") {
+    const id=str(body.id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","id do produto inválido.");
+    const {data,error:e}=await ctx.db.from("produtos").update({disponivel:body.disponivel===true}).eq("id",id).eq("empresa_id",empresaId).select("*").single();
+    return e ? error(ctx.request,400,"produto_recusado",e.message) : response(ctx.request,{data});
+  }
+  if (acao === "produto_remover") {
+    const id=str(body.id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","id do produto inválido.");
+    const a=await ctx.db.from("produto_grupos").delete().eq("produto_id",id); if(a.error) return error(ctx.request,400,"produto_recusado",a.error.message);
+    const b=await ctx.db.from("produto_variantes").delete().eq("produto_id",id); if(b.error) return error(ctx.request,400,"produto_recusado",b.error.message);
+    const d=await ctx.db.from("produtos").delete().eq("id",id).eq("empresa_id",empresaId);
+    return d.error ? error(ctx.request,400,"produto_recusado",d.error.message) : response(ctx.request,{data:true});
+  }
+  if (acao === "variante_criar") {
+    const produtoId=str(body.produto_id,100), nome=str(body.nome,120);
+    const preco=Number(body.preco), promocao=body.promocao==null||body.promocao===""?null:Number(body.promocao);
+    if(!uuid(produtoId)||!nome||!Number.isFinite(preco)||preco<0||(promocao!==null&&(!Number.isFinite(promocao)||promocao<=0||promocao>=preco))) return error(ctx.request,400,"variante_invalida","Dados da variação inválidos.");
+    const produto=await ctx.db.from("produtos").select("id,empresa_id").eq("id",produtoId).eq("empresa_id",empresaId).maybeSingle(); if(produto.error||!produto.data) return error(ctx.request,404,"produto_nao_encontrado","Produto não encontrado.");
+    const ordemQ=await ctx.db.from("produto_variantes").select("id").eq("produto_id",produtoId);
+    const {data,error:e}=await ctx.db.from("produto_variantes").insert({produto_id:produtoId,nome,preco,promocao,ordem:(ordemQ.data||[]).length,ativo:body.ativo!==false}).select("*").single();
+    return e ? error(ctx.request,400,"variante_recusada",e.message) : response(ctx.request,{data});
+  }
+  if (acao === "variante_toggle") {
+    const id=str(body.id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","id da variação inválido.");
+    const {data,error:e}=await ctx.db.from("produto_variantes").update({ativo:body.ativo===true}).eq("id",id).select("*").single();
+    return e ? error(ctx.request,400,"variante_recusada",e.message) : response(ctx.request,{data});
+  }
+  if (acao === "variante_remover") {
+    const id=str(body.id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","id da variação inválido.");
+    const {error:e}=await ctx.db.from("produto_variantes").delete().eq("id",id); return e ? error(ctx.request,400,"variante_recusada",e.message) : response(ctx.request,{data:true});
+  }
+  if (acao === "grupo_criar") {
+    const nome=str(body.nome,120), minimo=Number(body.minimo), maximo=Number(body.maximo);
+    if(!nome||!Number.isInteger(minimo)||!Number.isInteger(maximo)||minimo<0||maximo<Math.max(minimo,1)||maximo>20) return error(ctx.request,400,"grupo_invalido","Limites do grupo inválidos.");
+    const {data,error:e}=await ctx.db.from("grupos_adicionais").insert({empresa_id:empresaId,nome,minimo,maximo,ativo:true}).select("*").single(); return e ? error(ctx.request,400,"grupo_recusado",e.message) : response(ctx.request,{data});
+  }
+  if (acao === "adicional_criar") {
+    const grupoId=str(body.grupo_id,100), nome=str(body.nome,120), preco=Number(body.preco);
+    if(!uuid(grupoId)||!nome||!Number.isFinite(preco)||preco<0) return error(ctx.request,400,"adicional_invalido","Dados do adicional inválidos.");
+    const grupo=await ctx.db.from("grupos_adicionais").select("id").eq("id",grupoId).eq("empresa_id",empresaId).maybeSingle(); if(grupo.error||!grupo.data) return error(ctx.request,404,"grupo_nao_encontrado","Grupo não encontrado.");
+    const {data,error:e}=await ctx.db.from("adicionais").insert({grupo_id:grupoId,nome,preco,ativo:true}).select("*").single(); return e ? error(ctx.request,400,"adicional_recusado",e.message) : response(ctx.request,{data});
+  }
+  if (acao === "adicional_remover") {
+    const id=str(body.id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","id do adicional inválido.");
+    const {error:e}=await ctx.db.from("adicionais").delete().eq("id",id); return e ? error(ctx.request,400,"adicional_recusado",e.message) : response(ctx.request,{data:true});
+  }
+  if (acao === "produto_grupo_criar") {
+    const produtoId=str(body.produto_id,100), grupoId=str(body.grupo_id,100); if(!uuid(produtoId)||!uuid(grupoId)) return error(ctx.request,400,"parametro_invalido","produto_id e grupo_id são obrigatórios.");
+    const [p,g]=await Promise.all([ctx.db.from("produtos").select("id").eq("id",produtoId).eq("empresa_id",empresaId).maybeSingle(),ctx.db.from("grupos_adicionais").select("id").eq("id",grupoId).eq("empresa_id",empresaId).maybeSingle()]);
+    if(p.error||g.error||!p.data||!g.data) return error(ctx.request,404,"vinculo_invalido","Produto ou grupo não encontrado.");
+    const {data,error:e}=await ctx.db.from("produto_grupos").insert({produto_id:produtoId,grupo_id:grupoId}).select("*").single(); return e ? error(ctx.request,400,"vinculo_recusado",e.message) : response(ctx.request,{data});
+  }
+  if (acao === "produto_grupo_remover") {
+    const produtoId=str(body.produto_id,100), grupoId=str(body.grupo_id,100); if(!uuid(produtoId)||!uuid(grupoId)) return error(ctx.request,400,"parametro_invalido","produto_id e grupo_id são obrigatórios.");
+    const {error:e}=await ctx.db.from("produto_grupos").delete().eq("produto_id",produtoId).eq("grupo_id",grupoId); return e ? error(ctx.request,400,"vinculo_recusado",e.message) : response(ctx.request,{data:true});
+  }
+  if (acao === "grupo_remover") {
+    const id=str(body.id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","id do grupo inválido.");
+    const links=await ctx.db.from("produto_grupos").delete().eq("grupo_id",id); if(links.error) return error(ctx.request,400,"grupo_recusado",links.error.message);
+    const adds=await ctx.db.from("adicionais").delete().eq("grupo_id",id); if(adds.error) return error(ctx.request,400,"grupo_recusado",adds.error.message);
+    const del=await ctx.db.from("grupos_adicionais").delete().eq("id",id).eq("empresa_id",empresaId); return del.error ? error(ctx.request,400,"grupo_recusado",del.error.message) : response(ctx.request,{data:true});
+  }
+  if (acao === "empresa_status") {
+    const {data,error:e}=await ctx.db.from("empresas").update({status:body.status===true}).eq("id",empresaId).select("*").single(); return e ? error(ctx.request,400,"empresa_recusada",e.message) : response(ctx.request,{data});
+  }
+  if (acao === "empresa_atualizar") {
+    const allowedKeys=["nome","telefone","categoria","descricao","taxa_entrega","pedido_minimo","cidade_atendimento","uf_atendimento","bairros_atendidos","tempo_estimado_min","tempo_estimado_max","logo","banner"];
+    const payload:any={}; for(const k of allowedKeys){ if(body[k]!==undefined) payload[k]=body[k]; }
+    const {data,error:e}=await ctx.db.from("empresas").update(payload).eq("id",empresaId).select("*").single(); return e ? error(ctx.request,400,"empresa_recusada",e.message) : response(ctx.request,{data});
+  }
+  return error(ctx.request,404,"acao_nao_encontrada","Ação do painel não encontrada.");
+}
 async function adminOperation(ctx: RouteContext) {
   const [chamados,reembolsos,cancelamentos,conciliacao] = await Promise.all([
     ctx.db.from("chamados_suporte").select("id,assunto,mensagem,status,prioridade,created_at").in("status",["aberto","em_analise"]).order("prioridade",{ascending:false}).order("created_at").limit(50),
