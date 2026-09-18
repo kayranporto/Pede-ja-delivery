@@ -4,7 +4,6 @@ let adminEmpresas = [];
 let adminUsuarios = [];
 let adminPedidos = [];
 let adminCupons = [];
-let adminEntregadores = [];
 let adminLogs = [];
 let adminAuditoria = [];
 let adminRelatorio = null;
@@ -301,37 +300,6 @@ function atualizarMetricasAdmin() {
     document.getElementById("adminTotalPedidos").textContent = String(adminPedidos.length);
     document.getElementById("pedidosMenu").textContent = String(adminPedidos.length);
     document.getElementById("adminFaturamento").textContent = App.dinheiro(faturamento);
-    const entregadoresPendentes = adminEntregadores.filter((item) => !item.aprovado).length;
-    document.getElementById("entregadoresPendentesMenu").textContent = String(entregadoresPendentes);
-}
-
-function renderizarEntregadores() {
-    const tbody = document.getElementById("adminEntregadores");
-    const termo = document.getElementById("buscaAdminEntregador").value.trim().toLowerCase();
-    const lista = adminEntregadores.filter((item) => !termo || `${item.nome} ${item.telefone} ${item.veiculo} ${item.placa || ""}`.toLowerCase().includes(termo));
-    tbody.replaceChildren();
-    if (!lista.length) { tbody.append(vazioTabela(6, "Nenhum entregador encontrado.")); return; }
-    lista.forEach((item) => {
-        const tr = document.createElement("tr");
-        const nome = document.createElement("td"); nome.append(elemento("strong", "", item.nome), elemento("small", "", item.documento || "Documento não informado"));
-        const veiculo = document.createElement("td"); veiculo.append(elemento("strong", "", item.veiculo || "—"), elemento("small", "", item.placa || "Sem placa"));
-        const status = document.createElement("td"); status.append(elemento("span", `status-pill ${item.aprovado ? "active" : ""}`, item.aprovado ? (item.online ? "Online" : "Aprovado") : "Pendente"));
-        const acao = document.createElement("td");
-        const acaoBotao = botao(item.aprovado ? "Suspender" : "Aprovar", `admin-action ${item.aprovado ? "danger" : "primary"}`);
-        acaoBotao.addEventListener("click", async () => {
-            const aprovar = !item.aprovado;
-            if (!await confirmarAcao(`${aprovar ? "Aprovar" : "Suspender"} entregador`, `${item.nome} ${aprovar ? "poderá aceitar entregas" : "perderá o acesso a novas entregas"}.`, aprovar ? "Aprovar" : "Suspender", !aprovar)) return;
-            acaoBotao.disabled = true;
-            let error = null; try { await window.DeliveryAPI.adminAcao({ acao: "entregador", entregador_id: item.id, aprovado: aprovar }); } catch (erro) { error = erro; }
-            acaoBotao.disabled = false;
-            if (error) return mostrarErro("Não foi possível atualizar o entregador", error);
-            item.aprovado = aprovar; item.online = false; renderizarEntregadores(); atualizarMetricasAdmin();
-            anunciar("Entregador atualizado.");
-        });
-        acao.append(acaoBotao);
-        tr.append(nome, elemento("td", "", item.telefone || "—"), veiculo, elemento("td", "", dataCurta(item.created_at)), status, acao);
-        tbody.append(tr);
-    });
 }
 
 function renderizarAuditoria() {
@@ -965,10 +933,10 @@ async function iniciarAdmin() {
 const adminSidebar = document.getElementById("adminSidebar");
 const adminOverlay = document.getElementById("adminOverlay");
 
-["buscaAdminEmpresa", "buscaAdminUsuario", "buscaAdminCupom", "buscaAdminEntregador"].forEach((id) => {
+["buscaAdminEmpresa", "buscaAdminUsuario", "buscaAdminCupom"].forEach((id) => {
     document.getElementById(id).addEventListener("input", ({ target }) => ({
         buscaAdminEmpresa: renderizarEmpresas, buscaAdminUsuario: renderizarUsuarios,
-        buscaAdminCupom: renderizarCupons, buscaAdminEntregador: renderizarEntregadores
+        buscaAdminCupom: renderizarCupons
     })[target.id]());
 });
 ["buscaAdminPedido", "filtroPedidoEmpresa", "filtroPedidoStatus", "filtroPedidoPagamento", "filtroPedidoInicio", "filtroPedidoFim"].forEach((id) => {
