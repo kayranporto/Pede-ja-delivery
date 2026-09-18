@@ -78,20 +78,21 @@ test("finalização do pedido usa o mesmo helper de endereço e preserva cupom d
   assert.match(trecho, /distancia_km/);
 });
 
-test("checkout resolve endereco_id autenticado para o preview e mantém fallback legado", () => {
-  const source = read("js/modules/checkout-unidade-4.3.js");
-  assert.match(source, /resolverEnderecoId/);
-  assert.match(source, /\.eq\("usuario_id", user\.id\)/);
-  assert.match(source, /calcular_entrega_unidade_endereco/);
-  assert.match(source, /p_endereco_id: enderecoId/);
-  assert.match(source, /calcular_entrega_unidade/);
+test("checkout usa cálculo de entrega centralizado pela API e preserva a unidade", () => {
+  const source = read("js/pages/checkout.js");
+  assert.match(source, /DeliveryAPI\.calcularEntrega/);
+  assert.match(source, /empresa_id/);
+  assert.match(source, /endereco/);
+  assert.match(source, /carrinhoMeta/);
+  const module = read("js/modules/checkout-unidade-4.3.js");
+  assert.match(module, /unidade_id/);
 });
 
-test("dashboard configura distância pela RPC e o carregador limita o módulo ao painel", () => {
+test("dashboard configura distância pela API e o carregador limita o módulo ao painel", () => {
   const source = read("js/modules/frete-distancia-unidade-4.4.js");
   const loader = read("js/core/site-enhancements.js");
   assert.match(source, /Frete por distância/);
-  assert.match(source, /empresa_unidade_configurar_frete_distancia/);
+  assert.match(source, /DeliveryAPI\.request/);
   assert.match(source, /freteTaxaBase44/);
   assert.match(source, /freteValorKm44/);
   assert.match(source, /freteRaioMax44/);
