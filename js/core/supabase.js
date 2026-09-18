@@ -227,6 +227,7 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
             async restauranteUnidadesPublicas(empresaId) { const data = await apiRequest("/v1/restaurantes/" + encodeURIComponent(String(empresaId)) + "/unidades"); return Array.isArray(data) ? data : []; },
             async empresaAtualizarOperacaoPedido(pedidoId, acao, preparo = null, observacao = null) { return apiRequest("/v1/empresa/pedidos/" + encodeURIComponent(String(pedidoId)) + "/operacao", { method: "POST", body: JSON.stringify({ acao, preparo_estimado: preparo, observacao }) }); },
             async marcarNotificacoesLidas(ids) { return apiRequest("/v1/me/notificacoes/lidas", { method: "POST", body: JSON.stringify({ ids: Array.isArray(ids) ? ids.map(String) : [] }) }); },
+            async salvarPushSubscription(endpoint, subscription) { return apiRequest("/v1/me/push-subscription", { method: "POST", body: JSON.stringify({ endpoint: String(endpoint), subscription }) }); },
             async adminPlanos() {
                 const data = await apiRequest("/v1/admin/planos");
                 return Array.isArray(data) ? data : [];
