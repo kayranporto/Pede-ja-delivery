@@ -13,6 +13,22 @@ test.beforeEach(async ({ page }) => {
             enderecos: [{id:"endereco-qa",usuario_id:user.id,apelido:"Casa",logradouro:"Rua QA",numero:"10",bairro:"Centro",cidade:"Recife",uf:"PE",principal:true}]
         };
         window.qaChamadas = [];
+        window.DeliveryAPI = {
+            async meusEnderecos() {
+                return (tabelas.enderecos || []).map((item) => ({...item}));
+            },
+            async salvarEndereco() {
+                throw Object.assign(new Error("Falha simulada ao salvar"), { code: "teste", status: 400 });
+            },
+            async selecionarEndereco(id) {
+                tabelas.enderecos.forEach((item) => { item.principal = String(item.id) === String(id); });
+                return id;
+            },
+            async removerEndereco(id) {
+                tabelas.enderecos = tabelas.enderecos.filter((item) => String(item.id) !== String(id));
+                return true;
+            }
+        };
         window.db = {
             from(tabela) {
                 let unico = false; const filtros = [];
