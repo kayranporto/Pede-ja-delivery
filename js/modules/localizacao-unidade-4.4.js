@@ -28,10 +28,8 @@
     const texto = document.getElementById("unidadeGpsStatus44");
     const botao = document.getElementById("unidadeGps44");
     if (!id || !texto || !botao || atualizando) return;
-    const { data, error } = await window.db.from("empresa_unidades")
-      .select("id,nome,latitude,longitude,localizacao_atualizada_em")
-      .eq("id", id)
-      .maybeSingle();
+    const unidades = await window.DeliveryAPI.request(`/v1/empresa/unidades?empresa_id=${encodeURIComponent(String(App.lerJSON("empresaAtual", null)?.empresa_id || ""))}`);
+    const data = (Array.isArray(unidades) ? unidades : []).find((item) => String(item.id) === String(id));
     if (error || !data) {
       texto.textContent = "Localização indisponível";
       return;
@@ -51,12 +49,15 @@
     botao.textContent = "Obtendo GPS...";
     try {
       const coords = await obterLocalizacao();
-      const { error } = await window.db.rpc("empresa_unidade_atualizar_localizacao", {
-        p_unidade_id: id,
-        p_latitude: coords.latitude,
-        p_longitude: coords.longitude
+      const meta = App.lerJSON("empresaAtual", null);
+      await window.DeliveryAPI.request("/v1/empresa/unidades", {
+        method: "POST",
+        body: JSON.stringify({
+          empresa_id: meta?.empresa_id,
+          unidade_id: id,
+          payload: { nome: data?.nome || "Unidade", latitude: coords.latitude, longitude: coords.longitude }
+        })
       });
-      if (error) throw error;
       toast("Localização da unidade salva", "A distância logística poderá usar este ponto de coleta.", "success");
     } catch (erro) {
       toast("Não foi possível salvar o GPS", erro?.message || "Tente novamente.", "error");
