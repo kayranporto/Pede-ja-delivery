@@ -16,30 +16,37 @@ function estadoLogin(emailAtual) {
     return salvo.email === emailAtual ? salvo : { email: emailAtual, falhas: 0, bloqueadoAte: 0 };
 }
 async function obterOuCriarEmpresa(user) {
-    let { data: empresa, error } = await window.db.from("empresas").select("*").eq("usuario_id", user.id).maybeSingle();
-    if (error) throw error;
-    if (empresa) return empresa;
+    const acessos = await window.DeliveryAPI.request("/v1/empresa/acesso");
+    const acesso = Array.isArray(acessos) ? acessos.find((item) => item.proprietario === true) : null;
+    if (acesso?.empresa_id) {
+        const painel = await window.DeliveryAPI.empresaPainel(acesso.empresa_id);
+        if (painel?.empresa) return painel.empresa;
+    }
     const metadata = user.user_metadata || {};
     if (metadata.tipo_conta !== "restaurante") return null;
     const cnpj = App.normalizarCNPJ(metadata.cnpj);
     if (!metadata.nome || !App.validarCNPJ(cnpj)) throw new Error("Os dados do restaurante estão incompletos. Procure o suporte.");
-    const resposta = await window.db.from("empresas").insert({
-        usuario_id: user.id, nome: String(metadata.nome).trim(), email: user.email,
-        telefone: String(metadata.telefone || "").trim(), cnpj, status: false, taxa_entrega: 0, pedido_minimo: 0
-    }).select("*").single();
-    if (resposta.error) throw resposta.error;
-    return resposta.data;
+    const resposta = await window.DeliveryAPI.request("/v1/empresa/inicializar", {
+        method: "POST",
+        body: JSON.stringify({
+            nome: String(metadata.nome).trim(),
+            email: user.email,
+            telefone: String(metadata.telefone || "").trim(),
+            cnpj
+        })
+    });
+    return resposta?.data || null;
 }
 
 async function resolverAcessoEmpresa(user) {
-    const { data: acessos, error: erroAcessos } = await window.db.rpc("empresa_meu_acesso");
-    if (erroAcessos) throw erroAcessos;
+    const acessos = await window.DeliveryAPI.request("/v1/empresa/acesso");
     const lista = Array.isArray(acessos) ? acessos : [];
     const proprietario = lista.find((item) => item.proprietario === true);
 
     if (proprietario) {
-        const { data: empresa, error } = await window.db.from("empresas").select("*").eq("id", proprietario.empresa_id).single();
-        if (error || !empresa) throw error || new Error("Restaurante não encontrado.");
+        const painel = await window.DeliveryAPI.empresaPainel(proprietario.empresa_id);
+        const empresa = painel?.empresa || null;
+        if (!empresa) throw new Error("Restaurante não encontrado.");
         return { destino: "empresa-dashboard.html", empresa, acesso: proprietario };
     }
 
