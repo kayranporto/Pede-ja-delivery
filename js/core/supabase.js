@@ -185,6 +185,14 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
             async empresaOperacaoAcao(payload) {
                 return apiRequest("/v1/empresa/operacao", { method: "POST", body: JSON.stringify(payload || {}) });
             },
+            async empresaPainel(empresaId, unidadeId = "") {
+                const params = new URLSearchParams({ empresa_id: String(empresaId) });
+                if (unidadeId) params.set("unidade_id", String(unidadeId));
+                return apiRequest("/v1/empresa/painel?" + params);
+            },
+            async empresaPainelAcao(payload) {
+                return apiRequest("/v1/empresa/painel", { method: "POST", body: JSON.stringify(payload || {}) });
+            },
             async empresaPlano() {
                 return apiRequest("/v1/empresa/plano");
             },
