@@ -102,3 +102,21 @@ test("migration 031 impede unidade de outra empresa", () => {
     assert.match(sql, new RegExp(`alter table public\\.${tabela}[\\s\\S]{0,180}foreign key \\(unidade_id, empresa_id\\)`));
   }
 });
+
+test("camada empresarial está centralizada na API", () => {
+  for (const arquivo of [
+    "js/modules/empresa-unidades-4.3.js",
+    "js/modules/operacao-unidades-4.3.js",
+    "js/modules/operacao-empresa.js",
+    "js/pages/empresa-dashboard.js"
+  ]) {
+    const source = read(arquivo);
+    assert.doesNotMatch(source, /window\.db\.(?:from|rpc)/);
+    assert.doesNotMatch(source, /\bdb\.(?:from|rpc)/);
+    assert.match(source, /DeliveryAPI\./);
+  }
+  const openapi = JSON.parse(read("supabase/functions/api-completa/openapi.json"));
+  for (const rota of ["/v1/empresa/unidades", "/v1/empresa/operacao", "/v1/empresa/painel"]) {
+    assert.ok(openapi.paths[rota], `OpenAPI sem ${rota}`);
+  }
+});
