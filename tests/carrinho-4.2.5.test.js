@@ -33,7 +33,8 @@ test("edição reaproveita variante, adicionais, observação e quantidade", () 
 test("carrinho sincroniza catálogo e bloqueia checkout com item indisponível", () => {
     const js = read("js/modules/carrinho-4.2.5.js");
     assert.match(js, /sincronizarCatalogo/);
-    assert.match(js, /produto_variantes/);
+    assert.match(js, /DeliveryAPI\.cardapio/);
+    assert.match(js, /variantes/);
     assert.match(js, /adicionais/);
     assert.match(js, /indisponiveis/);
     assert.match(js, /stopImmediatePropagation/);
