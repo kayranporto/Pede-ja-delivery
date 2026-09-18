@@ -138,6 +138,7 @@ async function aplicarRegiaoEntrega() {
     if (!enderecoSelecionado || !carrinhoMeta?.empresa_id) return false;
     const data = await window.DeliveryAPI.calcularEntrega({
         empresa_id: String(carrinhoMeta.empresa_id),
+            unidade_id: carrinhoMeta.unidade_id ? String(carrinhoMeta.unidade_id) : null,
         cidade: enderecoSelecionado.cidade || "",
         uf: enderecoSelecionado.uf || enderecoSelecionado.estado || "",
         bairro: enderecoSelecionado.bairro || ""
