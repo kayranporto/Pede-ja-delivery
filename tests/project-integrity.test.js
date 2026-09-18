@@ -148,3 +148,18 @@ test("versão 3.5 integra operação, estoque, regiões, fidelidade e suporte", 
     assert.match(admin, /adminChamados/);
     assert.match(admin, /adminReembolsos/);
 });
+
+
+test("favoritos usam apenas a API para consultar o catálogo", () => {
+    const favoritos = fs.readFileSync(path.join(root, "js/pages/favoritos.js"), "utf8");
+    const cliente = fs.readFileSync(path.join(root, "js/core/supabase.js"), "utf8");
+    const api = fs.readFileSync(path.join(root, "supabase/functions/api-completa/index.ts"), "utf8");
+
+    assert.match(favoritos, /DeliveryAPI\.restaurantes\(\{ ids \}\)/);
+    assert.doesNotMatch(favoritos, /(?:window\.)?db\.(?:from|rpc)\s*\(/);
+    assert.match(cliente, /async restaurantes\(\{ limite = 50, offset = 0, categoria, cidade, ids \} = \{\}\)/);
+    assert.match(cliente, /params\.set\("ids", ids\.map\(String\)\.join\(","\)\)/);
+    assert.match(api, /const idsParam = str\(ctx\.url\.searchParams\.get\("ids"\), 10000\)/);
+    assert.match(api, /rawIds\.length > 200/);
+    assert.match(api, /\.in\("id", ids\)/);
+});
