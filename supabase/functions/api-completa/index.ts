@@ -143,7 +143,13 @@ async function companyUnitSave(ctx: RouteContext, body: Json) {
     uf: str(payload.uf, 2),
     telefone: str(payload.telefone, 30),
     ativa: typeof payload.ativa === "boolean" ? payload.ativa : undefined,
-    principal: typeof payload.principal === "boolean" ? payload.principal : undefined
+    principal: typeof payload.principal === "boolean" ? payload.principal : undefined,
+    latitude: Number.isFinite(Number(payload.latitude)) ? Number(payload.latitude) : undefined,
+    longitude: Number.isFinite(Number(payload.longitude)) ? Number(payload.longitude) : undefined,
+    frete_distancia_ativo: typeof payload.frete_distancia_ativo === "boolean" ? payload.frete_distancia_ativo : undefined,
+    frete_taxa_base: Number.isFinite(Number(payload.frete_taxa_base)) ? Number(payload.frete_taxa_base) : undefined,
+    frete_valor_km: Number.isFinite(Number(payload.frete_valor_km)) ? Number(payload.frete_valor_km) : undefined,
+    frete_raio_max_km: Number.isFinite(Number(payload.frete_raio_max_km)) ? Number(payload.frete_raio_max_km) : undefined
   };
   for (const k of Object.keys(clean)) if (clean[k] === undefined) delete clean[k];
   if (!clean.nome) return error(ctx.request, 400, "parametro_invalido", "nome é obrigatório.");
