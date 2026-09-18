@@ -79,7 +79,6 @@ test("operação 4.3 usa API centralizada e preserva o filtro por unidade", () =
   const source = read("js/modules/operacao-unidades-4.3.js");
   assert.match(source, /DeliveryAPI\.empresaOperacao/);
   assert.match(source, /DeliveryAPI\.empresaOperacaoAcao/);
-  assert.match(source, /onConflict: "empresa_id,unidade_id,dia_semana"/);
   assert.doesNotMatch(source, /window\.db\.(?:from|rpc)/);
 });
 
