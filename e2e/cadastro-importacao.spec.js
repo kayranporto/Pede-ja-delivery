@@ -14,6 +14,14 @@ test.beforeEach(async ({ page }) => {
         };
         window.qaChamadas = [];
         window.DeliveryAPI = {
+            async request(path, options = {}) {
+                if (String(path).startsWith("/v1/empresa/acesso")) return [{ empresa_id: empresa.id, proprietario: true, empresa_nome: empresa.nome }];
+                if (String(path).startsWith("/v1/empresa/unidades")) return [{ ...unidade }];
+                if (String(path).startsWith("/v1/empresa/pedido-eventos")) return [];
+                if (String(path).startsWith("/v1/me/notificacoes/lidas")) return true;
+                if (String(path).startsWith("/v1/monitoramento/logs")) return { id: "log-qa" };
+                return null;
+            },
             async meusEnderecos() {
                 return (tabelas.enderecos || []).map((item) => ({...item}));
             },
