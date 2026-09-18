@@ -92,15 +92,11 @@
             Object.entries(detalhes || {}).slice(0, 8).forEach(([chave, valor]) => {
                 seguros[limpar(chave, 60)] = limpar(typeof valor === "object" ? JSON.stringify(valor) : valor, 300);
             });
-            const { error } = await window.db.from("app_logs").insert({
-                usuario_id: user.id,
-                nivel: ["info", "warning", "error"].includes(nivel) ? nivel : "error",
-                contexto: limpar(contexto, 120) || "frontend",
-                mensagem: limpar(mensagem),
-                pagina: location.pathname.split("/").pop() || "index.html",
-                detalhes: seguros
+            await window.DeliveryAPI.request("/v1/monitoramento/logs", {
+                method: "POST",
+                body: JSON.stringify({ nivel: ["info", "warning", "error"].includes(nivel) ? nivel : "error", contexto: limpar(contexto, 120) || "frontend", mensagem: limpar(mensagem), pagina: location.pathname.split("/").pop() || "index.html", detalhes: seguros })
             });
-            return !error;
+            return true;
         } catch {
             return false;
         }
