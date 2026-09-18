@@ -228,6 +228,10 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
             async empresaAtualizarOperacaoPedido(pedidoId, acao, preparo = null, observacao = null) { return apiRequest("/v1/empresa/pedidos/" + encodeURIComponent(String(pedidoId)) + "/operacao", { method: "POST", body: JSON.stringify({ acao, preparo_estimado: preparo, observacao }) }); },
             async marcarNotificacoesLidas(ids) { return apiRequest("/v1/me/notificacoes/lidas", { method: "POST", body: JSON.stringify({ ids: Array.isArray(ids) ? ids.map(String) : [] }) }); },
             async salvarPushSubscription(endpoint, subscription) { return apiRequest("/v1/me/push-subscription", { method: "POST", body: JSON.stringify({ endpoint: String(endpoint), subscription }) }); },
+            async adminDashboard() { return apiRequest("/v1/admin/dashboard"); },
+            async adminAcao(payload) { return apiRequest("/v1/admin/acao", { method: "POST", body: JSON.stringify(payload || {}) }); },
+            async adminRelatorios(dias = 30) { return apiRequest("/v1/admin/acao", { method: "POST", body: JSON.stringify({ acao: "relatorios", dias }) }); },
+            async adminDetalhePedido(pedidoId) { return apiRequest("/v1/admin/acao", { method: "POST", body: JSON.stringify({ acao: "pedido_detalhe", pedido_id: String(pedidoId) }) }); },
             async adminPlanos() {
                 const data = await apiRequest("/v1/admin/planos");
                 return Array.isArray(data) ? data : [];
