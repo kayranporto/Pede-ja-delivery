@@ -179,6 +179,8 @@
     }
 
     function renderizarItens() {
+        // O módulo também é exercitado em testes sem o DOM completo do carrinho.
+        if (!listaItens) return;
         const itens = lerCarrinho();
         const meta = lerMeta() || {};
         const quantidadeTotal = itens.reduce((total, item) => total + Number(item.quantidade || 1), 0);
