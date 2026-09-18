@@ -1036,7 +1036,6 @@ async function carregarPainel() {
         vinculosProdutoGrupo = painel.vinculos_produto_grupo || [];
         variantesProduto = painel.variantes_produto || [];
         estoqueMovimentos = painel.estoque_movimentos || [];
-        estoqueMovimentos = resMovimentos.error ? [] : (resMovimentos.data || []);
         renderizarPedidos();
         renderizarCategorias();
         renderizarProdutos();
