@@ -132,9 +132,14 @@ async function companyUnitSave(ctx: RouteContext, body: Json) {
   return response(ctx.request, { data });
 }
 async function companyOperationAction(ctx: RouteContext, body: Json) {
-  const acao = str(body.acao, 50), empresaId = str(body.empresa_id, 100), unidadeId = str(body.unidade_id, 100);
+  const acao = str(body.acao, 50), empresaId = str(body.empresa_id, 100); let unidadeId = str(body.unidade_id, 100);
   if (!acao || !empresaId) return error(ctx.request, 400, "parametro_invalido", "acao e empresa_id são obrigatórios.");
   if (unidadeId && !uuid(unidadeId)) return error(ctx.request, 400, "parametro_invalido", "unidade_id inválido.");
+  if (!unidadeId && ["horarios","pausa_criar","pausa_remover","regiao_criar","regiao_toggle","regiao_remover","categoria_criar","produto_salvar"].includes(acao)) {
+    const principal = await ctx.db.from("empresa_unidades").select("id").eq("empresa_id", empresaId).eq("principal", true).eq("ativa", true).maybeSingle();
+    if (principal.error || !principal.data?.id) return error(ctx.request, 400, "unidade_indisponivel", "A empresa não possui unidade principal ativa.");
+    unidadeId = String(principal.data.id);
+  }
   const unit = (q: any) => q.eq("empresa_id", empresaId).eq("unidade_id", unidadeId);
   if (acao === "categoria_criar") {
     if (!unidadeId) return error(ctx.request,400,"parametro_invalido","unidade_id é obrigatório.");
