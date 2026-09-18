@@ -23,11 +23,10 @@
     const meta = metaRecebida?.empresa_id && metaRecebida?.unidade_id ? metaRecebida : metaAtual();
     if (!meta) return;
     const atual = ++sequencia;
-    const { data, error } = await window.db.rpc("empresa_disponibilidade_unidade", {
-      p_empresa_id: String(meta.empresa_id),
-      p_unidade_id: String(meta.unidade_id),
-      p_quando: new Date().toISOString()
-    });
+    let data = null;
+    let error = null;
+    try { data = await window.DeliveryAPI.disponibilidadeUnidade(meta.empresa_id, meta.unidade_id); }
+    catch (erro) { error = erro; }
     if (atual !== sequencia || error) return;
 
     const aberto = data?.aberto === true;
