@@ -27,6 +27,44 @@ test.beforeEach(async ({ page }) => {
             async removerEndereco(id) {
                 tabelas.enderecos = tabelas.enderecos.filter((item) => String(item.id) !== String(id));
                 return true;
+            },
+            async empresaUnidades() {
+                return [{ ...unidade }];
+            },
+            async empresaPainel() {
+                return {
+                    empresa: { ...empresa },
+                    pedidos: [],
+                    produtos: tabelas.produtos.map((item) => ({ ...item })),
+                    categorias: tabelas.categorias.map((item) => ({ ...item })),
+                    grupos_adicionais: [],
+                    adicionais: [],
+                    vinculos_produto_grupo: [],
+                    variantes_produto: [],
+                    estoque_movimentos: [],
+                    cupons: [],
+                    avaliacoes: []
+                };
+            },
+            async empresaOperacao() {
+                return { pedidos: [], produtos: tabelas.produtos.map((item) => ({ ...item })), categorias: tabelas.categorias.map((item) => ({ ...item })), disponibilidade: { aberto: true }, financeiro: {} };
+            },
+            async empresaPainelAcao() { return true; },
+            async empresaOperacaoAcao() { return true; },
+            async empresaImportacaoCatalogo() {
+                return { produtos: tabelas.produtos.map((item) => ({ ...item })), categorias: tabelas.categorias.map((item) => ({ ...item })) };
+            },
+            async importarProdutosCSV(payload) {
+                window.qaChamadas.push({ nome: "importar_produtos_csv", params: { p_produtos: payload?.produtos || [] } });
+                const novos = (payload?.produtos || []).map((p, i) => ({ ...p, id: `produto-${tabelas.produtos.length + i}`, empresa_id: empresa.id, unidade_id: unidade.id }));
+                tabelas.produtos.push(...novos);
+                return novos.length;
+            },
+            async disponibilidadeUnidade() {
+                return { aberto: true };
+            },
+            async restauranteUnidadesPublicas() {
+                return [{ id: unidade.id, nome: unidade.nome, cidade: "Recife", uf: "PE", principal: true }];
             }
         };
         window.db = {
