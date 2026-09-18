@@ -169,6 +169,22 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
             async resgatarFidelidade(empresaId) {
                 return apiRequest("/v1/fidelidade/resgatar", { method: "POST", body: JSON.stringify({ empresa_id: String(empresaId) }) });
             },
+            async empresaUnidades(empresaId) {
+                const data = await apiRequest("/v1/empresa/unidades?empresa_id=" + encodeURIComponent(String(empresaId)));
+                return Array.isArray(data) ? data : [];
+            },
+            async salvarEmpresaUnidade(payload) {
+                return apiRequest("/v1/empresa/unidades", { method: "POST", body: JSON.stringify(payload || {}) });
+            },
+            async empresaOperacao(empresaId, unidadeId = "", financeiro = false, dias = 30) {
+                const params = new URLSearchParams({ empresa_id: String(empresaId) });
+                if (unidadeId) params.set("unidade_id", String(unidadeId));
+                if (financeiro) { params.set("financeiro", "1"); params.set("dias", String(dias)); }
+                return apiRequest("/v1/empresa/operacao?" + params);
+            },
+            async empresaOperacaoAcao(payload) {
+                return apiRequest("/v1/empresa/operacao", { method: "POST", body: JSON.stringify(payload || {}) });
+            },
             async empresaPlano() {
                 return apiRequest("/v1/empresa/plano");
             },
