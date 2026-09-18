@@ -59,39 +59,24 @@
                 .map((adicional) => String(adicional?.id || ""))
                 .filter(Boolean))];
 
-            const [empresaResposta, produtosResposta, adicionaisResposta, vinculosResposta, variantesResposta] = await Promise.all([
-                db.from("empresas_catalogo")
-                    .select("id,nome,taxa_entrega,pedido_minimo,status,cidade_atendimento,uf_atendimento,bairros_atendidos,tempo_estimado_min,tempo_estimado_max")
-                    .eq("id", String(pedido.empresa_id))
-                    .maybeSingle(),
-                produtoIds.length
-                    ? db.from("produtos")
-                        .select("id,nome,imagem,preco,promocao,disponivel")
-                        .in("id", produtoIds)
-                    : Promise.resolve({ data: [], error: null }),
-                adicionalIds.length
-                    ? db.from("adicionais")
-                        .select("id,grupo_id,nome,preco,ativo")
-                        .in("id", adicionalIds)
-                    : Promise.resolve({ data: [], error: null }),
-                produtoIds.length
-                    ? db.from("produto_grupos")
-                        .select("produto_id,grupo_id")
-                        .in("produto_id", produtoIds)
-                    : Promise.resolve({ data: [], error: null }),
-                produtoIds.length
-                    ? db.from("produto_variantes")
-                        .select("id,produto_id,nome,preco,promocao,ativo")
-                        .in("produto_id", produtoIds)
-                        .eq("ativo", true)
-                    : Promise.resolve({ data: [], error: null })
-            ]);
+            const menu = await window.DeliveryAPI.cardapio(pedido.empresa_id);
+            const empresaResposta = { data: menu?.restaurante || null, error: null };
+            const produtosResposta = { data: (menu?.produtos || []).filter((produto) => produtoIds.includes(String(produto.id))), error: null };
+            const groups = new Map((menu?.grupos_adicionais || []).map((grupo) => [String(grupo.id), grupo]));
+            const adicionaisResposta = { data: adicionalIds.flatMap((id) => {
+                for (const grupo of groups.values()) {
+                    const adicional = (grupo.adicionais || []).find((item) => String(item.id) === id);
+                    if (adicional) return [{ ...adicional, grupo_id: grupo.id }];
+                }
+                return [];
+            }), error: null };
+            const vinculosResposta = { data: (menu?.produtos || []).flatMap((produto) =>
+                (produto.grupos_adicionais || []).map((grupoId) => ({ produto_id: produto.id, grupo_id: grupoId }))
+            ), error: null };
+            const variantesResposta = { data: (menu?.produtos || []).flatMap((produto) =>
+                (produto.variantes || []).filter((variante) => variante.ativo !== false).map((variante) => ({ ...variante, produto_id: produto.id }))
+            ), error: null };
 
-            if (empresaResposta.error) throw empresaResposta.error;
-            if (produtosResposta.error) throw produtosResposta.error;
-            if (adicionaisResposta.error) throw adicionaisResposta.error;
-            if (vinculosResposta.error) throw vinculosResposta.error;
-            if (variantesResposta.error) throw variantesResposta.error;
             if (!empresaResposta.data) throw new Error("O restaurante não está disponível no catálogo.");
 
             const empresa = empresaResposta.data;
