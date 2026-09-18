@@ -791,21 +791,19 @@ async function carregarDadosAdmin() {
         const resUsuarios = { data: snapshot?.usuarios || [], error: null };
         const resPedidos = { data: (snapshot?.pedidos || []).map((pedido) => ({ pagamento_status: "pendente", pagamento_modalidade: "na_entrega", ...pedido })), error: null };
         const resCupons = { data: snapshot?.cupons || [], error: null };
-        const resEntregadores = { data: snapshot?.entregadores || [], error: null };
-        const resLogs = { data: snapshot?.logs || [], error: null };
+            const resLogs = { data: snapshot?.logs || [], error: null };
         const resAuditoria = { data: snapshot?.auditoria || [], error: null };
-        const erro = [resEmpresas, resUsuarios, resPedidos, resCupons, resEntregadores, resLogs, resAuditoria].find((resposta) => resposta.error)?.error;
+        const erro = [resEmpresas, resUsuarios, resPedidos, resCupons, resLogs, resAuditoria].find((resposta) => resposta.error)?.error;
         if (erro) throw erro;
         adminEmpresas = resEmpresas.data || [];
         adminUsuarios = resUsuarios.data || [];
         adminPedidos = resPedidos.data || [];
         adminCupons = resCupons.data || [];
-        adminEntregadores = resEntregadores.data || [];
         adminLogs = resLogs.data || [];
         adminAuditoria = resAuditoria.data || [];
         preencherFiltroEmpresas();
         atualizarMetricasAdmin(); renderizarGraficoAdmin(); renderizarPedidosRecentes(); renderizarPedidos();
-        renderizarEmpresas(); renderizarUsuarios(); renderizarCupons(); renderizarEntregadores();
+        renderizarEmpresas(); renderizarUsuarios(); renderizarCupons();
         await carregarRelatorio(); exibirAvisoCompatibilidade();
     } finally {
         carregandoDados = false;
@@ -837,8 +835,7 @@ function configurarNavegacao() {
         pedidos: "Gestão de pedidos",
         restaurantes: "Moderação de restaurantes",
         usuarios: "Usuários da plataforma",
-        entregadores: "Entregadores parceiros",
-        cupons: "Gestão de cupons",
+                cupons: "Gestão de cupons",
         relatorios: "Relatórios e inteligência",
         suporte: "Suporte e pendências"
     };
