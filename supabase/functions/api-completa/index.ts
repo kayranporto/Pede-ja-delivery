@@ -436,18 +436,17 @@ async function publicRestaurantUnits(ctx: RouteContext, id: string) { if (!uuid(
 async function adminDashboard(ctx: RouteContext) {
   const check = await ctx.db.rpc("usuario_eh_admin");
   if (check.error || check.data !== true) return error(ctx.request, 403, "acesso_negado", "Acesso administrativo negado.");
-  const [empresas, usuarios, pedidos, cupons, entregadores, logs, auditoria] = await Promise.all([
+  const [empresas, usuarios, pedidos, cupons, logs, auditoria] = await Promise.all([
     ctx.db.from("empresas").select("id,usuario_id,nome,email,telefone,cnpj,descricao,categoria,taxa_entrega,pedido_minimo,tempo_estimado_min,tempo_estimado_max,publicado,status,created_at,excluida_em").is("excluida_em", null).order("created_at",{ascending:false}),
     ctx.db.from("usuarios").select("id,nome,sobrenome,telefone,avatar_url,bloqueado,created_at").order("created_at",{ascending:false}),
     ctx.db.from("pedidos").select("id,numero,usuario_id,empresa_id,empresa_nome,cliente_nome,cliente_telefone,status,total,pagamento_status,pagamento_modalidade,agendado_para,created_at,updated_at").order("created_at",{ascending:false}).limit(5000),
     ctx.db.from("cupons").select("id,empresa_id,codigo,tipo,valor,desconto,pedido_minimo,ativo,usos,limite_usos,primeiro_pedido,inicio,fim,validade,max_desconto,limite_por_usuario,created_at").order("created_at",{ascending:false}),
-    ctx.db.from("entregadores").select("*").order("created_at",{ascending:false}),
     ctx.db.from("app_logs").select("nivel,contexto,mensagem,pagina,created_at").order("created_at",{ascending:false}).limit(50),
     ctx.db.from("admin_auditoria").select("acao,alvo_id,detalhes,created_at").order("created_at",{ascending:false}).limit(30)
   ]);
   const first = [empresas,usuarios,pedidos,cupons,entregadores,logs,auditoria].find((r) => r.error);
   if (first) return error(ctx.request,502,"admin_dados_indisponiveis","Não foi possível carregar os dados administrativos.");
-  return response(ctx.request,{data:{empresas:empresas.data||[],usuarios:usuarios.data||[],pedidos:pedidos.data||[],cupons:cupons.data||[],entregadores:entregadores.data||[],logs:logs.data||[],auditoria:auditoria.data||[]}},200,"no-store");
+  return response(ctx.request,{data:{empresas:empresas.data||[],usuarios:usuarios.data||[],pedidos:pedidos.data||[],cupons:cupons.data||[],logs:logs.data||[],auditoria:auditoria.data||[]}},200,"no-store");
 }
 async function adminAction(ctx: RouteContext, body: Json) {
   const check = await ctx.db.rpc("usuario_eh_admin");
