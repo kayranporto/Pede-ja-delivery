@@ -1306,15 +1306,14 @@ function tocarAlertaPedido() {
 
 async function recarregarPedidos(marcarNovo = "") {
     if (!empresa) return false;
-    const { data, error } = await window.db.from("pedidos")
-        .select("*, pedido_itens(*)")
-        .eq("empresa_id", String(empresa.id))
-        .order("created_at", { ascending: false });
-    if (error) {
+    let painel;
+    try {
+        painel = await window.DeliveryAPI.empresaPainel(empresa.id, document.getElementById("unidadePainelSelect")?.value || "");
+    } catch (error) {
         window.AppToast?.("Falha ao atualizar", App.mensagemErro(error), "error");
         return false;
     }
-    pedidos = (data || []).map((pedido) => ({ ...pedido, _novo: String(pedido.id) === String(marcarNovo) }));
+    pedidos = (painel?.pedidos || []).map((pedido) => ({ ...pedido, _novo: String(pedido.id) === String(marcarNovo) }));
     renderizarPedidos(); atualizarIndicadores();
     return true;
 }
