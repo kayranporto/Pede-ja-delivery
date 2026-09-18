@@ -181,6 +181,52 @@ async function carregarAdicionais(produtoId, solicitacao) {
     return true;
 }
 
+async function abrirModalProduto(produto) {
+    if (!produto || typeof produto !== "object") return;
+    const solicitacao = ++solicitacaoModal;
+    produtoAtual = produto;
+    quantidade = 1;
+    gruposAtuais = [];
+    variantesAtuais = [];
+    varianteSelecionada = null;
+    adicionaisCarregados = false;
+    elementoFocoAnterior = document.activeElement;
+    observacao.value = "";
+    modalImagem.src = produto.imagem || "../assets/produto-padrao.svg";
+    modalImagem.addEventListener("error", () => { modalImagem.src = "../assets/produto-padrao.svg"; }, { once: true });
+    modalNome.textContent = produto.nome || "Produto";
+    modalDescricao.textContent = produto.descricao || "";
+    quantidadeSpan.textContent = "1";
+    menosQtd.disabled = true;
+    maisQtd.disabled = false;
+    confirmarProduto.disabled = true;
+    modal.removeAttribute("inert");
+    modal.classList.add("aberto");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    atualizarPreco();
+
+    try {
+        const [variantesCarregadas, adicionaisCarregadosOk] = await Promise.all([
+            carregarVariantes(produto.id, solicitacao),
+            carregarAdicionais(produto.id, solicitacao)
+        ]);
+        if (solicitacao !== solicitacaoModal || !modal.classList.contains("aberto")) return;
+        if (!variantesCarregadas || !adicionaisCarregadosOk) return;
+        atualizarPreco();
+        confirmarProduto.disabled = false;
+    } catch (error) {
+        console.error("Erro ao carregar opções do produto:", error);
+        listaAdicionais.replaceChildren();
+        const aviso = document.createElement("p");
+        aviso.textContent = "Não foi possível carregar os adicionais. Tente novamente.";
+        listaAdicionais.append(aviso);
+        confirmarProduto.disabled = true;
+    } finally {
+        if (solicitacao === solicitacaoModal && modal.classList.contains("aberto")) fecharModal.focus();
+    }
+}
+
 function atualizarPreco() {
     if (!produtoAtual) return;
     let total = precoBaseAtual();
