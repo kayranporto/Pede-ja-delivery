@@ -56,7 +56,8 @@ test("cozinha possui fila, SLA e ações transacionais", () => {
     const sql = read("supabase/migrations/20260801001600_operacao_catalogo_e_escala.sql");
     assert.match(html, /id="cozinha"/);
     assert.match(html, /id="filaCozinha"/);
-    assert.match(js, /empresa_atualizar_operacao_pedido/);
+    assert.match(js, /DeliveryAPI\.empresaPainelAcao/);
+    assert.match(js, /pedido_operacao/);
     assert.match(js, /pedidoAtrasado/);
     assert.match(js, /marcar_pronto/);
     assert.match(sql, /preparo_estimado_minutos/);
