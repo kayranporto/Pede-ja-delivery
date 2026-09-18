@@ -30,7 +30,7 @@
     if (!id || !texto || !botao || atualizando) return;
     const unidades = await window.DeliveryAPI.request(`/v1/empresa/unidades?empresa_id=${encodeURIComponent(String(App.lerJSON("empresaAtual", null)?.empresa_id || ""))}`);
     const data = (Array.isArray(unidades) ? unidades : []).find((item) => String(item.id) === String(id));
-    if (error || !data) {
+    if (!data) {
       texto.textContent = "Localização indisponível";
       return;
     }
