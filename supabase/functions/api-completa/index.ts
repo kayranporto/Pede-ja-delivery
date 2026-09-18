@@ -53,6 +53,134 @@ async function reviewsSummaryAll(ctx: RouteContext) { const { data, error: e } =
 async function reviews(ctx: RouteContext, id: string) { if (!uuid(id)) return error(ctx.request, 400, "id_invalido", "Identificador do restaurante inválido."); const limit = Math.min(Math.max(Number(ctx.url.searchParams.get("limite") || 9), 1), 50); const { data, error: e } = await ctx.db.from("avaliacoes").select("id,nota,comentario,resposta,autor_nome,autor_avatar_url,created_at").eq("empresa_id", id).order("created_at", { ascending: false }).limit(limit); if (e) return error(ctx.request, 502, "falha_avaliacoes", "Não foi possível consultar as avaliações."); return response(ctx.request, { data: data || [] }, 200, "public, max-age=30, stale-while-revalidate=60"); }
 async function publicHighlights(ctx: RouteContext) { const restaurantQuery = await ctx.db.from("empresas_catalogo").select("id").eq("status", true).order("nome").limit(20); if (restaurantQuery.error) return error(ctx.request, 502, "falha_catalogo", "Não foi possível consultar os destaques."); const ids = (restaurantQuery.data || []).map((item: any) => String(item.id)); if (!ids.length) return response(ctx.request, { data: [] }, 200, "public, max-age=30, stale-while-revalidate=60"); const { data, error: e } = await ctx.db.from("produtos").select("id,nome,descricao,imagem,preco,promocao,empresa_id").in("empresa_id", ids).eq("disponivel", true).order("nome").limit(6); if (e) return error(ctx.request, 502, "falha_catalogo", "Não foi possível consultar os produtos em destaque."); return response(ctx.request, { data: data || [] }, 200, "public, max-age=30, stale-while-revalidate=60"); }
 async function loyalty(ctx: RouteContext) { const result=await ctx.db.rpc("meus_beneficios_fidelidade"); if(result.error) return error(ctx.request,502,"fidelidade_indisponivel","Não foi possível consultar a fidelidade."); const saldos=result.data||[]; const ids=saldos.map((item:any)=>String(item.empresa_id)).filter(Boolean); const empresas=ids.length?await ctx.db.from("empresas_catalogo").select("id,nome").in("id",ids):{data:[],error:null}; if(empresas.error) return error(ctx.request,502,"fidelidade_indisponivel","Não foi possível carregar os restaurantes da fidelidade."); const nomes=new Map((empresas.data||[]).map((item:any)=>[String(item.id),item.nome])); return response(ctx.request,{data:saldos.map((item:any)=>({...item,empresa_nome:nomes.get(String(item.empresa_id))||"Restaurante"}))}); }
+async function companyUnits(ctx: RouteContext) {
+  const empresaId = str(ctx.url.searchParams.get("empresa_id"), 100);
+  if (!empresaId) return error(ctx.request, 400, "parametro_invalido", "empresa_id é obrigatório.");
+  const { data, error: e } = await ctx.db.from("empresa_unidades")
+    .select("id,empresa_id,nome,slug,endereco,cidade,uf,telefone,ativa,principal,latitude,longitude,localizacao_atualizada_em,frete_distancia_ativo,frete_taxa_base,frete_valor_km,frete_raio_max_km,created_at,updated_at")
+    .eq("empresa_id", empresaId)
+    .order("principal", { ascending: false })
+    .order("nome", { ascending: true });
+  return e ? error(ctx.request, 502, "unidades_indisponiveis", "Não foi possível carregar as unidades.") : response(ctx.request, { data: data || [] });
+}
+async function companyOperation(ctx: RouteContext) {
+  const empresaId = str(ctx.url.searchParams.get("empresa_id"), 100);
+  const unidadeId = str(ctx.url.searchParams.get("unidade_id"), 100);
+  if (!empresaId) return error(ctx.request, 400, "parametro_invalido", "empresa_id é obrigatório.");
+  const unitFilter = (q: any) => unidadeId ? q.eq("unidade_id", unidadeId) : q;
+  const [horariosQ, pausasQ, regioesQ, cancelamentosQ, fidelidadeQ] = await Promise.all([
+    unitFilter(ctx.db.from("empresa_horarios").select("*").eq("empresa_id", empresaId).order("dia_semana")),
+    unitFilter(ctx.db.from("empresa_pausas").select("*").eq("empresa_id", empresaId).order("inicio")),
+    unitFilter(ctx.db.from("empresa_regioes").select("*").eq("empresa_id", empresaId).order("bairro")),
+    ctx.db.from("pedidos").select("id,numero,cliente_nome,cancelamento_motivo,cancelamento_status,pagamento_modalidade,pagamento_status,total").eq("empresa_id", empresaId).eq("cancelamento_status", "solicitado").order("cancelamento_solicitado_em"),
+    ctx.db.from("programa_fidelidade_empresa").select("*").eq("empresa_id", empresaId).maybeSingle()
+  ]);
+  const primeiroErro = horariosQ.error || pausasQ.error || regioesQ.error || cancelamentosQ.error || fidelidadeQ.error;
+  if (primeiroErro) return error(ctx.request, 502, "operacao_indisponivel", "Não foi possível carregar a operação da empresa.");
+  let disponibilidade = null;
+  try {
+    const rpcNome = unidadeId ? "empresa_disponibilidade_unidade" : "empresa_disponibilidade";
+    const args = unidadeId
+      ? { p_empresa_id: empresaId, p_unidade_id: unidadeId, p_quando: new Date().toISOString() }
+      : { p_empresa_id: empresaId, p_quando: new Date().toISOString() };
+    const r = await ctx.db.rpc(rpcNome, args);
+    if (!r.error) disponibilidade = r.data || { aberto: false };
+  } catch { disponibilidade = null; }
+  const financeiro = ctx.url.searchParams.get("financeiro") === "1"
+    ? await ctx.db.rpc("empresa_relatorio_financeiro", { p_dias: Math.min(Number(ctx.url.searchParams.get("dias") || 30), 3650) })
+    : { data: null, error: null };
+  if (financeiro.error) return error(ctx.request, 502, "financeiro_indisponivel", "Não foi possível carregar o financeiro.");
+  return response(ctx.request, { data: {
+    horarios: horariosQ.data || [],
+    pausas: pausasQ.data || [],
+    regioes: regioesQ.data || [],
+    cancelamentos: cancelamentosQ.data || [],
+    fidelidade: fidelidadeQ.data || {},
+    disponibilidade,
+    financeiro: financeiro.data || null
+  }});
+}
+async function companyUnitSave(ctx: RouteContext, body: Json) {
+  const empresaId = str(body.empresa_id, 100), unidadeId = str(body.unidade_id, 100);
+  const payload = body.payload && typeof body.payload === "object" ? body.payload as Json : {};
+  if (!empresaId) return error(ctx.request, 400, "parametro_invalido", "empresa_id é obrigatório.");
+  if (unidadeId && !uuid(unidadeId)) return error(ctx.request, 400, "parametro_invalido", "unidade_id inválido.");
+  const clean: Json = {
+    empresa_id: empresaId,
+    nome: str(payload.nome, 100),
+    slug: str(payload.slug, 100),
+    endereco: str(payload.endereco, 220),
+    cidade: str(payload.cidade, 100),
+    uf: str(payload.uf, 2),
+    telefone: str(payload.telefone, 30),
+    ativa: typeof payload.ativa === "boolean" ? payload.ativa : undefined,
+    principal: typeof payload.principal === "boolean" ? payload.principal : undefined
+  };
+  for (const k of Object.keys(clean)) if (clean[k] === undefined) delete clean[k];
+  if (!clean.nome) return error(ctx.request, 400, "parametro_invalido", "nome é obrigatório.");
+  const q = unidadeId
+    ? ctx.db.from("empresa_unidades").update(clean).eq("id", unidadeId).eq("empresa_id", empresaId).select("*").single()
+    : ctx.db.from("empresa_unidades").insert({ ...clean, slug: clean.slug || "unidade-" + Date.now(), ativa: clean.ativa ?? true, principal: clean.principal ?? false }).select("*").single();
+  const { data, error: e } = await q;
+  if (e) return error(ctx.request, e.code === "23505" ? 409 : 400, e.code === "23505" ? "unidade_duplicada" : "unidade_recusada", e.message || "Não foi possível salvar a unidade.");
+  return response(ctx.request, { data });
+}
+async function companyOperationAction(ctx: RouteContext, body: Json) {
+  const acao = str(body.acao, 50), empresaId = str(body.empresa_id, 100), unidadeId = str(body.unidade_id, 100);
+  if (!acao || !empresaId) return error(ctx.request, 400, "parametro_invalido", "acao e empresa_id são obrigatórios.");
+  if (unidadeId && !uuid(unidadeId)) return error(ctx.request, 400, "parametro_invalido", "unidade_id inválido.");
+  const unit = (q: any) => q.eq("empresa_id", empresaId).eq("unidade_id", unidadeId);
+  if (acao === "horarios") {
+    if (!unidadeId || !Array.isArray(body.registros)) return error(ctx.request, 400, "parametro_invalido", "unidade_id e registros são obrigatórios.");
+    const registros = body.registros.map((r: any) => ({ empresa_id: empresaId, unidade_id: unidadeId, dia_semana: int(r.dia_semana, 0, 6), ativo: r.ativo !== false, abre: str(r.abre, 8), fecha: str(r.fecha, 8), updated_at: new Date().toISOString() }));
+    if (registros.some((r: any) => r.dia_semana === null || !r.abre || !r.fecha)) return error(ctx.request, 400, "horarios_invalidos", "Há horários inválidos no envio.");
+    const { data, error: e } = await ctx.db.from("empresa_horarios").upsert(registros, { onConflict: "empresa_id,unidade_id,dia_semana" }).select("*");
+    return e ? error(ctx.request, 400, "horarios_recusados", e.message) : response(ctx.request, { data: data || [] });
+  }
+  if (!unidadeId && ["pausa_criar","pausa_remover","regiao_criar","regiao_toggle","regiao_remover"].includes(acao)) return error(ctx.request, 400, "parametro_invalido", "unidade_id é obrigatório para esta operação.");
+  if (acao === "pausa_criar") {
+    const inicio = str(body.inicio, 80), fim = str(body.fim, 80);
+    if (!inicio || !fim || !Number.isFinite(new Date(inicio).getTime()) || !Number.isFinite(new Date(fim).getTime()) || new Date(fim) <= new Date(inicio)) return error(ctx.request, 400, "pausa_invalida", "Início e fim da pausa são inválidos.");
+    const { data, error: e } = await unit(ctx.db.from("empresa_pausas").insert({ empresa_id: empresaId, unidade_id: unidadeId, inicio: new Date(inicio).toISOString(), fim: new Date(fim).toISOString(), motivo: str(body.motivo, 500) || null }).select("*").single());
+    return e ? error(ctx.request, 400, "pausa_recusada", e.message) : response(ctx.request, { data });
+  }
+  if (acao === "pausa_remover") {
+    const id = str(body.id, 100); if (!uuid(id)) return error(ctx.request, 400, "parametro_invalido", "id da pausa inválido.");
+    const { error: e } = await unit(ctx.db.from("empresa_pausas").delete().eq("id", id));
+    return e ? error(ctx.request, 400, "pausa_recusada", e.message) : response(ctx.request, { data: true });
+  }
+  if (acao === "regiao_criar") {
+    if (!str(body.bairro, 160) || !str(body.cidade, 100) || !/^[A-Za-z]{2}$/.test(String(body.uf || ""))) return error(ctx.request, 400, "regiao_invalida", "Região incompleta.");
+    const payload = { empresa_id: empresaId, unidade_id: unidadeId, bairro: str(body.bairro,160), cidade: str(body.cidade,100), uf: str(body.uf,2)?.toUpperCase(), taxa_entrega: Number(body.taxa_entrega), pedido_minimo: Number(body.pedido_minimo), tempo_min: Number(body.tempo_min), tempo_max: Number(body.tempo_max), ativo: true };
+    if (![payload.taxa_entrega,payload.pedido_minimo,payload.tempo_min,payload.tempo_max].every(Number.isFinite) || payload.taxa_entrega < 0 || payload.pedido_minimo < 0 || payload.tempo_min < 5 || payload.tempo_max < payload.tempo_min) return error(ctx.request, 400, "regiao_invalida", "Valores da região inválidos.");
+    const { data, error: e } = await unit(ctx.db.from("empresa_regioes").insert(payload).select("*").single());
+    return e ? error(ctx.request, 400, "regiao_recusada", e.message) : response(ctx.request, { data });
+  }
+  if (acao === "regiao_toggle") {
+    const id = str(body.id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","id da região inválido.");
+    const { data, error: e } = await unit(ctx.db.from("empresa_regioes").update({ ativo: body.ativo === true, updated_at: new Date().toISOString() }).eq("id",id).select("*").single());
+    return e ? error(ctx.request,400,"regiao_recusada",e.message) : response(ctx.request,{data});
+  }
+  if (acao === "regiao_remover") {
+    const id = str(body.id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","id da região inválido.");
+    const { error: e } = await unit(ctx.db.from("empresa_regioes").delete().eq("id",id));
+    return e ? error(ctx.request,400,"regiao_recusada",e.message) : response(ctx.request,{data:true});
+  }
+  if (acao === "fidelidade") {
+    const { data, error: e } = await ctx.db.from("programa_fidelidade_empresa").upsert({
+      empresa_id: empresaId, ativo: body.ativo === true, pontos_por_real: Number(body.pontos_por_real), pontos_para_beneficio: Number(body.pontos_para_beneficio), valor_beneficio: Number(body.valor_beneficio), updated_at: new Date().toISOString()
+    }, { onConflict: "empresa_id" }).select("*").single();
+    return e ? error(ctx.request,400,"fidelidade_recusada",e.message) : response(ctx.request,{data});
+  }
+  if (acao === "cancelamento") {
+    const id = str(body.pedido_id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","pedido_id inválido.");
+    return rpc(ctx.db,ctx.request,"empresa_decidir_cancelamento",{p_pedido_id:id,p_aprovar:body.aprovar===true,p_observacao:str(body.observacao,2000)});
+  }
+  if (acao === "financeiro") {
+    return rpc(ctx.db,ctx.request,"empresa_relatorio_financeiro",{p_dias:Math.min(Number(body.dias||30),3650)});
+  }
+  return error(ctx.request,404,"operacao_nao_encontrada","Operação da empresa não encontrada.");
+}
 async function adminOperation(ctx: RouteContext) {
   const [chamados,reembolsos,cancelamentos,conciliacao] = await Promise.all([
     ctx.db.from("chamados_suporte").select("id,assunto,mensagem,status,prioridade,created_at").in("status",["aberto","em_analise"]).order("prioridade",{ascending:false}).order("created_at").limit(50),
