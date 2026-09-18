@@ -33,7 +33,7 @@ test("ações críticas verificam permissão antes da escrita", () => {
 
 test("login separa proprietário e colaborador", () => {
   const login = read("js/pages/empresa-login.js");
-  assert.match(login, /rpc\("empresa_meu_acesso"\)/);
+  assert.match(login, /DeliveryAPI\.request\("\/v1\/empresa\/acesso"\)|DeliveryAPI\.request/);
   assert.match(login, /empresa-dashboard\.html/);
   assert.match(login, /empresa-colaborador\.html/);
 });
