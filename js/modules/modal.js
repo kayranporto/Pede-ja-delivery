@@ -66,20 +66,24 @@ function fechar() {
     elementoFocoAnterior?.focus();
 }
 
+async function carregarMenuApi() {
+    const meta = App.lerJSON("empresaAtual", null);
+    const empresaId = meta?.empresa_id;
+    if (!empresaId) throw new Error("Restaurante não identificado.");
+    return window.DeliveryAPI.cardapio(empresaId);
+}
+
 async function carregarVariantes(produtoId, solicitacao) {
     variantesAtuais = [];
     varianteSelecionada = null;
     blocoVariantes.hidden = true;
     listaVariantes.replaceChildren();
-    const { data, error } = await window.db.from("produto_variantes")
-        .select("id,nome,preco,promocao,ordem,ativo")
-        .eq("produto_id", produtoId)
-        .eq("ativo", true)
-        .order("ordem")
-        .order("nome");
-    if (error) throw error;
+
+    const menu = await carregarMenuApi();
+    const produto = (menu?.produtos || []).find((item) => String(item.id) === String(produtoId));
+    const data = produto?.variantes || [];
     if (solicitacao !== solicitacaoModal) return false;
-    variantesAtuais = data || [];
+    variantesAtuais = data.filter((item) => item.ativo !== false);
     if (!variantesAtuais.length) return true;
 
     blocoVariantes.hidden = false;
@@ -109,42 +113,23 @@ async function carregarAdicionais(produtoId, solicitacao) {
     carregando.textContent = "Carregando adicionais...";
     listaAdicionais.append(carregando);
 
-    const { data: vinculos, error } = await window.db
-        .from("produto_grupos")
-        .select("grupo_id")
-        .eq("produto_id", produtoId);
-    if (error) throw error;
-    if (solicitacao !== solicitacaoModal) return false;
-
-    const grupoIds = [...new Set((vinculos || []).map((item) => String(item.grupo_id)).filter(Boolean))];
-    if (!grupoIds.length) {
-        gruposAtuais = [];
-    } else {
-        const { data: grupos, error: erroGrupos } = await window.db
-            .from("grupos_adicionais")
-            .select("id,nome,minimo,maximo,ativo")
-            .in("id", grupoIds)
-            .eq("ativo", true);
-        if (erroGrupos) throw erroGrupos;
-        gruposAtuais = (grupos || []).map((grupo) => ({
+    const menu = await carregarMenuApi();
+    const produto = (menu?.produtos || []).find((item) => String(item.id) === String(produtoId));
+    const grupoIds = new Set((produto?.grupos_adicionais || []).map(String));
+    gruposAtuais = (menu?.grupos_adicionais || [])
+        .filter((grupo) => grupoIds.has(String(grupo.id)))
+        .map((grupo) => ({
             ...grupo,
             id: String(grupo.id),
             minimo: Math.max(0, Number(grupo.minimo || 0)),
             maximo: Math.max(Number(grupo.maximo || 0), Number(grupo.minimo || 0), 1)
         }));
-    }
-
-    const resultados = await Promise.all(gruposAtuais.map(async (grupo) => {
-        const { data, error: erroAdicionais } = await window.db
-            .from("adicionais")
-            .select("id,nome,preco,ativo")
-            .eq("grupo_id", grupo.id)
-            .eq("ativo", true)
-            .order("nome");
-        if (erroAdicionais) throw erroAdicionais;
-        return { grupo, adicionais: data || [] };
-    }));
     if (solicitacao !== solicitacaoModal) return false;
+
+    const resultados = gruposAtuais.map((grupo) => ({
+        grupo,
+        adicionais: (grupo.adicionais || []).filter((item) => item.ativo !== false)
+    }));
 
     listaAdicionais.replaceChildren();
     if (!resultados.length) {
@@ -159,89 +144,41 @@ async function carregarAdicionais(produtoId, solicitacao) {
         const bloco = document.createElement("fieldset");
         bloco.className = "grupo-adicional";
         bloco.dataset.grupoId = grupo.id;
-
         const titulo = document.createElement("legend");
         titulo.textContent = grupo.nome || "Adicionais";
         bloco.append(titulo);
-
         const regra = document.createElement("small");
         regra.textContent = grupo.minimo > 0
             ? (grupo.maximo === grupo.minimo ? `Escolha ${grupo.minimo}` : `Escolha de ${grupo.minimo} até ${grupo.maximo}`)
             : `Escolha até ${grupo.maximo}`;
         bloco.append(regra);
-
         if (!adicionais.length) {
             const indisponivel = document.createElement("p");
             indisponivel.textContent = "Nenhuma opção disponível neste grupo.";
             bloco.append(indisponivel);
+            return;
         }
-
         adicionais.forEach((adicional) => {
             const label = document.createElement("label");
-            label.className = "adicional";
+            label.className = "adicional-opcao";
             const input = document.createElement("input");
-            input.type = grupo.maximo === 1 && grupo.minimo > 0 ? "radio" : "checkbox";
-            input.name = `grupo-${grupo.id}`;
+            input.type = grupo.maximo === 1 ? "radio" : "checkbox";
+            input.name = `adicional-${grupo.id}`;
             input.value = String(adicional.id);
             input.dataset.grupoId = grupo.id;
-            input.dataset.preco = String(Number(adicional.preco || 0));
             input.dataset.nome = adicional.nome || "Adicional";
+            input.dataset.preco = String(adicional.preco || 0);
             const texto = document.createElement("span");
-            texto.textContent = `${adicional.nome || "Adicional"} (+ ${App.dinheiro(adicional.preco)})`;
-            label.append(input, texto);
+            texto.textContent = adicional.nome || "Adicional";
+            const preco = document.createElement("small");
+            preco.textContent = Number(adicional.preco || 0) > 0 ? `+${App.dinheiro(adicional.preco)}` : "Grátis";
+            label.append(input, texto, preco);
             bloco.append(label);
         });
-
         listaAdicionais.append(bloco);
     });
-
     adicionaisCarregados = true;
     return true;
-}
-
-async function abrirModalProduto(produto) {
-    const solicitacao = ++solicitacaoModal;
-    produtoAtual = produto;
-    quantidade = 1;
-    gruposAtuais = [];
-    variantesAtuais = [];
-    varianteSelecionada = null;
-    adicionaisCarregados = false;
-    elementoFocoAnterior = document.activeElement;
-    observacao.value = "";
-    modalImagem.src = produto.imagem || "../assets/produto-padrao.svg";
-    modalImagem.addEventListener("error", () => { modalImagem.src = "../assets/produto-padrao.svg"; }, { once: true });
-    modalNome.textContent = produto.nome || "Produto";
-    modalDescricao.textContent = produto.descricao || "";
-    quantidadeSpan.textContent = "1";
-    menosQtd.disabled = true;
-    maisQtd.disabled = false;
-    confirmarProduto.disabled = true;
-    modal.removeAttribute("inert");
-    modal.classList.add("aberto");
-    modal.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-    atualizarPreco();
-
-    try {
-        const [variantesCarregadas, adicionaisCarregadosOk] = await Promise.all([
-            carregarVariantes(produto.id, solicitacao),
-            carregarAdicionais(produto.id, solicitacao)
-        ]);
-        if (solicitacao !== solicitacaoModal || !modal.classList.contains("aberto")) return;
-        if (!variantesCarregadas || !adicionaisCarregadosOk) return;
-        atualizarPreco();
-        confirmarProduto.disabled = false;
-    } catch (error) {
-        console.error("Erro ao carregar adicionais:", error);
-        listaAdicionais.replaceChildren();
-        const aviso = document.createElement("p");
-        aviso.textContent = "Não foi possível carregar os adicionais. Tente novamente.";
-        listaAdicionais.append(aviso);
-        confirmarProduto.disabled = true;
-    } finally {
-        if (solicitacao === solicitacaoModal && modal.classList.contains("aberto")) fecharModal.focus();
-    }
 }
 
 function atualizarPreco() {
