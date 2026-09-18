@@ -15,17 +15,21 @@ test("dashboard carrega os módulos multiunidade 4.3", () => {
   assert.match(enhancements, /empresa-dashboard\\\.html/);
 });
 
-test("multiunidade filtra pedidos e catálogo pela unidade selecionada", () => {
+test("multiunidade usa API para carregar pedidos e catálogo da unidade", () => {
   const source = read("js/modules/empresa-unidades-4.3.js");
-  for (const tabela of ["pedidos", "produtos", "categorias"]) {
-    assert.match(source, new RegExp(`from\\(\\"${tabela}\\"\\)[\\s\\S]{0,260}eq\\(\\"unidade_id\\", unidadeAtivaId\\)`));
-  }
+  assert.match(source, /DeliveryAPI\.empresaOperacao/);
+  assert.match(source, /DeliveryAPI\.empresaOperacaoAcao/);
+  assert.match(source, /unidadeAtivaId/);
+  assert.doesNotMatch(source, /window\.db\.(?:from|rpc)/);
 });
 
-test("novas categorias e produtos recebem unidade_id explicitamente", () => {
+test("novas categorias e produtos passam pela API centralizada", () => {
   const source = read("js/modules/empresa-unidades-4.3.js");
-  assert.match(source, /from\("categorias"\)\.insert\(\{[\s\S]{0,180}unidade_id: unidadeAtivaId/);
-  assert.match(source, /const payload = \{[\s\S]{0,180}unidade_id: unidadeAtivaId/);
+  assert.match(source, /empresaOperacaoAcao/);
+  assert.match(source, /acao: "categoria_criar"/);
+  assert.match(source, /acao: "produto_salvar"/);
+  assert.match(source, /unidadeAtivaId/);
+  assert.doesNotMatch(source, /window\.db\.(?:from|rpc)/);
 });
 
 test("unidade principal não pode ser desativada pela interface", () => {
@@ -71,13 +75,12 @@ test("migration pública valida unidade e rejeita produto de outra unidade", () 
   assert.doesNotMatch(sql, /grant execute on function public\.criar_pedido_operacional_unidade[\s\S]*to anon/);
 });
 
-test("operação 4.3 filtra horários, pausas e regiões por unidade", () => {
+test("operação 4.3 usa API centralizada e preserva o filtro por unidade", () => {
   const source = read("js/modules/operacao-unidades-4.3.js");
-  for (const tabela of ["empresa_horarios", "empresa_pausas", "empresa_regioes"]) {
-    assert.match(source, new RegExp(`from\\(\\"${tabela}\\"\\)[\\s\\S]{0,220}eq\\(\\"unidade_id\\", unidadeId\\)`));
-  }
+  assert.match(source, /DeliveryAPI\.empresaOperacao/);
+  assert.match(source, /DeliveryAPI\.empresaOperacaoAcao/);
   assert.match(source, /onConflict: "empresa_id,unidade_id,dia_semana"/);
-  assert.match(source, /empresa_disponibilidade_unidade/);
+  assert.doesNotMatch(source, /window\.db\.(?:from|rpc)/);
 });
 
 test("migration 030 move operação para unidade e mantém fallback principal", () => {
