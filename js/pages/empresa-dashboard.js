@@ -1324,11 +1324,7 @@ document.getElementById("adicionalForm").addEventListener("submit", async (event
     if (!Number.isFinite(preco) || preco < 0) return alert("Informe um preço válido.");
     const botao = form.querySelector("button[type='submit']");
     App.definirCarregando(botao, true, "Adicionando...");
-    const { data, error } = await window.db.from("adicionais").insert({
-        grupo_id: grupoId, nome, preco, ativo: true
-    }).select("*").single();
-    App.definirCarregando(botao, false);
-    if (error) return alert(`Não foi possível adicionar a opção: ${error.message}`);
+    let data;,    try {,        data = await window.DeliveryAPI.empresaPainelAcao({ acao: "adicional_criar", empresa_id: String(empresa.id), grupo_id: grupoId, nome, preco });,    } catch (error) {,        App.definirCarregando(botao, false);,        return alert(`Não foi possível adicionar a opção: ${App.mensagemErro(error)}`);,    },    App.definirCarregando(botao, false);
     adicionaisEmpresa.push(data);
     const manterGrupo = grupoId;
     form.reset();
@@ -1347,11 +1343,7 @@ document.getElementById("vinculoGrupoForm").addEventListener("submit", async (ev
     }
     const botao = event.currentTarget.querySelector("button[type='submit']");
     App.definirCarregando(botao, true, "Vinculando...");
-    const { data, error } = await window.db.from("produto_grupos").insert({
-        produto_id: produtoId, grupo_id: grupoId
-    }).select("*").single();
-    App.definirCarregando(botao, false);
-    if (error) return alert(`Não foi possível vincular: ${error.message}`);
+    let data;,    try {,        data = await window.DeliveryAPI.empresaPainelAcao({ acao: "produto_grupo_criar", empresa_id: String(empresa.id), produto_id: produtoId, grupo_id: grupoId });,    } catch (error) {,        App.definirCarregando(botao, false);,        return alert(`Não foi possível vincular: ${App.mensagemErro(error)}`);,    },    App.definirCarregando(botao, false);
     vinculosProdutoGrupo.push(data);
     renderizarGruposAdicionais();
 });
