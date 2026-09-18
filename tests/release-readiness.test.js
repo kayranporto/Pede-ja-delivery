@@ -171,8 +171,9 @@ test("migração 020 obriga mudanças de pedido a passar por RPCs protegidas", (
     assert.equal((sql.match(/\$\$/g) || []).length % 2, 0);
 
     const restaurante = read("js/pages/empresa-dashboard.js");
-    assert.match(restaurante, /rpc\("empresa_marcar_pagamento_offline"/);
-    assert.match(restaurante, /rpc\("empresa_cancelar_pedido_nao_pago"/);
+    assert.match(restaurante, /DeliveryAPI\.empresaPainelAcao/);
+    assert.match(restaurante, /pedido_pagamento_offline/);
+    assert.match(restaurante, /pedido_cancelar_nao_pago/);
     assert.doesNotMatch(restaurante, /from\(["']pedidos["']\)\.update/);
 });
 
