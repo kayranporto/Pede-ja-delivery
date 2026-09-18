@@ -14,14 +14,9 @@
     try {
       const { data: { user }, error: authError } = await window.db.auth.getUser();
       if (authError || !user) return "";
-      const { data, error } = await window.db.from("enderecos")
-        .select("id")
-        .eq("usuario_id", user.id)
-        .order("principal", { ascending: false, nullsFirst: false })
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error || !data?.id) return "";
+      const enderecos = await window.DeliveryAPI.meusEnderecos();
+      const data = Array.isArray(enderecos) ? enderecos[0] : null;
+      if (!data?.id) return "";
       return String(data.id);
     } catch {
       return "";
