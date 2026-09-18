@@ -36,17 +36,17 @@ test("exclusão remove dados diretos, dependências e arquivos", () => {
   assert.match(travaStorage, /Remova os arquivos do catálogo antes de apagar a loja/);
 });
 
-test("painel exige o nome da loja e chama somente a RPC protegida", () => {
+test("painel exige o nome da loja e chama somente a API protegida", () => {
   const js = read("js/pages/admin.js");
   assert.match(js, /function confirmarExclusaoRestaurante/);
   assert.match(js, /Digite “\$\{empresa\.nome\}” para confirmar/);
   assert.match(js, /confirmar\.disabled = true/);
-  assert.match(js, /db\.rpc\("admin_excluir_restaurante"/);
+  assert.match(js, /DeliveryAPI\.adminAcao/);
   assert.match(js, /p_nome_confirmacao: nomeConfirmacao/);
   assert.match(js, /db\.storage\.from\("catalogo"\)\.remove/);
   assert.match(js, /await apagarMidiasRestaurante\(empresa\)/);
   assert.match(js, /Todos os dados e arquivos da loja foram removidos permanentemente/);
-  assert.match(js, /consulta\.is\("excluida_em", null\)/);
+  assert.doesNotMatch(js, /db\.from\("empresas"\)/);
   assert.doesNotMatch(js, /from\("empresas"\)\.delete/);
   assert.match(read("html/admin.html"), /admin\.js\?v=4\.4\.5\.1/);
 });
