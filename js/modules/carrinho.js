@@ -5,48 +5,6 @@
         this.detail = init && init.detail;
     };
 
-    function adicionarAoCarrinho(produto) {
-        if (!produto || !produto.id) return null;
-
-        const metaEmpresa = App?.lerJSON?.("empresaAtual", null) || App?.lerJSON?.("carrinhoMeta", {}) || {};
-        const itensAtuais = App?.lerJSON?.("carrinho", []) || [];
-        const quantidade = Math.max(1, Number(produto.quantidade || 1));
-        const item = {
-            id: String(produto.id),
-            nome: produto.nome || "Produto",
-            imagem: produto.imagem || "../assets/produto-padrao.svg",
-            preco: Number(produto.preco || 0),
-            quantidade,
-            observacao: String(produto.observacao || "").trim().slice(0, 300),
-            variante_id: produto.variante_id ? String(produto.variante_id) : null,
-            variante_nome: produto.variante_nome || null,
-            adicionais: Array.isArray(produto.adicionais) ? produto.adicionais.map((adicional) => ({
-                id: String(adicional.id),
-                nome: adicional.nome || "Adicional",
-                preco: Number(adicional.preco || 0)
-            })) : [],
-            empresa_id: metaEmpresa?.empresa_id || metaEmpresa?.id || null,
-            empresa_nome: metaEmpresa?.empresa_nome || metaEmpresa?.nome || null,
-            chave: ""
-        };
-        item.chave = `${item.id}|${item.variante_id || "sem-variante"}|${(item.adicionais || []).map((adicional) => String(adicional.id)).sort().join("-")}|${item.observacao || ""}`;
-
-        const existe = itensAtuais.findIndex((it) => String(it.chave || `${it.id}|${it.variante_id || "sem-variante"}|${(it.adicionais || []).map((adicional) => String(adicional.id)).sort().join("-")}|${it.observacao || ""}`) === item.chave);
-        if (existe >= 0) {
-            itensAtuais[existe].quantidade = Math.min(99, Number(itensAtuais[existe].quantidade || 1) + quantidade);
-            itensAtuais[existe].observacao = item.observacao || itensAtuais[existe].observacao || "";
-            itensAtuais[existe].adicionais = item.adicionais.length ? item.adicionais : itensAtuais[existe].adicionais || [];
-            itensAtuais[existe].chave = `${itensAtuais[existe].id}|${itensAtuais[existe].variante_id || "sem-variante"}|${(itensAtuais[existe].adicionais || []).map((adicional) => String(adicional.id)).sort().join("-")}|${itensAtuais[existe].observacao || ""}`;
-        } else {
-            itensAtuais.push(item);
-        }
-
-        App?.salvarJSON?.("carrinho", itensAtuais);
-        if (metaEmpresa && typeof metaEmpresa === "object") App?.salvarJSON?.("carrinhoMeta", metaEmpresa);
-        window.dispatchEvent?.(new EventoCarrinho("carrinho-atualizado", { detail: { itens: itensAtuais, meta: metaEmpresa || null } }));
-        return itensAtuais;
-    }
-
     const registrarApiGlobal = (nome, valor) => {
         const anterior = typeof window[nome] === "function" ? window[nome] : null;
         const final = typeof anterior === "function" && anterior !== valor
@@ -189,8 +147,19 @@
 
         const metaFinal = metaEmpresa && typeof metaEmpresa === "object" ? metaEmpresa : { empresa_id: null };
         salvarCarrinho(itensAtuais, metaFinal);
+
+        // Atualiza a interface imediatamente e confirma que o estado persistido continua disponível.
+        const persistido = lerCarrinho();
+        const esperado = String(item.chave || chaveItem(item));
+        if (!persistido.some((salvo) => String(salvo.chave || chaveItem(salvo)) === esperado)) {
+            App?.salvarJSON?.("carrinho", itensAtuais);
+            App?.salvarJSON?.("carrinhoBackup", itensAtuais);
+            if (metaFinal && typeof metaFinal === "object") App?.salvarJSON?.("carrinhoMeta", metaFinal);
+        }
+
+        renderizarItens();
         window.dispatchEvent?.(new CustomEvent("carrinho-atualizado", { detail: { itens: itensAtuais, meta: metaFinal } }));
-        return itensAtuais;
+        return lerCarrinho();
     }
 
     function atualizarQuantidadeCarrinho(itemChave, delta) {
