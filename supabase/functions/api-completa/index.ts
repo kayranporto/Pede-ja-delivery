@@ -7,6 +7,7 @@ const PUBLIC_PREFIXES = [
   /^\/$/, /^\/v1\/?$/, /^\/v1\/status\/?$/,
   /^\/v1\/restaurantes\/?$/,
   /^\/v1\/restaurantes\/[^/]+\/cardapio\/?$/,
+  /^\/v1\/restaurantes\/[^/]+\/unidades\/?$/,
   /^\/v1\/restaurantes\/[^/]+\/disponibilidade\/?$/,
   /^\/v1\/restaurantes\/[^/]+\/avaliacoes-resumo\/?$/,
   /^\/v1\/restaurantes\/[^/]+\/avaliacoes\/?$/,
