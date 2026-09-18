@@ -1011,7 +1011,31 @@ async function carregarPainel() {
             return;
         }
 
-        const acessos = await window.DeliveryAPI.request("/v1/empresa/acesso");,        const acesso = (Array.isArray(acessos) ? acessos : []).find((item) => item.proprietario === true);,        if (!acesso?.empresa_id) {,            await window.db.auth.signOut();,            window.location.replace("empresa-login.html");,            return;,        },        const painel = await window.DeliveryAPI.empresaPainel(acesso.empresa_id);,        if (!painel?.empresa) {,            await window.db.auth.signOut();,            window.location.replace("empresa-login.html");,            return;,        },        empresa = painel.empresa;,        preencherLoja();,        pedidos = painel.pedidos || [];,        produtos = painel.produtos || [];,        categorias = painel.categorias || [];,        gruposAdicionais = painel.grupos_adicionais || [];,        cuponsEmpresa = painel.cupons || [];,        avaliacoesEmpresa = painel.avaliacoes || [];,        adicionaisEmpresa = painel.adicionais || [];,        vinculosProdutoGrupo = painel.vinculos_produto_grupo || [];,        variantesProduto = painel.variantes_produto || [];,        estoqueMovimentos = painel.estoque_movimentos || [];
+        const acessos = await window.DeliveryAPI.request("/v1/empresa/acesso");
+        const acesso = (Array.isArray(acessos) ? acessos : []).find((item) => item.proprietario === true);
+        if (!acesso?.empresa_id) {
+            await window.db.auth.signOut();
+            window.location.replace("empresa-login.html");
+            return;
+        }
+        const painel = await window.DeliveryAPI.empresaPainel(acesso.empresa_id);
+        if (!painel?.empresa) {
+            await window.db.auth.signOut();
+            window.location.replace("empresa-login.html");
+            return;
+        }
+        empresa = painel.empresa;
+        preencherLoja();
+        pedidos = painel.pedidos || [];
+        produtos = painel.produtos || [];
+        categorias = painel.categorias || [];
+        gruposAdicionais = painel.grupos_adicionais || [];
+        cuponsEmpresa = painel.cupons || [];
+        avaliacoesEmpresa = painel.avaliacoes || [];
+        adicionaisEmpresa = painel.adicionais || [];
+        vinculosProdutoGrupo = painel.vinculos_produto_grupo || [];
+        variantesProduto = painel.variantes_produto || [];
+        estoqueMovimentos = painel.estoque_movimentos || [];
         estoqueMovimentos = resMovimentos.error ? [] : (resMovimentos.data || []);
         renderizarPedidos();
         renderizarCategorias();
@@ -1035,7 +1059,19 @@ statusEmpresa.addEventListener("change", async () => {
     if (!empresa) return;
     const anterior = !statusEmpresa.checked;
     statusEmpresa.disabled = true;
-    try {,        const data = await window.DeliveryAPI.empresaPainelAcao({ acao: "empresa_status", empresa_id: String(empresa.id), status: statusEmpresa.checked });,        if (!data) throw new Error("A API não retornou a empresa atualizada.");,        empresa = data;,    } catch (error) {,        statusEmpresa.checked = anterior;,        statusEmpresa.disabled = false;,        alert(`Não foi possível alterar o status: ${App.mensagemErro(error)}`);,        return;,    },    statusEmpresa.disabled = false;,    empresa.status = statusEmpresa.checked;,    document.getElementById("textoStatusLoja").textContent = empresa.status ? "Aberta e recebendo" : "Fechada temporariamente";
+    try {
+        const data = await window.DeliveryAPI.empresaPainelAcao({ acao: "empresa_status", empresa_id: String(empresa.id), status: statusEmpresa.checked });
+        if (!data) throw new Error("A API não retornou a empresa atualizada.");
+        empresa = data;
+    } catch (error) {
+        statusEmpresa.checked = anterior;
+        statusEmpresa.disabled = false;
+        alert(`Não foi possível alterar o status: ${App.mensagemErro(error)}`);
+        return;
+    }
+    statusEmpresa.disabled = false;
+    empresa.status = statusEmpresa.checked;
+    document.getElementById("textoStatusLoja").textContent = empresa.status ? "Aberta e recebendo" : "Fechada temporariamente";
     window.AppToast?.("Status da loja atualizado", empresa.status ? "A loja está recebendo novos pedidos." : "Novos pedidos foram pausados.", "success");
 });
 
@@ -1065,7 +1101,14 @@ document.getElementById("cupomForm").addEventListener("submit", async (event) =>
         ativo: true
     };
     App.definirCarregando(botao, true, "Criando...");
-    let data;,    try {,        data = await window.DeliveryAPI.empresaPainelAcao({ acao: "cupom_criar", ...payload });,    } catch (error) {,        App.definirCarregando(botao, false);,        return alert(`Não foi possível criar o cupom: ${App.mensagemErro(error)}`);,    },    App.definirCarregando(botao, false);
+    let data;
+    try {
+        data = await window.DeliveryAPI.empresaPainelAcao({ acao: "cupom_criar", ...payload });
+    } catch (error) {
+        App.definirCarregando(botao, false);
+        return alert(`Não foi possível criar o cupom: ${App.mensagemErro(error)}`);
+    }
+    App.definirCarregando(botao, false);
     cuponsEmpresa.unshift(data); renderizarCuponsEmpresa(); form.reset(); document.getElementById("cupomValor").value = "10"; document.getElementById("cupomMinimo").value = "0"; document.getElementById("cupomPorUsuario").value = "1";
     window.AppToast?.("Promoção criada", `O cupom ${codigo} já pode ser utilizado.`, "success");
 });
@@ -1107,7 +1150,14 @@ document.getElementById("lojaForm").addEventListener("submit", async (event) => 
     }
 
     App.definirCarregando(botao, true, "Salvando...");
-    let data;,    try {,        data = await window.DeliveryAPI.empresaPainelAcao({ acao: "empresa_atualizar", empresa_id: String(empresa.id), ...payload });,    } catch (error) {,        App.definirCarregando(botao, false);,        return alert(`Não foi possível salvar: ${App.mensagemErro(error)}`);,    },    App.definirCarregando(botao, false);
+    let data;
+    try {
+        data = await window.DeliveryAPI.empresaPainelAcao({ acao: "empresa_atualizar", empresa_id: String(empresa.id), ...payload });
+    } catch (error) {
+        App.definirCarregando(botao, false);
+        return alert(`Não foi possível salvar: ${App.mensagemErro(error)}`);
+    }
+    App.definirCarregando(botao, false);
     empresa = data;
     preencherLoja();
     alert("Configurações atualizadas.");
@@ -1124,7 +1174,14 @@ document.getElementById("categoriaForm").addEventListener("submit", async (event
 
     const botao = form.querySelector("button[type='submit']");
     App.definirCarregando(botao, true, "Adicionando...");
-    let data;,    try {,        data = await window.DeliveryAPI.empresaOperacaoAcao({ acao: "categoria_criar", empresa_id: String(empresa.id), nome, ordem: categorias.length });,    } catch (error) {,        App.definirCarregando(botao, false);,        return alert(`Não foi possível criar a categoria: ${App.mensagemErro(error)}`);,    },    App.definirCarregando(botao, false);
+    let data;
+    try {
+        data = await window.DeliveryAPI.empresaOperacaoAcao({ acao: "categoria_criar", empresa_id: String(empresa.id), nome, ordem: categorias.length });
+    } catch (error) {
+        App.definirCarregando(botao, false);
+        return alert(`Não foi possível criar a categoria: ${App.mensagemErro(error)}`);
+    }
+    App.definirCarregando(botao, false);
     categorias.push(data);
     campo.value = "";
     renderizarCategorias();
@@ -1161,7 +1218,20 @@ document.getElementById("produtoForm").addEventListener("submit", async (event) 
 
     const botao = form.querySelector("button[type='submit']");
     App.definirCarregando(botao, true, produtoEditandoId ? "Salvando..." : "Cadastrando...");
-    let data;,    try {,        data = await window.DeliveryAPI.empresaOperacaoAcao({,            acao: "produto_salvar",,            empresa_id: String(empresa.id),,            unidade_id: document.getElementById("unidadePainelSelect")?.value || null,,            id: produtoEditandoId ? String(produtoEditandoId) : "",,            ...payload,        });,    } catch (error) {,        App.definirCarregando(botao, false);,        return alert(`Não foi possível cadastrar o produto: ${App.mensagemErro(error)}`);,    },    App.definirCarregando(botao, false);
+    let data;
+    try {
+        data = await window.DeliveryAPI.empresaOperacaoAcao({
+            acao: "produto_salvar",
+            empresa_id: String(empresa.id),
+            unidade_id: document.getElementById("unidadePainelSelect")?.value || null,
+            id: produtoEditandoId ? String(produtoEditandoId) : "",
+            ...payload
+        });
+    } catch (error) {
+        App.definirCarregando(botao, false);
+        return alert(`Não foi possível cadastrar o produto: ${App.mensagemErro(error)}`);
+    }
+    App.definirCarregando(botao, false);
     if (error) return alert(`Não foi possível cadastrar o produto: ${error.message}`);
     if (produtoEditandoId) produtos = produtos.map((item) => String(item.id) === String(produtoEditandoId) ? data : item);
     else produtos.push(data);
@@ -1197,7 +1267,18 @@ document.getElementById("varianteForm").addEventListener("submit", async (event)
     }
     const botao = document.getElementById("varianteSalvar");
     App.definirCarregando(botao, true, "Adicionando...");
-    let data;,    try {,        data = await window.DeliveryAPI.empresaPainelAcao({,            acao: "variante_criar", empresa_id: String(empresa.id), produto_id: produtoId, nome, preco, promocao,,            ordem: variantesProduto.filter((item) => String(item.produto_id) === produtoId).length,,            ativo: document.getElementById("varianteAtiva").checked,        });,    } catch (error) {,        App.definirCarregando(botao, false);,        return alert(`Não foi possível adicionar a variação: ${App.mensagemErro(error)}`);,    },    App.definirCarregando(botao, false);
+    let data;
+    try {
+        data = await window.DeliveryAPI.empresaPainelAcao({
+            acao: "variante_criar", empresa_id: String(empresa.id), produto_id: produtoId, nome, preco, promocao,
+            ordem: variantesProduto.filter((item) => String(item.produto_id) === produtoId).length,
+            ativo: document.getElementById("varianteAtiva").checked
+        });
+    } catch (error) {
+        App.definirCarregando(botao, false);
+        return alert(`Não foi possível adicionar a variação: ${App.mensagemErro(error)}`);
+    }
+    App.definirCarregando(botao, false);
     variantesProduto.push(data);
     event.currentTarget.reset();
     document.getElementById("varianteAtiva").checked = true;
@@ -1219,7 +1300,14 @@ document.getElementById("grupoAdicionalForm").addEventListener("submit", async (
     }
     const botao = form.querySelector("button[type='submit']");
     App.definirCarregando(botao, true, "Criando...");
-    let data;,    try {,        data = await window.DeliveryAPI.empresaPainelAcao({ acao: "grupo_criar", empresa_id: String(empresa.id), nome, minimo, maximo });,    } catch (error) {,        App.definirCarregando(botao, false);,        return alert(`Não foi possível criar o grupo: ${App.mensagemErro(error)}`);,    },    App.definirCarregando(botao, false);
+    let data;
+    try {
+        data = await window.DeliveryAPI.empresaPainelAcao({ acao: "grupo_criar", empresa_id: String(empresa.id), nome, minimo, maximo });
+    } catch (error) {
+        App.definirCarregando(botao, false);
+        return alert(`Não foi possível criar o grupo: ${App.mensagemErro(error)}`);
+    }
+    App.definirCarregando(botao, false);
     gruposAdicionais.push(data);
     gruposAdicionais.sort((a, b) => String(a.nome).localeCompare(String(b.nome), "pt-BR"));
     form.reset();
@@ -1239,7 +1327,14 @@ document.getElementById("adicionalForm").addEventListener("submit", async (event
     if (!Number.isFinite(preco) || preco < 0) return alert("Informe um preço válido.");
     const botao = form.querySelector("button[type='submit']");
     App.definirCarregando(botao, true, "Adicionando...");
-    let data;,    try {,        data = await window.DeliveryAPI.empresaPainelAcao({ acao: "adicional_criar", empresa_id: String(empresa.id), grupo_id: grupoId, nome, preco });,    } catch (error) {,        App.definirCarregando(botao, false);,        return alert(`Não foi possível adicionar a opção: ${App.mensagemErro(error)}`);,    },    App.definirCarregando(botao, false);
+    let data;
+    try {
+        data = await window.DeliveryAPI.empresaPainelAcao({ acao: "adicional_criar", empresa_id: String(empresa.id), grupo_id: grupoId, nome, preco });
+    } catch (error) {
+        App.definirCarregando(botao, false);
+        return alert(`Não foi possível adicionar a opção: ${App.mensagemErro(error)}`);
+    }
+    App.definirCarregando(botao, false);
     adicionaisEmpresa.push(data);
     const manterGrupo = grupoId;
     form.reset();
@@ -1258,7 +1353,14 @@ document.getElementById("vinculoGrupoForm").addEventListener("submit", async (ev
     }
     const botao = event.currentTarget.querySelector("button[type='submit']");
     App.definirCarregando(botao, true, "Vinculando...");
-    let data;,    try {,        data = await window.DeliveryAPI.empresaPainelAcao({ acao: "produto_grupo_criar", empresa_id: String(empresa.id), produto_id: produtoId, grupo_id: grupoId });,    } catch (error) {,        App.definirCarregando(botao, false);,        return alert(`Não foi possível vincular: ${App.mensagemErro(error)}`);,    },    App.definirCarregando(botao, false);
+    let data;
+    try {
+        data = await window.DeliveryAPI.empresaPainelAcao({ acao: "produto_grupo_criar", empresa_id: String(empresa.id), produto_id: produtoId, grupo_id: grupoId });
+    } catch (error) {
+        App.definirCarregando(botao, false);
+        return alert(`Não foi possível vincular: ${App.mensagemErro(error)}`);
+    }
+    App.definirCarregando(botao, false);
     vinculosProdutoGrupo.push(data);
     renderizarGruposAdicionais();
 });
