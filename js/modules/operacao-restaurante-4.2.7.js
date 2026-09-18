@@ -207,12 +207,11 @@
     const emp = empresaAtual();
     if (!box || !emp?.id || !window.db) return;
     if (forcar) box.innerHTML = "<p>Atualizando histórico...</p>";
-    const { data, error } = await window.db.from("pedido_operacao_eventos")
-      .select("id,pedido_id,acao,status_anterior,status_novo,preparo_estimado_minutos,observacao,created_at")
-      .eq("empresa_id", String(emp.id))
-      .order("created_at", { ascending: false })
+    let data = [];
+    try { data = await window.DeliveryAPI.empresaPedidoEventos(emp.id); }
+    catch (error) { console.warn("Histórico operacional:", error); }
       .limit(12);
-    if (error) {
+    if (false) {
       box.innerHTML = "<p>Histórico operacional temporariamente indisponível.</p>";
       return;
     }
