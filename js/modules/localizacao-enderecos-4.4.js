@@ -33,12 +33,10 @@
       botao.textContent = "Obtendo localização...";
       try {
         const posicao = await localizacaoAtual();
-        const { error } = await window.db.rpc("endereco_atualizar_localizacao", {
-          p_endereco_id: endereco.id,
-          p_latitude: posicao.latitude,
-          p_longitude: posicao.longitude
+        await window.DeliveryAPI.request(`/v1/enderecos/${encodeURIComponent(String(endereco.id))}/localizacao`, {
+          method: "PATCH",
+          body: JSON.stringify({ latitude: posicao.latitude, longitude: posicao.longitude })
         });
-        if (error) throw error;
         botao.textContent = "✓ GPS atualizado";
         toast("Localização salva", `GPS associado a ${endereco.apelido || "este endereço"}. O endereço escrito não foi alterado.`, "success");
         setTimeout(() => aprimorar(), 700);
@@ -59,11 +57,7 @@
       const { data: auth } = await window.db.auth.getUser();
       const user = auth?.user;
       if (!user) return;
-      const { data, error } = await window.db.from("enderecos")
-        .select("id,apelido,latitude,longitude,localizacao_atualizada_em,principal,created_at")
-        .eq("usuario_id", user.id)
-        .order("principal", { ascending: false, nullsFirst: false })
-        .order("created_at", { ascending: false });
+      const data = await window.DeliveryAPI.meusEnderecos();
       if (error) return;
 
       const cards = [...lista.querySelectorAll(".item-card")];
