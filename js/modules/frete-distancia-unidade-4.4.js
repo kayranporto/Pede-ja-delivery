@@ -60,7 +60,7 @@
       const meta = App.lerJSON("empresaAtual", null);
       const unidades = await window.DeliveryAPI.request(`/v1/empresa/unidades?empresa_id=${encodeURIComponent(String(meta?.empresa_id || ""))}`);
       const data = (Array.isArray(unidades) ? unidades : []).find((item) => String(item.id) === String(id));
-      if (error || !data) {
+      if (!data) {
         card.hidden = true;
         return;
       }
@@ -93,16 +93,29 @@
 
     const botao = $("salvarFreteDistancia44");
     window.App?.definirCarregando?.(botao, true, "Salvando...");
-    const { error } = await window.db.rpc("empresa_unidade_configurar_frete_distancia", {
-      p_unidade_id: id,
-      p_ativo: ativo,
-      p_taxa_base: taxaBase,
-      p_valor_km: valorKm,
-      p_raio_max_km: raio
-    });
+    try {
+      const meta = App.lerJSON("empresaAtual", null);
+      const unidades = await window.DeliveryAPI.request(`/v1/empresa/unidades?empresa_id=${encodeURIComponent(String(meta?.empresa_id || ""))}`);
+      const data = (Array.isArray(unidades) ? unidades : []).find((item) => String(item.id) === String(id));
+      await window.DeliveryAPI.request("/v1/empresa/unidades", {
+        method: "POST",
+        body: JSON.stringify({
+          empresa_id: meta?.empresa_id,
+          unidade_id: id,
+          payload: {
+            nome: data?.nome || "Unidade",
+            frete_distancia_ativo: ativo,
+            frete_taxa_base: taxaBase,
+            frete_valor_km: valorKm,
+            frete_raio_max_km: raio
+          }
+        })
+      });
+    } catch (error) {
+      window.App?.definirCarregando?.(botao, false);
+      return toast("Não foi possível salvar o frete", mensagemErro(error), "error");
+    }
     window.App?.definirCarregando?.(botao, false);
-
-    if (error) return toast("Não foi possível salvar o frete", mensagemErro(error), "error");
     await carregar();
     toast(
       ativo ? "Frete por distância ativado" : "Frete por distância desativado",
