@@ -82,8 +82,8 @@
     }
 
     async function carregar() {
-        const { data, error } = await db.from("notificacoes").select("*").eq("usuario_id", usuario.id).order("created_at", { ascending: false }).limit(50);
-        if (!error) { notificacoes = data || []; renderizar(); }
+        try { notificacoes = await window.DeliveryAPI.minhasNotificacoes(); renderizar(); }
+        catch (error) { console.warn("Notificações:", error); }
     }
 
     async function marcarLidas() {
@@ -92,7 +92,8 @@
             avisar("Tudo em dia", "Você não possui notificações novas.", "info", 3500);
             return;
         }
-        const { error } = await db.from("notificacoes").update({ lida: true }).in("id", ids).eq("usuario_id", usuario.id);
+        let error = null;
+        try { await window.DeliveryAPI.marcarNotificacoesLidas(ids); } catch (erro) { error = erro; }
         if (error) {
             avisar("Não foi possível atualizar", "Tente marcar as notificações como lidas novamente.", "error");
             return;
