@@ -62,10 +62,10 @@ test("endereço e unidade usam GPS somente por ação explícita do usuário", (
   const unidade = read("js/modules/localizacao-unidade-4.4.js");
   assert.match(enderecos, /Usar GPS deste local/);
   assert.match(enderecos, /getCurrentPosition/);
-  assert.match(enderecos, /endereco_atualizar_localizacao/);
+  assert.match(enderecos, /DeliveryAPI\.request/);
   assert.doesNotMatch(enderecos, /watchPosition/);
   assert.match(unidade, /Definir GPS da unidade/);
-  assert.match(unidade, /empresa_unidade_atualizar_localizacao/);
+  assert.match(unidade, /DeliveryAPI\.request/);
 });
 
 test("entregador online atualiza posição e usa fila de proximidade", () => {
