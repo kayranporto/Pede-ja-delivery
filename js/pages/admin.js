@@ -371,21 +371,16 @@ function renderizarRelatorio() {
 
 async function carregarRelatorio() {
     const dias = Number(document.getElementById("periodoRelatorio").value || 30);
-    const [operacional, inteligencia] = await Promise.all([
-        window.DeliveryAPI.adminRelatorios(dias).then((value) => ({ data: value?.operacional || null, error: null })).catch((error) => ({ data: null, error })),
-        window.DeliveryAPI.adminRelatorios(dias).then((value) => ({ data: value?.inteligencia || null, error: null })).catch((error) => ({ data: null, error }))
-    ]);
-    const { data, error } = operacional;
-    if (recursoNaoMigrado(error, "admin_relatorio_operacional")) {
-        registrarCompatibilidade("relatório operacional");
+    try {
+        const dados = await window.DeliveryAPI.adminRelatorios(dias);
+        adminRelatorio = dados?.operacional || relatorioAdminLocal(dias);
+        adminInteligencia = dados?.inteligencia || adminInteligencia;
+        renderizarRelatorio();
+    } catch (error) {
         adminRelatorio = relatorioAdminLocal(dias);
-        renderizarRelatorio(); exibirAvisoCompatibilidade(); return;
+        renderizarRelatorio();
+        mostrarErro("Não foi possível gerar o relatório", error);
     }
-    if (error) return mostrarErro("Não foi possível gerar o relatório", error);
-    adminRelatorio = data;
-    if (!inteligencia.error) adminInteligencia = inteligencia.data || adminInteligencia;
-    else if (recursoNaoMigrado(inteligencia.error, "admin_relatorio_clientes_produtos")) registrarCompatibilidade("relatórios de produtos e recorrência");
-    renderizarRelatorio();
 }
 
 function linhasCsv(pedidos) {
