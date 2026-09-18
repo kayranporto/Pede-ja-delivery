@@ -131,12 +131,7 @@
             applicationServerKey: base64Uint8(chave)
         });
         const payload = subscription.toJSON();
-        const { error } = await db.from("push_subscriptions").upsert({
-            usuario_id: usuario.id,
-            endpoint: payload.endpoint,
-            subscription: payload
-        }, { onConflict: "usuario_id,endpoint" });
-        if (error) throw error;
+        await window.DeliveryAPI.salvarPushSubscription(payload.endpoint, payload);
         return subscription;
     }
 
