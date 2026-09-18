@@ -98,3 +98,6 @@ Comece pelo índice em `docs/README.md`. Para implantar, leia nesta ordem:
 6. `docs/product/ROADMAP-PLATAFORMA.md`
 
 A aplicação não deve receber pagamentos reais antes da confirmação das migrations 014 a 023 no projeto hospedado, da publicação das Edge Functions, da configuração dos segredos, da conclusão dos testes de sandbox descritos em `docs/operations/PRODUCAO.md` e da ativação explícita de `pagamentoOnlineAtivo` em `js/core/config.js`.
+
+
+<!-- CI verification checkpoint final -->
