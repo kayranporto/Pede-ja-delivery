@@ -197,31 +197,24 @@
     const botao = document.getElementById("unidadeSalvar43");
     botao.disabled = true;
     let resposta;
+    const unidadeCriada = !unidadeEditandoId;
     if (unidadeEditandoId) {
-      resposta = await window.db.from("empresa_unidades")
-        .update(payload)
-        .eq("id", unidadeEditandoId)
-        .eq("empresa_id", String(empresa.id))
-        .select("*")
-        .single();
+      resposta = await window.DeliveryAPI.salvarEmpresaUnidade({ empresa_id: String(empresa.id), unidade_id: unidadeEditandoId, payload });
     } else {
       payload.slug = slugify(nome) || `unidade-${Date.now()}`;
       payload.ativa = true;
       payload.principal = false;
       delete payload.updated_at;
-      resposta = await window.db.from("empresa_unidades").insert(payload).select("*").single();
+      resposta = await window.DeliveryAPI.salvarEmpresaUnidade({ empresa_id: String(empresa.id), payload });
     }
     botao.disabled = false;
 
-    if (resposta.error) {
-      const duplicado = resposta.error.code === "23505";
-      return toast("Não foi possível salvar", duplicado ? "Já existe uma unidade com esse identificador. Use outro nome." : erroTexto(resposta.error), "error");
-    }
+    if (!resposta) return toast("Não foi possível salvar", "A API não retornou a unidade.", "error");
 
-    toast(unidadeEditandoId ? "Unidade atualizada" : "Unidade criada", `${resposta.data.nome} está pronta para ser usada no painel.`, "success");
+    toast(unidadeCriada ? "Unidade criada" : "Unidade atualizada", `${resposta.nome} está pronta para ser usada no painel.`, "success");
     limparFormularioUnidade();
     await carregarUnidades(false);
-    if (!unidadeEditandoId && resposta.data?.id) await selecionarUnidade(resposta.data.id, true);
+    if (unidadeCriada && resposta?.id) await selecionarUnidade(resposta.id, true);
   }
 
   async function alternarUnidade(unidade) {
@@ -242,11 +235,15 @@
     }) : true;
     if (!confirmou) return;
 
-    const { error } = await window.db.from("empresa_unidades")
-      .update({ ativa: novoStatus, updated_at: new Date().toISOString() })
-      .eq("id", unidade.id)
-      .eq("empresa_id", String(empresa.id));
-    if (error) return toast("Não foi possível atualizar", erroTexto(error), "error");
+    try {
+      await window.DeliveryAPI.salvarEmpresaUnidade({
+        empresa_id: String(empresa.id),
+        unidade_id: String(unidade.id),
+        payload: { nome: unidade.nome, slug: unidade.slug, endereco: unidade.endereco, cidade: unidade.cidade, uf: unidade.uf, telefone: unidade.telefone, ativa: novoStatus, principal: unidade.principal }
+      });
+    } catch (error) {
+      return toast("Não foi possível atualizar", erroTexto(error), "error");
+    }
     toast(novoStatus ? "Unidade ativada" : "Unidade desativada", unidade.nome, "success");
     await carregarUnidades(false);
   }
@@ -305,13 +302,11 @@
 
   async function carregarUnidades(recarregarDados = true) {
     if (!empresa?.id) return;
-    const { data, error } = await window.db.from("empresa_unidades")
-      .select("id,empresa_id,nome,slug,endereco,cidade,uf,telefone,ativa,principal,created_at,updated_at")
-      .eq("empresa_id", String(empresa.id))
-      .order("principal", { ascending: false })
-      .order("nome", { ascending: true });
-    if (error) return toast("Falha ao carregar unidades", erroTexto(error), "error");
-    unidades = data || [];
+    try {
+      unidades = await window.DeliveryAPI.empresaUnidades(empresa.id);
+    } catch (error) {
+      return toast("Falha ao carregar unidades", erroTexto(error), "error");
+    }
 
     const chave = `${STORAGE_PREFIX}${empresa.id}`;
     const salva = localStorage.getItem(chave);
@@ -352,20 +347,17 @@
 
   async function carregarDadosUnidade(avisar = false) {
     if (!empresa?.id || !unidadeAtivaId) return false;
-    const [resPedidos, resProdutos, resCategorias] = await Promise.all([
-      window.db.from("pedidos").select("*, pedido_itens(*)").eq("empresa_id", String(empresa.id)).eq("unidade_id", unidadeAtivaId).order("created_at", { ascending: false }),
-      window.db.from("produtos").select("*").eq("empresa_id", empresa.id).eq("unidade_id", unidadeAtivaId).order("nome"),
-      window.db.from("categorias").select("*").eq("empresa_id", empresa.id).eq("unidade_id", unidadeAtivaId).order("ordem").order("nome")
-    ]);
-    const erro = resPedidos.error || resProdutos.error || resCategorias.error;
-    if (erro) {
-      toast("Falha ao trocar unidade", erroTexto(erro), "error");
+    let dados;
+    try {
+      dados = await window.DeliveryAPI.empresaOperacao(empresa.id, unidadeAtivaId);
+    } catch (error) {
+      toast("Falha ao trocar unidade", erroTexto(error), "error");
       return false;
     }
 
-    pedidos = resPedidos.data || [];
-    produtos = resProdutos.data || [];
-    categorias = resCategorias.data || [];
+    pedidos = dados?.pedidos || [];
+    produtos = dados?.produtos || [];
+    categorias = dados?.categorias || [];
     renderizarPedidos();
     renderizarFilaCozinha();
     renderizarCategorias();
@@ -381,16 +373,14 @@
     recarregarPedidosOriginal = recarregarPedidos;
     recarregarPedidos = async (marcarNovo = "") => {
       if (!unidadeAtivaId) return recarregarPedidosOriginal(marcarNovo);
-      const { data, error } = await window.db.from("pedidos")
-        .select("*, pedido_itens(*)")
-        .eq("empresa_id", String(empresa.id))
-        .eq("unidade_id", unidadeAtivaId)
-        .order("created_at", { ascending: false });
-      if (error) {
+      let dados;
+      try {
+        dados = await window.DeliveryAPI.empresaOperacao(empresa.id, unidadeAtivaId);
+      } catch (error) {
         toast("Falha ao atualizar", erroTexto(error), "error");
         return false;
       }
-      pedidos = (data || []).map((pedido) => ({ ...pedido, _novo: String(pedido.id) === String(marcarNovo) }));
+      pedidos = (dados?.pedidos || []).map((pedido) => ({ ...pedido, _novo: String(pedido.id) === String(marcarNovo) }));
       renderizarPedidos();
       renderizarFilaCozinha();
       atualizarIndicadores();
@@ -414,15 +404,20 @@
       }
       const botao = form.querySelector("button[type='submit']");
       App.definirCarregando(botao, true, "Adicionando...");
-      const { data, error } = await window.db.from("categorias").insert({
-        empresa_id: empresa.id,
-        unidade_id: unidadeAtivaId,
-        nome,
-        ordem: categorias.length,
-        ativo: true
-      }).select("*").single();
+      let data;
+      try {
+        data = await window.DeliveryAPI.empresaOperacaoAcao({
+          acao: "categoria_criar",
+          empresa_id: String(empresa.id),
+          unidade_id: String(unidadeAtivaId),
+          nome,
+          ordem: categorias.length
+        });
+      } catch (error) {
+        App.definirCarregando(botao, false);
+        return toast("Não foi possível criar a categoria", erroTexto(error), "error");
+      }
       App.definirCarregando(botao, false);
-      if (error) return toast("Não foi possível criar a categoria", erroTexto(error), "error");
       categorias.push(data);
       campo.value = "";
       renderizarCategorias();
@@ -467,12 +462,20 @@
 
       const botao = form.querySelector("button[type='submit']");
       App.definirCarregando(botao, true, produtoEditandoId ? "Salvando..." : "Cadastrando...");
-      let consulta = produtoEditandoId
-        ? window.db.from("produtos").update(payload).eq("id", produtoEditandoId).eq("empresa_id", empresa.id)
-        : window.db.from("produtos").insert(payload);
-      const { data, error } = await consulta.select("*").single();
+      let data;
+      try {
+        data = await window.DeliveryAPI.empresaOperacaoAcao({
+          acao: "produto_salvar",
+          empresa_id: String(empresa.id),
+          unidade_id: String(unidadeAtivaId),
+          id: produtoEditandoId ? String(produtoEditandoId) : "",
+          ...payload
+        });
+      } catch (error) {
+        App.definirCarregando(botao, false);
+        return toast("Não foi possível salvar o produto", erroTexto(error), "error");
+      }
       App.definirCarregando(botao, false);
-      if (error) return toast("Não foi possível salvar o produto", erroTexto(error), "error");
 
       if (produtoEditandoId) produtos = produtos.map((item) => String(item.id) === String(produtoEditandoId) ? data : item);
       else produtos.push(data);
