@@ -22,6 +22,11 @@ for select to authenticated using (usuario_id = (select auth.uid()));
 drop policy if exists "usuario cria favoritos" on public.favoritos;
 create policy "usuario cria favoritos" on public.favoritos
 for insert to authenticated with check (usuario_id = (select auth.uid()));
+drop policy if exists "usuario atualiza favoritos" on public.favoritos;
+create policy "usuario atualiza favoritos" on public.favoritos
+for update to authenticated
+using (usuario_id = (select auth.uid()))
+with check (usuario_id = (select auth.uid()));
 drop policy if exists "usuario remove favoritos" on public.favoritos;
 create policy "usuario remove favoritos" on public.favoritos
 for delete to authenticated using (usuario_id = (select auth.uid()));
