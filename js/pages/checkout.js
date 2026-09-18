@@ -464,6 +464,7 @@ async function finalizarPedido() {
     try {
         const pedidoCriado = await window.DeliveryAPI.criarPedido({
             empresa_id: String(carrinhoMeta.empresa_id),
+            unidade_id: carrinhoMeta.unidade_id ? String(carrinhoMeta.unidade_id) : null,
             endereco_id: enderecoSelecionado.id,
             endereco,
             pagamento: pagamento === "Online" ? "Cartão" : pagamento,
