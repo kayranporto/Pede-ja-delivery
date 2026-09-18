@@ -210,35 +210,15 @@
     const lista = document.getElementById("listaProdutos");
     if (lista) lista.innerHTML = '<p class="sem-produtos">Carregando cardápio da unidade...</p>';
 
-    const [resCategorias, resProdutos] = await Promise.all([
-      window.db.from("categorias").select("id,nome,ordem,ativo,unidade_id").eq("empresa_id", empresaId).eq("unidade_id", unidadeAtiva.id).eq("ativo", true).order("ordem").order("nome"),
-      window.db.from("produtos").select("id,nome,descricao,imagem,preco,promocao,categoria_id,unidade_id,disponivel").eq("empresa_id", empresaId).eq("unidade_id", unidadeAtiva.id).eq("disponivel", true).order("nome")
-    ]);
-    const erro = resCategorias.error || resProdutos.error;
-    if (erro) {
-      toast("Não foi possível carregar a unidade", erro.message || "Tente novamente.", "error");
+    try {
+      const menu = await window.DeliveryAPI.cardapio(empresaId);
+      const categorias = (menu?.categorias || []).filter((categoria) => String(categoria.unidade_id || unidadeAtiva.id) === String(unidadeAtiva.id));
+      produtosUnidade = (menu?.produtos || []).filter((produto) => String(produto.unidade_id || unidadeAtiva.id) === String(unidadeAtiva.id) && produto.disponivel !== false);
+      montarCategorias(categorias);
+    } catch (error) {
+      toast("Não foi possível carregar a unidade", error.message || "Tente novamente.", "error");
       return;
     }
-
-    produtosUnidade = resProdutos.data || [];
-    const ids = produtosUnidade.map((produto) => String(produto.id));
-    if (ids.length) {
-      const { data: variantes, error: erroVariantes } = await window.db.from("produto_variantes")
-        .select("id,produto_id,nome,preco,promocao,ordem")
-        .in("produto_id", ids)
-        .eq("ativo", true)
-        .order("ordem");
-      if (!erroVariantes) {
-        const porProduto = new Map();
-        (variantes || []).forEach((variante) => {
-          const chave = String(variante.produto_id);
-          if (!porProduto.has(chave)) porProduto.set(chave, []);
-          porProduto.get(chave).push(variante);
-        });
-        produtosUnidade = produtosUnidade.map((produto) => ({ ...produto, variantes: porProduto.get(String(produto.id)) || [] }));
-      }
-    }
-    montarCategorias(resCategorias.data || []);
     renderizarProdutosSelecionados();
   }
 
@@ -275,12 +255,13 @@
     if (!meta) return;
     inicializado = true;
 
-    const { data, error } = await window.db.rpc("empresa_unidades_publicas", { p_empresa_id: String(empresaId) });
-    if (error || !data?.length) {
-      if (error) console.warn("Multiunidade pública:", error);
+    try {
+      unidades = await window.DeliveryAPI.restauranteUnidadesPublicas(empresaId);
+    } catch (error) {
+      console.warn("Multiunidade pública:", error);
       return;
     }
-    unidades = data;
+    if (!unidades.length) return;
 
     const solicitada = params.get("unidade");
     const metaCarrinhoAtual = metaCarrinho();
