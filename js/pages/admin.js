@@ -88,66 +88,31 @@ function registrarCompatibilidade(recurso) {
 }
 
 async function consultarEmpresasAdmin() {
-    const seletores = [
-        "id,usuario_id,nome,email,telefone,cnpj,descricao,categoria,taxa_entrega,pedido_minimo,tempo_estimado_min,tempo_estimado_max,publicado,status,created_at,excluida_em",
-        "id,usuario_id,nome,email,telefone,cnpj,descricao,categoria,taxa_entrega,pedido_minimo,tempo_estimado_min,tempo_estimado_max,publicado,status,created_at",
-        "id,usuario_id,nome,email,telefone,cnpj,descricao,categoria,taxa_entrega,pedido_minimo,publicado,status,created_at",
-        "id,usuario_id,nome,email,telefone,cnpj,publicado,status,created_at"
-    ];
-    let resposta;
-    for (const colunas of seletores) {
-        let consulta = db.from("empresas").select(colunas).order("created_at", { ascending: false });
-        if (colunas.includes("excluida_em")) consulta = consulta.is("excluida_em", null);
-        resposta = await consulta;
-        if (!resposta.error) return resposta;
-        if (!recursoNaoMigrado(resposta.error)) return resposta;
-        registrarCompatibilidade("cadastro completo de restaurantes");
-    }
-    return resposta;
+    try { const snapshot = await window.DeliveryAPI.adminDashboard(); return { data: snapshot?.empresas || [], error: null }; }
+    catch (error) { return { data: [], error }; }
 }
 
 async function consultarPedidosAdmin() {
-    const seletores = [
-        "id,numero,usuario_id,empresa_id,empresa_nome,cliente_nome,cliente_telefone,status,total,pagamento_status,pagamento_modalidade,agendado_para,created_at,updated_at",
-        "id,numero,usuario_id,empresa_id,empresa_nome,cliente_nome,cliente_telefone,status,total,pagamento_status,pagamento_modalidade,created_at,updated_at",
-        "id,numero,empresa_id,status,total,pagamento_status,created_at,updated_at",
-        "id,numero,empresa_id,status,total,created_at,updated_at"
-    ];
-    let resposta;
-    for (const colunas of seletores) {
-        resposta = await db.from("pedidos").select(colunas).order("created_at", { ascending: false }).limit(5000);
-        if (!resposta.error) {
-            resposta.data = (resposta.data || []).map((pedido) => ({ pagamento_status: "pendente", pagamento_modalidade: "na_entrega", ...pedido }));
-            return resposta;
-        }
-        if (!recursoNaoMigrado(resposta.error)) return resposta;
-        registrarCompatibilidade("pedidos avançados");
-    }
-    return resposta;
+    try {
+        const snapshot = await window.DeliveryAPI.adminDashboard();
+        const data = (snapshot?.pedidos || []).map((pedido) => ({ pagamento_status: "pendente", pagamento_modalidade: "na_entrega", ...pedido }));
+        return { data, error: null };
+    } catch (error) { return { data: [], error }; }
 }
 
 async function consultarCuponsAdmin() {
-    const seletores = [
-        "id,empresa_id,codigo,tipo,valor,pedido_minimo,ativo,usos,limite_usos,primeiro_pedido,inicio,fim,max_desconto,limite_por_usuario,created_at",
-        "id,empresa_id,codigo,tipo,valor,pedido_minimo,ativo,usos,limite_usos,primeiro_pedido,inicio,fim,created_at",
-        "id,codigo,desconto,ativo,validade,created_at"
-    ];
-    let resposta;
-    for (const colunas of seletores) {
-        resposta = await db.from("cupons").select(colunas).order("created_at", { ascending: false });
-        if (!resposta.error) {
-            resposta.data = (resposta.data || []).map((cupom) => ({
-                empresa_id: null, tipo: "fixo", valor: cupom.desconto || 0, pedido_minimo: 0,
-                usos: 0, limite_usos: null, primeiro_pedido: false, inicio: cupom.created_at,
-                fim: cupom.validade || null, max_desconto: null, limite_por_usuario: 1, ...cupom
-            }));
-            return resposta;
-        }
-        if (!recursoNaoMigrado(resposta.error)) return resposta;
-        registrarCompatibilidade("cupons avançados");
-    }
-    return resposta;
+    try {
+        const snapshot = await window.DeliveryAPI.adminDashboard();
+        const data = (snapshot?.cupons || []).map((cupom) => ({
+            empresa_id: null, tipo: "fixo", valor: cupom.desconto || 0, pedido_minimo: 0,
+            usos: 0, limite_usos: null, primeiro_pedido: false, inicio: cupom.created_at,
+            fim: cupom.validade || null, max_desconto: null, limite_por_usuario: 1, ...cupom
+        }));
+        return { data, error: null };
+    } catch (error) { return { data: [], error }; }
 }
+
+async function consultarRecursoOpcional() { return { data: [], error: null }; }
 
 async function consultarRecursoOpcional(tabela, colunas, ordem = "created_at", limite = null) {
     let consulta = db.from(tabela).select(colunas).order(ordem, { ascending: false });
@@ -368,7 +333,7 @@ function renderizarEntregadores() {
             const aprovar = !item.aprovado;
             if (!await confirmarAcao(`${aprovar ? "Aprovar" : "Suspender"} entregador`, `${item.nome} ${aprovar ? "poderá aceitar entregas" : "perderá o acesso a novas entregas"}.`, aprovar ? "Aprovar" : "Suspender", !aprovar)) return;
             acaoBotao.disabled = true;
-            const { error } = await db.rpc("admin_definir_entregador", { p_entregador_id: item.id, p_aprovado: aprovar });
+            let error = null; try { await window.DeliveryAPI.adminAcao({ acao: "entregador", entregador_id: item.id, aprovado: aprovar }); } catch (erro) { error = erro; }
             acaoBotao.disabled = false;
             if (error) return mostrarErro("Não foi possível atualizar o entregador", error);
             item.aprovado = aprovar; item.online = false; renderizarEntregadores(); atualizarMetricasAdmin();
@@ -450,8 +415,8 @@ function renderizarRelatorio() {
 async function carregarRelatorio() {
     const dias = Number(document.getElementById("periodoRelatorio").value || 30);
     const [operacional, inteligencia] = await Promise.all([
-        db.rpc("admin_relatorio_operacional", { p_dias: dias }),
-        db.rpc("admin_relatorio_clientes_produtos", { p_dias: dias })
+        window.DeliveryAPI.adminRelatorios(dias).then((value) => ({ data: value?.operacional || null, error: null })).catch((error) => ({ data: null, error })),
+        window.DeliveryAPI.adminRelatorios(dias).then((value) => ({ data: value?.inteligencia || null, error: null })).catch((error) => ({ data: null, error }))
     ]);
     const { data, error } = operacional;
     if (recursoNaoMigrado(error, "admin_relatorio_operacional")) {
@@ -596,7 +561,7 @@ async function abrirDetalhesPedido(pedidoResumo) {
     const carregando = elemento("div", "admin-loading-inline", "Carregando detalhes do pedido...");
     abrirModal({ titulo: `Pedido #${pedidoResumo.numero || ""}`, kicker: "DETALHES DO PEDIDO", corpo: carregando, acoes: [botao("Fechar")] });
     modalAcoes.firstElementChild.addEventListener("click", () => fecharModal());
-    const { data: pedido, error } = await db.rpc("admin_obter_pedido", { p_pedido_id: pedidoResumo.id });
+    let pedido = null, error = null; try { pedido = await window.DeliveryAPI.adminDetalhePedido(pedidoResumo.id); } catch (erro) { error = erro; }
     if (error || !pedido) {
         modalCorpo.replaceChildren(elemento("div", "admin-error", recursoNaoMigrado(error, "admin_obter_pedido") ? "Execute a migração 010_admin_avancado.sql para abrir os detalhes completos." : App.mensagemErro(error || { message: "Pedido não encontrado." })));
         return;
@@ -644,7 +609,7 @@ async function abrirDetalhesPedido(pedidoResumo) {
 
 async function definirRestaurante(empresa, publicado, status, acaoBotao) {
     acaoBotao.disabled = true;
-    const { error } = await db.rpc("admin_definir_restaurante", { p_empresa_id: empresa.id, p_publicado: publicado, p_status: status });
+    let error = null; try { await window.DeliveryAPI.adminAcao({ acao: "restaurante_status", empresa_id: empresa.id, publicado, status }); } catch (erro) { error = erro; }
     acaoBotao.disabled = false;
     if (error) return mostrarErro("Não foi possível atualizar o restaurante", error);
     empresa.publicado = publicado; empresa.status = status;
@@ -671,14 +636,15 @@ function abrirFormularioRestaurante(empresa) {
     salvar.addEventListener("click", async () => {
         if (!form.reportValidity()) return;
         salvar.disabled = true;
-        const { error } = await db.rpc("admin_atualizar_restaurante", {
+        let error = null; try { await window.DeliveryAPI.adminAcao({
+            acao: "restaurante_atualizar",
             p_empresa_id: empresa.id, p_nome: nome.entrada.value, p_email: email.entrada.value,
             p_telefone: telefone.entrada.value, p_categoria: categoria.entrada.value,
             p_descricao: descricao.entrada.value, p_taxa_entrega: Number(taxa.entrada.value || 0),
             p_pedido_minimo: Number(minimo.entrada.value || 0), p_tempo_min: Number(tempoMin.entrada.value || 25),
             p_tempo_max: Number(tempoMax.entrada.value || 45), p_publicado: publicado.entrada.checked,
             p_status: status.entrada.checked
-        });
+        }); } catch (erro) { error = erro; }
         salvar.disabled = false;
         if (error) return mostrarErro(recursoNaoMigrado(error, "admin_atualizar_restaurante") ? "Execute a migração 010_admin_avancado.sql" : "Não foi possível salvar", error);
         fecharModal();
@@ -722,10 +688,9 @@ function renderizarEmpresas() {
                 excluir.textContent = textoOriginal;
                 return mostrarErro("Não foi possível apagar as imagens da loja", error);
             }
-            const { data, error } = await db.rpc("admin_excluir_restaurante", {
-                p_empresa_id: empresa.id,
-                p_nome_confirmacao: nomeConfirmacao
-            });
+            let data = null, error = null; try { data = await window.DeliveryAPI.adminAcao({
+                acao: "restaurante_excluir", p_empresa_id: empresa.id, p_nome_confirmacao: nomeConfirmacao
+            }); } catch (erro) { error = erro; }
             excluir.disabled = false;
             excluir.textContent = textoOriginal;
             if (error || data !== true) {
@@ -747,7 +712,7 @@ function renderizarEmpresas() {
 
 async function definirBloqueio(usuario, bloqueado, acaoBotao) {
     acaoBotao.disabled = true;
-    const { error } = await db.rpc("admin_definir_usuario_bloqueio", { p_usuario_id: usuario.id, p_bloqueado: bloqueado });
+    let error = null; try { await window.DeliveryAPI.adminAcao({ acao: "usuario_bloqueio", usuario_id: usuario.id, bloqueado }); } catch (erro) { error = erro; }
     acaoBotao.disabled = false;
     if (error) return mostrarErro("Não foi possível atualizar o usuário", error);
     usuario.bloqueado = bloqueado; renderizarUsuarios(); atualizarMetricasAdmin(); anunciar("Usuário atualizado.");
@@ -776,7 +741,7 @@ function renderizarUsuarios() {
 
 async function definirCupom(cupom, ativo, acaoBotao) {
     acaoBotao.disabled = true;
-    const { error } = await db.rpc("admin_definir_cupom", { p_cupom_id: cupom.id, p_ativo: ativo });
+    let error = null; try { await window.DeliveryAPI.adminAcao({ acao: "cupom_status", cupom_id: cupom.id, ativo }); } catch (erro) { error = erro; }
     acaoBotao.disabled = false;
     if (error) return mostrarErro("Não foi possível atualizar o cupom", error);
     cupom.ativo = ativo; renderizarCupons(); anunciar("Cupom atualizado.");
@@ -814,15 +779,16 @@ function abrirFormularioCupom(cupom = null) {
         salvar.disabled = true;
         const inicioIso = inicio.entrada.value ? new Date(inicio.entrada.value).toISOString() : new Date().toISOString();
         const fimIso = fim.entrada.value ? new Date(fim.entrada.value).toISOString() : null;
-        const { error } = await db.rpc("admin_salvar_cupom", {
-            p_codigo: codigo.entrada.value, p_tipo: tipo.entrada.value, p_valor: Number(valor.entrada.value || 0),
-            p_empresa_id: escopo.entrada.value || null, p_pedido_minimo: Number(pedidoMinimo.entrada.value || 0),
-            p_limite_usos: limiteUsos.entrada.value ? Number(limiteUsos.entrada.value) : null,
-            p_primeiro_pedido: primeiroPedido.entrada.checked, p_inicio: inicioIso, p_fim: fimIso,
-            p_max_desconto: maxDesconto.entrada.value ? Number(maxDesconto.entrada.value) : null,
-            p_limite_por_usuario: Number(limiteUsuario.entrada.value || 1), p_cupom_id: cupom?.id || null,
-            p_ativo: ativo.entrada.checked
-        });
+        let error = null; try { await window.DeliveryAPI.adminAcao({
+            acao: "cupom_salvar",
+            codigo: codigo.entrada.value, tipo: tipo.entrada.value, valor: Number(valor.entrada.value || 0),
+            empresa_id: escopo.entrada.value || null, pedido_minimo: Number(pedidoMinimo.entrada.value || 0),
+            limite_usos: limiteUsos.entrada.value ? Number(limiteUsos.entrada.value) : null,
+            primeiro_pedido: primeiroPedido.entrada.checked, inicio: inicioIso, fim: fimIso,
+            max_desconto: maxDesconto.entrada.value ? Number(maxDesconto.entrada.value) : null,
+            limite_por_usuario: Number(limiteUsuario.entrada.value || 1), cupom_id: cupom?.id || null,
+            ativo: ativo.entrada.checked
+        }); } catch (erro) { error = erro; }
         salvar.disabled = false;
         if (error) return mostrarErro(recursoNaoMigrado(error, "admin_salvar_cupom") ? "Execute a migração 010_admin_avancado.sql" : "Não foi possível salvar o cupom", error);
         fecharModal(); await carregarDadosAdmin();
@@ -833,7 +799,7 @@ function abrirFormularioCupom(cupom = null) {
 
 async function excluirCupom(cupom) {
     if (!await confirmarAcao("Excluir cupom", `O cupom ${cupom.codigo} será removido permanentemente. Pedidos anteriores continuarão preservados.`, "Excluir permanentemente", true)) return;
-    const { error } = await db.rpc("admin_excluir_cupom", { p_cupom_id: cupom.id });
+    let error = null; try { await window.DeliveryAPI.adminAcao({ acao: "cupom_excluir", cupom_id: cupom.id }); } catch (erro) { error = erro; }
     if (error) return mostrarErro(recursoNaoMigrado(error, "admin_excluir_cupom") ? "Execute a migração 010_admin_avancado.sql" : "Não foi possível excluir o cupom", error);
     adminCupons = adminCupons.filter((item) => item.id !== cupom.id); renderizarCupons();
     window.AppToast?.("Cupom excluído", `${cupom.codigo} foi removido.`, "success");
@@ -863,15 +829,14 @@ async function carregarDadosAdmin() {
     if (carregandoDados) return;
     carregandoDados = true;
     try {
-        const [resEmpresas, resUsuarios, resPedidos, resCupons, resEntregadores, resLogs, resAuditoria] = await Promise.all([
-            consultarEmpresasAdmin(),
-            db.from("usuarios").select("id,nome,sobrenome,telefone,avatar_url,bloqueado,created_at").order("created_at", { ascending: false }),
-            consultarPedidosAdmin(),
-            consultarCuponsAdmin(),
-            consultarRecursoOpcional("entregadores", "*"),
-            consultarRecursoOpcional("app_logs", "nivel,contexto,mensagem,pagina,created_at", "created_at", 50),
-            consultarRecursoOpcional("admin_auditoria", "acao,alvo_id,detalhes,created_at", "created_at", 30)
-        ]);
+        const snapshot = await window.DeliveryAPI.adminDashboard();
+        const resEmpresas = { data: snapshot?.empresas || [], error: null };
+        const resUsuarios = { data: snapshot?.usuarios || [], error: null };
+        const resPedidos = { data: (snapshot?.pedidos || []).map((pedido) => ({ pagamento_status: "pendente", pagamento_modalidade: "na_entrega", ...pedido })), error: null };
+        const resCupons = { data: snapshot?.cupons || [], error: null };
+        const resEntregadores = { data: snapshot?.entregadores || [], error: null };
+        const resLogs = { data: snapshot?.logs || [], error: null };
+        const resAuditoria = { data: snapshot?.auditoria || [], error: null };
         const erro = [resEmpresas, resUsuarios, resPedidos, resCupons, resEntregadores, resLogs, resAuditoria].find((resposta) => resposta.error)?.error;
         if (erro) throw erro;
         adminEmpresas = resEmpresas.data || [];
@@ -982,7 +947,7 @@ async function iniciarAdmin() {
     aplicarTamanhoFonte(localStorage.getItem("admin_font_size") || "normal");
     const { data: { user } } = await db.auth.getUser();
     if (!user) { localStorage.setItem("redirect", "admin.html"); location.replace("login.html"); return; }
-    const { data: permitido, error } = await db.rpc("usuario_eh_admin");
+    let permitido = false, error = null; try { permitido = (await window.DeliveryAPI.request("/v1/admin/dashboard")) !== null; } catch (erro) { error = erro; }
     if (error || permitido !== true) { alert("Esta conta não possui acesso administrativo."); location.replace("perfil.html"); return; }
     try {
         await carregarDadosAdmin();
