@@ -50,6 +50,9 @@
     try {
       const coords = await obterLocalizacao();
       const meta = App.lerJSON("empresaAtual", null);
+      const unidades = await window.DeliveryAPI.request(`/v1/empresa/unidades?empresa_id=${encodeURIComponent(String(meta?.empresa_id || ""))}`);
+      const data = (Array.isArray(unidades) ? unidades : []).find((item) => String(item.id) === String(id));
+      if (!data) throw new Error("Unidade não encontrada.");
       await window.DeliveryAPI.request("/v1/empresa/unidades", {
         method: "POST",
         body: JSON.stringify({
