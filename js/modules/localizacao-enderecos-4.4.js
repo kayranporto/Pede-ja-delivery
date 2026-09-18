@@ -58,7 +58,7 @@
       const user = auth?.user;
       if (!user) return;
       const data = await window.DeliveryAPI.meusEnderecos();
-      if (error) return;
+      if (!Array.isArray(data)) return;
 
       const cards = [...lista.querySelectorAll(".item-card")];
       cards.forEach((card) => {
