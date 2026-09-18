@@ -215,6 +215,18 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
                 const data = await apiRequest("/v1/entregador/ganhos?" + params);
                 return Array.isArray(data) ? data : [];
             },
+            async empresaImportacaoCatalogo(unidadeId) { return apiRequest("/v1/empresa/importacao/catalogo?unidade_id=" + encodeURIComponent(String(unidadeId))); },
+            async importarProdutosCSV(payload) { return apiRequest("/v1/empresa/importacao", { method: "POST", body: JSON.stringify(payload || {}) }); },
+            async empresaPedidoEventos(empresaId) { const data = await apiRequest("/v1/empresa/pedido-eventos?empresa_id=" + encodeURIComponent(String(empresaId))); return Array.isArray(data) ? data : []; },
+            async disponibilidadeUnidade(empresaId, unidadeId, quando = new Date().toISOString()) { return apiRequest("/v1/empresa/unidade/disponibilidade", { method: "POST", body: JSON.stringify({ empresa_id: String(empresaId), unidade_id: String(unidadeId), quando }) }); },
+            async empresaCancelarPedido(pedidoId, motivo) { return apiRequest("/v1/empresa/pedido/cancelar", { method: "POST", body: JSON.stringify({ pedido_id: String(pedidoId), motivo: motivo || "" }) }); },
+            async empresaDecidirCancelamento(pedidoId, aprovar, observacao = null) { return apiRequest("/v1/empresa/pedido/cancelamento", { method: "POST", body: JSON.stringify({ pedido_id: String(pedidoId), aprovar: aprovar === true, observacao }) }); },
+            async empresaPagamentoOffline(pedidoId) { return apiRequest("/v1/empresa/pagamento-offline", { method: "POST", body: JSON.stringify({ pedido_id: String(pedidoId) }) }); },
+            async empresaOperadorPedidos(empresaId, limite = 100) { const data = await apiRequest("/v1/empresa/pedidos?empresa_id=" + encodeURIComponent(String(empresaId)) + "&limite=" + encodeURIComponent(String(Math.min(Number(limite) || 100, 200)))); return Array.isArray(data) ? data : []; },
+            async empresaRelatorioFinanceiroAcesso(empresaId, dias = 30) { return apiRequest("/v1/empresa/relatorios/financeiro-acesso?empresa_id=" + encodeURIComponent(String(empresaId)) + "&dias=" + encodeURIComponent(String(dias))); },
+            async restauranteUnidadesPublicas(empresaId) { const data = await apiRequest("/v1/restaurantes/" + encodeURIComponent(String(empresaId)) + "/unidades"); return Array.isArray(data) ? data : []; },
+            async empresaAtualizarOperacaoPedido(pedidoId, acao, preparo = null, observacao = null) { return apiRequest("/v1/empresa/pedidos/" + encodeURIComponent(String(pedidoId)) + "/operacao", { method: "POST", body: JSON.stringify({ acao, preparo_estimado: preparo, observacao }) }); },
+            async marcarNotificacoesLidas(ids) { return apiRequest("/v1/me/notificacoes/lidas", { method: "POST", body: JSON.stringify({ ids: Array.isArray(ids) ? ids.map(String) : [] }) }); },
             async adminPlanos() {
                 const data = await apiRequest("/v1/admin/planos");
                 return Array.isArray(data) ? data : [];
