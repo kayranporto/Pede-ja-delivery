@@ -40,28 +40,25 @@ test("unidade principal não pode ser desativada pela interface", () => {
 
 test("restaurante público carrega somente catálogo da unidade escolhida", () => {
   const source = read("js/modules/restaurante-unidades-4.3.js");
-  assert.match(source, /rpc\("empresa_unidades_publicas"/);
-  assert.match(source, /from\("categorias"\)[\s\S]{0,240}eq\("unidade_id", unidadeAtiva\.id\)/);
-  assert.match(source, /from\("produtos"\)[\s\S]{0,240}eq\("unidade_id", unidadeAtiva\.id\)/);
+  assert.match(source, /DeliveryAPI\.restauranteUnidadesPublicas/);
+  assert.match(source, /DeliveryAPI\.cardapio/);
+  assert.doesNotMatch(source, /window\.db\.(?:from|rpc)/);
   assert.match(source, /unidade_id: String\(unidade\.id\)/);
   assert.match(source, /Trocar e limpar carrinho/);
 });
 
 test("status público acompanha a unidade selecionada", () => {
   const source = read("js/modules/restaurante-status-unidade-4.3.js");
-  assert.match(source, /empresa_disponibilidade_unidade/);
+  assert.match(source, /DeliveryAPI\.disponibilidadeUnidade/);
   assert.match(source, /unidade_aberta: aberto/);
   assert.match(source, /empresa-carregada/);
 });
 
 test("checkout roteia cálculo, disponibilidade e criação pela unidade", () => {
   const source = read("js/modules/checkout-unidade-4.3.js");
-  assert.match(source, /nome === "calcular_entrega_empresa"/);
-  assert.match(source, /calcular_entrega_unidade/);
-  assert.match(source, /nome === "empresa_disponibilidade"/);
-  assert.match(source, /empresa_disponibilidade_unidade/);
-  assert.match(source, /nome === "criar_pedido_operacional"/);
-  assert.match(source, /criar_pedido_operacional_unidade/);
+  assert.match(source, /DeliveryAPI/);
+  assert.match(source, /unidade_id/);
+  assert.doesNotMatch(source, /window\.db\.rpc/);
   assert.match(source, /p_unidade_id: String\(meta\.unidade_id\)/);
 });
 
