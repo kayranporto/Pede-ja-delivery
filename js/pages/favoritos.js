@@ -86,9 +86,7 @@ function renderizar(lista) {
         return;
     }
 
-    const { data, error } = await window.db.from("empresas_catalogo").select("id,nome,descricao,logo,status").in("id", ids);
-    if (error) {
-        console.error("Erro ao carregar favoritos:", error);
+    if (!window.DeliveryAPI) {
         container.replaceChildren();
         const aviso = document.createElement("div");
         aviso.className = "empty";
@@ -97,6 +95,16 @@ function renderizar(lista) {
         return;
     }
 
-    const mapa = new Map((data || []).map((empresa) => [String(empresa.id), empresa]));
-    renderizar(ids.map((id) => mapa.get(id)).filter(Boolean));
+    try {
+        const data = await window.DeliveryAPI.restaurantes({ ids });
+        const mapa = new Map((data || []).map((empresa) => [String(empresa.id), empresa]));
+        renderizar(ids.map((id) => mapa.get(id)).filter(Boolean));
+    } catch (erro) {
+        console.error("Erro ao carregar favoritos:", erro);
+        container.replaceChildren();
+        const aviso = document.createElement("div");
+        aviso.className = "empty";
+        aviso.textContent = "Não foi possível carregar seus favoritos agora.";
+        container.append(aviso);
+    }
 })();
