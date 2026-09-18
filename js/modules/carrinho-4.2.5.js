@@ -254,18 +254,12 @@
         sincronizacao = (async () => {
             const ids = [...new Set(itens.map((item) => String(item.id)).filter(Boolean))];
             const adicionaisIds = [...new Set(itens.flatMap((item) => (item.adicionais || []).map((adicional) => String(adicional.id))))];
-            const [produtosRes, variantesRes, adicionaisRes] = await Promise.all([
-                window.db.from("produtos").select("id,nome,imagem,preco,promocao,disponivel").in("id", ids),
-                window.db.from("produto_variantes").select("id,produto_id,nome,preco,promocao,ativo").in("produto_id", ids),
-                adicionaisIds.length ? window.db.from("adicionais").select("id,nome,preco,ativo").in("id", adicionaisIds) : Promise.resolve({ data: [], error: null }),
-            ]);
-            if (produtosRes.error) throw produtosRes.error;
-            if (variantesRes.error) throw variantesRes.error;
-            if (adicionaisRes.error) throw adicionaisRes.error;
-
-            const produtos = new Map((produtosRes.data || []).map((produto) => [String(produto.id), produto]));
-            const variantes = new Map((variantesRes.data || []).map((variante) => [String(variante.id), variante]));
-            const adicionais = new Map((adicionaisRes.data || []).map((adicional) => [String(adicional.id), adicional]));
+            const empresaId = lerMeta()?.empresa_id;
+            if (!empresaId) return { indisponiveis: 0, precosAlterados: 0 };
+            const menu = await window.DeliveryAPI.cardapio(empresaId);
+            const produtos = new Map((menu?.produtos || []).map((produto) => [String(produto.id), { ...produto, disponivel: true }]));
+            const variantes = new Map((menu?.produtos || []).flatMap((produto) => (produto.variantes || []).map((variante) => [String(variante.id), variante])));
+            const adicionais = new Map((menu?.grupos_adicionais || []).flatMap((grupo) => (grupo.adicionais || []).map((adicional) => [String(adicional.id), adicional])));
             let indisponiveis = 0;
             let precosAlterados = 0;
             estadoCatalogo.clear();
