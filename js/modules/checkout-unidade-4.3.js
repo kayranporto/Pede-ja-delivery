@@ -1,73 +1,10 @@
 "use strict";
 
 (() => {
-  if (!/checkout\.html$/i.test(location.pathname) || !window.db?.rpc) return;
-
-  const originalRpc = window.db.rpc.bind(window.db);
-  let instalado = false;
-
-  function metaCarrinho() {
-    return window.CartStore?.meta?.() || App.lerJSON("carrinhoMeta", null) || null;
-  }
-
-  async function resolverEnderecoId() {
-    try {
-      const { data: { user }, error: authError } = await window.db.auth.getUser();
-      if (authError || !user) return "";
-      const enderecos = await window.DeliveryAPI.meusEnderecos();
-      const data = Array.isArray(enderecos) ? enderecos[0] : null;
-      if (!data?.id) return "";
-      return String(data.id);
-    } catch {
-      return "";
-    }
-  }
-
-  function instalarRoteamento() {
-    if (instalado) return;
-    instalado = true;
-    window.db.rpc = function rpcComUnidade(nome, parametros = {}, opcoes) {
-      const meta = metaCarrinho();
-      if (!meta?.unidade_id) return originalRpc(nome, parametros, opcoes);
-
-      if (nome === "calcular_entrega_empresa") {
-        return (async () => {
-          const enderecoId = await resolverEnderecoId();
-          if (enderecoId) {
-            return originalRpc("calcular_entrega_unidade_endereco", {
-              p_empresa_id: String(parametros.p_empresa_id || meta.empresa_id || ""),
-              p_unidade_id: String(meta.unidade_id),
-              p_endereco_id: enderecoId,
-              p_quando: new Date().toISOString()
-            }, opcoes);
-          }
-          return originalRpc("calcular_entrega_unidade", {
-            ...parametros,
-            p_unidade_id: String(meta.unidade_id)
-          }, opcoes);
-        })();
-      }
-
-      if (nome === "empresa_disponibilidade") {
-        return originalRpc("empresa_disponibilidade_unidade", {
-          ...parametros,
-          p_unidade_id: String(meta.unidade_id)
-        }, opcoes);
-      }
-
-      if (nome === "criar_pedido_operacional") {
-        return originalRpc("criar_pedido_operacional_unidade", {
-          ...parametros,
-          p_unidade_id: String(meta.unidade_id)
-        }, opcoes);
-      }
-
-      return originalRpc(nome, parametros, opcoes);
-    };
-  }
+  if (!/checkout\.html$/i.test(location.pathname)) return;
 
   function mostrarUnidade() {
-    const meta = metaCarrinho();
+    const meta = window.CartStore?.meta?.() || App.lerJSON("carrinhoMeta", null) || null;
     if (!meta?.unidade_id || !meta?.unidade_nome || document.getElementById("checkoutUnidade43")) return;
     const alvo = document.querySelector(".checkout-flow");
     if (!alvo) return;
@@ -85,6 +22,5 @@
     alvo.prepend(aviso);
   }
 
-  instalarRoteamento();
   mostrarUnidade();
 })();
