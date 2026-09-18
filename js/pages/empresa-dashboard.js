@@ -608,19 +608,11 @@ function renderizarCategorias() {
         remover.addEventListener("click", async () => {
             if (!confirm(`Remover a categoria “${categoria.nome}”? Os produtos ficarão sem categoria.`)) return;
             remover.disabled = true;
-            const { error: erroProdutos } = await window.db.from("produtos")
-                .update({ categoria_id: null })
-                .eq("empresa_id", empresa.id)
-                .eq("categoria_id", categoria.id);
-            if (erroProdutos) {
+            try {
+                await window.DeliveryAPI.empresaPainelAcao({ acao: "categoria_remover", empresa_id: String(empresa.id), id: categoria.id });
+            } catch (error) {
                 remover.disabled = false;
-                alert(`Não foi possível desvincular os produtos: ${erroProdutos.message}`);
-                return;
-            }
-            const { error } = await window.db.from("categorias").delete().eq("id", categoria.id);
-            if (error) {
-                remover.disabled = false;
-                alert(`Não foi possível remover a categoria: ${error.message}`);
+                alert(`Não foi possível remover a categoria: ${App.mensagemErro(error)}`);
                 return;
             }
             categorias = categorias.filter((item) => String(item.id) !== String(categoria.id));
@@ -678,13 +670,15 @@ function renderizarProdutos() {
         checkbox.addEventListener("change", async () => {
             const anterior = !checkbox.checked;
             checkbox.disabled = true;
-            const { error } = await window.db.from("produtos").update({ disponivel: checkbox.checked }).eq("id", produto.id);
-            checkbox.disabled = false;
-            if (error) {
+            try {
+                await window.DeliveryAPI.empresaPainelAcao({ acao: "produto_disponibilidade", empresa_id: String(empresa.id), id: produto.id, disponivel: checkbox.checked });
+            } catch (error) {
+                checkbox.disabled = false;
                 checkbox.checked = anterior;
-                alert(`Não foi possível atualizar o produto: ${error.message}`);
+                alert(`Não foi possível atualizar o produto: ${App.mensagemErro(error)}`);
                 return;
             }
+            checkbox.disabled = false;
             produto.disponivel = checkbox.checked;
         });
         disponibilidade.append(checkbox);
@@ -704,19 +698,11 @@ function renderizarProdutos() {
         excluir.addEventListener("click", async () => {
             if (!confirm(`Excluir o produto “${produto.nome}”?`)) return;
             excluir.disabled = true;
-            const [{ error: erroVinculos }, { error: erroVariantes }] = await Promise.all([
-                window.db.from("produto_grupos").delete().eq("produto_id", produto.id),
-                window.db.from("produto_variantes").delete().eq("produto_id", produto.id)
-            ]);
-            if (erroVinculos || erroVariantes) {
+            try {
+                await window.DeliveryAPI.empresaPainelAcao({ acao: "produto_remover", empresa_id: String(empresa.id), id: produto.id });
+            } catch (error) {
                 excluir.disabled = false;
-                alert(`Não foi possível remover as dependências do produto: ${App.mensagemErro(erroVinculos || erroVariantes)}`);
-                return;
-            }
-            const { error } = await window.db.from("produtos").delete().eq("id", produto.id);
-            if (error) {
-                excluir.disabled = false;
-                alert(`Não foi possível excluir o produto: ${error.message}`);
+                alert(`Não foi possível excluir o produto: ${App.mensagemErro(error)}`);
                 return;
             }
             produtos = produtos.filter((item) => String(item.id) !== String(produto.id));
@@ -795,9 +781,13 @@ function renderizarVariantes() {
         const alternar = criarElemento("button", "btn-mini secundario", variante.ativo === false ? "Ativar" : "Pausar"); alternar.type = "button";
         alternar.addEventListener("click", async () => {
             alternar.disabled = true;
-            const { error } = await window.db.from("produto_variantes").update({ ativo: variante.ativo === false }).eq("id", variante.id);
+            try {
+                await window.DeliveryAPI.empresaPainelAcao({ acao: "variante_toggle", empresa_id: String(empresa.id), id: variante.id, ativo: variante.ativo === false });
+            } catch (error) {
+                alternar.disabled = false;
+                return alert(`Não foi possível atualizar a variação: ${App.mensagemErro(error)}`);
+            }
             alternar.disabled = false;
-            if (error) return alert(`Não foi possível atualizar a variação: ${App.mensagemErro(error)}`);
             variante.ativo = variante.ativo === false;
             renderizarVariantes(); renderizarProdutos();
         });
@@ -805,8 +795,12 @@ function renderizarVariantes() {
         excluir.addEventListener("click", async () => {
             if (!confirm(`Excluir a variação “${variante.nome}”?`)) return;
             excluir.disabled = true;
-            const { error } = await window.db.from("produto_variantes").delete().eq("id", variante.id);
-            if (error) { excluir.disabled = false; return alert(`Não foi possível excluir: ${App.mensagemErro(error)}`); }
+            try {
+                await window.DeliveryAPI.empresaPainelAcao({ acao: "variante_remover", empresa_id: String(empresa.id), id: variante.id });
+            } catch (error) {
+                excluir.disabled = false;
+                return alert(`Não foi possível excluir: ${App.mensagemErro(error)}`);
+            }
             variantesProduto = variantesProduto.filter((item) => String(item.id) !== String(variante.id));
             renderizarVariantes(); renderizarProdutos();
         });
@@ -836,28 +830,34 @@ function renderizarEstoqueMovimentos() {
 
 async function carregarEstoqueMovimentos() {
     if (!empresa) return;
-    const { data, error } = await window.db.from("estoque_movimentos").select("*").eq("empresa_id", String(empresa.id)).order("created_at", { ascending: false }).limit(50);
-    if (error) {
+    try {
+        const dados = await window.DeliveryAPI.empresaPainel(empresa.id);
+        estoqueMovimentos = dados?.estoque_movimentos || [];
+    } catch (error) {
         console.warn("Histórico de estoque indisponível:", error);
         estoqueMovimentos = [];
-    } else estoqueMovimentos = data || [];
+    }
     renderizarEstoqueMovimentos();
 }
 
 async function removerAdicional(adicional) {
     if (!confirm(`Remover o adicional “${adicional.nome}”?`)) return false;
-    const { error } = await window.db.from("adicionais").delete().eq("id", adicional.id);
-    if (error) return alert(`Não foi possível remover o adicional: ${error.message}`), false;
+    try {
+        await window.DeliveryAPI.empresaPainelAcao({ acao: "adicional_remover", empresa_id: String(empresa.id), id: adicional.id });
+    } catch (error) {
+        return alert(`Não foi possível remover o adicional: ${App.mensagemErro(error)}`), false;
+    }
     adicionaisEmpresa = adicionaisEmpresa.filter((item) => String(item.id) !== String(adicional.id));
     renderizarGruposAdicionais();
     return true;
 }
 
 async function desvincularProdutoGrupo(vinculo) {
-    const { error } = await window.db.from("produto_grupos").delete()
-        .eq("produto_id", vinculo.produto_id)
-        .eq("grupo_id", vinculo.grupo_id);
-    if (error) return alert(`Não foi possível desvincular: ${error.message}`);
+    try {
+        await window.DeliveryAPI.empresaPainelAcao({ acao: "produto_grupo_remover", empresa_id: String(empresa.id), produto_id: vinculo.produto_id, grupo_id: vinculo.grupo_id });
+    } catch (error) {
+        return alert(`Não foi possível desvincular: ${App.mensagemErro(error)}`);
+    }
     vinculosProdutoGrupo = vinculosProdutoGrupo.filter((item) => !(
         String(item.produto_id) === String(vinculo.produto_id)
         && String(item.grupo_id) === String(vinculo.grupo_id)
@@ -867,12 +867,11 @@ async function desvincularProdutoGrupo(vinculo) {
 
 async function removerGrupoAdicional(grupo) {
     if (!confirm(`Remover o grupo “${grupo.nome}” e todas as opções dele?`)) return;
-    const { error: erroVinculos } = await window.db.from("produto_grupos").delete().eq("grupo_id", grupo.id);
-    if (erroVinculos) return alert(`Não foi possível remover os vínculos: ${erroVinculos.message}`);
-    const { error: erroAdicionais } = await window.db.from("adicionais").delete().eq("grupo_id", grupo.id);
-    if (erroAdicionais) return alert(`Não foi possível remover as opções: ${erroAdicionais.message}`);
-    const { error } = await window.db.from("grupos_adicionais").delete().eq("id", grupo.id);
-    if (error) return alert(`Não foi possível remover o grupo: ${error.message}`);
+    try {
+        await window.DeliveryAPI.empresaPainelAcao({ acao: "grupo_remover", empresa_id: String(empresa.id), id: grupo.id });
+    } catch (error) {
+        return alert(`Não foi possível remover o grupo: ${App.mensagemErro(error)}`);
+    }
     gruposAdicionais = gruposAdicionais.filter((item) => String(item.id) !== String(grupo.id));
     adicionaisEmpresa = adicionaisEmpresa.filter((item) => String(item.grupo_id) !== String(grupo.id));
     vinculosProdutoGrupo = vinculosProdutoGrupo.filter((item) => String(item.grupo_id) !== String(grupo.id));
