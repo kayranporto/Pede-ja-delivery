@@ -25,13 +25,9 @@
         if (!empresaId || !unidadeId) return informar("Aguarde o painel carregar e selecione uma unidade.", true);
         informar("Conferindo produtos e categorias...");
         try {
-            const [resProdutos, resCategorias] = await Promise.all([
-                window.db.from("produtos").select("nome,categoria_id").eq("empresa_id", empresaId).eq("unidade_id", unidadeId),
-                window.db.from("categorias").select("id,nome").eq("empresa_id", empresaId).eq("unidade_id", unidadeId)
-            ]);
+            const catalogo = await window.DeliveryAPI.empresaImportacaoCatalogo(unidadeId);
             if (atual !== revisao || unidadeAtual() !== unidadeId) return;
-            if (resProdutos.error || resCategorias.error) throw resProdutos.error || resCategorias.error;
-            resultado = window.ProductImport.validarCSV(texto, resProdutos.data || [], resCategorias.data || []);
+            resultado = window.ProductImport.validarCSV(texto, catalogo?.produtos || [], catalogo?.categorias || []);
             contexto = { empresaId: String(empresaId), unidadeId };
             const tabela = document.createElement("table");
             const head = document.createElement("thead");
@@ -84,10 +80,9 @@
         unidade.disabled = true; arquivo.disabled = true;
         App.definirCarregando(botao, true, "Importando...");
         try {
-            const { data, error } = await window.db.rpc("importar_produtos_csv", {
-                p_empresa_id: contexto.empresaId, p_unidade_id: contexto.unidadeId, p_produtos: resultado.produtos
+            const data = await window.DeliveryAPI.importarProdutosCSV({
+                empresa_id: contexto.empresaId, unidade_id: contexto.unidadeId, produtos: resultado.produtos
             });
-            if (error) throw error;
             limpar(); texto = ""; arquivo.value = "";
             informar(`${data} produto(s) importado(s) com sucesso.`);
             // Recarrega a unidade pelo fluxo já existente do painel.
