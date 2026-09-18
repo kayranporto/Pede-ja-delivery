@@ -68,14 +68,17 @@ async function companyOperation(ctx: RouteContext) {
   const unidadeId = str(ctx.url.searchParams.get("unidade_id"), 100);
   if (!empresaId) return error(ctx.request, 400, "parametro_invalido", "empresa_id é obrigatório.");
   const unitFilter = (q: any) => unidadeId ? q.eq("unidade_id", unidadeId) : q;
-  const [horariosQ, pausasQ, regioesQ, cancelamentosQ, fidelidadeQ] = await Promise.all([
+  const [horariosQ, pausasQ, regioesQ, cancelamentosQ, fidelidadeQ, pedidosQ, produtosQ, categoriasQ] = await Promise.all([
     unitFilter(ctx.db.from("empresa_horarios").select("*").eq("empresa_id", empresaId).order("dia_semana")),
     unitFilter(ctx.db.from("empresa_pausas").select("*").eq("empresa_id", empresaId).order("inicio")),
     unitFilter(ctx.db.from("empresa_regioes").select("*").eq("empresa_id", empresaId).order("bairro")),
     ctx.db.from("pedidos").select("id,numero,cliente_nome,cancelamento_motivo,cancelamento_status,pagamento_modalidade,pagamento_status,total").eq("empresa_id", empresaId).eq("cancelamento_status", "solicitado").order("cancelamento_solicitado_em"),
-    ctx.db.from("programa_fidelidade_empresa").select("*").eq("empresa_id", empresaId).maybeSingle()
+    ctx.db.from("programa_fidelidade_empresa").select("*").eq("empresa_id", empresaId).maybeSingle(),
+    unidadeId ? ctx.db.from("pedidos").select("*, pedido_itens(*)").eq("empresa_id", empresaId).eq("unidade_id", unidadeId).order("created_at", { ascending: false }) : Promise.resolve({ data: [], error: null }),
+    unidadeId ? ctx.db.from("produtos").select("*").eq("empresa_id", empresaId).eq("unidade_id", unidadeId).order("nome") : Promise.resolve({ data: [], error: null }),
+    unidadeId ? ctx.db.from("categorias").select("*").eq("empresa_id", empresaId).eq("unidade_id", unidadeId).order("ordem").order("nome") : Promise.resolve({ data: [], error: null })
   ]);
-  const primeiroErro = horariosQ.error || pausasQ.error || regioesQ.error || cancelamentosQ.error || fidelidadeQ.error;
+  const primeiroErro = horariosQ.error || pausasQ.error || regioesQ.error || cancelamentosQ.error || fidelidadeQ.error || pedidosQ.error || produtosQ.error || categoriasQ.error;
   if (primeiroErro) return error(ctx.request, 502, "operacao_indisponivel", "Não foi possível carregar a operação da empresa.");
   let disponibilidade = null;
   try {
@@ -96,6 +99,9 @@ async function companyOperation(ctx: RouteContext) {
     regioes: regioesQ.data || [],
     cancelamentos: cancelamentosQ.data || [],
     fidelidade: fidelidadeQ.data || {},
+    pedidos: pedidosQ.data || [],
+    produtos: produtosQ.data || [],
+    categorias: categoriasQ.data || [],
     disponibilidade,
     financeiro: financeiro.data || null
   }});
@@ -130,6 +136,29 @@ async function companyOperationAction(ctx: RouteContext, body: Json) {
   if (!acao || !empresaId) return error(ctx.request, 400, "parametro_invalido", "acao e empresa_id são obrigatórios.");
   if (unidadeId && !uuid(unidadeId)) return error(ctx.request, 400, "parametro_invalido", "unidade_id inválido.");
   const unit = (q: any) => q.eq("empresa_id", empresaId).eq("unidade_id", unidadeId);
+  if (acao === "categoria_criar") {
+    if (!unidadeId) return error(ctx.request,400,"parametro_invalido","unidade_id é obrigatório.");
+    const nome = str(body.nome,120);
+    if (!nome) return error(ctx.request,400,"parametro_invalido","nome é obrigatório.");
+    const { data, error: e } = await unit(ctx.db.from("categorias").insert({ empresa_id: empresaId, unidade_id: unidadeId, nome, ordem: Number(body.ordem ?? 0), ativo: true }).select("*").single());
+    return e ? error(ctx.request,e.code==="23505"?409:400,e.code==="23505"?"categoria_duplicada":"categoria_recusada",e.message) : response(ctx.request,{data});
+  }
+  if (acao === "produto_salvar") {
+    if (!unidadeId) return error(ctx.request,400,"parametro_invalido","unidade_id é obrigatório.");
+    const id = str(body.id,100);
+    const payload = {
+      empresa_id: empresaId, unidade_id: unidadeId, categoria_id: str(body.categoria_id,100) || null,
+      nome: str(body.nome,160), descricao: str(body.descricao,2000) || null, imagem: str(body.imagem,1000) || null,
+      preco: Number(body.preco), promocao: body.promocao === null || body.promocao === undefined || body.promocao === "" ? null : Number(body.promocao),
+      disponivel: body.disponivel !== false, controle_estoque: body.controle_estoque === true,
+      estoque: Number(body.estoque || 0), estoque_minimo: Number(body.estoque_minimo || 0)
+    };
+    if (!payload.nome || !Number.isFinite(payload.preco) || payload.preco < 0 || !Number.isInteger(payload.estoque) || payload.estoque < 0 || !Number.isInteger(payload.estoque_minimo) || payload.estoque_minimo < 0) return error(ctx.request,400,"produto_invalido","Dados do produto inválidos.");
+    if (payload.promocao !== null && (!Number.isFinite(payload.promocao) || payload.promocao <= 0 || payload.promocao >= payload.preco)) return error(ctx.request,400,"produto_invalido","Preço promocional inválido.");
+    const q = id ? unit(ctx.db.from("produtos").update(payload).eq("id",id).select("*").single()) : ctx.db.from("produtos").insert(payload).select("*").single();
+    const { data, error: e } = await q;
+    return e ? error(ctx.request,400,"produto_recusado",e.message) : response(ctx.request,{data});
+  }
   if (acao === "horarios") {
     if (!unidadeId || !Array.isArray(body.registros)) return error(ctx.request, 400, "parametro_invalido", "unidade_id e registros são obrigatórios.");
     const registros = body.registros.map((r: any) => ({ empresa_id: empresaId, unidade_id: unidadeId, dia_semana: int(r.dia_semana, 0, 6), ativo: r.ativo !== false, abre: str(r.abre, 8), fecha: str(r.fecha, 8), updated_at: new Date().toISOString() }));
