@@ -22,9 +22,17 @@
     }
 
     async function rpc(nome, parametros = {}) {
-        const resposta = await window.db.rpc(nome, parametros);
-        if (resposta.error) throw resposta.error;
-        return resposta.data;
+        const rotas = {
+            empresa_atualizar_operacao_pedido: () => window.DeliveryAPI.empresaAtualizarOperacaoPedido(parametros.p_pedido_id, parametros.p_acao, parametros.p_preparo_estimado, parametros.p_observacao),
+            empresa_marcar_pagamento_offline: () => window.DeliveryAPI.empresaPagamentoOffline(parametros.p_pedido_id),
+            empresa_cancelar_pedido_nao_pago: () => window.DeliveryAPI.empresaCancelarPedido(parametros.p_pedido_id, parametros.p_motivo),
+            empresa_decidir_cancelamento: () => window.DeliveryAPI.empresaDecidirCancelamento(parametros.p_pedido_id, parametros.p_aprovar, parametros.p_observacao),
+            empresa_operador_pedidos: () => window.DeliveryAPI.empresaOperadorPedidos(parametros.p_empresa_id, parametros.p_limite),
+            empresa_relatorio_financeiro_acesso: () => window.DeliveryAPI.empresaRelatorioFinanceiroAcesso(parametros.p_empresa_id, parametros.p_dias),
+            empresa_meu_acesso: () => window.DeliveryAPI.request("/v1/empresa/acesso")
+        };
+        if (!rotas[nome]) throw new Error("Operação não disponível pela API: " + nome);
+        return rotas[nome]();
     }
 
     function textoStatus(pedido) {
