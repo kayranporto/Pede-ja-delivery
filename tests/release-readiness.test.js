@@ -275,6 +275,17 @@ test("reembolso usa endpoint do provedor e chave de idempotência", () => {
     assert.doesNotMatch(admin, /admin_atualizar_reembolso/);
 });
 
+test("frontend de negócio não acessa tabelas ou RPCs diretamente", () => {
+    for (const file of walk(path.join(root, "js")).filter((item) => item.endsWith(".js") && !item.endsWith(path.join("core", "supabase.js")))) {
+        const relative = path.relative(root, file);
+        const source = fs.readFileSync(file, "utf8");
+        assert.doesNotMatch(source, /(?:window\.)?db\.(?:from|rpc)\s*\(/, relative);
+    }
+    const admin = read("html/admin.html");
+    assert.doesNotMatch(admin, /href=["']#entregadores["']/i);
+    assert.doesNotMatch(admin, /id=["']entregadores["']/i);
+});
+
 test("frontend não contém segredos de servidor", () => {
     const publicFiles = walk(root).filter((file) => !file.includes(`${path.sep}supabase${path.sep}`) && !file.includes(`${path.sep}tests${path.sep}`) && !file.includes(`${path.sep}scripts${path.sep}`) && !file.includes(`${path.sep}.github${path.sep}`) && !file.endsWith(".md"));
     for (const file of publicFiles) {
