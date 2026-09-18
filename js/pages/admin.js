@@ -112,17 +112,6 @@ async function consultarCuponsAdmin() {
     } catch (error) { return { data: [], error }; }
 }
 
-async function consultarRecursoOpcional() { return { data: [], error: null }; }
-
-async function consultarRecursoOpcional(tabela, colunas, ordem = "created_at", limite = null) {
-    let consulta = db.from(tabela).select(colunas).order(ordem, { ascending: false });
-    if (limite) consulta = consulta.limit(limite);
-    const resposta = await consulta;
-    if (!recursoNaoMigrado(resposta.error, tabela)) return resposta;
-    registrarCompatibilidade(tabela);
-    return { data: [], error: null };
-}
-
 function relatorioAdminLocal(dias) {
     const inicio = Date.now() - dias * 86400000;
     const pedidos = adminPedidos.filter((pedido) => new Date(pedido.created_at).getTime() >= inicio);
