@@ -57,10 +57,9 @@
     if (!id || !card || carregando) return;
     carregando = true;
     try {
-      const { data, error } = await window.db.from("empresa_unidades")
-        .select("id,nome,latitude,longitude,frete_distancia_ativo,frete_taxa_base,frete_valor_km,frete_raio_max_km")
-        .eq("id", id)
-        .maybeSingle();
+      const meta = App.lerJSON("empresaAtual", null);
+      const unidades = await window.DeliveryAPI.request(`/v1/empresa/unidades?empresa_id=${encodeURIComponent(String(meta?.empresa_id || ""))}`);
+      const data = (Array.isArray(unidades) ? unidades : []).find((item) => String(item.id) === String(id));
       if (error || !data) {
         card.hidden = true;
         return;
