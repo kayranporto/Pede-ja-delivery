@@ -271,3 +271,111 @@ html,body{max-width:100%;overflow-x:hidden}
 }
 @media(max-width:760px){#pedidos .admin-table-wrap{display:none}}
 @media(min-width:761px){.admin-order-cards{display:none!important}}
+
+/* Tabelas administrativas como cards no mobile */
+@media(max-width:760px){
+  #restaurantes .admin-table-wrap,
+  #usuarios .admin-table-wrap,
+  #cupons .admin-table-wrap{
+    display:block;
+    overflow:visible;
+    border:0;
+    background:transparent;
+    box-shadow:none;
+  }
+  #restaurantes .admin-table-wrap table,
+  #usuarios .admin-table-wrap table,
+  #cupons .admin-table-wrap table{
+    min-width:0;
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0 10px;
+  }
+  #restaurantes .admin-table-wrap thead,
+  #usuarios .admin-table-wrap thead,
+  #cupons .admin-table-wrap thead{display:none}
+  #restaurantes .admin-table-wrap tbody,
+  #usuarios .admin-table-wrap tbody,
+  #cupons .admin-table-wrap tbody{display:grid;gap:10px}
+  #restaurantes .admin-table-wrap tr,
+  #usuarios .admin-table-wrap tr,
+  #cupons .admin-table-wrap tr{
+    display:grid;
+    gap:0;
+    padding:13px;
+    border:1px solid rgba(21,25,37,.07);
+    border-radius:17px;
+    background:#fff;
+    box-shadow:0 7px 20px rgba(21,25,37,.055);
+  }
+  #restaurantes .admin-table-wrap td,
+  #usuarios .admin-table-wrap td,
+  #cupons .admin-table-wrap td{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    min-width:0;
+    padding:7px 0;
+    border:0;
+    font-size:10px;
+  }
+  #restaurantes .admin-table-wrap td:first-child,
+  #usuarios .admin-table-wrap td:first-child,
+  #cupons .admin-table-wrap td:first-child{
+    padding-top:0;
+    padding-bottom:11px;
+    margin-bottom:3px;
+    border-bottom:1px solid #eef0f3;
+  }
+  #restaurantes .admin-table-wrap td:not(:first-child)::before,
+  #usuarios .admin-table-wrap td:not(:first-child)::before,
+  #cupons .admin-table-wrap td:not(:first-child)::before{
+    color:var(--muted);
+    font-size:9px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  #restaurantes .admin-table-wrap td:nth-child(2)::before{content:"Contato"}
+  #restaurantes .admin-table-wrap td:nth-child(3)::before{content:"Cadastro"}
+  #restaurantes .admin-table-wrap td:nth-child(4)::before{content:"Publicação"}
+  #restaurantes .admin-table-wrap td:nth-child(5)::before{content:"Operação"}
+  #restaurantes .admin-table-wrap td:nth-child(6)::before{content:"Ações"}
+  #usuarios .admin-table-wrap td:nth-child(2)::before{content:"Telefone"}
+  #usuarios .admin-table-wrap td:nth-child(3)::before{content:"Cadastro"}
+  #usuarios .admin-table-wrap td:nth-child(4)::before{content:"Status"}
+  #usuarios .admin-table-wrap td:nth-child(5)::before{content:"Ação"}
+  #cupons .admin-table-wrap td:nth-child(2)::before{content:"Escopo"}
+  #cupons .admin-table-wrap td:nth-child(3)::before{content:"Benefício"}
+  #cupons .admin-table-wrap td:nth-child(4)::before{content:"Uso"}
+  #cupons .admin-table-wrap td:nth-child(5)::before{content:"Validade"}
+  #cupons .admin-table-wrap td:nth-child(6)::before{content:"Status"}
+  #cupons .admin-table-wrap td:nth-child(7)::before{content:"Ações"}
+  #restaurantes .admin-table-wrap td:nth-child(1)::before,
+  #usuarios .admin-table-wrap td:nth-child(1)::before,
+  #cupons .admin-table-wrap td:nth-child(1)::before{display:none}
+  #restaurantes .admin-table-wrap td strong,
+  #usuarios .admin-table-wrap td strong{font-size:12px}
+  #restaurantes .admin-table-wrap td small,
+  #usuarios .admin-table-wrap td small{font-size:9px}
+  #restaurantes .admin-table-wrap .admin-action-group,
+  #cupons .admin-table-wrap .admin-action-group{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%}
+  #restaurantes .admin-table-wrap .admin-action-group button,
+  #usuarios .admin-table-wrap td:last-child button,
+  #cupons .admin-table-wrap .admin-action-group button{
+    min-height:40px;
+    border-radius:10px;
+    margin:0;
+  }
+  #restaurantes .admin-table-wrap td:last-child,
+  #cupons .admin-table-wrap td:last-child{
+    display:block;
+    padding-bottom:0;
+  }
+  #restaurantes .admin-table-wrap td:last-child::before,
+  #cupons .admin-table-wrap td:last-child::before{display:block;margin-bottom:7px}
+  #usuarios .admin-table-wrap td:last-child{display:block;padding-bottom:0}
+  #usuarios .admin-table-wrap td:last-child::before{display:block;margin-bottom:7px}
+  #usuarios .admin-table-wrap td:last-child button{width:100%}
+}
