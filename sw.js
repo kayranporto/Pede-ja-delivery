@@ -1,6 +1,6 @@
 "use strict";
 
-const VERSION = "4.4.6";
+const VERSION = "4.4.7";
 const CACHE = `multi-delivery-v${VERSION}`;
 const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}`;
 const SHELL = [
@@ -62,14 +62,16 @@ async function redePrimeiro(request, cacheName, fallback) {
 }
 
 async function cachePrimeiro(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-  const response = await fetch(request);
-  if (response.ok) {
-    const cache = await caches.open(DYNAMIC_CACHE);
-    await cache.put(request, response.clone());
+  try {
+    const response = await fetch(request, { cache: "no-store" });
+    if (response.ok) {
+      const cache = await caches.open(DYNAMIC_CACHE);
+      await cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    return (await caches.match(request)) || Response.error();
   }
-  return response;
 }
 
 self.addEventListener("fetch", (event) => {
