@@ -379,3 +379,53 @@ html,body{max-width:100%;overflow-x:hidden}
   #usuarios .admin-table-wrap td:last-child::before{display:block;margin-bottom:7px}
   #usuarios .admin-table-wrap td:last-child button{width:100%}
 }
+
+/* Correção definitiva: tabelas administrativas nunca devem criar rolagem horizontal no celular */
+@media (max-width:760px){
+  #restaurantes .admin-table-wrap,
+  #usuarios .admin-table-wrap,
+  #cupons .admin-table-wrap{
+    width:100% !important;
+    max-width:100% !important;
+    overflow:visible !important;
+  }
+  #restaurantes .admin-table-wrap table,
+  #usuarios .admin-table-wrap table,
+  #cupons .admin-table-wrap table{
+    display:block !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    overflow:visible !important;
+  }
+  #restaurantes .admin-table-wrap tbody,
+  #usuarios .admin-table-wrap tbody,
+  #cupons .admin-table-wrap tbody{
+    display:grid !important;
+    width:100% !important;
+    gap:10px !important;
+  }
+  #restaurantes .admin-table-wrap tr,
+  #usuarios .admin-table-wrap tr,
+  #cupons .admin-table-wrap tr{
+    display:grid !important;
+    width:100% !important;
+    box-sizing:border-box !important;
+    grid-template-columns:minmax(0,1fr) !important;
+    overflow:hidden !important;
+  }
+  #restaurantes .admin-table-wrap td,
+  #usuarios .admin-table-wrap td,
+  #cupons .admin-table-wrap td{
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    overflow-wrap:anywhere !important;
+  }
+  #restaurantes .admin-table-wrap td > *,
+  #usuarios .admin-table-wrap td > *,
+  #cupons .admin-table-wrap td > *{
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+}
