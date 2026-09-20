@@ -71,7 +71,7 @@ test("painel mantém pedidos ativos visíveis fora do período selecionado", () 
     const js = read("js/pages/empresa-dashboard.js");
     assert.match(js, /const ativo = !\["entregue", "cancelado"\]\.includes\(pedido\.status\)/);
     assert.match(js, /const noPeriodo = ativo \|\| filtroPeriodo === "todos"/);
-    assert.match(html, /empresa-dashboard\.js\?v=4\.4\.6\.1/);
+    assert.match(html, /empresa-dashboard\.js\?v=4\.4\.7\.1/);
 });
 
 test("aviso de aprovação respeita o estado publicado da loja", () => {
@@ -81,7 +81,7 @@ test("aviso de aprovação respeita o estado publicado da loja", () => {
     assert.match(html, /id="publicacaoAviso" hidden/);
     assert.match(js, /publicacaoAviso"\)\.hidden = empresa\.publicado === true/);
     assert.match(css, /\.approval-alert\[hidden\]\{display:none!important\}/);
-    assert.match(html, /empresa-dashboard\.css\?v=4\.4\.6/);
+    assert.match(html, /empresa-dashboard\.css\?v=4\.4\.7/);
 });
 
 test("estoque mantém trilha de auditoria protegida", () => {
@@ -93,9 +93,9 @@ test("estoque mantém trilha de auditoria protegida", () => {
     assert.match(read("empresa-dashboard.html"), /id="estoqueMovimentos"/);
 });
 
-test("release 4.4.6 está versionado de forma consistente", () => {
-    assert.equal(JSON.parse(read("package.json")).version, "4.4.6");
-    assert.equal(JSON.parse(read("package-lock.json")).version, "4.4.6");
-    assert.match(read("sw.js"), /const VERSION = "4\.4\.6"/);
-    assert.match(read("js/core/site-enhancements.js"), /sw\.js\?v=4\.4\.6/);
+test("release 4.4.7 está versionado de forma consistente", () => {
+    assert.equal(JSON.parse(read("package.json")).version, "4.4.7");
+    assert.equal(JSON.parse(read("package-lock.json")).version, "4.4.7");
+    assert.match(read("sw.js"), /const VERSION = "4\.4\.7"/);
+    assert.match(read("js/core/site-enhancements.js"), /sw\.js\?v=4\.4\.7/);
 });
