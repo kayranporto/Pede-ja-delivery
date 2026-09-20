@@ -30,3 +30,16 @@ html[data-theme="dark"] .home-page{background:#0f1218}html[data-theme="dark"] .h
 @media(max-width:860px){.home-page .banner-content{grid-template-columns:1fr}.home-page .hero-visual{min-height:330px}.home-page .hero-visual:before{inset:4% 8%}}
 @media(max-width:640px){.home-page .banner{padding-top:10px}.home-page .banner-content{padding:28px 18px 20px;border-radius:22px}.home-page .banner h1{font-size:clamp(2.5rem,11vw,3.4rem)}.home-page .hero-visual{min-height:270px}.home-page .hero-visual img{width:90%;max-height:240px}.home-page .hero-deal-card{left:2%;width:78%;bottom:4%;padding:12px}.home-page .hero-rating-card{top:2%;right:2%;padding:10px}.home-page .hero-time-card{right:1%;bottom:-2%;padding:9px}.home-page .hero-stats{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:10px}.home-page .hero-stats>div{padding:12px 10px}.home-page .hero-stats strong{font-size:.84rem}.home-page .hero-stats strong+span{font-size:.58rem}.home-page .cupom-box{border-radius:20px}.home-page .partner-cta{border-radius:22px}}
 @media(prefers-reduced-motion:reduce){.home-page .location,.home-page .cart,.home-page .categoria,.home-page .card,.home-page .produto-destaque,.home-page .step-card,.home-page .beneficio{transition:none}}
+
+
+/* Auditoria mobile — cabeçalho home 4.4.7 */
+@media(max-width:640px){
+  .home-page #menuUsuario{order:4;width:100%;max-width:100%;margin-left:0;display:flex;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding-bottom:2px}
+  .home-page #menuUsuario::-webkit-scrollbar{display:none}
+  .home-page #menuUsuario>a{flex:0 0 auto}
+  .home-page #menuUsuario .btn-admin,.home-page #menuUsuario .btn-driver,.home-page #menuUsuario .btn-primary{min-height:42px;max-width:none;white-space:nowrap}
+  .home-page .location{order:5;width:100%;max-width:100%;flex:0 0 100%;min-width:0;box-sizing:border-box}
+  .home-page .search{order:6;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+  .home-page .location-content{min-width:0}
+  .home-page .location strong{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
