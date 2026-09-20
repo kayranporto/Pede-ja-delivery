@@ -429,3 +429,38 @@ html,body{max-width:100%;overflow-x:hidden}
     max-width:100% !important;
   }
 }
+
+
+/* Auditoria mobile — contenção final de largura (4.4.7) */
+@media (max-width:760px){
+  html,body{width:100%;max-width:100%;overflow-x:clip}
+  .admin-shell,.admin-header,.admin-main,.admin-view,.admin-section,.admin-card,.admin-hero,.admin-overview-grid,.admin-section-title,.admin-title-actions,.admin-filters,.admin-table-wrap{min-width:0;max-width:100%}
+  .admin-view,.admin-section,.admin-card{overflow:hidden}
+  .admin-table-wrap{overflow:visible!important}
+  .admin-table-wrap:after{display:none}
+  #restaurantes .admin-table-wrap table,
+  #usuarios .admin-table-wrap table,
+  #cupons .admin-table-wrap table{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important}
+  #restaurantes .admin-table-wrap tbody,
+  #usuarios .admin-table-wrap tbody,
+  #cupons .admin-table-wrap tbody{width:100%!important;max-width:100%!important}
+  #restaurantes .admin-table-wrap tr,
+  #usuarios .admin-table-wrap tr,
+  #cupons .admin-table-wrap tr{width:100%!important;max-width:100%!important;min-width:0!important}
+  #restaurantes .admin-table-wrap td,
+  #usuarios .admin-table-wrap td,
+  #cupons .admin-table-wrap td{min-width:0!important;max-width:100%!important;overflow:hidden!important}
+  #restaurantes .admin-table-wrap td > *,
+  #usuarios .admin-table-wrap td > *,
+  #cupons .admin-table-wrap td > *{min-width:0!important;max-width:100%!important;overflow-wrap:anywhere}
+  #restaurantes .admin-table-wrap .admin-action-group,
+  #cupons .admin-table-wrap .admin-action-group{min-width:0!important}
+  #restaurantes .admin-table-wrap .admin-action-group button,
+  #cupons .admin-table-wrap .admin-action-group button{min-width:0!important;max-width:100%}
+}
+@media (max-width:480px){
+  .admin-main{padding-left:8px;padding-right:8px}
+  .admin-section-title,.admin-title-actions{width:100%}
+  .admin-section-title>div{min-width:0;max-width:100%}
+  .admin-search{max-width:100%}
+}
