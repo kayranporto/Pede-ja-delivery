@@ -77,3 +77,172 @@ html,body{max-width:100%;overflow-x:hidden}
   .admin-filters input,.admin-filters select{font-size:13px}
   .admin-table-wrap table{min-width:720px}
 }
+
+
+/* Redesign visual mobile — 4.1 */
+:root{
+  --admin-radius:20px;
+  --admin-shadow:0 10px 30px rgba(21,25,37,.07);
+}
+.admin-main{gap:24px}
+.admin-card,.admin-section{border:1px solid rgba(21,25,37,.055);box-shadow:var(--admin-shadow)}
+.admin-metrics article{
+  border:1px solid rgba(21,25,37,.06);
+  box-shadow:0 8px 22px rgba(21,25,37,.055);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.admin-metrics article:hover{transform:translateY(-3px);box-shadow:0 15px 32px rgba(21,25,37,.09)}
+.admin-section-title{margin-bottom:2px}
+.admin-section-title h2{letter-spacing:-.025em}
+.admin-filters{box-shadow:0 5px 18px rgba(21,25,37,.035)}
+.admin-table-wrap{box-shadow:0 6px 20px rgba(21,25,37,.04)}
+.admin-table-wrap thead th{white-space:nowrap}
+.admin-pagination button{min-height:38px}
+
+@media(max-width:760px){
+  body{background:#f3f4f7}
+  .admin-sidebar{
+    width:min(292px,88vw);
+    padding:18px 14px;
+    box-shadow:20px 0 50px rgba(0,0,0,.2);
+  }
+  .admin-brand{padding:4px 8px 20px}
+  .admin-brand>span{width:40px;height:40px}
+  .admin-sidebar nav{gap:4px}
+  .admin-sidebar nav a{min-height:48px;padding:12px 13px;border-radius:13px}
+  .admin-sidebar-footer{padding:13px}
+  .admin-header{
+    background:rgba(255,255,255,.96);
+    box-shadow:0 3px 18px rgba(21,25,37,.045);
+  }
+  .admin-header>div:first-of-type{min-width:0}
+  .admin-header h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .admin-header-actions button{border-radius:12px}
+  .admin-main{max-width:none;padding:14px 10px 55px;gap:14px}
+  .admin-hero{
+    min-height:0;
+    padding:22px 18px;
+    border-radius:22px;
+    box-shadow:0 14px 34px rgba(21,25,37,.12);
+  }
+  .admin-hero h2{font-size:25px;line-height:1.12;letter-spacing:-.025em}
+  .admin-hero p{font-size:12px;line-height:1.55}
+  .admin-health{
+    min-width:0;
+    width:100%;
+    margin-top:17px;
+    padding:12px 13px;
+    border-radius:14px;
+  }
+  .admin-metrics{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:9px;
+  }
+  .admin-metrics article{
+    min-height:112px;
+    padding:14px;
+    border-radius:17px;
+  }
+  .admin-metrics article>span{
+    width:34px;
+    height:34px;
+    margin-bottom:9px;
+  }
+  .admin-metrics strong{font-size:22px}
+  .admin-metrics small{font-size:10px}
+  .admin-metrics p{font-size:9px;line-height:1.35}
+  .admin-overview-grid{grid-template-columns:1fr;gap:12px}
+  .admin-card{border-radius:20px;padding:17px 14px}
+  .admin-card .admin-section-title{padding:0 2px}
+  .admin-chart{height:215px}
+  .recent-order{padding:10px 4px}
+  .admin-section.admin-view{
+    padding:17px 12px;
+    border-radius:20px;
+    box-shadow:0 8px 25px rgba(21,25,37,.055);
+  }
+  .admin-section-title{gap:11px}
+  .admin-section-title h2{font-size:21px}
+  .admin-section-title p{font-size:11px}
+  .admin-section-title>.admin-primary-button{order:2}
+  .admin-title-actions{gap:8px}
+  .admin-search{
+    min-height:44px;
+    border-radius:12px;
+  }
+  .admin-filters{
+    margin-top:13px;
+    padding:11px;
+    border-radius:16px;
+    background:#fafbfc;
+  }
+  .admin-filters label span{font-size:9px}
+  .admin-filters input,.admin-filters select{
+    min-height:46px;
+    border-radius:12px;
+    font-size:13px;
+  }
+  .admin-filters>button{
+    min-height:44px;
+    border-radius:12px;
+  }
+  .admin-table-wrap{
+    border:1px solid var(--line);
+    border-radius:15px;
+    background:#fff;
+    box-shadow:none;
+  }
+  .admin-table-wrap:after{
+    font-size:9px;
+    padding:9px 12px;
+  }
+  .admin-pagination{
+    font-size:10px;
+  }
+  .report-actions{
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .report-actions select,.report-actions button{
+    min-height:44px;
+    border-radius:12px;
+  }
+  .report-grid{gap:9px}
+  .report-grid article{padding:14px;border-radius:15px}
+  .admin-report-detail>div{padding:15px;border-radius:15px}
+  .ops-health-grid{gap:9px}
+  .ops-health-grid article{padding:14px;border-radius:15px}
+  .ops-admin-grid{gap:11px}
+  .ops-admin-grid>article{padding:15px;border-radius:16px}
+}
+
+@media(max-width:480px){
+  .admin-header{min-height:64px;padding:9px 10px}
+  .admin-menu{width:40px;height:40px;flex-basis:40px}
+  .admin-header h1{font-size:16px}
+  .admin-header-actions button{min-height:40px;padding:9px 12px}
+  .admin-main{padding:11px 8px 45px}
+  .admin-hero{padding:20px 16px;border-radius:19px}
+  .admin-hero h2{font-size:23px}
+  .admin-hero p{font-size:11px}
+  .admin-health{margin-top:15px}
+  .admin-metrics{gap:8px}
+  .admin-metrics article{min-height:105px;padding:12px;border-radius:15px}
+  .admin-metrics article>span{width:31px;height:31px}
+  .admin-metrics strong{font-size:20px}
+  .admin-card{padding:15px 12px;border-radius:17px}
+  .admin-section.admin-view{padding:15px 10px;border-radius:17px}
+  .admin-section-title h2{font-size:19px}
+  .admin-section-title p{font-size:10px}
+  .admin-primary-button,.admin-secondary-button{min-height:45px;border-radius:12px}
+  .admin-filters{padding:10px;border-radius:14px}
+  .admin-table-wrap{border-radius:13px}
+  .admin-pagination>div{gap:5px}
+  .admin-pagination button{padding:8px 9px}
+  .report-grid{grid-template-columns:1fr 1fr}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .admin-metrics article,.admin-primary-button,.admin-secondary-button,.admin-action{transition:none}
+}
