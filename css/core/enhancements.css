@@ -51,3 +51,14 @@ body:has(.orders-header),body:has(.support-header){background:var(--cream)!impor
 .pwa-update{z-index:10002!important}
 @media(max-width:700px){.notification-center{right:10px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}.notification-panel{right:-1px;width:calc(100vw - 20px);max-height:65vh}.install-app{right:10px;bottom:calc(70px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 20px)}}
 @media(display-mode:standalone){.install-app{display:none!important}}
+
+
+/* Auditoria mobile — toasts e conectividade 4.4.7 */
+.app-toast-region{position:fixed!important;top:calc(78px + env(safe-area-inset-top,0px))!important;right:16px!important;left:auto!important;width:min(390px,calc(100vw - 32px))!important;max-width:none!important;display:grid!important;gap:10px!important;pointer-events:none!important;z-index:10003!important}
+.app-toast{width:100%!important;min-width:0!important;box-sizing:border-box!important;display:flex!important;align-items:flex-start!important;gap:10px!important;pointer-events:auto!important;overflow:hidden!important}
+.app-toast-copy{min-width:0!important;overflow-wrap:anywhere!important}.app-toast-close{flex:0 0 auto!important;min-width:32px!important;min-height:32px!important}
+.network-banner{position:fixed!important;left:50%!important;top:calc(12px + env(safe-area-inset-top,0px))!important;transform:translate(-50%,-12px)!important;width:min(520px,calc(100vw - 32px))!important;box-sizing:border-box!important;padding:11px 14px!important;border-radius:14px!important;text-align:center!important;box-shadow:0 14px 34px rgba(17,24,39,.18)!important;z-index:10004!important;pointer-events:none!important;opacity:0!important;visibility:hidden!important;transition:opacity .2s ease,transform .2s ease,visibility .2s ease!important}
+.network-banner.show{opacity:1!important;visibility:visible!important;transform:translate(-50%,0)!important}.network-banner.online{background:#168821!important;color:#fff!important}
+@media(max-width:700px){.app-toast-region{top:auto!important;right:10px!important;bottom:calc(78px + env(safe-area-inset-bottom,0px))!important;left:10px!important;width:auto!important}.app-toast{max-width:none!important}.network-banner{top:calc(10px + env(safe-area-inset-top,0px))!important;width:calc(100vw - 20px)!important}.pwa-update{position:fixed!important;left:10px!important;right:10px!important;bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;max-width:none!important;box-sizing:border-box!important}}
+@media(max-width:380px){.app-toast-region{bottom:calc(70px + env(safe-area-inset-bottom,0px))!important}.app-toast{padding:10px!important}.app-toast-icon{width:28px!important;height:28px!important;flex-basis:28px!important}}
+@media(display-mode:standalone){.app-toast-region{bottom:calc(78px + env(safe-area-inset-bottom,0px))!important}}
