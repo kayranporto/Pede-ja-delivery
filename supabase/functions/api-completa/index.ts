@@ -460,7 +460,7 @@ async function adminDashboard(ctx: RouteContext) {
     ctx.db.from("app_logs").select("nivel,contexto,mensagem,pagina,created_at").order("created_at",{ascending:false}).limit(50),
     ctx.db.from("admin_auditoria").select("acao,alvo_id,detalhes,created_at").order("created_at",{ascending:false}).limit(30)
   ]);
-  const first = [empresas,usuarios,pedidos,cupons,entregadores,logs,auditoria].find((r) => r.error);
+  const first = [empresas,usuarios,pedidos,cupons,logs,auditoria].find((r) => r.error);
   if (first) return error(ctx.request,502,"admin_dados_indisponiveis","Não foi possível carregar os dados administrativos.");
   return response(ctx.request,{data:{empresas:empresas.data||[],usuarios:usuarios.data||[],pedidos:pedidos.data||[],cupons:cupons.data||[],logs:logs.data||[],auditoria:auditoria.data||[]}},200,"no-store");
 }
