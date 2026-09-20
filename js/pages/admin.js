@@ -958,6 +958,18 @@ async function iniciarAdmin() {
 
 const adminSidebar = document.getElementById("adminSidebar");
 const adminOverlay = document.getElementById("adminOverlay");
+const adminMenuButton = document.getElementById("adminMenu");
+
+function definirMenuAdmin(aberto) {
+    adminSidebar?.classList.toggle("open", aberto);
+    adminOverlay?.classList.toggle("show", aberto);
+    adminMenuButton?.setAttribute("aria-expanded", String(aberto));
+    document.body.classList.toggle("admin-menu-open", aberto);
+}
+
+function fecharMenuAdmin() {
+    definirMenuAdmin(false);
+}
 
 function ouvir(id, evento, handler) {
     const alvo = document.getElementById(id);
@@ -988,8 +1000,21 @@ ouvir("novoCupom", "click", () => abrirFormularioCupom());
 ouvir("periodoRelatorio", "change", carregarRelatorio);
 ouvir("exportarRelatorio", "click", exportarRelatorioCsv);
 ouvir("adminFontSize", "change", ({ target }) => aplicarTamanhoFonte(target.value));
-ouvir("adminMenu", "click", () => { adminSidebar?.classList.add("open"); adminOverlay?.classList.add("show"); });
-adminOverlay?.addEventListener("click", () => { adminSidebar?.classList.remove("open"); adminOverlay?.classList.remove("show"); });
+ouvir("adminMenu", "click", () => {
+    const aberto = !adminSidebar?.classList.contains("open");
+    definirMenuAdmin(aberto);
+});
+adminOverlay?.addEventListener("click", fecharMenuAdmin);
+window.addEventListener("keydown", (evento) => {
+    if (evento.key === "Escape" && adminSidebar?.classList.contains("open")) {
+        fecharMenuAdmin();
+    }
+});
+window.addEventListener("resize", () => {
+    if (window.innerWidth > 760 && adminSidebar?.classList.contains("open")) {
+        fecharMenuAdmin();
+    }
+});
 document.querySelectorAll("[data-modal-close]").forEach((item) => item.addEventListener("click", () => fecharModal(false)));
 modal?.addEventListener("keydown", (evento) => {
     if (evento.key === "Escape") { fecharModal(false); return; }
