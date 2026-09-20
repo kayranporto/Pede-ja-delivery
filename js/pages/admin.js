@@ -7,7 +7,9 @@ let adminCupons = [];
 let adminLogs = [];
 let adminAuditoria = [];
 let adminRelatorio = null;
-let adminInteligencia = { produtos: [], clientes_recorrentes: [], seguranca: {} };\nlet adminPlanosPlataforma = [];\nlet adminAssinaturas = [];
+let adminInteligencia = { produtos: [], clientes_recorrentes: [], seguranca: {} };
+let adminPlanosPlataforma = [];
+let adminAssinaturas = [];
 let canalAdmin = null;
 let recarregarTimer = null;
 let carregandoDados = false;
@@ -388,7 +390,8 @@ function linhasCsv(pedidos) {
 }
 
 function baixarCsv(linhas, nome) {
-    const csv = linhas.map((linha) => linha.map((valor) => `"${String(valor ?? "").replaceAll('"', '""')}"`).join(";")).join("\n");
+    const csv = linhas.map((linha) => linha.map((valor) => `"${String(valor ?? "").replaceAll('"', '""')}"`).join(";")).join("
+");
     const url = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
     const link = document.createElement("a"); link.href = url; link.download = nome; link.click(); URL.revokeObjectURL(url);
 }
@@ -934,7 +937,11 @@ async function carregarDadosAdmin() {
         const resPedidos = { data: (snapshot?.pedidos || []).map((pedido) => ({ pagamento_status: "pendente", pagamento_modalidade: "na_entrega", ...pedido })), error: null };
         const resCupons = { data: snapshot?.cupons || [], error: null };
             const resLogs = { data: snapshot?.logs || [], error: null };
-        const resAuditoria = { data: snapshot?.auditoria || [], error: null };\n        let resPlanos = { data: [], error: null };\n        let resAssinaturas = { data: [], error: null };\n        try { resPlanos = { data: await window.DeliveryAPI.adminPlanos(), error: null }; } catch (error) { resPlanos = { data: [], error }; registrarCompatibilidade("planos"); }\n        try { resAssinaturas = { data: await window.DeliveryAPI.adminAssinaturas(), error: null }; } catch (error) { resAssinaturas = { data: [], error }; registrarCompatibilidade("assinaturas"); }
+        const resAuditoria = { data: snapshot?.auditoria || [], error: null };
+        let resPlanos = { data: [], error: null };
+        let resAssinaturas = { data: [], error: null };
+        try { resPlanos = { data: await window.DeliveryAPI.adminPlanos(), error: null }; } catch (error) { resPlanos = { data: [], error }; registrarCompatibilidade("planos"); }
+        try { resAssinaturas = { data: await window.DeliveryAPI.adminAssinaturas(), error: null }; } catch (error) { resAssinaturas = { data: [], error }; registrarCompatibilidade("assinaturas"); }
         const erro = [resEmpresas, resUsuarios, resPedidos, resCupons, resLogs, resAuditoria].find((resposta) => resposta.error)?.error;
         if (erro) throw erro;
         adminEmpresas = resEmpresas.data || [];
@@ -978,6 +985,7 @@ function configurarNavegacao() {
         restaurantes: "Moderação de restaurantes",
         usuarios: "Usuários da plataforma",
                 cupons: "Gestão de cupons",
+        planos: "Planos e assinaturas",
         relatorios: "Relatórios e inteligência",
         suporte: "Suporte e pendências"
     };
@@ -1039,7 +1047,10 @@ function configurarNavegacao() {
     mostrarSecaoAdmin(location.hash);
 }
 
-document.getElementById("novoPlano")?.addEventListener("click", () => abrirFormularioPlano());\ndocument.getElementById("buscaAdminAssinatura")?.addEventListener("input", renderizarPlanosAssinaturas);\n\nasync function iniciarAdmin() {
+document.getElementById("novoPlano")?.addEventListener("click", () => abrirFormularioPlano());
+document.getElementById("buscaAdminAssinatura")?.addEventListener("input", renderizarPlanosAssinaturas);
+
+async function iniciarAdmin() {
     aplicarTamanhoFonte(localStorage.getItem("admin_font_size") || "normal");
     const { data: { user } } = await db.auth.getUser();
     if (!user) { localStorage.setItem("redirect", "admin.html"); location.replace("login.html"); return; }
