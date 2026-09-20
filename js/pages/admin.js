@@ -511,10 +511,15 @@ function renderizarPedidos() {
             title.append(elemento("strong", "", `#${pedido.numero || String(pedido.id).slice(0, 8)}`), elemento("span", "", pedido.cliente_nome || "Cliente"));
             top.append(title, elemento("span", `status-pill ${classeStatusPedido(pedido.status)}`, statusLegivel(pedido.status)));
             const meta = elemento("div", "admin-order-card-meta");
+            const linhaMeta = (rotulo, valor) => {
+                const linha = elemento("div");
+                linha.append(elemento("span", "", rotulo), elemento("strong", "", valor));
+                return linha;
+            };
             meta.append(
-                elemento("div", "", `Restaurante|${nomeEmpresa(pedido.empresa_id)}`),
-                elemento("div", "", `Data|${dataHora(pedido.created_at)}`),
-                elemento("div", "", `Pagamento|${pedido.pagamento_status || "pendente"} • ${pedido.pagamento_modalidade === "online" ? "Online" : "Na entrega"}`)
+                linhaMeta("Restaurante", nomeEmpresa(pedido.empresa_id)),
+                linhaMeta("Data", dataHora(pedido.created_at)),
+                linhaMeta("Pagamento", `${pedido.pagamento_status || "pendente"} • ${pedido.pagamento_modalidade === "online" ? "Online" : "Na entrega"}`)
             );
             const footer = elemento("div", "admin-order-card-footer");
             footer.append(elemento("strong", "", App.dinheiro(pedido.total)));
