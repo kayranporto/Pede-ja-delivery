@@ -246,3 +246,28 @@ html,body{max-width:100%;overflow-x:hidden}
 @media(prefers-reduced-motion:reduce){
   .admin-metrics article,.admin-primary-button,.admin-secondary-button,.admin-action{transition:none}
 }
+
+/* Gestão de pedidos — cards mobile */
+.admin-order-cards{display:none}
+@media(max-width:760px){
+  .admin-order-cards{display:grid;gap:10px;margin-top:12px}
+  .admin-order-card{
+    padding:15px;
+    border:1px solid rgba(21,25,37,.07);
+    border-radius:17px;
+    background:#fff;
+    box-shadow:0 7px 20px rgba(21,25,37,.055);
+  }
+  .admin-order-card-top,.admin-order-card-footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .admin-order-card-title{min-width:0;display:grid;gap:3px}
+  .admin-order-card-title strong{font-size:14px}
+  .admin-order-card-title span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:10px}
+  .admin-order-card-meta{display:grid;gap:7px;margin:13px 0;padding:11px 0;border-top:1px solid #eef0f3;border-bottom:1px solid #eef0f3}
+  .admin-order-card-meta div{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:10px}
+  .admin-order-card-meta div::first-letter{color:var(--ink)}
+  .admin-order-card-footer strong{font-size:18px}
+  .admin-order-card-footer .admin-primary-button{width:auto;min-width:120px}
+  .admin-order-empty{padding:24px 12px;text-align:center;color:var(--muted);font-size:11px;background:#fff;border:1px dashed var(--line);border-radius:14px}
+}
+@media(max-width:760px){#pedidos .admin-table-wrap{display:none}}
+@media(min-width:761px){.admin-order-cards{display:none!important}}
