@@ -116,7 +116,7 @@
             existente.update().catch(() => {});
             return existente;
         }
-        return navigator.serviceWorker.register(recursoRaiz("sw.js?v=4.4.6"), { updateViaCache: "none" });
+        return navigator.serviceWorker.register(recursoRaiz("sw.js?v=4.4.7"), { updateViaCache: "none" });
     }
 
     async function registrarSubscription() {
