@@ -479,21 +479,51 @@ function classeStatusPedido(status) {
 
 function renderizarPedidos() {
     const tbody = document.getElementById("adminPedidos");
+    const cards = document.getElementById("adminPedidoCards");
     const lista = pedidosFiltrados();
     const paginas = Math.max(1, Math.ceil(lista.length / pedidosPorPagina));
     paginaPedidos = Math.min(Math.max(1, paginaPedidos), paginas);
     const inicio = (paginaPedidos - 1) * pedidosPorPagina;
     const pagina = lista.slice(inicio, inicio + pedidosPorPagina);
     tbody.replaceChildren();
-    if (!pagina.length) tbody.append(vazioTabela(7, "Nenhum pedido corresponde aos filtros."));
+    cards?.replaceChildren();
+    if (!pagina.length) {
+        tbody.append(vazioTabela(7, "Nenhum pedido corresponde aos filtros."));
+        cards?.append(elemento("div", "admin-order-empty", "Nenhum pedido corresponde aos filtros."));
+    }
     pagina.forEach((pedido) => {
         const tr = document.createElement("tr");
-        const numero = document.createElement("td"); numero.append(elemento("strong", "", `#${pedido.numero || String(pedido.id).slice(0, 8)}`), elemento("small", "", pedido.cliente_nome || "Cliente"));
-        const pagamento = document.createElement("td"); pagamento.append(elemento("span", `status-pill ${pedido.pagamento_status === "pago" ? "active" : pedido.pagamento_status === "estornado" ? "blocked" : ""}`, pedido.pagamento_status || "pendente"), elemento("small", "", pedido.pagamento_modalidade === "online" ? "Online" : "Na entrega"));
-        const acao = document.createElement("td"); const detalhes = botao("Ver detalhes", "admin-action secondary"); detalhes.addEventListener("click", () => abrirDetalhesPedido(pedido)); acao.append(detalhes);
+        const numero = document.createElement("td");
+        numero.append(elemento("strong", "", `#${pedido.numero || String(pedido.id).slice(0, 8)}`), elemento("small", "", pedido.cliente_nome || "Cliente"));
+        const pagamento = document.createElement("td");
+        pagamento.append(elemento("span", `status-pill ${pedido.pagamento_status === "pago" ? "active" : pedido.pagamento_status === "estornado" ? "blocked" : ""}`, pedido.pagamento_status || "pendente"), elemento("small", "", pedido.pagamento_modalidade === "online" ? "Online" : "Na entrega"));
+        const acao = document.createElement("td");
+        const detalhes = botao("Ver detalhes", "admin-action secondary");
+        detalhes.addEventListener("click", () => abrirDetalhesPedido(pedido));
+        acao.append(detalhes);
         tr.append(numero, elemento("td", "", nomeEmpresa(pedido.empresa_id)), elemento("td", "", dataHora(pedido.created_at)), elemento("td", "", ""), pagamento, elemento("td", "", App.dinheiro(pedido.total)), acao);
         tr.children[3].append(elemento("span", `status-pill ${classeStatusPedido(pedido.status)}`, statusLegivel(pedido.status)));
         tbody.append(tr);
+        if (cards) {
+            const card = elemento("article", "admin-order-card");
+            const top = elemento("div", "admin-order-card-top");
+            const title = elemento("div", "admin-order-card-title");
+            title.append(elemento("strong", "", `#${pedido.numero || String(pedido.id).slice(0, 8)}`), elemento("span", "", pedido.cliente_nome || "Cliente"));
+            top.append(title, elemento("span", `status-pill ${classeStatusPedido(pedido.status)}`, statusLegivel(pedido.status)));
+            const meta = elemento("div", "admin-order-card-meta");
+            meta.append(
+                elemento("div", "", `Restaurante|${nomeEmpresa(pedido.empresa_id)}`),
+                elemento("div", "", `Data|${dataHora(pedido.created_at)}`),
+                elemento("div", "", `Pagamento|${pedido.pagamento_status || "pendente"} • ${pedido.pagamento_modalidade === "online" ? "Online" : "Na entrega"}`)
+            );
+            const footer = elemento("div", "admin-order-card-footer");
+            footer.append(elemento("strong", "", App.dinheiro(pedido.total)));
+            const abrir = botao("Ver detalhes", "admin-primary-button");
+            abrir.addEventListener("click", () => abrirDetalhesPedido(pedido));
+            footer.append(abrir);
+            card.append(top, meta, footer);
+            cards.append(card);
+        }
     });
     const primeiro = lista.length ? inicio + 1 : 0;
     const ultimo = Math.min(inicio + pedidosPorPagina, lista.length);
@@ -502,7 +532,6 @@ function renderizarPedidos() {
     document.getElementById("pedidosAnterior").disabled = paginaPedidos <= 1;
     document.getElementById("pedidosProxima").disabled = paginaPedidos >= paginas;
 }
-
 function blocoDetalhe(rotulo, valor) {
     const artigo = document.createElement("article");
     artigo.append(elemento("small", "", rotulo), elemento("strong", "", valor || "—"));
