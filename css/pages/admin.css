@@ -36,3 +36,44 @@
 
 /* Confirmação reforçada para exclusão administrativa de lojas. */
 .confirm-delete-content{display:grid;gap:16px}.confirm-delete-warning{margin:0;padding:14px;color:#8f1d28;background:#fff0f1;border:1px solid #ffc9ce;border-radius:12px;font-size:11px;line-height:1.65}.confirm-delete-content .admin-form-field input{width:100%;min-height:42px;padding:9px 11px;color:var(--ink);background:#fff;border:1px solid #dfe2e8;border-radius:10px;outline:none;font-size:12px}.confirm-delete-content .admin-form-field input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(239,36,53,.1)}
+
+/* Polimento visual responsivo — 4.0 */
+html,body{max-width:100%;overflow-x:hidden}
+.admin-main,.admin-section,.admin-card,.admin-header,.admin-hero,.admin-section-title{min-width:0}
+.admin-section-title>div{min-width:0}
+.admin-section-title>div h2,.admin-section-title>div p{overflow-wrap:anywhere}
+.admin-table-wrap{-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.admin-table-wrap table{min-width:760px}
+.admin-primary-button,.admin-secondary-button,.admin-action,.admin-pagination button{transition:transform .16s ease,box-shadow .16s ease,background .16s ease}
+@media(max-width:760px){
+  .admin-header{min-height:68px;gap:10px;padding:10px 12px}
+  .admin-menu{flex:0 0 42px;width:42px;height:42px;background:#f1f3f6;color:var(--ink);font-size:20px}
+  .admin-header h1{line-height:1.15}
+  .admin-header-actions{gap:6px}
+  .admin-header-actions button{padding:10px 12px}
+  .admin-main{padding:14px 10px 50px;gap:14px}
+  .admin-section.admin-view{padding:16px 12px;border-radius:18px}
+  .admin-section-title{gap:12px}
+  .admin-section-title h2{font-size:20px;line-height:1.2}
+  .admin-section-title p{font-size:11px;line-height:1.5}
+  .admin-title-actions{align-items:stretch}
+  .admin-title-actions .admin-search{width:100%;flex:none}
+  .admin-filters{margin-top:14px;padding:12px;gap:9px;border-radius:13px}
+  .admin-filters input,.admin-filters select{min-height:44px}
+  .admin-filters>button{width:100%;min-height:42px}
+  .admin-table-wrap{margin-top:14px;border-radius:12px}
+  .admin-table-wrap:after{content:"Deslize para ver mais →";display:block;padding:8px 11px;color:var(--muted);background:#f7f8fa;border-top:1px solid var(--line);font-size:9px;text-align:right}
+  .admin-pagination{margin-top:11px;gap:10px}
+}
+@media(max-width:480px){
+  .admin-header h1{font-size:16px}
+  .admin-header-actions button{padding:10px 11px;font-size:11px}
+  .admin-section.admin-view{padding:15px 11px}
+  .admin-section-title h2{font-size:19px}
+  .admin-primary-button{min-height:44px;width:100%;font-size:12px}
+  .admin-filters{grid-template-columns:1fr}
+  .admin-filters .wide{grid-column:auto}
+  .admin-filters label span{font-size:10px}
+  .admin-filters input,.admin-filters select{font-size:13px}
+  .admin-table-wrap table{min-width:720px}
+}
