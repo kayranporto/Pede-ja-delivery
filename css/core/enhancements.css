@@ -47,7 +47,7 @@ body:has(.orders-header),body:has(.support-header){background:var(--cream)!impor
 .notification-panel>header strong{font-size:13px}.notification-panel>header button{padding:7px 9px;border:0;border-radius:8px;background:#f2f3f5;color:var(--text,#171717);font-size:9px;font-weight:700}
 .notification-list{overflow:auto}.notification-item{display:grid;gap:3px;padding:12px 15px;border-bottom:1px solid var(--border,#e7e9ee);text-decoration:none}.notification-item:hover{background:#f7f8fa}.notification-item strong{font-size:11px}.notification-item span{font-size:10px;line-height:1.4;color:var(--muted,#737373)}.notification-item small{font-size:8px;color:var(--muted,#737373)}.notification-item.read{opacity:.7}.notification-empty{margin:0;padding:28px 16px;text-align:center;color:var(--muted,#737373);font-size:11px}.notification-permission{margin:12px;padding:10px;border:0;border-radius:10px;background:#ea1d2c;color:#fff;font-size:10px;font-weight:800}.notification-permission:disabled{opacity:.55}
 .install-app{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:10000;min-height:44px;padding:11px 14px;border:0;border-radius:14px;background:#ea1d2c;color:#fff;box-shadow:0 12px 30px rgba(234,29,44,.25);font-size:11px;font-weight:800;cursor:pointer}
-.notification-center:has(.notification-panel:not([hidden])) ~ .install-app{display:none!important}
+.notification-center:has(.notification-panel:not([hidden])) ~ .install-app,.notification-center:has(.notification-panel:not([hidden])) + .install-app,body:has(.notification-panel:not([hidden])) .install-app{display:none!important}
 .pwa-update{z-index:10002!important}
 @media(max-width:700px){.notification-center{right:10px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}.notification-panel{right:-1px;width:calc(100vw - 20px);max-height:65vh}.install-app{right:10px;bottom:calc(70px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 20px)}}
 @media(display-mode:standalone){.install-app{display:none!important}}
@@ -62,3 +62,12 @@ body:has(.orders-header),body:has(.support-header){background:var(--cream)!impor
 @media(max-width:700px){.app-toast-region{top:auto!important;right:10px!important;bottom:calc(78px + env(safe-area-inset-bottom,0px))!important;left:10px!important;width:auto!important}.app-toast{max-width:none!important}.network-banner{top:calc(10px + env(safe-area-inset-top,0px))!important;width:calc(100vw - 20px)!important}.pwa-update{position:fixed!important;left:10px!important;right:10px!important;bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;max-width:none!important;box-sizing:border-box!important}}
 @media(max-width:380px){.app-toast-region{bottom:calc(70px + env(safe-area-inset-bottom,0px))!important}.app-toast{padding:10px!important}.app-toast-icon{width:28px!important;height:28px!important;flex-basis:28px!important}}
 @media(display-mode:standalone){.app-toast-region{bottom:calc(78px + env(safe-area-inset-bottom,0px))!important}}
+
+/* Auditoria de camadas fixas — 4.4.7 */
+@media(max-width:700px){
+  body:has(.install-app:not([hidden])) .app-toast-region{bottom:calc(126px + env(safe-area-inset-bottom,0px))!important}
+  body:has(.install-app:not([hidden])) .app-toast-region .app-toast{max-height:calc(100vh - 150px);overflow:auto!important}
+  body:has(.pwa-update.show) .notification-center{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+  body:has(.pwa-update.show) .install-app{display:none!important}
+}
+@media(max-width:380px){body:has(.install-app:not([hidden])) .app-toast-region{bottom:calc(116px + env(safe-area-inset-bottom,0px))!important}}
