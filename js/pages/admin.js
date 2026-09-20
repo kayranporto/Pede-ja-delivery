@@ -7,7 +7,7 @@ let adminCupons = [];
 let adminLogs = [];
 let adminAuditoria = [];
 let adminRelatorio = null;
-let adminInteligencia = { produtos: [], clientes_recorrentes: [], seguranca: {} };
+let adminInteligencia = { produtos: [], clientes_recorrentes: [], seguranca: {} };\nlet adminPlanosPlataforma = [];\nlet adminAssinaturas = [];
 let canalAdmin = null;
 let recarregarTimer = null;
 let carregandoDados = false;
@@ -811,6 +811,119 @@ function renderizarCupons() {
     });
 }
 
+function statusAssinaturaLegivel(status) {
+    return ({ trial: 'Trial', ativa: 'Ativa', inadimplente: 'Inadimplente', cancelada: 'Cancelada', expirada: 'Expirada' })[status] || String(status || '—');
+}
+
+function limitePlano(valor) {
+    return valor === null || valor === undefined || valor === '' ? 'Ilimitado' : Number(valor).toLocaleString('pt-BR');
+}
+
+function recursoPlanoLabels(recursos) {
+    const nomes = { multiunidade: 'Multiunidade', equipe: 'Equipe', operacao: 'Operação', financeiro: 'Financeiro' };
+    return Object.entries(recursos && typeof recursos === 'object' ? recursos : {}).filter(([, ativo]) => ativo === true).map(([chave]) => nomes[chave] || chave.replaceAll('_', ' '));
+}
+
+function renderizarPlanosAssinaturas() {
+    const grid = document.getElementById('adminPlanosGrid');
+    const tbody = document.getElementById('adminAssinaturas');
+    if (!grid || !tbody) return;
+    document.getElementById('adminPlanosAtivos').textContent = String(adminPlanosPlataforma.filter((plano) => plano.ativo !== false).length);
+    document.getElementById('adminAssinaturasTotal').textContent = String(adminAssinaturas.length);
+    document.getElementById('adminTrialsTotal').textContent = String(adminAssinaturas.filter((item) => item.status === 'trial').length);
+    document.getElementById('adminAssinaturasProblema').textContent = String(adminAssinaturas.filter((item) => ['inadimplente','cancelada','expirada'].includes(item.status)).length);
+    grid.replaceChildren();
+    if (!adminPlanosPlataforma.length) { grid.append(elemento('p', 'admin-loading-inline', 'Nenhum plano cadastrado.')); }
+    else {
+        adminPlanosPlataforma.forEach((plano) => {
+            const card = elemento('article', 'admin-plan-card' + (plano.ativo === false ? ' is-disabled' : ''));
+            const topo = elemento('div', 'admin-plan-card-top');
+            const titulo = elemento('div');
+            titulo.append(elemento('span', 'admin-plan-badge', plano.padrao_novos ? 'Padrão para novos' : (plano.interno ? 'Interno' : 'Comercial')));
+            titulo.append(elemento('h3', '', plano.nome || 'Plano'));
+            titulo.append(elemento('p', '', plano.descricao || 'Sem descrição cadastrada.'));
+            const preco = elemento('strong', 'admin-plan-price', plano.preco_mensal == null ? 'Sob consulta' : App.dinheiro(plano.preco_mensal) + '/mês');
+            topo.append(titulo, preco);
+            const limites = elemento('div', 'admin-plan-limits');
+            [['Unidades',plano.limite_unidades],['Produtos',plano.limite_produtos],['Funcionários',plano.limite_funcionarios],['Pedidos/mês',plano.limite_pedidos_mes]].forEach(([rotulo, valor]) => { const item=elemento('div'); item.append(elemento('small','',rotulo),elemento('strong','',limitePlano(valor))); limites.append(item); });
+            const rodape = elemento('div','admin-plan-card-footer');
+            const recursos = recursoPlanoLabels(plano.recursos);
+            rodape.append(elemento('span','admin-plan-trial', plano.trial_dias > 0 ? plano.trial_dias + ' dias de trial' : 'Sem trial'));
+            const acoes = elemento('div','admin-action-group');
+            const editar = botao('Editar','admin-action secondary'); editar.addEventListener('click', () => abrirFormularioPlano(plano));
+            acoes.append(editar); rodape.append(acoes);
+            card.append(topo,limites);
+            if (recursos.length) card.append(elemento('p','admin-plan-features',recursos.join(' • ')));
+            card.append(rodape); grid.append(card);
+        });
+    }
+    const termo = document.getElementById('buscaAdminAssinatura')?.value.trim().toLowerCase() || '';
+    const lista = adminAssinaturas.filter((item) => !termo || (String(item.empresa_nome || '') + ' ' + String(item.plano_nome || '') + ' ' + String(item.plano_slug || '') + ' ' + String(item.status || '')).toLowerCase().includes(termo));
+    tbody.replaceChildren();
+    if (!lista.length) { tbody.append(vazioTabela(7, termo ? 'Nenhuma assinatura corresponde à busca.' : 'Nenhuma assinatura encontrada.')); return; }
+    lista.forEach((item) => {
+        const tr = document.createElement('tr');
+        const status = elemento('span','status-pill ' + (['ativa','trial'].includes(item.status) ? 'active' : 'blocked'),statusAssinaturaLegivel(item.status));
+        const acao = botao('Alterar','admin-action secondary'); acao.addEventListener('click', () => abrirFormularioAssinatura(item));
+        const tdAcao = document.createElement('td'); tdAcao.append(acao);
+        const tdStatus = document.createElement('td'); tdStatus.append(status);
+        tr.append(elemento('td','',item.empresa_nome || '—'),elemento('td','',item.plano_nome || '—'),tdStatus,elemento('td','',dataCurta(item.inicio_em)),elemento('td','',item.trial_fim_em ? dataHora(item.trial_fim_em) : '—'),elemento('td','',dataHora(item.updated_at)),tdAcao);
+        tbody.append(tr);
+    });
+}
+
+function abrirFormularioPlano(plano = null) {
+    const atual = plano || { slug:'', nome:'', descricao:'', ativo:true, interno:false, padrao_novos:false, preco_mensal:'', moeda:'BRL', trial_dias:0, limite_unidades:'', limite_produtos:'', limite_funcionarios:'', limite_pedidos_mes:'', recursos:{}, ordem:0 };
+    const form=elemento('form','admin-form-grid'); form.id='formPlanoAdmin';
+    const slug=campoFormulario('Slug','adminPlanoSlug','text',atual.slug || '',{required:true,placeholder:'profissional'});
+    const nome=campoFormulario('Nome','adminPlanoNome','text',atual.nome || '',{required:true,placeholder:'Plano Profissional'});
+    const descricao=campoFormulario('Descrição','adminPlanoDescricao','text',atual.descricao || '',{placeholder:'Resumo do plano'}); descricao.caixa.classList.add('full');
+    const preco=campoFormulario('Preço mensal (BRL)','adminPlanoPreco','number',atual.preco_mensal ?? '',{min:0,step:0.01});
+    const trial=campoFormulario('Trial em dias','adminPlanoTrial','number',atual.trial_dias ?? 0,{min:0,max:365});
+    const moeda=campoFormulario('Moeda','adminPlanoMoeda','text',atual.moeda || 'BRL',{maxlength:3,required:true});
+    const ordem=campoFormulario('Ordem','adminPlanoOrdem','number',atual.ordem ?? 0,{step:1});
+    const lu=campoFormulario('Limite de unidades','adminPlanoUnidades','number',atual.limite_unidades ?? '',{min:1});
+    const lp=campoFormulario('Limite de produtos','adminPlanoProdutos','number',atual.limite_produtos ?? '',{min:1});
+    const lf=campoFormulario('Limite de funcionários','adminPlanoFuncionarios','number',atual.limite_funcionarios ?? '',{min:1});
+    const lped=campoFormulario('Limite de pedidos/mês','adminPlanoPedidos','number',atual.limite_pedidos_mes ?? '',{min:1});
+    const ativo=campoCheck('Plano ativo','adminPlanoAtivo',atual.ativo !== false);
+    const interno=campoCheck('Plano interno','adminPlanoInterno',atual.interno === true);
+    const padrao=campoCheck('Plano padrão para novos restaurantes','adminPlanoPadrao',atual.padrao_novos === true);
+    const recursos=elemento('fieldset','admin-plan-resource-fieldset'); recursos.append(elemento('legend','', 'Recursos habilitados'));
+    [['multiunidade','Multiunidade'],['equipe','Equipe'],['operacao','Operação'],['financeiro','Financeiro']].forEach(([valor,rotulo]) => { const label=document.createElement('label'); const input=document.createElement('input'); input.type='checkbox'; input.value=valor; input.checked=atual.recursos?.[valor] === true; label.append(input,document.createTextNode(rotulo)); recursos.append(label); });
+    form.append(slug.caixa,nome.caixa,preco.caixa,trial.caixa,moeda.caixa,ordem.caixa,lu.caixa,lp.caixa,lf.caixa,lped.caixa,descricao.caixa,ativo.caixa,interno.caixa,padrao.caixa,recursos);
+    const cancelar=botao('Cancelar'); cancelar.addEventListener('click',()=>fecharModal());
+    const salvar=botao(plano?'Salvar alterações':'Criar plano','admin-primary-button');
+    salvar.addEventListener('click',async()=>{
+        if(!form.reportValidity()) return; salvar.disabled=true;
+        const recursoMap=Object.fromEntries([...recursos.querySelectorAll('input[type=checkbox]')].map((input)=>[input.value,input.checked]));
+        const payload={id:plano?.id||null,slug:slug.entrada.value.trim().toLowerCase(),nome:nome.entrada.value.trim(),descricao:descricao.entrada.value.trim(),ativo:ativo.entrada.checked,interno:interno.entrada.checked,padrao_novos:padrao.entrada.checked,preco_mensal:preco.entrada.value,moeda:moeda.entrada.value.trim().toUpperCase(),trial_dias:Number(trial.entrada.value||0),limite_unidades:lu.entrada.value,limite_produtos:lp.entrada.value,limite_funcionarios:lf.entrada.value,limite_pedidos_mes:lped.entrada.value,recursos:recursoMap,ordem:Number(ordem.entrada.value||0)};
+        try{await window.DeliveryAPI.adminSalvarPlano(payload);fecharModal();await carregarDadosAdmin();window.AppToast?.('Plano salvo',payload.nome+' foi atualizado.','success');}
+        catch(erro){mostrarErro(recursoNaoMigrado(erro,'admin_plano_salvar')?'Execute a migração de planos 4.3':'Não foi possível salvar o plano',erro);}
+        finally{salvar.disabled=false;}
+    });
+    abrirModal({titulo:plano?'Editar '+plano.nome:'Novo plano da plataforma',kicker:'PLANOS',corpo:form,acoes:[cancelar,salvar]});
+}
+
+function abrirFormularioAssinatura(assinatura) {
+    const form=elemento('form','admin-form-grid');
+    const empresa=campoFormulario('Restaurante','adminAssinaturaEmpresa','select',assinatura.empresa_id,{items:adminEmpresas.map((item)=>({value:item.id,label:item.nome})),required:true});
+    const plano=campoFormulario('Plano','adminAssinaturaPlano','select',assinatura.plano_id,{items:adminPlanosPlataforma.filter((item)=>item.ativo!==false).map((item)=>({value:item.id,label:item.nome+(item.preco_mensal==null?'':' — '+App.dinheiro(item.preco_mensal)+'/mês')})),required:true});
+    const status=campoFormulario('Status','adminAssinaturaStatus','select',assinatura.status||'ativa',{items:[{value:'trial',label:'Trial'},{value:'ativa',label:'Ativa'},{value:'inadimplente',label:'Inadimplente'},{value:'cancelada',label:'Cancelada'},{value:'expirada',label:'Expirada'}]});
+    const trial=campoFormulario('Dias de trial','adminAssinaturaTrial','number',0,{min:0,max:365});
+    const ajuda=elemento('p','admin-form-help full','A alteração substitui a assinatura atual da empresa e aplica o plano ativo imediatamente.');
+    form.append(empresa.caixa,plano.caixa,status.caixa,trial.caixa,ajuda); empresa.entrada.disabled=true;
+    const cancelar=botao('Cancelar'); cancelar.addEventListener('click',()=>fecharModal());
+    const salvar=botao('Salvar assinatura','admin-primary-button');
+    salvar.addEventListener('click',async()=>{
+        if(!form.reportValidity()) return; salvar.disabled=true;
+        try{await window.DeliveryAPI.adminSalvarAssinatura({empresa_id:assinatura.empresa_id,plano_id:plano.entrada.value,status:status.entrada.value,trial_dias:Number(trial.entrada.value||0)});fecharModal();await carregarDadosAdmin();window.AppToast?.('Assinatura atualizada',assinatura.empresa_nome+' teve o plano atualizado.','success');}
+        catch(erro){mostrarErro(recursoNaoMigrado(erro,'admin_assinatura_definir')?'Execute a migração de planos 4.3':'Não foi possível alterar a assinatura',erro);}
+        finally{salvar.disabled=false;}
+    });
+    abrirModal({titulo:'Assinatura • '+assinatura.empresa_nome,kicker:'ACESSO DO RESTAURANTE',corpo:form,acoes:[cancelar,salvar]});
+}
+
 async function carregarDadosAdmin() {
     if (carregandoDados) return;
     carregandoDados = true;
@@ -821,7 +934,7 @@ async function carregarDadosAdmin() {
         const resPedidos = { data: (snapshot?.pedidos || []).map((pedido) => ({ pagamento_status: "pendente", pagamento_modalidade: "na_entrega", ...pedido })), error: null };
         const resCupons = { data: snapshot?.cupons || [], error: null };
             const resLogs = { data: snapshot?.logs || [], error: null };
-        const resAuditoria = { data: snapshot?.auditoria || [], error: null };
+        const resAuditoria = { data: snapshot?.auditoria || [], error: null };\n        let resPlanos = { data: [], error: null };\n        let resAssinaturas = { data: [], error: null };\n        try { resPlanos = { data: await window.DeliveryAPI.adminPlanos(), error: null }; } catch (error) { resPlanos = { data: [], error }; registrarCompatibilidade("planos"); }\n        try { resAssinaturas = { data: await window.DeliveryAPI.adminAssinaturas(), error: null }; } catch (error) { resAssinaturas = { data: [], error }; registrarCompatibilidade("assinaturas"); }
         const erro = [resEmpresas, resUsuarios, resPedidos, resCupons, resLogs, resAuditoria].find((resposta) => resposta.error)?.error;
         if (erro) throw erro;
         adminEmpresas = resEmpresas.data || [];
@@ -832,7 +945,7 @@ async function carregarDadosAdmin() {
         adminAuditoria = resAuditoria.data || [];
         preencherFiltroEmpresas();
         atualizarMetricasAdmin(); renderizarGraficoAdmin(); renderizarPedidosRecentes(); renderizarPedidos();
-        renderizarEmpresas(); renderizarUsuarios(); renderizarCupons();
+        renderizarEmpresas(); renderizarUsuarios(); renderizarCupons(); renderizarPlanosAssinaturas();
         await carregarRelatorio(); exibirAvisoCompatibilidade();
     } finally {
         carregandoDados = false;
@@ -926,7 +1039,7 @@ function configurarNavegacao() {
     mostrarSecaoAdmin(location.hash);
 }
 
-async function iniciarAdmin() {
+document.getElementById("novoPlano")?.addEventListener("click", () => abrirFormularioPlano());\ndocument.getElementById("buscaAdminAssinatura")?.addEventListener("input", renderizarPlanosAssinaturas);\n\nasync function iniciarAdmin() {
     aplicarTamanhoFonte(localStorage.getItem("admin_font_size") || "normal");
     const { data: { user } } = await db.auth.getUser();
     if (!user) { localStorage.setItem("redirect", "admin.html"); location.replace("login.html"); return; }
