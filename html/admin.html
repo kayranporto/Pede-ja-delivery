@@ -30,7 +30,6 @@
         <a href="#restaurantes">▦ <span>Restaurantes</span><b id="pendentesMenu">0</b></a>
         <a href="#usuarios">♙ <span>Usuários</span></a>
         <a href="#cupons">% <span>Cupons</span></a>
-        <a href="#planos">◈ <span>Planos e assinaturas</span></a>
         <a href="#relatorios">↗ <span>Relatórios</span></a>
         <a href="#suporte">? <span>Suporte</span><b id="suporteMenu">0</b></a>
       </nav>
@@ -100,24 +99,6 @@
         <section class="admin-section admin-view" id="cupons" data-admin-view tabindex="-1" aria-label="Cupons" hidden>
           <div class="admin-section-title"><div><span class="admin-kicker">PROMOÇÕES</span><h2>Cupons</h2><p>Crie, edite, pause ou exclua benefícios globais e dos restaurantes.</p></div><div class="admin-title-actions"><label class="admin-search">⌕<input id="buscaAdminCupom" type="search" placeholder="Buscar cupom"/></label><button class="admin-primary-button" id="novoCupom" type="button">+ Novo cupom</button></div></div>
           <div class="admin-table-wrap"><table><thead><tr><th>Código</th><th>Escopo</th><th>Benefício</th><th>Uso</th><th>Validade</th><th>Status</th><th>Ações</th></tr></thead><tbody id="adminCupons"><tr><td colspan="7">Carregando...</td></tr></tbody></table></div>
-        </section>
-
-        <section class="admin-section admin-view" id="planos" data-admin-view tabindex="-1" aria-label="Planos e assinaturas" hidden>
-          <div class="admin-section-title">
-            <div><span class="admin-kicker">MONETIZAÇÃO E ACESSO</span><h2>Planos e assinaturas</h2><p>Configure os planos da plataforma e controle qual plano está vinculado a cada restaurante.</p></div>
-            <button class="admin-primary-button" id="novoPlano" type="button">+ Novo plano</button>
-          </div>
-          <div class="admin-plan-summary" aria-label="Resumo dos planos">
-            <article><small>Planos ativos</small><strong id="adminPlanosAtivos">0</strong></article>
-            <article><small>Empresas com assinatura</small><strong id="adminAssinaturasTotal">0</strong></article>
-            <article><small>Em período de trial</small><strong id="adminTrialsTotal">0</strong></article>
-            <article><small>Com problema</small><strong id="adminAssinaturasProblema">0</strong></article>
-          </div>
-          <div class="admin-plan-grid" id="adminPlanosGrid"></div>
-          <div class="admin-card admin-subscriptions-card">
-            <div class="admin-section-title"><div><span class="admin-kicker">VÍNCULOS ATUAIS</span><h2>Assinaturas por restaurante</h2><p>Altere o plano ou o status de uma empresa sem acessar diretamente o banco.</p></div><label class="admin-search">⌕<input id="buscaAdminAssinatura" type="search" placeholder="Buscar empresa ou plano"/></label></div>
-            <div class="admin-table-wrap admin-subscriptions-table-wrap"><table><thead><tr><th>Restaurante</th><th>Plano</th><th>Status</th><th>Início</th><th>Trial</th><th>Atualizado</th><th>Ação</th></tr></thead><tbody id="adminAssinaturas"><tr><td colspan="7">Carregando...</td></tr></tbody></table></div>
-          </div>
         </section>
 
         <section class="admin-section admin-view" id="relatorios" data-admin-view tabindex="-1" aria-label="Relatórios" hidden>
