@@ -151,11 +151,22 @@
         try {
             const registro = await navigator.serviceWorker.getRegistration();
             const subscription = await registro?.pushManager?.getSubscription?.();
-            ativar.textContent = subscription ? "Alertas ativos neste dispositivo" : "Concluir ativação dos alertas";
-            ativar.disabled = Boolean(subscription);
+            if (subscription) {
+                ativar.textContent = "✓ Alertas ativos neste dispositivo";
+                ativar.disabled = true;
+                ativar.setAttribute("aria-disabled", "true");
+                ativar.title = "Os alertas deste dispositivo já estão ativos.";
+                return;
+            }
+            ativar.textContent = "Ativar alertas no dispositivo";
+            ativar.disabled = false;
+            ativar.removeAttribute("aria-disabled");
+            ativar.removeAttribute("title");
         } catch {
             ativar.textContent = "Ativar alertas no dispositivo";
             ativar.disabled = false;
+            ativar.removeAttribute("aria-disabled");
+            ativar.removeAttribute("title");
         }
     }
 
