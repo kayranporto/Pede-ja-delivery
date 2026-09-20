@@ -114,3 +114,32 @@
   .home-page .footer-container{grid-template-columns:1fr 1fr;padding:28px 16px}
   .home-page .footer-container>div:first-child{grid-column:1/-1}
 }
+
+
+
+/* Auditoria mobile fina — 320–420 px */
+@media(max-width:420px){
+  .home-page .market-hero{padding-left:12px;padding-right:12px}
+  .home-page .market-hero h1{font-size:clamp(2.05rem,11.5vw,2.8rem);letter-spacing:-.045em}
+  .home-page .market-hero p{font-size:.9rem;line-height:1.6}
+  .home-page .quick-searches{gap:6px}
+  .home-page .quick-searches>span{width:100%;font-size:.76rem}
+  .home-page .quick-searches button{padding:7px 10px;font-size:.72rem}
+  .home-page .hero-proof{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .home-page .hero-proof span{min-width:0;min-height:48px;padding:8px 9px}
+  .home-page .hero-proof strong{font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .home-page .hero-proof small{font-size:.62rem}
+  .home-page .market-hero-visual{min-height:250px}
+  .home-page .hero-mini-card{max-width:44%;padding:9px 10px;gap:7px;border-radius:13px}
+  .home-page .hero-mini-card strong{font-size:.68rem;line-height:1.2}
+  .home-page .hero-mini-card small{font-size:.56rem;line-height:1.2}
+  .home-page .hero-mini-card.status{right:0;top:10px}
+  .home-page .hero-mini-card.offer{left:0;bottom:8px}
+  .home-page .market-section,.home-page .offer-strip{padding-left:12px;padding-right:12px}
+}
+@media(max-width:340px){
+  .home-page .hero-mini-card{display:none}
+  .home-page .market-hero-visual{min-height:220px}
+  .home-page .market-search{margin-top:20px}
+  .home-page .categoria{min-width:96px;padding-left:12px;padding-right:12px}
+}
