@@ -43,3 +43,23 @@ html[data-theme="dark"] .home-page{background:#0f1218}html[data-theme="dark"] .h
   .home-page .location-content{min-width:0}
   .home-page .location strong{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
+
+
+/* Auditoria mobile — filtros e cards de restaurantes */
+@media(max-width:640px){
+  .home-page .restaurant-tools{display:grid;grid-template-columns:1fr 1fr;align-items:stretch;gap:8px;padding:10px;border-radius:16px}
+  .home-page .restaurant-tools .filter-pill{width:100%;min-width:0;justify-content:center;padding:10px 9px;font-size:.72rem}
+  .home-page .restaurant-tools .resultado-info{grid-column:1/-1;padding:2px 4px;font-size:.7rem;text-align:center}
+  .home-page .cards{grid-template-columns:1fr;gap:12px;margin-top:16px}
+  .home-page .card{min-width:0;border-radius:18px}
+  .home-page .card-link>img{height:190px}
+  .home-page .card .card-body{padding:15px;gap:9px}
+  .home-page .card h3{font-size:1rem;line-height:1.25}
+  .home-page .card .info{gap:6px;font-size:.68rem}
+  .home-page .card .info span{padding:4px 7px;border-radius:7px}
+}
+@media(max-width:340px){
+  .home-page .restaurant-tools{grid-template-columns:1fr}
+  .home-page .restaurant-tools .resultado-info{grid-column:auto}
+  .home-page .card-link>img{height:175px}
+}
