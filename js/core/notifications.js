@@ -153,11 +153,13 @@
             const subscription = await registro?.pushManager?.getSubscription?.();
             if (subscription) {
                 ativar.textContent = "✓ Alertas ativos neste dispositivo";
-                ativar.disabled = true;
-                ativar.setAttribute("aria-disabled", "true");
-                ativar.title = "Os alertas deste dispositivo já estão ativos.";
+                ativar.disabled = false;
+                ativar.setAttribute("aria-pressed", "true");
+                ativar.removeAttribute("aria-disabled");
+                ativar.title = "Toque para verificar e sincronizar novamente os alertas deste dispositivo.";
                 return;
             }
+            ativar.removeAttribute("aria-pressed");
             ativar.textContent = "Ativar alertas no dispositivo";
             ativar.disabled = false;
             ativar.removeAttribute("aria-disabled");
