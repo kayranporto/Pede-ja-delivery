@@ -959,30 +959,39 @@ async function iniciarAdmin() {
 const adminSidebar = document.getElementById("adminSidebar");
 const adminOverlay = document.getElementById("adminOverlay");
 
+function ouvir(id, evento, handler) {
+    const alvo = document.getElementById(id);
+    if (!alvo) {
+        console.warn(`Elemento administrativo ausente: #${id}`);
+        return;
+    }
+    alvo.addEventListener(evento, handler);
+}
+
 ["buscaAdminEmpresa", "buscaAdminUsuario", "buscaAdminCupom"].forEach((id) => {
-    document.getElementById(id).addEventListener("input", ({ target }) => ({
+    ouvir(id, "input", ({ target }) => ({
         buscaAdminEmpresa: renderizarEmpresas, buscaAdminUsuario: renderizarUsuarios,
         buscaAdminCupom: renderizarCupons
     })[target.id]());
 });
 ["buscaAdminPedido", "filtroPedidoEmpresa", "filtroPedidoStatus", "filtroPedidoPagamento", "filtroPedidoInicio", "filtroPedidoFim"].forEach((id) => {
-    document.getElementById(id).addEventListener(id === "buscaAdminPedido" ? "input" : "change", () => { paginaPedidos = 1; renderizarPedidos(); });
+    ouvir(id, id === "buscaAdminPedido" ? "input" : "change", () => { paginaPedidos = 1; renderizarPedidos(); });
 });
-document.getElementById("limparFiltrosPedido").addEventListener("click", () => {
+ouvir("limparFiltrosPedido", "click", () => {
     ["buscaAdminPedido", "filtroPedidoEmpresa", "filtroPedidoStatus", "filtroPedidoPagamento", "filtroPedidoInicio", "filtroPedidoFim"].forEach((id) => { document.getElementById(id).value = ""; });
     paginaPedidos = 1; renderizarPedidos();
 });
-document.getElementById("pedidosAnterior").addEventListener("click", () => { paginaPedidos -= 1; renderizarPedidos(); });
-document.getElementById("pedidosProxima").addEventListener("click", () => { paginaPedidos += 1; renderizarPedidos(); });
-document.getElementById("exportarPedidos").addEventListener("click", () => baixarCsv(linhasCsv(pedidosFiltrados()), `multi-delivery-pedidos-filtrados-${new Date().toISOString().slice(0, 10)}.csv`));
-document.getElementById("novoCupom").addEventListener("click", () => abrirFormularioCupom());
-document.getElementById("periodoRelatorio").addEventListener("change", carregarRelatorio);
-document.getElementById("exportarRelatorio").addEventListener("click", exportarRelatorioCsv);
-document.getElementById("adminFontSize").addEventListener("change", ({ target }) => aplicarTamanhoFonte(target.value));
-document.getElementById("adminMenu").addEventListener("click", () => { adminSidebar.classList.add("open"); adminOverlay.classList.add("show"); });
-adminOverlay.addEventListener("click", () => { adminSidebar.classList.remove("open"); adminOverlay.classList.remove("show"); });
+ouvir("pedidosAnterior", "click", () => { paginaPedidos -= 1; renderizarPedidos(); });
+ouvir("pedidosProxima", "click", () => { paginaPedidos += 1; renderizarPedidos(); });
+ouvir("exportarPedidos", "click", () => baixarCsv(linhasCsv(pedidosFiltrados()), `multi-delivery-pedidos-filtrados-${new Date().toISOString().slice(0, 10)}.csv`));
+ouvir("novoCupom", "click", () => abrirFormularioCupom());
+ouvir("periodoRelatorio", "change", carregarRelatorio);
+ouvir("exportarRelatorio", "click", exportarRelatorioCsv);
+ouvir("adminFontSize", "change", ({ target }) => aplicarTamanhoFonte(target.value));
+ouvir("adminMenu", "click", () => { adminSidebar?.classList.add("open"); adminOverlay?.classList.add("show"); });
+adminOverlay?.addEventListener("click", () => { adminSidebar?.classList.remove("open"); adminOverlay?.classList.remove("show"); });
 document.querySelectorAll("[data-modal-close]").forEach((item) => item.addEventListener("click", () => fecharModal(false)));
-modal.addEventListener("keydown", (evento) => {
+modal?.addEventListener("keydown", (evento) => {
     if (evento.key === "Escape") { fecharModal(false); return; }
     if (evento.key !== "Tab") return;
     const focaveis = [...modal.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]')].filter((item) => item.offsetParent !== null);
@@ -998,7 +1007,7 @@ document.addEventListener("keydown", (evento) => {
         document.getElementById("buscaAdminPedido").focus();
     }
 });
-document.getElementById("adminLogout").addEventListener("click", async () => { await db.auth.signOut(); App.limparDadosPrivados(); location.replace("login.html"); });
+ouvir("adminLogout", "click", async () => { await db.auth.signOut(); App.limparDadosPrivados(); location.replace("login.html"); });
 addEventListener("beforeunload", () => { clearTimeout(recarregarTimer); if (canalAdmin) db.removeChannel(canalAdmin); });
 configurarNavegacao();
 iniciarAdmin();
