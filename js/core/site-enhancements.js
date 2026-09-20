@@ -129,7 +129,7 @@
     document.body.append(unidadesJs);
 
     const operacaoUnidadesJs = document.createElement("script");
-    operacaoUnidadesJs.src = `${assetRoot}js/modules/operacao-unidades-4.3.js?v=4.4.6`;
+    operacaoUnidadesJs.src = `${assetRoot}js/modules/operacao-unidades-4.3.js?v=4.4.7`;
     operacaoUnidadesJs.async = false;
     document.body.append(operacaoUnidadesJs);
 
@@ -185,14 +185,14 @@
 
   if (/checkout\.html$/i.test(location.pathname)) {
     const checkoutUnidadeJs = document.createElement("script");
-    checkoutUnidadeJs.src = `${assetRoot}js/modules/checkout-unidade-4.3.js?v=4.4.6`;
+    checkoutUnidadeJs.src = `${assetRoot}js/modules/checkout-unidade-4.3.js?v=4.4.7`;
     checkoutUnidadeJs.async = false;
     document.body.append(checkoutUnidadeJs);
   }
 
   if (/enderecos\.html$/i.test(location.pathname)) {
     const localizacaoEnderecosJs = document.createElement("script");
-    localizacaoEnderecosJs.src = `${assetRoot}js/modules/localizacao-enderecos-4.4.js?v=4.4.6`;
+    localizacaoEnderecosJs.src = `${assetRoot}js/modules/localizacao-enderecos-4.4.js?v=4.4.7`;
     localizacaoEnderecosJs.async = false;
     document.body.append(localizacaoEnderecosJs);
   }
