@@ -13,7 +13,7 @@ test("Home usa horário real no filtro Aberto agora", () => {
     assert.match(home, /DeliveryAPI\.disponibilidade\(/);
     assert.match(home, /abertaAgora:\s*data\?\.aberto\s*===\s*true/);
     assert.match(home, /!filtros\.abertoAgora\s*\|\|\s*empresa\.abertaAgora\s*===\s*true/);
-    assert.match(read("index.html"), /js\/pages\/home\.js\?v=4\.4\.6/);
+    assert.match(read("index.html"), /js\/pages\/home\.js\?v=4\.4\.7/);
     assert.match(read("sw.js"), /js\/pages\/home\.js\?v=4\.4\.6/);
 });
 
