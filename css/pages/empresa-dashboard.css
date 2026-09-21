@@ -112,3 +112,18 @@
 .product-import-card button[type=submit]{justify-self:start}
 .product-import-card [data-tipo=error],.product-import-card .importacao-erro td{color:#b3152a}
 html[data-theme=dark] .product-import-card [data-tipo=error],html[data-theme=dark] .product-import-card .importacao-erro td{color:#ffb4bd}
+
+
+/* Mobile: painel operacional em uma única coluna, sem overflow horizontal. */
+@media(max-width:620px){
+  html,body{max-width:100%;overflow-x:hidden}
+  .dashboard-shell,.dashboard-main,.orders-section{min-width:0;max-width:100%}
+  .order-filters{width:100%;min-width:0}
+  .order-filters label{width:100%;min-width:0}
+  .order-filters select{width:100%;min-width:0}
+  .search-field{width:100%;min-width:0}
+  .kanban{grid-template-columns:1fr;gap:12px;overflow-x:visible;width:100%;min-width:0;padding-bottom:0}
+  .kanban-column{width:100%;min-width:0}
+  .kanban-list{min-height:70px}
+  .order-card{width:100%;min-width:0}
+}
