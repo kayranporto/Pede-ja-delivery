@@ -167,10 +167,12 @@
         const indice = itens.findIndex((item) => String(item.chave || chaveItem(item)) === String(itemChave));
         if (indice < 0) return;
         const item = itens[indice];
-        const novaQuantidade = Math.max(1, Number(item.quantidade || 1) + delta);
+        const novaQuantidade = Math.min(99, Math.max(1, Number(item.quantidade || 1) + delta));
         item.quantidade = novaQuantidade;
         item.chave = chaveItem(item);
         salvarCarrinho(itens, lerMeta());
+        renderizarItens();
+        window.dispatchEvent?.(new CustomEvent("carrinho-atualizado", { detail: { itens, meta: lerMeta() } }));
     }
 
     function removerItem(itemChave) {
