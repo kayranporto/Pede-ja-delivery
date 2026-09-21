@@ -886,6 +886,7 @@ async function carregarDadosAdmin() {
         adminCupons = resCupons.data || [];
         adminLogs = resLogs.data || [];
         adminAuditoria = resAuditoria.data || [];
+        renderizarNotificacoesAdmin();
         preencherFiltroEmpresas();
         atualizarMetricasAdmin(); renderizarGraficoAdmin(); renderizarPedidosRecentes(); renderizarPedidos();
         renderizarEmpresas(); renderizarUsuarios(); renderizarCupons();
