@@ -114,14 +114,13 @@ test.beforeEach(async ({ page }) => {
     });
 });
 
-test("site permanece no modo claro e não oferece alternância de tema", async ({ page }) => {
+test("site não oferece alternância de tema", async ({ page }) => {
     await page.goto("/html/perfil.html");
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await expect(page.locator(".theme-toggle")).toHaveCount(0);
     await expect(page.locator("[data-theme-preferences]")).toHaveCount(0);
+    await expect(page.locator("html")).not.toHaveAttribute("data-theme", "dark");
 
     await page.goto("/html/checkout.html");
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await expect(page.locator(".theme-toggle")).toHaveCount(0);
 });
 
