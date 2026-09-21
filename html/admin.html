@@ -132,6 +132,14 @@
             <article class="admin-settings-card"><div><strong>Modo compacto</strong><p>Reduz espaçamentos para visualizar mais informações na tela.</p></div><label class="admin-switch"><input id="configCompacto" type="checkbox"><span></span></label></article>
           </div>
           <div class="admin-settings-note"><strong>Importante</strong><p>Estas preferências controlam a experiência administrativa neste navegador. Alterações operacionais globais da plataforma devem ser configuradas no servidor para afetar todos os administradores.</p></div>
+          <div class="admin-settings-admins">
+            <div class="admin-section-title"><div><span class="admin-kicker">ACESSO</span><h3>Administradores do site</h3><p>Convide pessoas para administrar o PedeJá. O convite é enviado por e-mail.</p></div></div>
+            <form id="formNovoAdmin" class="admin-admin-invite">
+              <label class="admin-form-field full"><span>E-mail do novo administrador</span><input id="novoAdminEmail" type="email" autocomplete="email" placeholder="admin@exemplo.com" required></label>
+              <button class="admin-primary-button" type="submit">+ Adicionar administrador</button>
+            </form>
+            <div id="listaAdministradores" class="admin-admin-list"><p>Carregando administradores...</p></div>
+          </div>
         </section>
 
         <section class="admin-section admin-view" id="suporte" data-admin-view tabindex="-1" aria-label="Suporte" hidden>
