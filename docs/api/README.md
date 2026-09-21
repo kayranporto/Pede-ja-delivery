@@ -1,4 +1,4 @@
-# API pública do Multi Delivery
+# API pública do PedeJá
 
 Esta é a API HTTP versionada e somente de leitura para integrações externas de catálogo. A especificação completa está em [`../../supabase/functions/api-publica/openapi.json`](../../supabase/functions/api-publica/openapi.json) e é servida em `/openapi.json`.
 
