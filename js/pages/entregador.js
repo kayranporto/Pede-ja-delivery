@@ -196,7 +196,16 @@ function cardMinha(pedido) {
     const mapa = elemento("a", "", "Abrir rota"); mapa.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pedido.endereco)}`; mapa.target = "_blank"; mapa.rel = "noopener"; acoes.append(mapa);
     const chat = elemento("button", "", "Abrir chat"); chat.type = "button"; chat.addEventListener("click", () => abrirChat(pedido)); acoes.append(chat);
     if (pedido.status === "preparando") {
-        const iniciar = elemento("button", "accept", "Iniciar entrega"); iniciar.type = "button"; iniciar.addEventListener("click", () => mudarStatus(pedido, "saiu_para_entrega", false, iniciar)); acoes.append(iniciar);
+        const pronto = Boolean(pedido.pronto_em);
+        if (pronto) {
+            const iniciar = elemento("button", "accept", "Iniciar entrega");
+            iniciar.type = "button";
+            iniciar.addEventListener("click", () => mudarStatus(pedido, "saiu_para_entrega", false, iniciar));
+            acoes.append(iniciar);
+        } else {
+            const aguardando = elemento("span", "waiting", "Aguardando o restaurante marcar como pronto");
+            acoes.append(aguardando);
+        }
     } else if (pedido.status === "saiu_para_entrega") {
         const pagoLabel = elemento("label"); const pago = document.createElement("input"); pago.type = "checkbox"; pago.disabled = pedido.pagamento_modalidade === "online"; pagoLabel.append(pago, document.createTextNode(pedido.pagamento_modalidade === "online" ? "Pagamento online" : "Pagamento recebido"));
         const concluir = elemento("button", "done", "Confirmar entrega"); concluir.type = "button"; concluir.addEventListener("click", () => mudarStatus(pedido, "entregue", pago.checked, concluir)); acoes.append(pagoLabel, concluir);
