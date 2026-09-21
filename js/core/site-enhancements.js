@@ -320,42 +320,6 @@
   }
   window.AppConfirm=confirmar;
 
-  const themeToggle = document.createElement("button");
-  themeToggle.type = "button";
-  themeToggle.className = "theme-toggle";
-  const themeIcon = document.createElement("span");
-  themeIcon.className = "theme-toggle-icon";
-  themeIcon.setAttribute("aria-hidden", "true");
-  const themeLabel = document.createElement("span");
-  themeLabel.className = "theme-toggle-label";
-  themeToggle.append(themeIcon, themeLabel);
-  themeToggle.addEventListener("click", () => {
-    const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-    applyTheme(nextTheme, true);
-  });
-  const profilePreferences = document.querySelector('[data-theme-preferences]');
-  if (profilePreferences) {
-    themeToggle.classList.add("theme-toggle-profile", "menu-item");
-    const copy = document.createElement("span");
-    copy.className = "menu-texto";
-    const title = document.createElement("strong");
-    title.textContent = "Aparência";
-    copy.append(title, themeLabel);
-    themeToggle.replaceChildren(themeIcon, copy);
-    profilePreferences.append(themeToggle);
-  } else {
-    const preferences = document.createElement("nav");
-    preferences.className = "theme-preferences";
-    preferences.setAttribute("aria-label", "Preferências de aparência");
-    preferences.append(themeToggle);
-    const footer = document.querySelector("body > footer:not(.checkout-footer)");
-    const main = document.querySelector("body > main, .dashboard-main");
-    if (footer) footer.append(preferences);
-    else if (main) main.insertAdjacentElement("afterend", preferences);
-    else document.body.append(preferences);
-  }
-  updateThemeButton(document.documentElement.dataset.theme);
-
   const net=document.createElement("div");net.className="network-banner";net.setAttribute("role","status");document.body.append(net);
   function status(online,initial=false){net.textContent=online?"Conexão restabelecida":"Você está offline. Alguns dados podem estar desatualizados.";net.className=`network-banner show${online?" online":""}`;if(online&&!initial)setTimeout(()=>net.classList.remove("show"),2600);}
   addEventListener("online",()=>status(true));addEventListener("offline",()=>status(false));if(!navigator.onLine)status(false,true);
