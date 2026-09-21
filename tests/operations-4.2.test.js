@@ -60,6 +60,8 @@ test("cozinha possui fila, SLA e ações transacionais", () => {
     assert.match(js, /pedido_operacao/);
     assert.match(js, /pedidoAtrasado/);
     assert.match(js, /marcar_pronto/);
+    assert.match(js, /recusar_pedido/);
+    assert.match(js, /Recusar pedido/);
     assert.match(sql, /preparo_estimado_minutos/);
     assert.match(sql, /pronto_em/);
     assert.match(sql, /confirmar_entrega/);
