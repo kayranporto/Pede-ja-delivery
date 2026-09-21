@@ -36,6 +36,8 @@ function gerarNotificacoesAdmin() {
     return notificacoes;
 }
 
+let filtroNotificacoesAdmin = "todas";
+
 function renderizarNotificacoesAdmin() {
     const lista = document.getElementById("adminNotificationsList");
     const contador = document.getElementById("adminNotificationsCount");
@@ -43,16 +45,32 @@ function renderizarNotificacoesAdmin() {
     const todas = gerarNotificacoesAdmin();
     const vistas = new Set(JSON.parse(localStorage.getItem("admin_notificacoes_vistas") || "[]"));
     const novas = todas.filter((item) => !vistas.has(item.id));
+    const exibidas = filtroNotificacoesAdmin === "novas" ? novas : todas;
     contador.textContent = String(novas.length);
     contador.hidden = novas.length === 0;
     lista.replaceChildren();
-    if (!todas.length) { lista.append(elemento("p", "admin-notifications-empty", "Nenhuma pendência administrativa encontrada.")); return; }
-    todas.forEach((item) => {
+    if (!exibidas.length) { lista.append(elemento("p", "admin-notifications-empty", filtroNotificacoesAdmin === "novas" ? "Nenhum alerta não lido." : "Nenhuma pendência administrativa encontrada.")); return; }
+    exibidas.forEach((item) => {
         const card = elemento("button", `admin-notification-item ${novas.some((n) => n.id === item.id) ? "is-new" : ""}`);
         card.type = "button";
         card.dataset.adminNotificationTarget = item.destino;
-        card.innerHTML = `<span class="admin-notification-icon">!</span><span><strong>${item.titulo}</strong><small>${item.detalhe}</small></span>`;
+        card.dataset.adminNotificationId = item.id;
+        card.innerHTML = `<span class="admin-notification-icon">!</span><span><strong>${item.titulo}</strong><small>${item.detalhe}</small></span><span class="admin-notification-state" aria-hidden="true">${vistas.has(item.id) ? "✓" : "•"}</span>`;
         lista.append(card);
+    });
+}
+
+function configurarFiltrosNotificacoesAdmin() {
+    document.querySelectorAll("[data-admin-notification-filter]").forEach((botao) => {
+        ouvir(botao, "click", () => {
+            filtroNotificacoesAdmin = botao.dataset.adminNotificationFilter || "todas";
+            document.querySelectorAll("[data-admin-notification-filter]").forEach((item) => {
+                const ativo = item === botao;
+                item.classList.toggle("is-active", ativo);
+                item.setAttribute("aria-selected", ativo ? "true" : "false");
+            });
+            renderizarNotificacoesAdmin();
+        });
     });
 }
 
@@ -63,6 +81,13 @@ function abrirCentralNotificacoes() {
     renderizarNotificacoesAdmin();
     painel.hidden = false;
     botao.setAttribute("aria-expanded", "true");
+}
+
+function marcarNotificacaoComoVista(id) {
+    if (!id) return;
+    const vistas = new Set(JSON.parse(localStorage.getItem("admin_notificacoes_vistas") || "[]"));
+    vistas.add(id);
+    localStorage.setItem("admin_notificacoes_vistas", JSON.stringify([...vistas]));
 }
 
 function fecharCentralNotificacoes() {
@@ -1165,7 +1190,9 @@ ouvir("restaurarConfigAdmin", "click", () => {
 });
 ouvir("adminNotifications", "click", abrirCentralNotificacoes);
 ouvir("fecharAdminNotifications", "click", fecharCentralNotificacoes);
+    configurarFiltrosNotificacoesAdmin();
 ouvir("marcarAdminNotificationsLidas", "click", marcarNotificacoesVistas);
+    ouvir("adminNotificationsList", "click", (evento) => { const card = evento.target.closest("[data-admin-notification-id]"); if (!card) return; marcarNotificacaoComoVista(card.dataset.adminNotificationId); renderizarNotificacoesAdmin(); mostrarSecaoAdmin(card.dataset.adminNotificationTarget, { atualizarHistorico: true, focar: true }); });
 document.getElementById("adminNotificationsList")?.addEventListener("click", (evento) => {
     const item = evento.target.closest("[data-admin-notification-target]");
     if (!item) return;
