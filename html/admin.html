@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="../css/pages/admin.css?v=4.4.7"/>
+  <link rel="stylesheet" href="../css/pages/admin.css?v=4.4.8"/>
   <link rel="stylesheet" href="../css/core/accessibility.css?v=4.2.0"/>
   <link rel="stylesheet" href="../css/core/enhancements.css?v=4.4.7"/>
 </head>
@@ -47,7 +47,7 @@
       <main class="admin-main">
         <section class="admin-view is-active" id="overview" data-admin-view tabindex="-1" aria-label="Visão geral">
           <div class="admin-hero">
-            <div><span class="admin-kicker">PEDEJÁ 4.4.7</span><h2>Visão completa da operação.</h2><p>Aprove restaurantes, acompanhe pedidos e mantenha a plataforma saudável. Os entregadores são gerenciados pelas próprias empresas.</p></div>
+            <div><span class="admin-kicker">PEDEJÁ 4.4.8</span><h2>Visão completa da operação.</h2><p>Aprove restaurantes, acompanhe pedidos e mantenha a plataforma saudável. Os entregadores são gerenciados pelas próprias empresas.</p></div>
             <div class="admin-health" id="saudeOperacao"><i></i><div><small>STATUS DO SISTEMA</small><strong id="saudeOperacaoTexto">Verificando operação...</strong></div></div>
           </div>
 
@@ -104,8 +104,6 @@
           <div class="admin-table-wrap"><table><thead><tr><th>Usuário</th><th>Telefone</th><th>Cadastro</th><th>Status</th><th>Ação</th></tr></thead><tbody id="adminUsuarios"><tr><td colspan="5">Carregando...</td></tr></tbody></table></div>
         </section>
 
-        
-
         <section class="admin-section admin-view" id="cupons" data-admin-view tabindex="-1" aria-label="Cupons" hidden>
           <div class="admin-section-title"><div><span class="admin-kicker">PROMOÇÕES</span><h2>Cupons</h2><p>Crie, edite, pause ou exclua benefícios globais e dos restaurantes.</p></div><div class="admin-title-actions"><label class="admin-search">⌕<input id="buscaAdminCupom" type="search" placeholder="Buscar cupom"/></label><button class="admin-primary-button" id="novoCupom" type="button">+ Novo cupom</button></div></div>
           <div class="admin-table-wrap"><table><thead><tr><th>Código</th><th>Escopo</th><th>Benefício</th><th>Uso</th><th>Validade</th><th>Status</th><th>Ações</th></tr></thead><tbody id="adminCupons"><tr><td colspan="7">Carregando...</td></tr></tbody></table></div>
@@ -113,31 +111,17 @@
 
         <section class="admin-section admin-view" id="relatorios" data-admin-view tabindex="-1" aria-label="Relatórios" hidden>
           <div class="admin-section-title"><div><span class="admin-kicker">INTELIGÊNCIA OPERACIONAL</span><h2>Relatório do período</h2><p>Indicadores de vendas, cancelamento, entrega e pagamento online.</p></div><div class="report-actions"><label class="sr-only" for="periodoRelatorio">Período do relatório</label><select id="periodoRelatorio" aria-label="Período do relatório"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option><option value="365">1 ano</option></select><button id="exportarRelatorio" type="button">Exportar CSV</button></div></div>
-          <div class="report-grid">
-            <article><small>Entregues</small><strong id="relatorioEntregues">0</strong></article>
-            <article><small>Cancelamento</small><strong id="relatorioCancelamento">0%</strong></article>
-            <article><small>Ticket médio</small><strong id="relatorioTicket">R$ 0,00</strong></article>
-            <article><small>Tempo médio</small><strong id="relatorioTempo">0 min</strong></article>
-            <article><small>Pagamento online</small><strong id="relatorioOnline">0</strong></article>
-          </div>
+          <div class="report-grid"><article><small>Entregues</small><strong id="relatorioEntregues">0</strong></article><article><small>Cancelamento</small><strong id="relatorioCancelamento">0%</strong></article><article><small>Ticket médio</small><strong id="relatorioTicket">R$ 0,00</strong></article><article><small>Tempo médio</small><strong id="relatorioTempo">0 min</strong></article><article><small>Pagamento online</small><strong id="relatorioOnline">0</strong></article></div>
           <div class="admin-report-detail"><div><h3>Restaurantes por volume</h3><div id="topRestaurantesAdmin"></div></div><div><h3>Produtos mais vendidos</h3><div id="topProdutosAdmin"></div></div><div><h3>Clientes recorrentes</h3><div id="clientesRecorrentesAdmin"></div></div><div><h3>Segurança do acesso</h3><div id="segurancaLoginAdmin"></div></div><div><h3>Erros recentes monitorados</h3><div id="logsAdmin"></div></div><div class="audit-panel"><h3>Atividades administrativas</h3><div id="auditoriaAdmin"></div></div></div>
         </section>
 
         <section class="admin-section admin-view" id="configuracoes" data-admin-view tabindex="-1" aria-label="Configurações" hidden>
           <div class="admin-section-title"><div><span class="admin-kicker">CONTROLE DA PLATAFORMA</span><h2>Configurações</h2><p>Ajuste o comportamento do painel administrativo neste dispositivo.</p></div><button class="admin-secondary-button" id="restaurarConfigAdmin" type="button">Restaurar padrão</button></div>
-          <div class="admin-settings-grid">
-            <article class="admin-settings-card"><div><strong>Atualização automática</strong><p>Atualiza os dados do painel quando houver novas alterações.</p></div><label class="admin-switch"><input id="configAutoAtualizacao" type="checkbox" checked><span></span></label></article>
-            <article class="admin-settings-card"><div><strong>Alertas administrativos</strong><p>Exibe avisos visuais para pendências e eventos importantes.</p></div><label class="admin-switch"><input id="configAlertas" type="checkbox" checked><span></span></label></article>
-            <article class="admin-settings-card"><div><strong>Confirmação de ações críticas</strong><p>Solicita confirmação antes de bloqueios e exclusões.</p></div><label class="admin-switch"><input id="configConfirmacoes" type="checkbox" checked><span></span></label></article>
-            <article class="admin-settings-card"><div><strong>Modo compacto</strong><p>Reduz espaçamentos para visualizar mais informações na tela.</p></div><label class="admin-switch"><input id="configCompacto" type="checkbox"><span></span></label></article>
-          </div>
+          <div class="admin-settings-grid"><article class="admin-settings-card"><div><strong>Atualização automática</strong><p>Atualiza os dados do painel quando houver novas alterações.</p></div><label class="admin-switch"><input id="configAutoAtualizacao" type="checkbox" checked><span></span></label></article><article class="admin-settings-card"><div><strong>Alertas administrativos</strong><p>Exibe avisos visuais para pendências e eventos importantes.</p></div><label class="admin-switch"><input id="configAlertas" type="checkbox" checked><span></span></label></article><article class="admin-settings-card"><div><strong>Confirmação de ações críticas</strong><p>Solicita confirmação antes de bloqueios e exclusões.</p></div><label class="admin-switch"><input id="configConfirmacoes" type="checkbox" checked><span></span></label></article><article class="admin-settings-card"><div><strong>Modo compacto</strong><p>Reduz espaçamentos para visualizar mais informações na tela.</p></div><label class="admin-switch"><input id="configCompacto" type="checkbox"><span></span></label></article></div>
           <div class="admin-settings-note"><strong>Importante</strong><p>Estas preferências controlam a experiência administrativa neste navegador. Alterações operacionais globais da plataforma devem ser configuradas no servidor para afetar todos os administradores.</p></div>
           <div class="admin-settings-admins">
             <div class="admin-section-title"><div><span class="admin-kicker">ACESSO</span><h3>Administradores do site</h3><p>Convide pessoas para administrar o PedeJá. O convite é enviado por e-mail.</p></div></div>
-            <form id="formNovoAdmin" class="admin-admin-invite">
-              <label class="admin-form-field full"><span>E-mail do novo administrador</span><input id="novoAdminEmail" type="email" autocomplete="email" placeholder="admin@exemplo.com" required></label>
-              <button class="admin-primary-button" type="submit">+ Adicionar administrador</button>
-            </form>
+            <form id="formNovoAdmin" class="admin-admin-invite"><label class="admin-form-field full"><span>E-mail do novo administrador</span><input id="novoAdminEmail" type="email" autocomplete="email" placeholder="admin@exemplo.com" required></label><button class="admin-primary-button" type="submit">+ Adicionar administrador</button></form>
             <div id="listaAdministradores" class="admin-admin-list"><p>Carregando administradores...</p></div>
           </div>
         </section>
@@ -145,32 +129,21 @@
         <section class="admin-section admin-view" id="suporte" data-admin-view tabindex="-1" aria-label="Suporte" hidden>
           <div class="admin-section-title"><div><span class="admin-kicker">ATENDIMENTO E RISCO</span><h2>Suporte e pendências</h2><p>Responda clientes, acompanhe cancelamentos, reembolsos e alertas de estoque.</p></div><button class="admin-secondary-button" id="atualizarOperacaoAdmin" type="button">↻ Atualizar</button></div>
           <div class="ops-health-grid"><article><small>Chamados abertos</small><strong id="opsChamados">0</strong></article><article><small>Cancelamentos</small><strong id="opsCancelamentos">0</strong></article><article><small>Reembolsos</small><strong id="opsReembolsos">0</strong></article><article><small>Estoque baixo</small><strong id="opsEstoque">0</strong></article><article><small>Lojas em pausa</small><strong id="opsPausas">0</strong></article><article><small>Pagamentos divergentes</small><strong id="opsPagamentos">0</strong></article></div>
-          <div class="ops-admin-grid">
-            <article><h3>Chamados recentes</h3><div id="adminChamados"><div class="admin-loading-inline">Carregando chamados...</div></div></article>
-            <article><h3>Cancelamentos e reembolsos</h3><div id="adminReembolsos"><div class="admin-loading-inline">Carregando pendências...</div></div></article><article><h3>Conciliação de pagamentos</h3><div id="adminConciliacao"><div class="admin-loading-inline">Carregando conciliação...</div></div></article>
-          </div>
+          <div class="ops-admin-grid"><article><h3>Chamados recentes</h3><div id="adminChamados"><div class="admin-loading-inline">Carregando chamados...</div></div></article><article><h3>Cancelamentos e reembolsos</h3><div id="adminReembolsos"><div class="admin-loading-inline">Carregando pendências...</div></div></article><article><h3>Conciliação de pagamentos</h3><div id="adminConciliacao"><div class="admin-loading-inline">Carregando conciliação...</div></div></article></div>
         </section>
       </main>
     </div>
   </div>
   <div class="admin-overlay" id="adminOverlay"></div>
-  <div class="admin-modal" id="adminModal" hidden>
-    <button class="admin-modal-backdrop" type="button" data-modal-close aria-label="Fechar janela"></button>
-    <section class="admin-modal-panel" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
-      <header><div><span class="admin-kicker" id="adminModalKicker">ADMINISTRAÇÃO</span><h2 id="adminModalTitle">Detalhes</h2></div><button class="admin-modal-close" type="button" data-modal-close aria-label="Fechar">×</button></header>
-      <div class="admin-modal-body" id="adminModalBody"></div>
-      <footer class="admin-modal-actions" id="adminModalActions"></footer>
-    </section>
-  </div>
+  <div class="admin-modal" id="adminModal" hidden><button class="admin-modal-backdrop" type="button" data-modal-close aria-label="Fechar janela"></button><section class="admin-modal-panel" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle"><header><div><span class="admin-kicker" id="adminModalKicker">ADMINISTRAÇÃO</span><h2 id="adminModalTitle">Detalhes</h2></div><button class="admin-modal-close" type="button" data-modal-close aria-label="Fechar">×</button></header><div class="admin-modal-body" id="adminModalBody"></div><footer class="admin-modal-actions" id="adminModalActions"></footer></section></div>
   <div class="sr-only" id="adminLive" aria-live="polite"></div>
-
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
   <script defer src="../js/core/app-utils.js?v=4.4.7"></script>
   <script defer src="../js/core/supabase.js?v=4.2.0"></script>
   <script defer src="../js/core/config.js?v=4.4.7"></script>
   <script defer src="../js/core/monitoring.js?v=4.2.0"></script>
   <script defer src="../js/core/notifications.js?v=4.2.0"></script>
-  <script defer src="../js/pages/admin.js?v=4.4.7"></script>
+  <script defer src="../js/pages/admin.js?v=4.4.8"></script>
   <script defer src="../js/modules/operacao-admin.js?v=4.2.0"></script>
   <script defer src="../js/core/site-enhancements.js?v=4.4.7"></script>
 </body>
