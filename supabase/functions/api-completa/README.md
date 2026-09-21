@@ -1,4 +1,4 @@
-# API Completa — Multi Delivery
+# API Completa — PedeJá
 
 Endpoint base: `https://wzxsjxdbxonrmlmzufpv.supabase.co/functions/v1/api-completa`
 
