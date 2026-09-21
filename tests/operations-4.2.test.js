@@ -81,7 +81,7 @@ test("aviso de aprovação respeita o estado publicado da loja", () => {
     assert.match(html, /id="publicacaoAviso" hidden/);
     assert.match(js, /publicacaoAviso"\)\.hidden = empresa\.publicado === true/);
     assert.match(css, /\.approval-alert\[hidden\]\{display:none!important\}/);
-    assert.match(html, /empresa-dashboard\.css\?v=4\.4\.7/);
+    assert.match(html, /empresa-dashboard\\.css\\?v=4\\.4\\.8/);
 });
 
 test("estoque mantém trilha de auditoria protegida", () => {
