@@ -465,3 +465,51 @@ html,body{max-width:100%;overflow-x:hidden}
   .admin-search{max-width:100%}
 }
 
+
+/* Ações rápidas — painel mobile */
+.admin-quick-actions{display:none}
+@media(max-width:760px){
+  .admin-quick-actions{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:8px;
+  }
+  .admin-quick-actions button{
+    min-width:0;
+    min-height:78px;
+    padding:10px 6px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
+    color:var(--ink);
+    background:#fff;
+    border:1px solid rgba(21,25,37,.06);
+    border-radius:15px;
+    box-shadow:0 6px 18px rgba(21,25,37,.05);
+    cursor:pointer;
+    transition:transform .16s ease,box-shadow .16s ease;
+  }
+  .admin-quick-actions button:active{transform:scale(.97)}
+  .admin-quick-actions button:focus-visible{outline:3px solid rgba(239,36,53,.18);outline-offset:2px}
+  .admin-quick-actions span{
+    display:grid;
+    width:30px;height:30px;
+    place-items:center;
+    color:#b71d29;
+    background:#ffe8ea;
+    border-radius:9px;
+    font-size:11px;
+    font-weight:800;
+  }
+  .admin-quick-actions strong{font-size:10px;line-height:1.1}
+  .admin-quick-actions small{color:var(--muted);font-size:8px}
+}
+@media(max-width:480px){
+  .admin-quick-actions{gap:6px}
+  .admin-quick-actions button{min-height:74px;padding:8px 4px;border-radius:13px}
+  .admin-quick-actions span{width:28px;height:28px}
+  .admin-quick-actions strong{font-size:9px}
+  .admin-quick-actions small{font-size:7px}
+}
