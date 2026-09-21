@@ -1079,6 +1079,25 @@ ouvir("exportarPedidos", "click", () => baixarCsv(linhasCsv(pedidosFiltrados()),
 ouvir("novoCupom", "click", () => abrirFormularioCupom());
 ouvir("periodoRelatorio", "change", carregarRelatorio);
 ouvir("exportarRelatorio", "click", exportarRelatorioCsv);
+async function atualizarPainelAdminManual() {
+    const botao = document.getElementById("atualizarPainelAdmin");
+    if (!botao || botao.disabled) return;
+    botao.disabled = true;
+    botao.setAttribute("aria-busy", "true");
+    botao.textContent = "↻ Atualizando...";
+    try {
+        await carregarDadosAdmin();
+        await carregarAdministradores();
+        window.AppToast?.("Painel atualizado", "Os dados administrativos foram atualizados.", "success");
+    } catch (erro) {
+        mostrarErro("Não foi possível atualizar o painel", erro);
+    } finally {
+        botao.disabled = false;
+        botao.removeAttribute("aria-busy");
+        botao.textContent = "↻ Atualizar";
+    }
+}
+ouvir("atualizarPainelAdmin", "click", atualizarPainelAdminManual);
 ouvir("adminFontSize", "change", ({ target }) => aplicarTamanhoFonte(target.value));
 ["configAutoAtualizacao","configAlertas","configConfirmacoes","configCompacto"].forEach((id) => ouvir(id, "change", salvarConfiguracoesAdmin));
 ouvir("formNovoAdmin", "submit", adicionarAdministrador);
