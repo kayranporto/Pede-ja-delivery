@@ -1,0 +1,114 @@
+/* =========================================================
+   HOME MOBILE UI FIXES — 4.4.11
+   Correções visuais específicas da tela inicial mobile.
+========================================================= */
+
+.skip-link{
+  position:fixed!important;
+  left:12px!important;
+  top:12px!important;
+  z-index:20000!important;
+  width:auto!important;
+  max-width:calc(100vw - 24px)!important;
+  padding:10px 14px!important;
+  border-radius:12px!important;
+  background:#171a21!important;
+  color:#fff!important;
+  font-size:14px!important;
+  font-weight:800!important;
+  box-shadow:0 12px 30px rgba(0,0,0,.2)!important;
+  transform:translateY(-180%)!important;
+  transition:transform .18s ease!important;
+}
+.skip-link:focus{
+  transform:translateY(0)!important;
+}
+
+@media(max-width:680px){
+  .home-page .header{
+    z-index:100!important;
+  }
+
+  .home-page #menuUsuario{
+    align-items:stretch!important;
+    gap:8px!important;
+  }
+
+  /* O estilo global do marketplace estava sobrescrevendo o texto branco
+     do botão administrativo. */
+  .home-page #menuUsuario .btn-admin{
+    color:#fff!important;
+    background:linear-gradient(135deg,#171a24,#343b4c)!important;
+    border-color:#242938!important;
+    min-height:44px!important;
+    padding:10px 16px!important;
+    border-radius:16px!important;
+    box-shadow:0 10px 22px rgba(23,26,36,.16)!important;
+  }
+
+  .home-page #menuUsuario .btn-admin .btn-admin-icon{
+    color:#ff6e79!important;
+  }
+
+  .home-page #menuUsuario .btn-primary{
+    min-height:44px!important;
+    padding:10px 16px!important;
+    border-radius:16px!important;
+    white-space:nowrap!important;
+  }
+
+  /* Evita que o bloco de navegação crie uma faixa vazia antes do hero. */
+  .home-page .market-hero{
+    padding-top:14px!important;
+  }
+
+  /* O instalador não pode cobrir o CTA principal. */
+  .home-page .install-app{
+    left:10px!important;
+    right:auto!important;
+    bottom:calc(76px + env(safe-area-inset-bottom,0px))!important;
+    z-index:10000!important;
+    min-height:46px!important;
+    max-width:150px!important;
+    padding:11px 14px!important;
+    border-radius:15px!important;
+  }
+
+  /* Mantém a central de notificações separada do instalador. */
+  .home-page .notification-center{
+    right:10px!important;
+    bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+    z-index:10001!important;
+  }
+
+  .home-page .notification-trigger{
+    width:52px!important;
+    height:52px!important;
+    border-radius:17px!important;
+  }
+}
+
+@media(max-width:420px){
+  .home-page #menuUsuario .btn-admin,
+  .home-page #menuUsuario .btn-primary{
+    min-height:42px!important;
+    padding:9px 13px!important;
+    border-radius:15px!important;
+    font-size:.74rem!important;
+  }
+
+  .home-page .market-hero{
+    padding-top:10px!important;
+  }
+
+  .home-page .install-app{
+    bottom:calc(72px + env(safe-area-inset-bottom,0px))!important;
+    max-width:145px!important;
+  }
+}
+
+@media(display-mode:standalone){
+  .home-page .install-app{
+    display:none!important;
+  }
+}
