@@ -23,6 +23,62 @@ const modalAcoes = document.getElementById("adminModalActions");
 let focoAntesModal = null;
 let resolverModal = null;
 
+function gerarNotificacoesAdmin() {
+    const notificacoes = [];
+    const pendentes = adminEmpresas.filter((empresa) => ["pendente", "aguardando", "em_analise"].includes(String(empresa.status || empresa.aprovacao_status || "").toLowerCase())).length;
+    if (pendentes > 0) notificacoes.push({ id: "restaurantes-pendentes", tipo: "atenção", titulo: "Restaurantes aguardando aprovação", detalhe: pendentes === 1 ? "1 cadastro precisa de análise." : `${pendentes} cadastros precisam de análise.`, destino: "restaurantes" });
+    const cancelados = adminPedidos.filter((pedido) => String(pedido.status || "").toLowerCase() === "cancelado").length;
+    if (cancelados > 0) notificacoes.push({ id: "pedidos-cancelados", tipo: "alerta", titulo: "Pedidos cancelados", detalhe: `${cancelados} pedido(s) cancelado(s) no conjunto carregado.`, destino: "pedidos" });
+    const pagamentos = adminPedidos.filter((pedido) => String(pedido.pagamento_status || "").toLowerCase() === "pendente").length;
+    if (pagamentos > 0) notificacoes.push({ id: "pagamentos-pendentes", tipo: "atenção", titulo: "Pagamentos pendentes", detalhe: `${pagamentos} pedido(s) aguardam confirmação de pagamento.`, destino: "pedidos" });
+    const chamados = Number(document.getElementById("opsChamados")?.textContent?.replace(/\D/g, "") || 0);
+    if (chamados > 0) notificacoes.push({ id: "chamados-abertos", tipo: "suporte", titulo: "Chamados de suporte abertos", detalhe: `${chamados} chamado(s) aguardam atendimento.`, destino: "suporte" });
+    return notificacoes;
+}
+
+function renderizarNotificacoesAdmin() {
+    const lista = document.getElementById("adminNotificationsList");
+    const contador = document.getElementById("adminNotificationsCount");
+    if (!lista || !contador) return;
+    const todas = gerarNotificacoesAdmin();
+    const vistas = new Set(JSON.parse(localStorage.getItem("admin_notificacoes_vistas") || "[]"));
+    const novas = todas.filter((item) => !vistas.has(item.id));
+    contador.textContent = String(novas.length);
+    contador.hidden = novas.length === 0;
+    lista.replaceChildren();
+    if (!todas.length) { lista.append(elemento("p", "admin-notifications-empty", "Nenhuma pendência administrativa encontrada.")); return; }
+    todas.forEach((item) => {
+        const card = elemento("button", `admin-notification-item ${novas.some((n) => n.id === item.id) ? "is-new" : ""}`);
+        card.type = "button";
+        card.dataset.adminNotificationTarget = item.destino;
+        card.innerHTML = `<span class="admin-notification-icon">!</span><span><strong>${item.titulo}</strong><small>${item.detalhe}</small></span>`;
+        lista.append(card);
+    });
+}
+
+function abrirCentralNotificacoes() {
+    const painel = document.getElementById("adminNotificationsPanel");
+    const botao = document.getElementById("adminNotifications");
+    if (!painel || !botao) return;
+    renderizarNotificacoesAdmin();
+    painel.hidden = false;
+    botao.setAttribute("aria-expanded", "true");
+}
+
+function fecharCentralNotificacoes() {
+    const painel = document.getElementById("adminNotificationsPanel");
+    const botao = document.getElementById("adminNotifications");
+    if (!painel || !botao) return;
+    painel.hidden = true;
+    botao.setAttribute("aria-expanded", "false");
+}
+
+function marcarNotificacoesVistas() {
+    const todas = gerarNotificacoesAdmin();
+    localStorage.setItem("admin_notificacoes_vistas", JSON.stringify(todas.map((item) => item.id)));
+    renderizarNotificacoesAdmin();
+}
+
 function elemento(tag, classe, texto) {
     const item = document.createElement(tag);
     if (classe) item.className = classe;
