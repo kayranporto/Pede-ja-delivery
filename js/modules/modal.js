@@ -196,7 +196,7 @@ async function abrirModalProduto(produto) {
     modalImagem.addEventListener("error", () => { modalImagem.src = "../assets/produto-padrao.svg"; }, { once: true });
     modalNome.textContent = produto.nome || "Produto";
     modalDescricao.textContent = produto.descricao || "";
-    quantidadeSpan.textContent = "1";
+    quantidadeSpan.value = "1";
     menosQtd.disabled = true;
     maisQtd.disabled = false;
     confirmarProduto.disabled = true;
@@ -275,19 +275,46 @@ listaAdicionais.addEventListener("change", (event) => {
 });
 
 maisQtd.addEventListener("click", () => {
-    quantidade = Math.min(99, quantidade + 1);
-    quantidadeSpan.textContent = String(quantidade);
+    definirQuantidade(quantidade + 1);
     menosQtd.disabled = quantidade <= 1;
     maisQtd.disabled = quantidade >= 99;
     atualizarPreco();
 });
 
-menosQtd.addEventListener("click", () => {
-    quantidade = Math.max(1, quantidade - 1);
-    quantidadeSpan.textContent = String(quantidade);
+function definirQuantidade(valor) {
+    const numero = Number.parseInt(String(valor).replace(/[^0-9]/g, ""), 10);
+    if (!Number.isFinite(numero)) return false;
+    quantidade = Math.min(99, Math.max(1, numero));
+    quantidadeSpan.value = String(quantidade);
     menosQtd.disabled = quantidade <= 1;
     maisQtd.disabled = quantidade >= 99;
     atualizarPreco();
+    return true;
+}
+
+quantidadeSpan.addEventListener("input", () => {
+    const valor = quantidadeSpan.value;
+    if (valor === "") return;
+    const numero = Number.parseInt(valor, 10);
+    if (!Number.isFinite(numero)) return;
+    quantidade = Math.min(99, Math.max(1, numero));
+    quantidadeSpan.value = String(quantidade).replace(/^0+/, "") || "1";
+    menosQtd.disabled = quantidade <= 1;
+    maisQtd.disabled = quantidade >= 99;
+    atualizarPreco();
+});
+
+quantidadeSpan.addEventListener("blur", () => {
+    definirQuantidade(quantidadeSpan.value);
+});
+
+quantidadeSpan.addEventListener("change", () => {
+    definirQuantidade(quantidadeSpan.value);
+});
+
+menosQtd.addEventListener("click", () => {
+    quantidade = Math.max(1, quantidade - 1);
+    quantidadeSpan.textContent = String(quantidade);
 });
 
 confirmarProduto.addEventListener("click", () => {
