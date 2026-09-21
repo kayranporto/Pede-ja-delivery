@@ -10,7 +10,7 @@
 
 ## 1. Executive Summary
 
-O PedeJá é um **marketplace de delivery multi-restaurante** em estágio avançado de maturidade técnica. O sistema roda como site estático (HTML/CSS/JS vanilla, sem bundler/framework) publicado no Vercel, com **Supabase** como backend completo (Postgres + Auth + RLS + Edge Functions + Realtime/Storage). A versão atual (4.4.5) cobre catálogo configurável, carrinho, checkout idempotente, cozinha com SLA, multiunidade operacional, equipe interna com RBAC, planos/trial/limites, entregadores, frete por bairro ou distância, distribuição de ofertas por proximidade, entrega própria/plataforma/híbrida, ganhos do entregador, cupons, favoritos, avaliações, fidelidade, suporte, auditoria, LGPD e Mercado Pago. O pagamento online permanece **desligado por padrão** até a conclusão do sandbox.
+O PedeJá é um **marketplace de delivery multi-restaurante** em estágio avançado de maturidade técnica. O sistema roda como site estático (HTML/CSS/JS vanilla, sem bundler/framework) publicado no Vercel, com **Supabase** como backend completo (Postgres + Auth + RLS + Edge Functions + Realtime/Storage). A versão atual cobre catálogo configurável, carrinho, checkout idempotente, cozinha com SLA, multiunidade operacional, equipe interna com RBAC, planos/trial/limites, gestão de entregadores vinculados às próprias empresas, frete por bairro ou distância, atribuição de pedidos à equipe da empresa, cupons, favoritos, avaliações, fidelidade, suporte, auditoria, LGPD e Mercado Pago. O PedeJá não mantém frota própria nem oferece modalidades de entrega pela plataforma. O pagamento online permanece **desligado por padrão** até a conclusão do sandbox.
 
 O que falta para uma plataforma SaaS madura concentra-se em cobrança recorrente e repasses, comissão, geocodificação e rota viária, geofencing, prova de entrega, WhatsApp/e-mail transacionais, fila assíncrona resiliente, analytics de conversão e requisitos de escala. O roadmap deste PRD e o `ROADMAP-PLATAFORMA.md` estão alinhados ao estado efetivamente entregue até 4.4.5.
 
@@ -34,7 +34,7 @@ Pequenos e médios estabelecimentos (restaurantes, hamburguerias, açaí, mercad
 
 ## 4. Visão do Produto
 
-Plataforma web responsiva/PWA que conecta clientes, estabelecimentos, operadores de loja, entregadores e administradores em um único fluxo. A arquitetura multi-tenant já suporta multiunidade, RBAC interno, planos e limites; a cobrança recorrente e os repasses ainda precisam ser implementados. Apps mobile nativos permanecem fora do escopo — a estratégia é PWA-first.
+Plataforma web responsiva/PWA que conecta clientes, estabelecimentos, equipes das lojas, seus próprios entregadores e administradores em um único fluxo. A arquitetura multi-tenant já suporta multiunidade, RBAC interno, planos e limites; a cobrança recorrente e os repasses ainda precisam ser implementados. Apps mobile nativos permanecem fora do escopo — a estratégia é PWA-first.
 
 ---
 
@@ -200,9 +200,9 @@ O proprietário visualiza pedidos e, por relatório (`admin_relatorio_clientes_p
 `admin_relatorio_operacional`, `empresa_relatorio_financeiro`, `admin_relatorio_clientes_produtos`, `admin_saude_operacao` — cobrem faturamento, pedidos, cancelamentos, reembolsos pendentes, chamados abertos, pagamentos divergentes. Filtro por `p_dias` (parametrizável) já implementado nas funções (`default 30`).
 - **Filtros por período customizado no calendário da UI, ticket médio explícito, taxa de conversão, produtos mais vendidos com ranking visual, horário de pico:** presença parcial — as funções de relatório existem no banco, mas nem todos os KPIs da lista do briefing (taxa de conversão de visitante→pedido, por exemplo) têm dado de origem hoje, pois **não há tracking de visitas/funil** no sistema (não existe tabela de eventos de analytics de navegação). **PARCIAL para financeiro/operacional, NÃO IMPLEMENTADO para funil de conversão.**
 
-### RF-14 — Gestão de entregadores **[EXISTENTE, com logística 4.4.5]**
-Cadastro, aprovação, online/offline, localização em tempo real, ofertas por proximidade, expansão automática de raio (4/8/15 km), web push, aceite manual concorrente, retirada e entrega estão implementados. Cada unidade pode operar com entregadores próprios, da plataforma ou em modo híbrido; no modo próprio o restaurante pode fazer atribuição direta. Histórico e cálculo de ganhos também existem.
-- **Ainda faltam:** atribuição direta totalmente automática sem aceite, agrupamento de corridas, prova de entrega e liquidação/repasse dos ganhos.
+### RF-14 — Gestão de entregadores **[EXISTENTE, logística exclusiva da empresa]**
+Cadastro, aprovação, online/offline, localização em tempo real, web push, aceite de pedidos, retirada e entrega estão implementados para entregadores vinculados às próprias empresas/unidades. Cada unidade opera somente com sua equipe de entrega; não existe frota global do PedeJá e não há modalidades de entrega da plataforma ou híbrida. A empresa pode vincular, desvincular e atribuir pedidos diretamente aos seus entregadores.
+- **Ainda faltam:** prova de entrega e liquidação/repasse dos ganhos.
 
 ### RF-15 — Multiunidade **[EXISTENTE]**
 `empresa_unidades` possui unidade principal automática, RLS e integridade composta empresa↔unidade. A UI permite criar, editar, selecionar e desativar unidades; catálogo, produtos, estoque, horários, pausas, regiões, checkout e operação são filtrados pela unidade ativa. O catálogo público e o checkout rejeitam produto pertencente a outra unidade. A unidade principal não pode ser desativada pela interface.
