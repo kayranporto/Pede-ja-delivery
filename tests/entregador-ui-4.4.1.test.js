@@ -26,6 +26,6 @@ test("camada 4.4.1 permanece somente de apresentação", () => {
 });
 
 test("ações críticas continuam pertencendo ao fluxo base", () => {
-  assert.match(html, /js\/pages\/entregador\.js\?v=4\.2\.0/);
+  assert.match(html, /js\/pages\/entregador\.js\?v=4\.4\.6/);
   assert.match(html, /js\/modules\/entregador-logistica-4\.4\.js\?v=4\.4\.5/);
 });
