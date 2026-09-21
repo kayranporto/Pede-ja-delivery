@@ -71,3 +71,9 @@ body:has(.orders-header),body:has(.support-header){background:var(--cream)!impor
   body:has(.pwa-update.show) .install-app{display:none!important}
 }
 @media(max-width:380px){body:has(.install-app:not([hidden])) .app-toast-region{bottom:calc(116px + env(safe-area-inset-bottom,0px))!important}}
+
+/* Painel do restaurante: notificações não devem cobrir campos do formulário no mobile. */
+@media(max-width:640px){
+  body:has(.dashboard-main) .notification-center{top:76px;right:12px;bottom:auto}
+  body:has(.dashboard-main) .notification-panel{top:56px;bottom:auto}
+}
