@@ -1,4 +1,4 @@
-# PRD — Plataforma de Delivery (Multi Delivery)
+# PRD — Plataforma de Delivery (PedeJá)
 
 **Versão do produto analisada:** 4.4.5
 **Data desta análise:** 21/08/2026
@@ -10,7 +10,7 @@
 
 ## 1. Executive Summary
 
-O Multi Delivery é um **marketplace de delivery multi-restaurante** em estágio avançado de maturidade técnica. O sistema roda como site estático (HTML/CSS/JS vanilla, sem bundler/framework) publicado no Vercel, com **Supabase** como backend completo (Postgres + Auth + RLS + Edge Functions + Realtime/Storage). A versão atual (4.4.5) cobre catálogo configurável, carrinho, checkout idempotente, cozinha com SLA, multiunidade operacional, equipe interna com RBAC, planos/trial/limites, entregadores, frete por bairro ou distância, distribuição de ofertas por proximidade, entrega própria/plataforma/híbrida, ganhos do entregador, cupons, favoritos, avaliações, fidelidade, suporte, auditoria, LGPD e Mercado Pago. O pagamento online permanece **desligado por padrão** até a conclusão do sandbox.
+O PedeJá é um **marketplace de delivery multi-restaurante** em estágio avançado de maturidade técnica. O sistema roda como site estático (HTML/CSS/JS vanilla, sem bundler/framework) publicado no Vercel, com **Supabase** como backend completo (Postgres + Auth + RLS + Edge Functions + Realtime/Storage). A versão atual (4.4.5) cobre catálogo configurável, carrinho, checkout idempotente, cozinha com SLA, multiunidade operacional, equipe interna com RBAC, planos/trial/limites, entregadores, frete por bairro ou distância, distribuição de ofertas por proximidade, entrega própria/plataforma/híbrida, ganhos do entregador, cupons, favoritos, avaliações, fidelidade, suporte, auditoria, LGPD e Mercado Pago. O pagamento online permanece **desligado por padrão** até a conclusão do sandbox.
 
 O que falta para uma plataforma SaaS madura concentra-se em cobrança recorrente e repasses, comissão, geocodificação e rota viária, geofencing, prova de entrega, WhatsApp/e-mail transacionais, fila assíncrona resiliente, analytics de conversão e requisitos de escala. O roadmap deste PRD e o `ROADMAP-PLATAFORMA.md` estão alinhados ao estado efetivamente entregue até 4.4.5.
 
@@ -28,7 +28,7 @@ Este PRD assume esse ponto de partida: **não é uma reescrita**, é uma consoli
 
 ## 3. Problema
 
-Pequenos e médios estabelecimentos (restaurantes, hamburguerias, açaí, mercados, farmácias) dependem hoje de marketplaces de terceiros com comissões altas e pouca customização, ou de soluções de WhatsApp manuais sem gestão de estoque, fila de cozinha ou rastreabilidade financeira. O Multi Delivery propõe uma plataforma própria, white-label por loja (`plataforma.com/nomedaloja`), com operação completa do pedido (recebido → preparo → entrega) e ferramentas de gestão (catálogo, cupons, relatórios) — sem obrigar o lojista a depender de um app de terceiros.
+Pequenos e médios estabelecimentos (restaurantes, hamburguerias, açaí, mercados, farmácias) dependem hoje de marketplaces de terceiros com comissões altas e pouca customização, ou de soluções de WhatsApp manuais sem gestão de estoque, fila de cozinha ou rastreabilidade financeira. O PedeJá propõe uma plataforma própria, white-label por loja (`plataforma.com/nomedaloja`), com operação completa do pedido (recebido → preparo → entrega) e ferramentas de gestão (catálogo, cupons, relatórios) — sem obrigar o lojista a depender de um app de terceiros.
 
 ---
 
