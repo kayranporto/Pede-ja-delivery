@@ -117,7 +117,7 @@ Deno.serve(async (request) => {
         },
         auto_return: "approved",
         notification_url: notificationUrl,
-        statement_descriptor: "MULTI DELIVERY",
+        statement_descriptor: "PEDEJA",
       }),
     });
 
