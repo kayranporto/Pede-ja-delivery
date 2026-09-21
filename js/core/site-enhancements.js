@@ -344,6 +344,9 @@
   const isHomePage=document.body.classList.contains("home-page");
   let installPrompt=null;
   let install=null;
+  if(!isHomePage){
+    document.querySelectorAll(".install-app").forEach((elemento) => elemento.remove());
+  }
   if(isHomePage){
     install=document.createElement("button");
     install.className="install-app";
