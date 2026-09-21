@@ -48,5 +48,5 @@ test("painel exige o nome da loja e chama somente a API protegida", () => {
   assert.match(js, /Todos os dados e arquivos da loja foram removidos permanentemente/);
   assert.doesNotMatch(js, /db\.from\("empresas"\)/);
   assert.doesNotMatch(js, /from\("empresas"\)\.delete/);
-  assert.match(read("html/admin.html"), /admin\\.js\\?v=4\\.4\\.11/);
+  assert.match(read("html/admin.html"), /admin\.js\?v=4\.4\.11/);
 });
