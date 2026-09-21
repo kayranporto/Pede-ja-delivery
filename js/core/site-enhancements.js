@@ -422,11 +422,35 @@
     }catch(err){console.warn("Service Worker:",err)}
   });
 
-  let installPrompt=null;const install=document.createElement("button");install.className="install-app";install.type="button";install.hidden=true;install.textContent="Instalar app";document.body.append(install);
+  const isHomePage=document.body.classList.contains("home-page");
+  let installPrompt=null;
+  let install=null;
+  if(isHomePage){
+    install=document.createElement("button");
+    install.className="install-app";
+    install.type="button";
+    install.hidden=true;
+    install.textContent="Instalar app";
+    document.body.append(install);
+  }
   const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
-  addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;if(!standalone)install.hidden=false});
-  install.onclick=async()=>{if(!installPrompt)return;installPrompt.prompt();const escolha=await installPrompt.userChoice;install.hidden=true;installPrompt=null;if(escolha?.outcome==="dismissed")toast("Instalação cancelada","Você pode instalar o aplicativo depois pelo navegador.","info")};
-  addEventListener("appinstalled",()=>{install.hidden=true;toast("Aplicativo instalado","O Multi Delivery foi adicionado ao seu dispositivo.","success")});
+  addEventListener("beforeinstallprompt",e=>{
+    e.preventDefault();
+    installPrompt=e;
+    if(install&&!standalone)install.hidden=false;
+  });
+  if(install)install.onclick=async()=>{
+    if(!installPrompt)return;
+    installPrompt.prompt();
+    const escolha=await installPrompt.userChoice;
+    install.hidden=true;
+    installPrompt=null;
+    if(escolha?.outcome==="dismissed")toast("Instalação cancelada","Você pode instalar o aplicativo depois pelo navegador.","info")
+  };
+  addEventListener("appinstalled",()=>{
+    if(install)install.hidden=true;
+    toast("Aplicativo instalado","O PedeJá foi adicionado ao seu dispositivo.","success")
+  });
 
   if(!document.querySelector(".skip-link")){const skip=document.createElement("a");skip.className="skip-link";skip.href="#conteudoPrincipal";skip.textContent="Pular para o conteúdo";skip.onclick=e=>{e.preventDefault();const main=document.querySelector("main,.page-main");if(!main)return;main.id=main.id||"conteudoPrincipal";main.setAttribute("tabindex","-1");main.focus()};document.body.prepend(skip)}
 })();
