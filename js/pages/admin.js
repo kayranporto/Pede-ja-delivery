@@ -844,6 +844,34 @@ function agendarRecarregamento() {
     recarregarTimer = setTimeout(() => carregarDadosAdmin().catch((erro) => mostrarErro("Não foi possível atualizar o painel", erro)), 500);
 }
 
+function carregarConfiguracoesAdmin() {
+    const padrao = { autoAtualizacao: true, alertas: true, confirmacoes: true, compacto: false };
+    let salvo = {};
+    try { salvo = JSON.parse(localStorage.getItem("admin_configuracoes") || "{}"); } catch {}
+    const config = { ...padrao, ...salvo };
+    Object.entries({
+        autoAtualizacao: "configAutoAtualizacao",
+        alertas: "configAlertas",
+        confirmacoes: "configConfirmacoes",
+        compacto: "configCompacto"
+    }).forEach(([chave, id]) => { const campo = document.getElementById(id); if (campo) campo.checked = Boolean(config[chave]); });
+    document.body.classList.toggle("admin-compact", config.compacto);
+    return config;
+}
+
+function salvarConfiguracoesAdmin() {
+    const config = {
+        autoAtualizacao: document.getElementById("configAutoAtualizacao")?.checked !== false,
+        alertas: document.getElementById("configAlertas")?.checked !== false,
+        confirmacoes: document.getElementById("configConfirmacoes")?.checked !== false,
+        compacto: document.getElementById("configCompacto")?.checked === true
+    };
+    localStorage.setItem("admin_configuracoes", JSON.stringify(config));
+    document.body.classList.toggle("admin-compact", config.compacto);
+    anunciar("Configurações administrativas salvas.");
+    window.AppToast?.("Configurações salvas", "As preferências deste dispositivo foram atualizadas.", "success");
+}
+
 function aplicarTamanhoFonte(valor) {
     const permitido = ["normal", "large", "xlarge"].includes(valor) ? valor : "normal";
     document.body.dataset.adminFont = permitido;
@@ -866,7 +894,8 @@ function configurarNavegacao() {
         usuarios: "Usuários da plataforma",
                 cupons: "Gestão de cupons",
         relatorios: "Relatórios e inteligência",
-        suporte: "Suporte e pendências"
+        suporte: "Suporte e pendências",
+        configuracoes: "Configurações da plataforma"
     };
 
     function idSecao(valor = location.hash) {
@@ -1000,6 +1029,12 @@ ouvir("novoCupom", "click", () => abrirFormularioCupom());
 ouvir("periodoRelatorio", "change", carregarRelatorio);
 ouvir("exportarRelatorio", "click", exportarRelatorioCsv);
 ouvir("adminFontSize", "change", ({ target }) => aplicarTamanhoFonte(target.value));
+["configAutoAtualizacao","configAlertas","configConfirmacoes","configCompacto"].forEach((id) => ouvir(id, "change", salvarConfiguracoesAdmin));
+ouvir("restaurarConfigAdmin", "click", () => {
+    localStorage.removeItem("admin_configuracoes");
+    carregarConfiguracoesAdmin();
+    window.AppToast?.("Configurações restauradas", "Os valores padrão foram aplicados.", "success");
+});
 ouvir("adminMenu", "click", () => {
     const aberto = !adminSidebar?.classList.contains("open");
     definirMenuAdmin(aberto);
@@ -1035,4 +1070,5 @@ document.addEventListener("keydown", (evento) => {
 ouvir("adminLogout", "click", async () => { await db.auth.signOut(); App.limparDadosPrivados(); location.replace("login.html"); });
 addEventListener("beforeunload", () => { clearTimeout(recarregarTimer); if (canalAdmin) db.removeChannel(canalAdmin); });
 configurarNavegacao();
+carregarConfiguracoesAdmin();
 iniciarAdmin();
