@@ -1,6 +1,6 @@
 # Status de produção — 31/08/2026
 
-Este documento complementa `PRODUCAO.md` com o estado verificado mais recente do Multi Delivery.
+Este documento complementa `PRODUCAO.md` com o estado verificado mais recente do PedeJá.
 
 ## Concluído e verificado
 
