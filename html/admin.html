@@ -32,6 +32,7 @@
         <a href="#cupons">% <span>Cupons</span></a>
         <a href="#relatorios">↗ <span>Relatórios</span></a>
         <a href="#suporte">? <span>Suporte</span><b id="suporteMenu">0</b></a>
+        <a href="#configuracoes">⚙ <span>Configurações</span></a>
       </nav>
       <div class="admin-sidebar-footer"><small>ACESSO PROTEGIDO</small><p>As ações administrativas ficam registradas no banco.</p></div>
     </aside>
@@ -120,6 +121,17 @@
             <article><small>Pagamento online</small><strong id="relatorioOnline">0</strong></article>
           </div>
           <div class="admin-report-detail"><div><h3>Restaurantes por volume</h3><div id="topRestaurantesAdmin"></div></div><div><h3>Produtos mais vendidos</h3><div id="topProdutosAdmin"></div></div><div><h3>Clientes recorrentes</h3><div id="clientesRecorrentesAdmin"></div></div><div><h3>Segurança do acesso</h3><div id="segurancaLoginAdmin"></div></div><div><h3>Erros recentes monitorados</h3><div id="logsAdmin"></div></div><div class="audit-panel"><h3>Atividades administrativas</h3><div id="auditoriaAdmin"></div></div></div>
+        </section>
+
+        <section class="admin-section admin-view" id="configuracoes" data-admin-view tabindex="-1" aria-label="Configurações" hidden>
+          <div class="admin-section-title"><div><span class="admin-kicker">CONTROLE DA PLATAFORMA</span><h2>Configurações</h2><p>Ajuste o comportamento do painel administrativo neste dispositivo.</p></div><button class="admin-secondary-button" id="restaurarConfigAdmin" type="button">Restaurar padrão</button></div>
+          <div class="admin-settings-grid">
+            <article class="admin-settings-card"><div><strong>Atualização automática</strong><p>Atualiza os dados do painel quando houver novas alterações.</p></div><label class="admin-switch"><input id="configAutoAtualizacao" type="checkbox" checked><span></span></label></article>
+            <article class="admin-settings-card"><div><strong>Alertas administrativos</strong><p>Exibe avisos visuais para pendências e eventos importantes.</p></div><label class="admin-switch"><input id="configAlertas" type="checkbox" checked><span></span></label></article>
+            <article class="admin-settings-card"><div><strong>Confirmação de ações críticas</strong><p>Solicita confirmação antes de bloqueios e exclusões.</p></div><label class="admin-switch"><input id="configConfirmacoes" type="checkbox" checked><span></span></label></article>
+            <article class="admin-settings-card"><div><strong>Modo compacto</strong><p>Reduz espaçamentos para visualizar mais informações na tela.</p></div><label class="admin-switch"><input id="configCompacto" type="checkbox"><span></span></label></article>
+          </div>
+          <div class="admin-settings-note"><strong>Importante</strong><p>Estas preferências controlam a experiência administrativa neste navegador. Alterações operacionais globais da plataforma devem ser configuradas no servidor para afetar todos os administradores.</p></div>
         </section>
 
         <section class="admin-section admin-view" id="suporte" data-admin-view tabindex="-1" aria-label="Suporte" hidden>
