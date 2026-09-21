@@ -1,4 +1,4 @@
-# Roadmap da plataforma Multi Delivery
+# Roadmap da plataforma PedeJá
 
 **Versão de referência:** 4.4.5
 **Atualizado em:** 20/08/2026
