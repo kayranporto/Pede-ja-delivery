@@ -274,13 +274,6 @@ listaAdicionais.addEventListener("change", (event) => {
     atualizarPreco();
 });
 
-maisQtd.addEventListener("click", () => {
-    definirQuantidade(quantidade + 1);
-    menosQtd.disabled = quantidade <= 1;
-    maisQtd.disabled = quantidade >= 99;
-    atualizarPreco();
-});
-
 function definirQuantidade(valor) {
     const numero = Number.parseInt(String(valor).replace(/[^0-9]/g, ""), 10);
     if (!Number.isFinite(numero)) return false;
@@ -292,13 +285,21 @@ function definirQuantidade(valor) {
     return true;
 }
 
+maisQtd.addEventListener("click", () => {
+    definirQuantidade(quantidade + 1);
+});
+
+menosQtd.addEventListener("click", () => {
+    definirQuantidade(quantidade - 1);
+});
+
 quantidadeSpan.addEventListener("input", () => {
     const valor = quantidadeSpan.value;
     if (valor === "") return;
     const numero = Number.parseInt(valor, 10);
     if (!Number.isFinite(numero)) return;
     quantidade = Math.min(99, Math.max(1, numero));
-    quantidadeSpan.value = String(quantidade).replace(/^0+/, "") || "1";
+    quantidadeSpan.value = String(quantidade);
     menosQtd.disabled = quantidade <= 1;
     maisQtd.disabled = quantidade >= 99;
     atualizarPreco();
@@ -310,11 +311,6 @@ quantidadeSpan.addEventListener("blur", () => {
 
 quantidadeSpan.addEventListener("change", () => {
     definirQuantidade(quantidadeSpan.value);
-});
-
-menosQtd.addEventListener("click", () => {
-    quantidade = Math.max(1, quantidade - 1);
-    quantidadeSpan.textContent = String(quantidade);
 });
 
 confirmarProduto.addEventListener("click", () => {
