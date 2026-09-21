@@ -17,48 +17,12 @@
         window.OrderUtils = Object.freeze({ calcularDesconto });
     }
 
-    // O site usa somente o tema claro. A preferência anterior é neutralizada
-    // antes do site-enhancements.js executar, inclusive em páginas abertas
-    // diretamente ou em navegadores configurados para o modo escuro.
-    const THEME_STORAGE_KEY = "multi-delivery-theme";
-
-    function removerControlesDeTema() {
-        document.querySelectorAll(".theme-toggle, [data-theme-preferences]").forEach((elemento) => elemento.remove());
-    }
-
-    function forcarTemaClaro() {
-        const raiz = document.documentElement;
-        try {
-            localStorage.setItem(THEME_STORAGE_KEY, "light");
-        } catch {
-            // A aplicação continua em modo claro mesmo sem localStorage.
-        }
-
-        raiz.dataset.theme = "light";
-        raiz.style.colorScheme = "light";
-        document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
-            meta.content = "#ea1d2c";
-        });
-
-        const estilo = document.createElement("style");
-        estilo.id = "light-only-theme";
-        estilo.textContent = ".theme-toggle,[data-theme-preferences]{display:none!important}";
-        document.head?.append(estilo);
-        removerControlesDeTema();
-
-        const observador = new MutationObserver(() => {
-            if (raiz.dataset.theme !== "light") raiz.dataset.theme = "light";
-            removerControlesDeTema();
-        });
-        observador.observe(raiz, {
-            attributes: true,
-            attributeFilter: ["data-theme"],
-            childList: true,
-            subtree: true
-        });
-    }
-
-    forcarTemaClaro();
+    // O site usa exclusivamente a interface clara.
+    // Preferências antigas de tema não são mais consideradas.
+    document.documentElement.style.colorScheme = "light";
+    document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+        meta.content = "#ea1d2c";
+    });
 
     let enviados = 0;
     const limitePorPagina = 10;
