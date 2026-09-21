@@ -1404,7 +1404,7 @@ function atualizarBotaoAlertas() {
     const botao = document.getElementById("ativarAlertas");
     botao.classList.toggle("active", alertasAtivos);
     botao.setAttribute("aria-pressed", String(alertasAtivos));
-    botao.querySelector(".alert-label").textContent = alertasAtivos ? "Alertas ativos" : "Ativar alertas";
+    botao.querySelector(".alert-label").textContent = alertasAtivos ? "Som ativo" : "Som dos pedidos";
 }
 
 function tocarAlertaPedido() {
