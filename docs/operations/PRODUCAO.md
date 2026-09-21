@@ -1,4 +1,4 @@
-# Publicação segura — Multi Delivery 4.4.5
+# Publicação segura — PedeJá 4.4.5
 
 ## 1. Gate de release
 
