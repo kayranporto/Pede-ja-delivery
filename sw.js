@@ -95,7 +95,7 @@ self.addEventListener("message", (event) => {
 });
 
 self.addEventListener("push", (event) => {
-  let payload = { title: "Multi Delivery", body: "Você tem uma nova atualização.", url: "./html/perfil.html", tipo: "atualizacao" };
+  let payload = { title: "PedeJá", body: "Você tem uma nova atualização.", url: "./html/perfil.html", tipo: "atualizacao" };
   try { payload = { ...payload, ...event.data.json() }; } catch { /* Usa mensagem padrão. */ }
   const tag = payload.tag || undefined;
   const entrega = ["entrega_disponivel", "entrega_atribuida"].includes(payload.tipo);
