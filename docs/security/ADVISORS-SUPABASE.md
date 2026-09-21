@@ -1,6 +1,6 @@
 # Triagem dos Advisors Supabase
 
-**Projeto:** Multi Delivery  
+**Projeto:** PedeJá  
 **Revisão:** 31/08/2026
 
 Este documento registra a triagem formal dos avisos do Security Advisor e do Performance Advisor. O objetivo não é zerar o linter a qualquer custo: avisos intencionais são documentados e mantidos sob teste de regressão, enquanto achados corrigíveis são tratados por migration.
