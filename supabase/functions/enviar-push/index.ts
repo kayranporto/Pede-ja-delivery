@@ -72,7 +72,7 @@ Deno.serve(async (request) => {
     const destino = notification.destino
       || (notification.pedido_id ? `./html/acompanhamento.html?id=${notification.pedido_id}` : "./html/perfil.html");
     const payload = JSON.stringify({
-      title: notification.titulo || "Multi Delivery",
+      title: notification.titulo || "PedeJá",
       body: notification.mensagem || "Você tem uma nova atualização.",
       url: destino,
       tag: notification.pedido_id ? `pedido-${notification.pedido_id}` : undefined,
