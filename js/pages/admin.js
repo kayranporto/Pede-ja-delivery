@@ -844,6 +844,55 @@ function agendarRecarregamento() {
     recarregarTimer = setTimeout(() => carregarDadosAdmin().catch((erro) => mostrarErro("Não foi possível atualizar o painel", erro)), 500);
 }
 
+async function carregarAdministradores() {
+    const lista = document.getElementById("listaAdministradores");
+    if (!lista) return;
+    lista.replaceChildren(elemento("p", "", "Carregando administradores..."));
+    try {
+        const { data, error } = await db.functions.invoke("admin-usuarios", { body: { acao: "listar" } });
+        if (error) throw error;
+        const admins = data?.data || [];
+        lista.replaceChildren();
+        if (!admins.length) { lista.append(elemento("p", "", "Nenhum administrador encontrado.")); return; }
+        admins.forEach((admin) => {
+            const row = elemento("div", "admin-admin-row");
+            const info = elemento("div");
+            info.append(elemento("strong", "", admin.email || "Administrador"), elemento("small", "", admin.confirmado ? "Conta ativa" : "Convite pendente"));
+            const remover = botao("Remover acesso", "admin-action danger");
+            remover.disabled = admin.id === window.__ADMIN_USER_ID__;
+            remover.title = remover.disabled ? "Você não pode remover seu próprio acesso." : "Remover acesso administrativo";
+            remover.addEventListener("click", async () => {
+                if (admin.id === window.__ADMIN_USER_ID__) return;
+                if (!await confirmarAcao("Remover administrador", "Remover o acesso administrativo de " + admin.email + "?", "Remover acesso", true)) return;
+                remover.disabled = true;
+                try {
+                    const resposta = await db.functions.invoke("admin-usuarios", { body: { acao: "remover", usuario_id: admin.id } });
+                    if (resposta.error) throw resposta.error;
+                    window.AppToast?.("Acesso removido", admin.email + " não poderá mais acessar a administração.", "success");
+                    await carregarAdministradores();
+                } catch (error) { mostrarErro("Não foi possível remover o administrador", error); remover.disabled = false; }
+            });
+            row.append(info, remover); lista.append(row);
+        });
+    } catch (error) { lista.replaceChildren(elemento("p", "", "Não foi possível carregar os administradores.")); mostrarErro("Gestão de administradores indisponível", error); }
+}
+
+async function adicionarAdministrador(evento) {
+    evento.preventDefault();
+    const email = document.getElementById("novoAdminEmail")?.value.trim().toLowerCase();
+    if (!email) return;
+    const botaoSalvar = evento.currentTarget.querySelector("button[type='submit']");
+    botaoSalvar.disabled = true;
+    try {
+        const { data, error } = await db.functions.invoke("admin-usuarios", { body: { acao: "convidar", email } });
+        if (error) throw error;
+        document.getElementById("novoAdminEmail").value = "";
+        window.AppToast?.("Administrador adicionado", data?.data?.mensagem || "Convite enviado por e-mail.", "success");
+        await carregarAdministradores();
+    } catch (error) { mostrarErro("Não foi possível adicionar o administrador", error); }
+    finally { botaoSalvar.disabled = false; }
+}
+
 function carregarConfiguracoesAdmin() {
     const padrao = { autoAtualizacao: true, alertas: true, confirmacoes: true, compacto: false };
     let salvo = {};
@@ -958,6 +1007,7 @@ function configurarNavegacao() {
 async function iniciarAdmin() {
     aplicarTamanhoFonte(localStorage.getItem("admin_font_size") || "normal");
     const { data: { user } } = await db.auth.getUser();
+    window.__ADMIN_USER_ID__ = user?.id || "";
     if (!user) { localStorage.setItem("redirect", "admin.html"); location.replace("login.html"); return; }
     let permitido = false, error = null; try { permitido = (await window.DeliveryAPI.request("/v1/admin/dashboard")) !== null; } catch (erro) { error = erro; }
     if (error || permitido !== true) { alert("Esta conta não possui acesso administrativo."); location.replace("perfil.html"); return; }
@@ -1030,6 +1080,7 @@ ouvir("periodoRelatorio", "change", carregarRelatorio);
 ouvir("exportarRelatorio", "click", exportarRelatorioCsv);
 ouvir("adminFontSize", "change", ({ target }) => aplicarTamanhoFonte(target.value));
 ["configAutoAtualizacao","configAlertas","configConfirmacoes","configCompacto"].forEach((id) => ouvir(id, "change", salvarConfiguracoesAdmin));
+ouvir("formNovoAdmin", "submit", adicionarAdministrador);
 ouvir("restaurarConfigAdmin", "click", () => {
     localStorage.removeItem("admin_configuracoes");
     carregarConfiguracoesAdmin();
