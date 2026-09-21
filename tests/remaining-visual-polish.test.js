@@ -63,10 +63,11 @@ test("todas as paginas carregam a camada visual compartilhada", () => {
     }
 });
 
-test("modo claro é o único tema disponível", () => {
-    const js = read("js/core/monitoring.js");
-    assert.match(js, /multi-delivery-theme/);
-    assert.match(js, /localStorage\.setItem\(THEME_STORAGE_KEY, "light"\)/);
-    assert.match(js, /dataset\.theme = "light"/);
-    assert.match(js, /\.theme-toggle,\[data-theme-preferences\]/);
+test("modo escuro e controles de tema não fazem parte da aplicação", () => {
+    const js = read("js/core/site-enhancements.js");
+    const monitoring = read("js/core/monitoring.js");
+    const perfil = read("html/perfil.html");
+    assert.doesNotMatch(js, /theme-toggle|modo escuro|prefers-color-scheme|multi-delivery-theme/);
+    assert.doesNotMatch(monitoring, /theme-toggle|data-theme-preferences|prefers-color-scheme|multi-delivery-theme/);
+    assert.doesNotMatch(perfil, /data-theme-preferences|theme-toggle/);
 });
