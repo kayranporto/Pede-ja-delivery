@@ -533,3 +533,12 @@ html,body{max-width:100%;overflow-x:hidden}
 .admin-settings-note strong{font-size:13px}
 body.admin-compact .admin-card,body.admin-compact .admin-settings-card{padding:14px}
 @media(max-width:760px){.admin-settings-grid{grid-template-columns:1fr}.admin-settings-card{padding:16px}.admin-settings-card p,.admin-settings-note p{font-size:11px}}
+
+.admin-settings-admins{margin-top:18px;padding:20px;border:1px solid rgba(21,25,37,.07);border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(21,25,37,.05)}
+.admin-settings-admins h3{margin:0;font-size:17px}
+.admin-admin-invite{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end}
+.admin-admin-list{display:grid;gap:8px;margin-top:14px}
+.admin-admin-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border:1px solid rgba(21,25,37,.07);border-radius:14px;background:#fafbfc}
+.admin-admin-row strong,.admin-admin-row small{display:block}
+.admin-admin-row small{margin-top:3px;color:var(--muted);font-size:10px}
+@media(max-width:760px){.admin-admin-invite{grid-template-columns:1fr}.admin-admin-row{align-items:flex-start;flex-direction:column}.admin-admin-row .admin-action{width:100%}}
