@@ -1190,15 +1190,15 @@ ouvir("restaurarConfigAdmin", "click", () => {
 });
 ouvir("adminNotifications", "click", abrirCentralNotificacoes);
 ouvir("fecharAdminNotifications", "click", fecharCentralNotificacoes);
-    configurarFiltrosNotificacoesAdmin();
 ouvir("marcarAdminNotificationsLidas", "click", marcarNotificacoesVistas);
-    ouvir("adminNotificationsList", "click", (evento) => { const card = evento.target.closest("[data-admin-notification-id]"); if (!card) return; marcarNotificacaoComoVista(card.dataset.adminNotificationId); renderizarNotificacoesAdmin(); mostrarSecaoAdmin(card.dataset.adminNotificationTarget, { atualizarHistorico: true, focar: true }); });
-document.getElementById("adminNotificationsList")?.addEventListener("click", (evento) => {
-    const item = evento.target.closest("[data-admin-notification-target]");
-    if (!item) return;
-    const destino = item.dataset.adminNotificationTarget;
+configurarFiltrosNotificacoesAdmin();
+ouvir("adminNotificationsList", "click", (evento) => {
+    const card = evento.target.closest("[data-admin-notification-id]");
+    if (!card) return;
+    marcarNotificacaoComoVista(card.dataset.adminNotificationId);
+    renderizarNotificacoesAdmin();
     fecharCentralNotificacoes();
-    mostrarSecaoAdmin(destino, { atualizarHistorico: true, focar: true });
+    mostrarSecaoAdmin(card.dataset.adminNotificationTarget, { atualizarHistorico: true, focar: true });
 });
 ouvir("adminMenu", "click", () => {
     const aberto = !adminSidebar?.classList.contains("open");
