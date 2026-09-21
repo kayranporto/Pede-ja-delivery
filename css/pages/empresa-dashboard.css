@@ -141,3 +141,13 @@
   .dashboard-header .header-actions .unit-switcher select{min-height:30px;font-size:11px}
 }
 
+
+/* Mobile: categorias com área de toque e espaçamento confortáveis. */
+.chips-admin{gap:10px;margin-top:18px;align-items:center}
+.chip-admin{min-height:44px;padding:8px 12px 8px 15px;gap:10px;font-size:11px;line-height:1;border-radius:14px}
+.chip-admin button{width:26px;height:26px;min-width:26px;min-height:26px;padding:0;display:grid;place-items:center;font-size:12px;line-height:1}
+@media(max-width:620px){
+  .chips-admin{gap:10px 11px}
+  .chip-admin{min-height:48px;padding:9px 12px 9px 15px;font-size:11px}
+  .chip-admin button{width:28px;height:28px;min-width:28px;min-height:28px}
+}
