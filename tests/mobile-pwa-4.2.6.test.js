@@ -34,10 +34,10 @@ test("PWA 4.4.7 mantém a camada mobile global 4.2.6", () => {
   }
 });
 
-test("manifesto identifica Multi Delivery e modo standalone enquanto o branding final está pendente", () => {
+test("manifesto identifica PedeJá e modo standalone", () => {
   const manifest = JSON.parse(read("manifest.webmanifest"));
-  assert.equal(manifest.name, "Multi Delivery");
-  assert.equal(manifest.short_name, "Multi Delivery");
+  assert.equal(manifest.name, "PedeJá");
+  assert.equal(manifest.short_name, "PedeJá");
   assert.equal(manifest.display, "standalone");
   assert.equal(manifest.scope, "./");
   assert.match(manifest.start_url, /source=pwa/);
