@@ -1,4 +1,4 @@
-# Configuração do Supabase — Multi Delivery
+# Configuração do Supabase — PedeJá
 
 ## Princípios
 
