@@ -1,50 +1,5 @@
 "use strict";
 (() => {
-  const THEME_STORAGE_KEY = "multi-delivery-theme";
-  const darkThemeMedia = window.matchMedia?.("(prefers-color-scheme: dark)");
-  let storedTheme = null;
-  try {
-    const value = localStorage.getItem(THEME_STORAGE_KEY);
-    if (value === "light" || value === "dark") storedTheme = value;
-  } catch (error) {
-    console.warn("Tema: preferência local indisponível", error);
-  }
-
-  function updateThemeButton(theme) {
-    const button = document.querySelector(".theme-toggle");
-    if (!button) return;
-    const dark = theme === "dark";
-    const action = dark ? "Ativar modo claro" : "Ativar modo escuro";
-    button.setAttribute("aria-label", action);
-    button.setAttribute("aria-pressed", String(dark));
-    button.title = action;
-    button.querySelector(".theme-toggle-icon").textContent = dark ? "☀" : "☾";
-    button.querySelector(".theme-toggle-label").textContent = dark ? "Modo claro" : "Modo escuro";
-  }
-
-  function applyTheme(theme, persist = false) {
-    const normalizedTheme = theme === "dark" ? "dark" : "light";
-    document.documentElement.dataset.theme = normalizedTheme;
-    document.documentElement.style.colorScheme = normalizedTheme;
-    document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
-      meta.content = normalizedTheme === "dark" ? "#11141b" : "#ea1d2c";
-    });
-    updateThemeButton(normalizedTheme);
-    if (persist) {
-      storedTheme = normalizedTheme;
-      try {
-        localStorage.setItem(THEME_STORAGE_KEY, normalizedTheme);
-      } catch (error) {
-        console.warn("Tema: não foi possível salvar a preferência", error);
-      }
-    }
-  }
-
-  applyTheme(storedTheme || (darkThemeMedia?.matches ? "dark" : "light"));
-  darkThemeMedia?.addEventListener?.("change", (event) => {
-    if (!storedTheme) applyTheme(event.matches ? "dark" : "light");
-  });
-
   const speedInsightsHost = location.hostname.toLowerCase();
   if (
     speedInsightsHost.endsWith(".vercel.app")
