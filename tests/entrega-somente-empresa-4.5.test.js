@@ -58,5 +58,7 @@ test("painel do entregador depende de vínculo empresarial", () => {
   assert.match(driver, /\/v1\/entregador\/me/);
   assert.match(driver, /Aguardando vínculo com uma empresa/);
   assert.match(driver, /\/v1\/entregador\/status/);
+  assert.match(driver, /Aguardando o restaurante marcar como pronto/);
+  assert.match(driver, /pedido\.pronto_em/);
   assert.doesNotMatch(driver, /db\.(?:from|rpc)/);
 });
