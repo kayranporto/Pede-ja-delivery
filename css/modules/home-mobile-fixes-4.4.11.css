@@ -132,3 +132,60 @@
     font-size:1.25rem!important;
   }
 }
+
+/* Ajustes finais observados no mobile */
+@media(max-width:680px){
+  .home-page .hero-actions{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:10px!important;
+    margin-top:18px!important;
+  }
+
+  .home-page .hero-actions .button-primary,
+  .home-page .hero-actions .button-secondary{
+    width:100%!important;
+    min-height:52px!important;
+    box-sizing:border-box!important;
+    justify-content:center!important;
+    border-radius:16px!important;
+  }
+
+  .home-page .hero-actions .button-secondary{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border:1px solid #e4e4e4!important;
+    background:#fff!important;
+    color:#171a21!important;
+    box-shadow:0 8px 22px rgba(17,24,39,.06)!important;
+    backdrop-filter:none!important;
+  }
+
+  .home-page .hero-actions .button-secondary:hover,
+  .home-page .hero-actions .button-secondary:focus-visible{
+    background:#fff7f8!important;
+    color:#ea1d2c!important;
+    border-color:#ea1d2c!important;
+  }
+
+  /* O convite de instalação fica fora da área do CTA principal. */
+  .home-page .install-app{
+    left:10px!important;
+    bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;
+    max-width:145px!important;
+  }
+}
+
+@media(max-width:420px){
+  .home-page .hero-actions{
+    gap:8px!important;
+  }
+
+  .home-page .hero-actions .button-primary,
+  .home-page .hero-actions .button-secondary{
+    min-height:50px!important;
+    border-radius:15px!important;
+    font-size:.86rem!important;
+  }
+}
