@@ -77,3 +77,41 @@ body:has(.orders-header),body:has(.support-header){background:var(--cream)!impor
   body:has(.dashboard-main) .notification-center{top:76px;right:12px;bottom:auto}
   body:has(.dashboard-main) .notification-panel{top:56px;bottom:auto}
 }
+
+/* Painel da empresa: toast compacto e fora dos formulários no mobile. */
+@media(max-width:640px){
+  body:has(.dashboard-main) .app-toast-region{
+    top:calc(72px + env(safe-area-inset-top,0px))!important;
+    right:10px!important;
+    left:10px!important;
+    bottom:auto!important;
+    width:auto!important;
+  }
+  body:has(.dashboard-main) .app-toast{
+    max-width:100%!important;
+    padding:10px 11px!important;
+    border-radius:14px!important;
+    gap:8px!important;
+  }
+  body:has(.dashboard-main) .app-toast-icon{
+    width:28px!important;
+    height:28px!important;
+    flex-basis:28px!important;
+  }
+  body:has(.dashboard-main) .app-toast-copy strong{
+    display:block;
+    font-size:14px!important;
+    line-height:1.2!important;
+  }
+  body:has(.dashboard-main) .app-toast-copy p{
+    margin:4px 0 0!important;
+    font-size:12px!important;
+    line-height:1.35!important;
+  }
+  body:has(.dashboard-main) .app-toast-close{
+    min-width:30px!important;
+    min-height:30px!important;
+    width:30px!important;
+    height:30px!important;
+  }
+}
