@@ -25,6 +25,7 @@ test("entregador só fica online e aceita corrida dentro da própria empresa", (
   assert.match(sql, /o\.origem = 'propria'/);
   assert.match(sql, /Este pedido pertence a uma empresa diferente da sua equipe/);
   assert.match(sql, /v\.empresa_id::text = p\.empresa_id::text/);
+  assert.match(sql, /p\.status = 'preparando'[\s\S]*p\.pronto_em is not null/);
 });
 
 test("API expõe somente logística empresarial", () => {
