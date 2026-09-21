@@ -210,7 +210,7 @@
     function mostrarNotificacaoLocal(item) {
         if (Notification.permission !== "granted" || !document.hidden) return;
         const destino = destinoSeguro(item);
-        const alerta = new Notification(item.titulo || "Multi Delivery", {
+        const alerta = new Notification(item.titulo || "PedeJá", {
             body: item.mensagem || "Você tem uma nova atualização.",
             icon: recursoRaiz("assets/favicon.svg"),
             tag: item.pedido_id ? `pedido-${item.pedido_id}` : undefined
