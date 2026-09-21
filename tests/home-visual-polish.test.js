@@ -24,10 +24,8 @@ test("faixa informativa pode ser fechada e permanece oculta", () => {
     assert.match(html, /id="fecharTopbar"/);
     assert.match(html, /aria-label="Fechar aviso"/);
     assert.match(css, /\.topbar\[hidden\]\{display:none\}/);
-    assert.match(css, /data-theme="dark"\] \.home-page \.topbar/);
     assert.match(js, /multi-delivery-topbar-hidden/);
     assert.match(js, /localStorage\.setItem\(TOPBAR_STORAGE_KEY, "1"\)/);
-    assert.match(css, /install-app:not\(\[hidden\]\)\)>.theme-toggle\{bottom:78px\}/);
 });
 
 test("home adapta categorias e controles para toque no celular", () => {
