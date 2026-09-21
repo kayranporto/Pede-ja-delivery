@@ -184,7 +184,7 @@
       link.className = "driver-secondary whatsapp44";
       link.target = "_blank";
       link.rel = "noopener noreferrer";
-      const mensagem = `Olá${pedido.cliente_nome ? `, ${pedido.cliente_nome}` : ""}. Sou o entregador do pedido #${pedido.numero} da Multi Delivery. Estou entrando em contato sobre a sua entrega.`;
+      const mensagem = `Olá${pedido.cliente_nome ? `, ${pedido.cliente_nome}` : ""}. Sou o entregador do pedido #${pedido.numero} do PedeJá. Estou entrando em contato sobre a sua entrega.`;
       link.href = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
       link.textContent = "WhatsApp cliente";
       link.style.cssText = "display:inline-flex;align-items:center;justify-content:center;text-decoration:none";
