@@ -1019,6 +1019,7 @@ async function iniciarAdmin() {
             loadingAdmin.style.display = "none";
         }
         document.getElementById("adminApp").hidden = false;
+        carregarAdministradores();
         canalAdmin = db.channel("admin-plataforma")
             .on("postgres_changes", { event: "*", schema: "public", table: "pedidos" }, agendarRecarregamento)
             .on("postgres_changes", { event: "*", schema: "public", table: "empresas" }, agendarRecarregamento)
