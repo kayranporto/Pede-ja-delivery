@@ -25,7 +25,7 @@ test("Home carrega, oferece busca e filtros acessíveis", async ({ page }) => {
     const semErroFatal = observarErrosFatais(page);
     await abrir(page, "/");
 
-    await expect(page).toHaveTitle(/Multi Delivery/i);
+    await expect(page).toHaveTitle(/PedeJá/i);
     await expect(page.getByRole("heading", { level: 1, name: tituloHome })).toBeVisible();
     const busca = page.getByRole("textbox", { name: /Buscar restaurante ou comida/i });
     await expect(busca).toBeVisible();
