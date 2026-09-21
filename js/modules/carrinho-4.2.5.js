@@ -1,14 +1,13 @@
 "use strict";
 (() => {
-    if (window.__multiDeliveryCarrinhoConsolidado) {
+    const carrinhoConsolidado = Boolean(window.__multiDeliveryCarrinhoConsolidado);
+    if (carrinhoConsolidado) {
         window.editarItemCarrinho = window.editarItemCarrinho || ((item) => {
             if (!item || typeof window.abrirModalProduto !== "function") return null;
             return window.abrirModalProduto(item);
         });
-        return;
-    }
-    window.__multiDeliveryCarrinhoLegacy = true;
-    if (typeof window.abrirCarrinho === "function" || typeof window.adicionarAoCarrinho === "function") {
+    } else if (typeof window.abrirCarrinho === "function" || typeof window.adicionarAoCarrinho === "function") {
+        window.__multiDeliveryCarrinhoLegacy = true;
         window.editarItemCarrinho = window.editarItemCarrinho || ((item) => {
             if (!item || typeof window.abrirModalProduto !== "function") return null;
             return window.abrirModalProduto(item);
