@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Multi Delivery API Pública",
+    "title": "PedeJá API Pública",
     "version": "1.0.0",
     "description": "API HTTP somente de leitura para integrações de catálogo. Não expõe clientes, pedidos, pagamentos nem dados administrativos."
   },
