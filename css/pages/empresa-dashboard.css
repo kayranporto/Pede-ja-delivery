@@ -126,3 +126,18 @@
   .kanban-list{min-height:70px}
   .order-card{width:100%;min-width:0}
 }
+
+
+/* Mobile: cabeçalho compacto e seletor de unidade sem ocupar altura excessiva. */
+@media(max-width:620px){
+  .dashboard-header{min-height:0;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 12px}
+  .dashboard-header .menu-toggle{display:block;flex:0 0 44px}
+  .dashboard-header .header-copy{display:none}
+  .dashboard-header .header-actions{flex:1 1 calc(100% - 52px);min-width:0;flex-wrap:wrap;gap:7px;margin-left:0}
+  .dashboard-header .header-actions .alert-button,
+  .dashboard-header .header-actions .logout-button{min-height:44px;padding:9px 12px}
+  .dashboard-header .header-actions .unit-switcher{order:3;flex:0 0 100%;width:100%;min-width:0;min-height:54px;padding:6px 9px;border-radius:12px}
+  .dashboard-header .header-actions .unit-switcher>span{width:30px;height:30px;flex:none}
+  .dashboard-header .header-actions .unit-switcher select{min-height:30px;font-size:11px}
+}
+
