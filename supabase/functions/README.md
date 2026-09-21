@@ -1,4 +1,4 @@
-# Edge Functions — Multi Delivery 4.0
+# Edge Functions — PedeJá 4.0
 
 ## Dependências
 
