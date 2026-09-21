@@ -1,4 +1,4 @@
-# Multi Delivery 4.4.5
+# PedeJá 4.4.5
 
 Aplicação web integrada ao Supabase para marketplace de restaurantes, pedidos, cozinha, entregadores, suporte e pagamentos pelo Mercado Pago.
 
