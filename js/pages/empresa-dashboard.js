@@ -333,6 +333,19 @@ function criarCardPedido(pedido, indice) {
         if (foraDaJanela) avancar.title = "O preparo é liberado 30 minutos antes do horário agendado.";
         else avancar.addEventListener("click", () => executarAcaoOperacional(pedido, "iniciar_preparo", avancar, Number(empresa?.tempo_estimado_min || 30)));
         acoes.append(avancar);
+
+        if (pedido.pagamento_status !== "pago") {
+            const recusar = criarElemento("button", "order-action cancel", "Recusar pedido");
+            recusar.type = "button";
+            recusar.addEventListener("click", async () => {
+                const motivo = prompt("Motivo da recusa do pedido:", "Item indisponível");
+                const observacao = String(motivo || "").trim().slice(0, 500);
+                if (!observacao) return;
+                if (!confirm(`Recusar o pedido #${pedido.numero || ""}? Essa ação cancela o pedido.`)) return;
+                await executarAcaoOperacional(pedido, "recusar_pedido", recusar, null, observacao);
+            });
+            acoes.append(recusar);
+        }
     } else if (pedido.status === "preparando" && !pedido.pronto_em) {
         const pronto = criarElemento("button", "order-action primary", "Marcar pronto"); pronto.type = "button";
         pronto.addEventListener("click", () => executarAcaoOperacional(pedido, "marcar_pronto", pronto)); acoes.append(pronto);
@@ -355,7 +368,17 @@ function criarCardPedido(pedido, indice) {
     }
     if (pedido.pagamento_status !== "pago" && pedido.status !== "cancelado" && pedido.pagamento_modalidade !== "online") { const pago = criarElemento("button", "order-action secondary", "Marcar pago"); pago.type = "button"; pago.addEventListener("click", () => atualizarPedido(pedido, { pagamento_status: "pago" }, pago)); acoes.append(pago); }
     const chat = criarElemento("button", "order-action secondary", "Chat"); chat.type = "button"; chat.addEventListener("click", () => abrirChatPedido(pedido)); acoes.append(chat);
-    if (["recebido", "preparando"].includes(pedido.status) && pedido.pagamento_status !== "pago") { const cancelar = criarElemento("button", "order-action cancel", "×"); cancelar.type = "button"; cancelar.setAttribute("aria-label", "Cancelar pedido"); cancelar.addEventListener("click", () => { const motivo = prompt("Motivo do cancelamento (obrigatório):", "Item indisponível"); if (!motivo?.trim()) return; if (confirm(`Cancelar o pedido #${pedido.numero || ""}?`)) atualizarPedido(pedido, { status: "cancelado" }, cancelar, motivo); }); acoes.append(cancelar); }
+    if (pedido.status === "preparando" && pedido.pagamento_status !== "pago") {
+        const cancelar = criarElemento("button", "order-action cancel", "×");
+        cancelar.type = "button";
+        cancelar.setAttribute("aria-label", "Cancelar pedido");
+        cancelar.addEventListener("click", () => {
+            const motivo = prompt("Motivo do cancelamento (obrigatório):", "Item indisponível");
+            if (!motivo?.trim()) return;
+            if (confirm(`Cancelar o pedido #${pedido.numero || ""}?`)) atualizarPedido(pedido, { status: "cancelado" }, cancelar, motivo);
+        });
+        acoes.append(cancelar);
+    }
     if (acoes.children.length) card.append(acoes);
     return card;
 }
