@@ -112,3 +112,23 @@
     display:none!important;
   }
 }
+
+@media(max-width:680px){
+  .home-page .logo{
+    display:inline-flex!important;
+    gap:7px!important;
+    min-width:max-content!important;
+    font-size:1rem!important;
+    color:#171a21!important;
+  }
+  .home-page .logo span:last-child{
+    display:inline!important;
+    color:#171a21!important;
+    font-weight:800!important;
+    letter-spacing:-.02em!important;
+  }
+  .home-page .logo span:first-child{
+    display:inline!important;
+    font-size:1.25rem!important;
+  }
+}
