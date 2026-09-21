@@ -1162,6 +1162,16 @@ ouvir("restaurarConfigAdmin", "click", () => {
     carregarConfiguracoesAdmin();
     window.AppToast?.("Configurações restauradas", "Os valores padrão foram aplicados.", "success");
 });
+ouvir("adminNotifications", "click", abrirCentralNotificacoes);
+ouvir("fecharAdminNotifications", "click", fecharCentralNotificacoes);
+ouvir("marcarAdminNotificationsLidas", "click", marcarNotificacoesVistas);
+document.getElementById("adminNotificationsList")?.addEventListener("click", (evento) => {
+    const item = evento.target.closest("[data-admin-notification-target]");
+    if (!item) return;
+    const destino = item.dataset.adminNotificationTarget;
+    fecharCentralNotificacoes();
+    mostrarSecaoAdmin(destino, { atualizarHistorico: true, focar: true });
+});
 ouvir("adminMenu", "click", () => {
     const aberto = !adminSidebar?.classList.contains("open");
     definirMenuAdmin(aberto);
