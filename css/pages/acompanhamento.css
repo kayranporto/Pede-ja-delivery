@@ -169,7 +169,7 @@ button, a, textarea { font: inherit; }
   .track-main { max-width: 760px; padding: 0; }
   .track-grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 18px; }
   .receipt-card, .delivery-card { margin: 0; border: 1px solid #ddd; box-shadow: none; }
-  .receipt-card::before { content: "Multi Delivery — comprovante do pedido"; display: block; margin-bottom: 24px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+  .receipt-card::before { content: "PedeJá — comprovante do pedido"; display: block; margin-bottom: 24px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
 }
 
 @media (prefers-reduced-motion: reduce) {
