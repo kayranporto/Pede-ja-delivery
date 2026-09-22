@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 260" role="img" aria-labelledby="t d">
+<title id="t">Entrega rápida do Pede Já</title>
+<desc id="d">Ilustração de uma scooter, batatas fritas e bebida em um banner promocional.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e51b2a"/><stop offset=".62" stop-color="#ee1d28"/><stop offset="1" stop-color="#ffb71b"/></linearGradient></defs>
+<rect width="900" height="260" rx="30" fill="url(#bg)"/>
+<g transform="translate(72 54)" fill="#ffd331">
+ <circle cx="45" cy="132" r="22"/><circle cx="145" cy="132" r="22"/><circle cx="45" cy="132" r="10" fill="#e51b2a"/><circle cx="145" cy="132" r="10" fill="#e51b2a"/>
+ <path d="M49 113 75 88h33l20 25h20l23 27h-18l-28-27H84l-13 27H52l18-27Z"/>
+ <path d="M84 87c5-31 27-43 54-43 17 0 30 7 39 17l-15 13c-9-7-16-10-26-10-13 0-22 7-26 23Z"/>
+ <circle cx="131" cy="44" r="15"/><rect x="127" y="25" width="7" height="18" rx="3"/>
+</g>
+<g transform="translate(570 34)">
+ <path d="M0 96 35 12l70 19-10 116H18Z" fill="#fff"/>
+ <path d="M12 96 41 28l55 15-12 86H25Z" fill="#ffcf3a"/>
+ <path d="m32 106 48-91 15 7-45 93Z" fill="#ffb71b"/>
+ <path d="m58 112 43-81 14 8-39 82Z" fill="#ffd957"/>
+ <path d="M20 119h80l-4 35H24Z" fill="#e51b2a"/>
+ <path d="M104 30h68v123h-68z" fill="#fff"/>
+ <path d="M112 16h52c8 0 13 6 13 13v11h-78V29c0-7 6-13 13-13Z" fill="#e51b2a"/>
+ <path d="M116 55h44M116 74h44M116 93h44" stroke="#e8ebef" stroke-width="8" stroke-linecap="round"/>
+ <path d="M113 116h50" stroke="#f1aeb3" stroke-width="12" stroke-linecap="round"/>
+</g>
+</svg>
