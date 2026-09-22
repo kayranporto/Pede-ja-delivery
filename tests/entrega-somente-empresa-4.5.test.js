@@ -9,7 +9,7 @@ const root = path.resolve(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 test("4.5 força entrega própria em todas as unidades", () => {
-  const migration = read("supabase/migrations/20260916214000_entrega_somente_empresa_4_5.sql");
+  const migration = read("supabase/migrations/20260917230447_entrega_somente_empresa_4_5.sql");
   const hardening = read("supabase/migrations/20260917190000_entrega_somente_empresa_hardening_4_5.sql");
   for (const sql of [migration, hardening]) {
     assert.match(sql, /entrega_modalidade = 'propria'/);
