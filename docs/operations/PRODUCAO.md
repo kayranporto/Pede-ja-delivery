@@ -23,7 +23,7 @@ A migration 016 adiciona variações, cozinha, idempotência do checkout, audito
 
 As migrations `20260819003047_entrega_propria_hibrida_4_4_5.sql` e `20260819011044_index_empresa_entregadores_criado_por_4_4_5.sql` adicionam modalidade de entrega por unidade, vínculos de entregadores próprios, origem das ofertas, fallback híbrido, atribuição direta protegida e o índice de cobertura da chave `criado_por`. Aplique-as somente após confirmar que não há entregador associado a mais de uma corrida ativa; o índice parcial da primeira migration passa a garantir essa regra no banco.
 
-A migration `20260821213807_remove_historico_public_policy.sql` remove a leitura pública irrestrita de `historico_status_pedido`, revoga privilégios do papel `anon` e preserva somente a leitura autenticada submetida às políticas RLS. Ela foi aplicada e validada no projeto hospedado em 21/08/2026.
+A migration `20260821214034_remove_historico_public_policy.sql` remove a leitura pública irrestrita de `historico_status_pedido`, revoga privilégios do papel `anon` e preserva somente a leitura autenticada submetida às políticas RLS. Ela foi aplicada e validada no projeto hospedado em 21/08/2026.
 
 ### Backup e restauração
 
