@@ -1067,3 +1067,51 @@
   .home-page .mobile-bottom-nav a.active span{font-weight:800}
   .home-page .mobile-menu-panel{padding-bottom:0}
 }
+
+
+/* Ajuste de largura — ocupar a viewport no desktop */
+.home-page,
+.home-page main{
+  background:#fff;
+}
+.home-page .container-header,
+.home-page .market-hero,
+.home-page .market-section,
+.home-page .offer-strip,
+.home-page .footer-container{
+  width:calc(100% - 32px);
+  max-width:1440px;
+}
+.home-page .market-hero{
+  padding-left:0;
+  padding-right:0;
+}
+.home-page .market-hero-copy{
+  padding-left:42px;
+}
+.home-page .offer-strip{
+  margin-left:auto;
+  margin-right:auto;
+}
+.home-page .market-section{
+  padding-left:0;
+  padding-right:0;
+}
+@media(min-width:1441px){
+  .home-page .market-hero-copy{padding-left:64px}
+}
+@media(max-width:680px){
+  .home-page .container-header,
+  .home-page .market-hero,
+  .home-page .market-section,
+  .home-page .offer-strip,
+  .home-page .footer-container{
+    width:100%;
+    max-width:none;
+  }
+  .home-page .market-hero{
+    padding-left:15px;
+    padding-right:15px;
+  }
+  .home-page .market-hero-copy{padding-left:0}
+}
