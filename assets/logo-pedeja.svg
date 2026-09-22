@@ -1,9 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" role="img" aria-label="Pede Já">
-<g fill="none" stroke-linecap="round" stroke-linejoin="round">
-<path d="M24 60c0-25 20-44 44-44s44 19 44 44c0 18-11 31-28 42L68 114 52 102C35 91 24 78 24 60Z" stroke="#e51b2a" stroke-width="10"/>
-<path d="M43 37v45M35 37v13c0 8 6 14 14 14s14-6 14-14V37M49 64v18" stroke="#e51b2a" stroke-width="7"/>
-<path d="M79 35l-16 48M71 35h16" stroke="#ffb71b" stroke-width="7"/>
-<path d="M96 22h24M102 12h18M105 48h25" stroke="#ffb71b" stroke-width="7"/>
-</g>
-<text x="142" y="75" font-family="Poppins,Arial,sans-serif" font-size="58" font-weight="800" letter-spacing="-2"><tspan fill="#e51b2a">Pede</tspan><tspan fill="#ffb71b"> Já</tspan></text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" role="img" aria-labelledby="title desc">
+  <title id="title">Pede Já</title>
+  <desc id="desc">Logo Pede Já com símbolo vermelho de localização e talheres vermelho e dourado.</desc>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- pin / localização -->
+    <path d="M18 63C18 31 41 9 70 9s52 22 52 54c0 22-13 38-31 51L70 134 49 114C31 101 18 85 18 63Z"
+          stroke="#e51b2a" stroke-width="9"/>
+    <!-- garfo -->
+    <path d="M55 32v29M47 32v10c0 6 5 11 11 11s11-5 11-11V32M58 53v27"
+          stroke="#e51b2a" stroke-width="6.5"/>
+    <!-- faca -->
+    <path d="M92 29 66 82M82 29h20"
+          stroke="#ffb71b" stroke-width="7"/>
+    <!-- movimento -->
+    <path d="M108 18h25M115 8h16M117 42h24"
+          stroke="#ffb71b" stroke-width="6.5"/>
+  </g>
+  <text x="150" y="88" font-family="Poppins,Arial,sans-serif" font-size="62" font-weight="800" letter-spacing="-2.4">
+    <tspan fill="#e51b2a">Pede</tspan><tspan fill="#ffb71b"> Já</tspan>
+  </text>
 </svg>
