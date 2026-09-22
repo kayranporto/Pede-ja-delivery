@@ -55,6 +55,6 @@ test("shell do service worker inclui assets das versões recentes", () => {
     "operacao-restaurante-4.2.7.js",
     "carrinho-4.2.5.js",
     "checkout-4.2.3.js",
-    "site-enhancements.js?v=4.4.7"
+    "site-enhancements.js?v=4.4.8"
   ]) assert.ok(sw.includes(arquivo), `shell sem ${arquivo}`);
 });
