@@ -190,23 +190,19 @@
   }
 }
 
-/* Identidade e carrinho mobile */
-.logo .logo-mark{
-  width:48px!important;
-  height:48px!important;
-  flex:0 0 48px!important;
-  border-radius:14px!important;
-  object-fit:cover!important;
-}
+/* Identidade e carrinho mobile — logo horizontal oficial */
 @media(max-width:680px){
   .home-page .logo{
     gap:8px!important;
+    min-width:max-content!important;
   }
   .home-page .logo .logo-mark{
-    width:48px!important;
-    height:48px!important;
-    flex-basis:48px!important;
-    border-radius:14px!important;
+    width:122px!important;
+    height:auto!important;
+    flex:0 0 auto!important;
+    flex-basis:auto!important;
+    border-radius:0!important;
+    object-fit:contain!important;
   }
   .home-page .cart{
     width:54px!important;
