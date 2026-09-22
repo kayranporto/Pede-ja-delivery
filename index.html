@@ -82,6 +82,7 @@
           <a href="html/suporte.html">Sobre</a>
           <a href="html/login.html">Entrar</a>
           <a href="html/cadastro.html">Cadastrar</a>
+          <button type="button" class="mobile-menu-cart" id="floatingCart">🛒 Carrinho <span class="floating-cart-count">0</span></button>
         </div>
       </details>
     </div>
@@ -124,7 +125,7 @@
     <section class="categorias market-section" aria-labelledby="categoriasTitulo">
       <div class="category-row" id="categoriasTitulo">
         <div class="categoria-lista" aria-label="Categorias de comida">
-          <button type="button" class="categoria" data-categoria="" aria-pressed="true"><div aria-hidden="true">🍔</div><span>Hambúrguer</span></button>
+          <button type="button" class="categoria" data-categoria="" aria-pressed="false"><div aria-hidden="true">🍔</div><span>Hambúrguer</span></button>
           <button type="button" class="categoria" data-categoria="Pizza" aria-pressed="false"><div aria-hidden="true">🍕</div><span>Pizza</span></button>
           <button type="button" class="categoria" data-categoria="Sushi" aria-pressed="false"><div aria-hidden="true">🍣</div><span>Sushi</span></button>
           <button type="button" class="categoria" data-categoria="Brasileira" aria-pressed="false"><div aria-hidden="true">🍛</div><span>Brasileira</span></button>
@@ -181,6 +182,13 @@
       <div class="produtos" id="listaProdutos"></div>
     </section>
   </main>
+
+  <nav class="mobile-bottom-nav" aria-label="Atalhos móveis">
+    <a class="active" href="index.html"><span aria-hidden="true">⌂</span><small>Início</small></a>
+    <a href="#restaurantes"><span aria-hidden="true">⌕</span><small>Busca</small></a>
+    <a href="html/meus-pedidos.html"><span aria-hidden="true">▣</span><small>Pedidos</small></a>
+    <a href="html/perfil.html"><span aria-hidden="true">♙</span><small>Perfil</small></a>
+  </nav>
 
   <footer>
     <div class="footer-container">
