@@ -479,7 +479,7 @@ function atualizarContadoresCarrinho() {
         const valor = Number(item?.quantidade || 0);
         return soma + (Number.isFinite(valor) && valor > 0 ? valor : 0);
     }, 0);
-    document.querySelectorAll(".floating-cart span, .cart-count").forEach((span) => {
+    document.querySelectorAll(".floating-cart span, .mobile-menu-cart .floating-cart-count, .cart-count").forEach((span) => {
         span.textContent = String(quantidade);
     });
 }
