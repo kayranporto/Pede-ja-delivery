@@ -1,12 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="PedeJá">
-  <rect width="96" height="96" rx="26" fill="#171a21"/>
-  <path d="M22 36h52l-5 34H27l-5-34Z" fill="#fff"/>
-  <path d="M24 31c2-9 11-16 24-16s22 7 24 16H24Z" fill="#ffcf4a"/>
-  <path d="M28 31h44" stroke="#ea1d2c" stroke-width="5" stroke-linecap="round"/>
-  <circle cx="38" cy="25" r="2.8" fill="#171a21"/>
-  <circle cx="48" cy="21" r="2.8" fill="#171a21"/>
-  <circle cx="58" cy="25" r="2.8" fill="#171a21"/>
-  <path d="M33 76h30" stroke="#ea1d2c" stroke-width="6" stroke-linecap="round"/>
-  <circle cx="34" cy="78" r="5" fill="#171a21"/>
-  <circle cx="62" cy="78" r="5" fill="#171a21"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" role="img" aria-label="Pede Já">
+<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="M24 60c0-25 20-44 44-44s44 19 44 44c0 18-11 31-28 42L68 114 52 102C35 91 24 78 24 60Z" stroke="#e51b2a" stroke-width="10"/>
+<path d="M43 37v45M35 37v13c0 8 6 14 14 14s14-6 14-14V37M49 64v18" stroke="#e51b2a" stroke-width="7"/>
+<path d="M79 35l-16 48M71 35h16" stroke="#ffb71b" stroke-width="7"/>
+<path d="M96 22h24M102 12h18M105 48h25" stroke="#ffb71b" stroke-width="7"/>
+</g>
+<text x="142" y="75" font-family="Poppins,Arial,sans-serif" font-size="58" font-weight="800" letter-spacing="-2"><tspan fill="#e51b2a">Pede</tspan><tspan fill="#ffb71b"> Já</tspan></text>
 </svg>
