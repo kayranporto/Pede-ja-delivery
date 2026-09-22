@@ -212,7 +212,7 @@ test("migração 023 remove a RPC de login legada e não utilizada", () => {
 });
 
 test("histórico de status não permanece exposto publicamente", () => {
-    const sql = read("supabase/migrations/20260821213807_remove_historico_public_policy.sql");
+    const sql = read("supabase/migrations/20260821214034_remove_historico_public_policy.sql");
     assert.match(sql, /drop policy if exists "historico_public"/);
     assert.match(sql, /revoke all on table public\.historico_status_pedido from anon, authenticated/);
     assert.match(sql, /grant select on table public\.historico_status_pedido to authenticated/);
