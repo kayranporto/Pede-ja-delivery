@@ -95,6 +95,14 @@ test("estoque mantém trilha de auditoria protegida", () => {
     assert.match(read("empresa-dashboard.html"), /id="estoqueMovimentos"/);
 });
 
+test("validação de cupom de primeiro pedido é isolada por usuário", () => {
+    const api = read("supabase/functions/api-completa/index.ts");
+    assert.match(
+        api,
+        /from\("pedidos"\)\.select\("id"\)\.eq\("usuario_id",ctx\.userId\)\.neq\("status","cancelado"\)/
+    );
+});
+
 test("release 4.4.7 está versionado de forma consistente", () => {
     assert.equal(JSON.parse(read("package.json")).version, "4.4.7");
     assert.equal(JSON.parse(read("package-lock.json")).version, "4.4.7");
