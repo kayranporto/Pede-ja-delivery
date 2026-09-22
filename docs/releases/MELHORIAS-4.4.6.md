@@ -33,7 +33,7 @@ A preferência salva e a preferência inicial do sistema foram preservadas.
 
 ## Implantação e verificação
 
-Aplicar `20260903140527_enderecos_cnpj_cidades_importacao.sql` antes do frontend.
+Aplicar `20260903181852_enderecos_cnpj_cidades_importacao.sql` antes do frontend.
 Os novos endpoints são restritos a usuários autenticados; o importador exige
 propriedade da empresa e uma unidade ativa da mesma empresa.
 
