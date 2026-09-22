@@ -1,4 +1,4 @@
-# PedeJá 4.4.5
+# PedeJá 4.4.7
 
 Aplicação web integrada ao Supabase para marketplace de restaurantes, pedidos, cozinha, entregadores, suporte e pagamentos pelo Mercado Pago.
 
@@ -55,7 +55,7 @@ O diretório testado deve ser exatamente o diretório publicado. Não mantenha c
 - painel do restaurante por telas;
 - exportação e solicitação de exclusão de dados.
 
-## Operação 4.2 a 4.4.5
+## Operação 4.2 a 4.4.7
 
 - fila de cozinha com pedidos recebidos, em preparo, prontos e atrasados;
 - tempo estimado, início do preparo e horários reais de conclusão;
@@ -82,7 +82,7 @@ O diretório testado deve ser exatamente o diretório publicado. Não mantenha c
 - entrega própria, pela plataforma ou híbrida configurável por unidade;
 - vínculo da equipe própria, prioridade automática e atribuição direta de pedidos prontos;
 - trava transacional para impedir duas corridas ativas por entregador;
-- cache PWA e gate de release alinhados na versão 4.4.5;
+- cache PWA e gate de release alinhados na versão 4.4.7;
 - API pública v1 de catálogo, somente leitura, com OpenAPI e smoke remoto;
 - 177 testes automatizados.
 
