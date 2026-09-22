@@ -240,3 +240,47 @@
  .home-page .card .info span{font-size:.61rem;padding:4px 6px}
  .home-page .favorite{width:34px;height:34px;top:8px;right:8px}
 }
+
+
+/* Ajuste final — igualar a composição aprovada do conceito Pede Já */
+.home-page .hero-actions .button-secondary{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:50px;
+  padding:13px 18px;
+  border:1px solid #e7e7e9;
+  border-radius:14px;
+  background:#fff;
+  color:var(--pj-ink);
+  box-shadow:0 8px 22px rgba(32,36,43,.06);
+  font-weight:800;
+}
+.home-page .hero-actions .button-secondary:hover,
+.home-page .hero-actions .button-secondary:focus-visible{
+  background:var(--pj-red-soft);
+  border-color:#efb8bd;
+  color:var(--pj-red);
+}
+.home-page .container-header{
+  width:min(calc(100% - 40px),1320px);
+}
+.home-page .logo-mark{
+  width:150px;
+  height:auto;
+  flex:0 0 auto;
+  object-fit:contain;
+}
+@media(max-width:680px){
+  .home-page .container-header{width:calc(100% - 20px)}
+  .home-page .logo-mark{
+    width:122px;
+    height:auto;
+    flex:0 0 auto;
+    border-radius:0;
+    object-fit:contain;
+  }
+}
+@media(max-width:430px){
+  .home-page .logo-mark{width:108px}
+}
