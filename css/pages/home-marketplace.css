@@ -143,3 +143,32 @@
   .home-page .market-search{margin-top:20px}
   .home-page .categoria{min-width:96px;padding-left:12px;padding-right:12px}
 }
+
+/* Pede Já — identidade visual da Home */
+.home-page{--pj-red:#e51b2a;--pj-gold:#ffb71b;--pj-red-soft:#fff2f3;--pj-gold-soft:#fff8e6;--pj-ink:#20242b;--pj-muted:#69707d;background:#fff;color:var(--pj-ink)}
+.home-page .header{background:rgba(255,255,255,.98);border-bottom:1px solid #eee;box-shadow:0 4px 20px rgba(32,36,43,.05)}
+.home-page .logo{display:flex;align-items:center;min-width:150px}
+.home-page .logo-mark{display:block;width:150px;height:auto;object-fit:contain}
+.home-page .logo>span{display:none}
+.home-page .location,.home-page .search,.home-page .cart{background:#fff;border-color:#eee}
+.home-page .location:hover{background:var(--pj-red-soft);border-color:#f0b8bd}
+.home-page .search:focus-within{border-color:var(--pj-red);box-shadow:0 0 0 3px rgba(229,27,42,.1)}
+.home-page .cart-count{background:var(--pj-red)}
+.home-page .market-kicker,.home-page .market-eyebrow{color:var(--pj-red)}
+.home-page .market-hero h1 span{color:var(--pj-red)}
+.home-page .market-hero p{color:var(--pj-muted)}
+.home-page .quick-searches button:hover,.home-page .quick-searches button:focus-visible{border-color:var(--pj-red);color:var(--pj-red);background:var(--pj-red-soft)}
+.home-page .hero-actions .button-primary{background:var(--pj-red);border-color:var(--pj-red);box-shadow:0 12px 25px rgba(229,27,42,.2)}
+.home-page .hero-actions .button-secondary:hover{background:var(--pj-gold-soft);border-color:#f3d37b}
+.home-page .market-hero-visual:before{background:linear-gradient(145deg,var(--pj-red-soft),var(--pj-gold-soft))}
+.home-page .categoria[aria-pressed="true"]{border-color:var(--pj-red);background:var(--pj-red-soft);color:var(--pj-red)}
+.home-page .offer-card{background:linear-gradient(110deg,var(--pj-red),#ed202e 58%,#ff9f1c);color:#fff;box-shadow:0 18px 42px rgba(229,27,42,.16)}
+.home-page .offer-card p{color:#fff8f8}
+.home-page .offer-card a{display:inline-flex;align-items:center;gap:8px;padding:10px 15px;border-radius:12px;background:#fff;color:var(--pj-red)}
+.home-page .filter-pill[aria-pressed="true"]{background:var(--pj-red-soft);color:var(--pj-red);border-color:#efb5ba}
+.home-page .card:hover,.home-page .card:focus-within{border-color:#f0b8bd;box-shadow:0 18px 38px rgba(32,36,43,.09)}
+.home-page footer{background:#fff;border-top:1px solid #eee;color:var(--pj-ink)}
+.home-page footer a{color:#5f6672}.home-page footer p{color:#707784}
+.home-page .footer-logo{display:block;width:150px;height:auto;margin-bottom:10px}
+.home-page .copyright{border-top:1px solid #eee;color:#8b919c}
+@media(max-width:680px){.home-page .logo{min-width:130px}.home-page .logo-mark{width:130px}.home-page .market-hero{padding-top:30px}.home-page .offer-card{background:linear-gradient(135deg,var(--pj-red),#f02a32 62%,var(--pj-gold))}}
