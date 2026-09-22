@@ -10,7 +10,7 @@ const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 test("4.5 força entrega própria em todas as unidades", () => {
   const migration = read("supabase/migrations/20260917230447_entrega_somente_empresa_4_5.sql");
-  const hardening = read("supabase/migrations/20260917190000_entrega_somente_empresa_hardening_4_5.sql");
+  const hardening = read("supabase/migrations/20260917230541_entrega_somente_empresa_hardening_4_5.sql");
   for (const sql of [migration, hardening]) {
     assert.match(sql, /entrega_modalidade = 'propria'/);
     assert.match(sql, /empresa_unidades_entrega_modalidade_check/);
@@ -19,7 +19,7 @@ test("4.5 força entrega própria em todas as unidades", () => {
 });
 
 test("entregador só fica online e aceita corrida dentro da própria empresa", () => {
-  const sql = read("supabase/migrations/20260917190000_entrega_somente_empresa_hardening_4_5.sql");
+  const sql = read("supabase/migrations/20260917230541_entrega_somente_empresa_hardening_4_5.sql");
   assert.match(sql, /empresa_entregadores v[\s\S]*entregador_id = auth\.uid\(\)/);
   assert.match(sql, /Você precisa estar vinculado a uma empresa/);
   assert.match(sql, /o\.origem = 'propria'/);
