@@ -322,3 +322,221 @@ body > header .logo {
     .produto:hover,.avaliacao-publica:hover{transform:none}
 }
 @media(prefers-reduced-motion:reduce){.produto,.avaliacao-publica,.btn-add{transition:none}}
+
+
+/* Pede Já — restaurante: identidade visual e composição inspiradas no novo conceito */
+body{
+    background:linear-gradient(180deg,#fff 0%,#fff 48%,#fff8f8 100%);
+    color:#20242b;
+}
+body > header{
+    min-height:72px;
+    padding:10px max(18px,calc((100vw - 1320px)/2));
+    border-bottom:1px solid #f0e3e4;
+    box-shadow:0 4px 18px rgba(32,36,43,.05);
+}
+.logo-pedeja{
+    display:flex;
+    align-items:center;
+    margin-right:auto;
+    text-decoration:none;
+}
+.logo-pedeja img{
+    display:block;
+    width:142px;
+    height:auto;
+}
+.cart-pedeja{
+    position:relative;
+    display:grid;
+    place-items:center;
+    width:46px;
+    height:46px;
+    border:0;
+    border-radius:14px;
+    background:#fff2f3;
+    color:#e51b2a;
+    font-size:20px;
+    cursor:pointer;
+}
+.cart-pedeja span{
+    position:absolute;
+    top:-4px;
+    right:-4px;
+    min-width:20px;
+    height:20px;
+    padding:0 5px;
+    display:grid;
+    place-items:center;
+    border-radius:999px;
+    background:#e51b2a;
+    color:#fff;
+    font-size:10px;
+    font-weight:800;
+}
+.banner-restaurante{
+    height:360px;
+    position:relative;
+    background:#20242b;
+}
+.banner-restaurante:after{
+    content:"";
+    position:absolute;
+    inset:auto 0 0;
+    height:90px;
+    background:linear-gradient(transparent,rgba(0,0,0,.48));
+    pointer-events:none;
+}
+.banner-restaurante img{
+    filter:saturate(1.05);
+}
+.info-restaurante{
+    max-width:1320px;
+    margin:-74px auto 24px;
+    padding:0 24px;
+    gap:20px;
+}
+.logo-restaurante{
+    width:132px;
+    height:132px;
+    border:5px solid #fff;
+    border-radius:26px;
+    box-shadow:0 16px 36px rgba(20,25,36,.18);
+}
+.info-restaurante h1{
+    margin:0 0 6px;
+    font-size:34px;
+    line-height:1.05;
+    font-weight:850;
+}
+.info-restaurante p{
+    margin:5px 0;
+    color:#69707d;
+}
+.restaurante-meta,.pesquisa-produtos,.categorias,.produtos{
+    max-width:1320px;
+}
+.restaurante-meta{
+    margin:18px auto;
+    padding:0 24px;
+}
+.meta-chip,.status-badge{
+    min-height:40px;
+    box-shadow:none;
+}
+.status-badge{
+    background:#e51b2a;
+}
+.meta-chip{
+    border:1px solid #eceef2;
+    background:#fff;
+    color:#3d434d;
+}
+.restaurant-actions .btn-primary{
+    min-height:46px;
+    border:0;
+    border-radius:14px;
+    background:#e51b2a;
+    color:#fff;
+    font-weight:800;
+    box-shadow:0 10px 24px rgba(229,27,42,.18);
+}
+.pesquisa-produtos{
+    margin:24px auto 14px;
+    padding:0 24px;
+}
+.pesquisa-produtos input{
+    min-height:52px;
+    padding:0 18px;
+    border:1px solid #eceef2;
+    box-shadow:0 8px 24px rgba(20,25,36,.05);
+}
+.categorias{
+    margin:14px auto;
+    padding:0 24px 6px;
+    gap:10px;
+}
+.categorias button{
+    min-height:44px;
+    border:1px solid #eceef2;
+    background:#fff;
+    color:#454b55;
+    box-shadow:none;
+}
+.categorias .ativo{
+    background:#e51b2a;
+    border-color:#e51b2a;
+}
+.produtos{
+    margin:26px auto 42px;
+    padding:0 24px;
+}
+.lista-produtos{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:18px;
+}
+.produto{
+    border:1px solid #eceef2;
+    border-radius:18px;
+    box-shadow:0 8px 24px rgba(20,25,36,.06);
+}
+.produto img{
+    height:190px;
+}
+.produto-info{
+    padding:17px;
+}
+.produto-info h3{
+    margin:0 0 7px;
+    font-size:16px;
+}
+.produto-info p{
+    min-height:42px;
+    margin:0 0 14px;
+    color:#69707d;
+    font-size:12px;
+}
+.preco{
+    color:#e51b2a;
+    font-size:18px;
+}
+.btn-add{
+    min-height:42px;
+    padding:10px 16px;
+    border-radius:12px;
+    background:#e51b2a;
+}
+.avaliacoes-publicas{
+    max-width:1320px;
+}
+@media(max-width:1050px){
+    .lista-produtos{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:760px){
+    body > header{min-height:64px}
+    .logo-pedeja img{width:118px}
+    .banner-restaurante{height:250px}
+    .info-restaurante{
+        margin-top:-56px;
+        padding:0 16px;
+    }
+    .logo-restaurante{width:108px;height:108px}
+    .info-restaurante h1{font-size:27px}
+    .restaurante-meta,.pesquisa-produtos,.categorias,.produtos{padding-left:16px;padding-right:16px}
+    .lista-produtos{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .produto img{height:145px}
+    .produto-info{padding:13px}
+    .produto-info h3{font-size:14px}
+    .produto-info p{font-size:11px;min-height:48px}
+    .rodape-produto{gap:8px;align-items:flex-end}
+    .preco{font-size:16px}
+    .btn-add{padding:9px 12px;font-size:12px}
+}
+@media(max-width:430px){
+    .banner-restaurante{height:220px}
+    .lista-produtos{gap:10px}
+    .produto img{height:126px}
+    .produto-info p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:auto}
+    .btn-add{width:100%;margin-top:8px}
+    .rodape-produto{display:block}
+}
