@@ -30,8 +30,8 @@ test("home inicia conteúdo em paralelo e evita consultas de sessão duplicadas"
 test("imagens e seções fora da primeira tela usam carregamento econômico", () => {
     const index = read("index.html");
     const css = read("css/pages/home-4.2.1.css");
-    assert.match(index, /fetchpriority="high"[^>]+banner1\.svg/);
-    assert.match(index, /loading="lazy"[^>]+promo\.svg/);
+    assert.match(index, /src="assets\/hero-pedeja-hamburguer\.webp"[^>]+fetchpriority="high"/);
+    assert.match(index, /src="https:\/\/images\.unsplash\.com\/photo-1643405509029-e5bc9f66d54d[^>]+loading="lazy"/);
     assert.match(read("js/pages/home.js"), /img\.decoding = "async"/);
     assert.match(read("js/pages/restaurante.js"), /imagem\.decoding = "async"/);
     assert.match(css, /content-visibility:auto/);

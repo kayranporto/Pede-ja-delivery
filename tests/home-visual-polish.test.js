@@ -17,15 +17,12 @@ test("home oferece feedback visual para busca, filtros e cards", () => {
     assert.doesNotMatch(read("index.html"), /�/);
 });
 
-test("faixa informativa pode ser fechada e permanece oculta", () => {
+test("home mantém a composição do Hero sem faixa informativa antiga", () => {
     const html = read("index.html");
-    const css = read("css/pages/home-4.2.1.css");
-    const js = read("js/pages/home.js");
-    assert.match(html, /id="fecharTopbar"/);
-    assert.match(html, /aria-label="Fechar aviso"/);
-    assert.match(css, /\.topbar\[hidden\]\{display:none\}/);
-    assert.match(js, /multi-delivery-topbar-hidden/);
-    assert.match(js, /localStorage\.setItem\(TOPBAR_STORAGE_KEY, "1"\)/);
+    assert.match(html, /class="market-hero"/);
+    assert.match(html, /id="heroTitulo"/);
+    assert.match(html, /assets\/hero-pedeja-hamburguer\.webp/);
+    assert.doesNotMatch(html, /id="fecharTopbar"/);
 });
 
 test("home adapta categorias e controles para toque no celular", () => {

@@ -8,9 +8,9 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
 
-test("home exibe apenas o carrinho principal do cabeçalho", () => {
+test("home exibe o carrinho principal e mantém o atalho móvel no menu", () => {
   assert.match(html, /id="botaoAbrirCarrinho"/);
-  assert.doesNotMatch(html, /id="floatingCart"/);
+  assert.match(html, /<button[^>]+class="mobile-menu-cart"[^>]+id="floatingCart"/);
   assert.doesNotMatch(html, /class="floating-cart"/);
   const botoesCarrinho = html.match(/aria-label="Abrir carrinho"/g) || [];
   assert.equal(botoesCarrinho.length, 1);

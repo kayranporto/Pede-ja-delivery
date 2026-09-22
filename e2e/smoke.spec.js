@@ -19,13 +19,13 @@ async function abrir(page, rota) {
     expect(response.status(), `A rota ${rota} deve responder HTTP 2xx`).toBeLessThan(300);
 }
 
-const tituloHome = /O que você quer comer hoje/i;
+const tituloHome = /Sua comida favorita, sem sair de casa!/i;
 
-test("Home carrega, oferece busca e filtros acessíveis", async ({ page }) => {
+test("Home carrega, oferece busca e categorias acessíveis", async ({ page }) => {
     const semErroFatal = observarErrosFatais(page);
     await abrir(page, "/");
 
-    await expect(page).toHaveTitle(/PedeJá/i);
+    await expect(page).toHaveTitle(/Pede Já/i);
     await expect(page.getByRole("heading", { level: 1, name: tituloHome })).toBeVisible();
     const busca = page.getByRole("textbox", { name: /Buscar restaurante ou comida/i });
     await expect(busca).toBeVisible();
@@ -37,9 +37,6 @@ test("Home carrega, oferece busca e filtros acessíveis", async ({ page }) => {
     await pizza.click();
     await expect(pizza).toHaveAttribute("aria-pressed", "true");
 
-    const abertoAgora = page.getByRole("button", { name: "Aberto agora" });
-    await abertoAgora.click();
-    await expect(abertoAgora).toHaveAttribute("aria-pressed", "true");
     await expect(page.getByRole("button", { name: "Abrir carrinho" })).toBeVisible();
 
     semErroFatal();
@@ -64,7 +61,7 @@ test("Rotas públicas essenciais entregam uma página utilizável", async ({ pag
     }
 });
 
-test("Navegação principal leva ao login e protege a central de ajuda", async ({ page }) => {
+test("Navegação principal leva ao login e protege a central de suporte", async ({ page }) => {
     await abrir(page, "/");
 
     await page.getByRole("link", { name: "Entrar" }).click();
@@ -72,7 +69,7 @@ test("Navegação principal leva ao login e protege a central de ajuda", async (
     await expect(page.getByRole("heading", { level: 1, name: /Entre na sua conta/i })).toBeVisible();
 
     await abrir(page, "/");
-    await page.getByRole("link", { name: "Ajuda" }).click();
+    await page.getByRole("link", { name: "Sobre" }).click();
     await expect(page).toHaveURL(/\/html\/login\.html$/, { timeout: 12000 });
     await expect.poll(() => page.evaluate(() => localStorage.getItem("redirect"))).toBe("suporte.html");
 });

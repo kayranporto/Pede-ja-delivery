@@ -14,9 +14,10 @@ const SHELL = [
   "./assets/logo-restaurante.svg",
   "./assets/banner-padrao.svg",
   "./assets/banner1.svg",
+  "./assets/hero-pedeja-hamburguer.webp",
   "./css/core/style.css?v=4.2.0",
   "./css/pages/home-4.2.1.css?v=4.2.1.4",
-  "./css/pages/home-marketplace.css?v=1.0.0",
+  "./css/pages/home-marketplace.css?v=4.4.7",
   "./css/core/paginas.css?v=4.2.0",
   "./css/core/accessibility.css?v=4.2.0",
   "./css/core/enhancements.css?v=4.4.7",
@@ -31,13 +32,13 @@ const SHELL = [
   "./js/core/monitoring.js?v=4.2.0",
   "./js/core/notifications.js?v=4.4.3",
   "./js/core/favorites-sync.js?v=4.2.1",
-  "./js/pages/home.js?v=4.4.7",
+  "./js/pages/home.js?v=4.5.0",
   "./js/core/cart-store.js?v=4.2.0",
   "./js/modules/carrinho-4.2.5.js?v=4.2.6",
   "./js/modules/checkout-4.2.3.js?v=4.2.4",
   "./js/modules/operacao-restaurante-4.2.7.js?v=4.2.7",
   "./js/pages/suporte.js?v=4.2.0",
-  "./js/core/site-enhancements.js?v=4.4.7"
+  "./js/core/site-enhancements.js?v=4.4.8"
 ];
 
 self.addEventListener("install", (event) => {
