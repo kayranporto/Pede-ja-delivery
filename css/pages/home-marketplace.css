@@ -1207,3 +1207,65 @@
   }
   .home-page .card-link>img{height:122px}
 }
+
+
+/* =========================================================
+   Home — composição inspirada na referência enviada
+   Fotos reais: hero/promo + imagens vindas da API
+   ========================================================= */
+.home-page .restaurant-tools{display:none}
+.home-page .market-hero-visual{min-height:390px}
+.home-page .market-hero-visual img{
+  width:min(100%,680px);
+  height:100%;
+  max-height:390px;
+  object-fit:cover;
+  object-position:center;
+  border-radius:46% 0 0 46%;
+  filter:none;
+  box-shadow:-12px 18px 35px rgba(32,36,43,.12);
+}
+.home-page .hero-shape-gold{
+  width:58%;
+  height:100%;
+  right:-3%;
+  top:-15%;
+  opacity:.95;
+}
+.home-page .hero-shape-red{
+  width:72%;
+  height:96%;
+  right:-12%;
+  bottom:-30%;
+  opacity:.98;
+}
+.home-page .offer-card{
+  overflow:hidden;
+}
+.home-page .offer-card>img{
+  object-fit:cover;
+  object-position:center;
+  border-radius:0 14px 14px 0;
+  opacity:1;
+}
+.home-page .card-link>img,
+.home-page .produto-destaque>img{
+  object-fit:cover;
+}
+@media(max-width:680px){
+  .home-page .market-hero-visual{
+    min-height:255px;
+  }
+  .home-page .market-hero-visual img{
+    width:100%;
+    max-height:255px;
+    border-radius:28px;
+    object-position:center;
+  }
+  .home-page .hero-shape-gold{width:62%;right:-8%}
+  .home-page .hero-shape-red{width:78%;right:-18%}
+  .home-page .offer-card>img{
+    border-radius:0 0 14px 14px;
+    min-height:170px;
+  }
+}
