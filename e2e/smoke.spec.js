@@ -28,10 +28,13 @@ test("Home carrega, oferece busca e categorias acessíveis", async ({ page }) =>
     await expect(page).toHaveTitle(/Pede Já/i);
     await expect(page.getByRole("heading", { level: 1, name: tituloHome })).toBeVisible();
     const busca = page.getByRole("textbox", { name: /Buscar restaurante ou comida/i });
-    await expect(busca).toBeVisible();
-
-    await page.keyboard.press("Control+K");
-    await expect(busca).toBeFocused();
+    if ((page.viewportSize()?.width || 1280) <= 700) {
+        await expect(page.getByRole("link", { name: "Busca" })).toBeVisible();
+    } else {
+        await expect(busca).toBeVisible();
+        await page.keyboard.press("Control+K");
+        await expect(busca).toBeFocused();
+    }
 
     const pizza = page.locator('.categoria[data-categoria="Pizza"]');
     await pizza.click();
@@ -69,7 +72,7 @@ test("Navegação principal leva ao login e protege a central de suporte", async
     await expect(page.getByRole("heading", { level: 1, name: /Entre na sua conta/i })).toBeVisible();
 
     await abrir(page, "/");
-    await page.getByRole("link", { name: "Sobre" }).click();
+    await page.locator(".home-nav").getByRole("link", { name: "Sobre" }).click();
     await expect(page).toHaveURL(/\/html\/login\.html$/, { timeout: 12000 });
     await expect.poll(() => page.evaluate(() => localStorage.getItem("redirect"))).toBe("suporte.html");
 });
