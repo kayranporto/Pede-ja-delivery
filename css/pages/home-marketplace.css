@@ -1115,3 +1115,95 @@
   }
   .home-page .market-hero-copy{padding-left:0}
 }
+
+
+/* Refinamento final — proporções da referência */
+.home-page .header{
+  min-height:76px;
+}
+.home-page .container-header{
+  width:calc(100% - 48px)!important;
+  max-width:1520px!important;
+}
+.home-page .market-hero,
+.home-page .market-section,
+.home-page .offer-strip,
+.home-page .footer-container{
+  width:calc(100% - 48px)!important;
+  max-width:1520px!important;
+}
+.home-page .market-hero{
+  min-height:390px;
+  padding-top:28px;
+  padding-bottom:28px;
+}
+.home-page .market-hero-copy{
+  padding-left:54px;
+}
+.home-page .market-hero h1{
+  max-width:680px;
+  font-size:clamp(3rem,4vw,4.65rem);
+}
+.home-page .market-hero-visual{
+  min-height:390px;
+}
+.home-page .market-hero-visual img{
+  width:min(108%,760px);
+}
+.home-page .categorias{
+  padding-top:22px;
+  padding-bottom:22px;
+}
+.home-page .categoria-lista{
+  grid-template-columns:repeat(8,minmax(0,1fr))!important;
+  gap:14px;
+}
+.home-page .categoria{
+  min-height:92px;
+}
+.home-page .restaurantes{
+  padding-top:24px;
+}
+.home-page .cards{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+.home-page .card-link>img{
+  height:150px;
+}
+.home-page .offer-strip{
+  margin-top:10px;
+  margin-bottom:8px;
+}
+.home-page .destaques .produtos{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+@media(max-width:1100px){
+  .home-page .categoria-lista{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .home-page .cards,.home-page .destaques .produtos{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:680px){
+  .home-page .container-header,
+  .home-page .market-hero,
+  .home-page .market-section,
+  .home-page .offer-strip,
+  .home-page .footer-container{
+    width:100%!important;
+    max-width:none!important;
+  }
+  .home-page .market-hero{
+    min-height:0;
+    padding-top:25px;
+    padding-bottom:10px;
+  }
+  .home-page .market-hero-copy{padding-left:0}
+  .home-page .market-hero-visual{min-height:255px}
+  .home-page .market-hero-visual img{width:108%;max-width:none}
+  .home-page .categoria-lista{
+    grid-template-columns:none!important;
+    gap:9px;
+  }
+  .home-page .cards,.home-page .destaques .produtos{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .home-page .card-link>img{height:122px}
+}
