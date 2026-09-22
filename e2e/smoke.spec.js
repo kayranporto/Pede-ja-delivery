@@ -40,7 +40,14 @@ test("Home carrega, oferece busca e categorias acessíveis", async ({ page }) =>
     await pizza.click();
     await expect(pizza).toHaveAttribute("aria-pressed", "true");
 
-    await expect(page.getByRole("button", { name: "Abrir carrinho" })).toBeVisible();
+    const mobile = (page.viewportSize()?.width || 1280) <= 700;
+    if (mobile) {
+        const menu = page.locator(".mobile-menu");
+        await menu.locator("summary").click();
+        await expect(menu.locator("#floatingCart")).toBeVisible();
+    } else {
+        await expect(page.getByRole("button", { name: "Abrir carrinho" })).toBeVisible();
+    }
 
     semErroFatal();
 });
@@ -72,7 +79,13 @@ test("Navegação principal leva ao login e protege a central de suporte", async
     await expect(page.getByRole("heading", { level: 1, name: /Entre na sua conta/i })).toBeVisible();
 
     await abrir(page, "/");
-    await page.locator(".home-nav").getByRole("link", { name: "Sobre" }).click();
+    if ((page.viewportSize()?.width || 1280) <= 700) {
+        const menu = page.locator(".mobile-menu");
+        await menu.locator("summary").click();
+        await menu.getByRole("link", { name: "Sobre" }).click();
+    } else {
+        await page.locator(".home-nav").getByRole("link", { name: "Sobre" }).click();
+    }
     await expect(page).toHaveURL(/\/html\/login\.html$/, { timeout: 12000 });
     await expect.poll(() => page.evaluate(() => localStorage.getItem("redirect"))).toBe("suporte.html");
 });
