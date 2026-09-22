@@ -481,3 +481,54 @@ textarea::placeholder, input::placeholder { color: #98a2b3; }
 /* Auditoria mobile fina — checkout 320–400 px */
 @media(max-width:400px){.checkout-header-inner{width:calc(100% - 16px);gap:10px}.voltar{width:38px;height:38px}.checkout-heading{min-width:0}.checkout-heading h1{overflow:hidden;font-size:17px;text-overflow:ellipsis;white-space:nowrap}.checkout-progress-inner{width:calc(100% - 16px);gap:5px}.checkout-step{min-width:0}.checkout-step>b{width:22px;height:22px;flex:none;font-size:10px}.checkout-step strong{font-size:8.5px}.checkout-progress-line{min-width:8px}.checkout-container{width:calc(100% - 16px);margin-top:14px}.checkout-card{padding:15px;border-radius:16px}.card-heading{gap:9px}.card-icon{width:38px;height:38px}.checkout-card h2{font-size:16px}.endereco{padding:14px;gap:12px}.delivery-preview{padding:12px;gap:9px}.delivery-preview>a{font-size:10px}.payment-option{min-height:68px;padding:12px;grid-template-columns:auto minmax(0,1fr) auto;gap:9px;border-radius:14px}.payment-icon{width:34px;height:34px;border-radius:10px}.payment-copy strong{font-size:12px}.payment-copy small{font-size:8.5px}.checkout-fast-lane{grid-template-columns:auto minmax(0,1fr);padding:10px;border-radius:14px}.checkout-optional>summary{padding:11px 12px}.checkout-optional-action{padding:0 8px;font-size:9px}.checkout-footer-inner{width:calc(100% - 16px)}#finalizarPedido{min-height:52px;padding:0 14px;font-size:12px;border-radius:13px}}
 @media(max-width:340px){.checkout-step>span{display:none}.checkout-progress-inner{justify-content:center;gap:10px}.checkout-progress-line{flex:1;max-width:36px}.checkout-container{gap:10px}.checkout-flow{gap:10px}.checkout-card{padding:13px}.checkout-fast-lane{min-height:56px}.checkout-card h2{font-size:15px}.checkout-footer-inner{width:calc(100% - 12px)}}
+
+
+/* Pede Já — identidade visual do checkout */
+:root{
+  --checkout-red:#e51b2a;
+  --checkout-red-dark:#c91422;
+  --checkout-gold:#ffb71b;
+  --checkout-red-soft:#fff2f3;
+  --checkout-gold-soft:#fff8e6;
+  --checkout-ink:#20242b;
+  --checkout-muted:#69707d;
+}
+.checkout-header-inner{width:min(1280px,calc(100% - 40px));min-height:82px}
+.checkout-brand{display:flex;flex:none;align-items:center;text-decoration:none}
+.checkout-brand img{display:block;width:148px;height:auto}
+.checkout-heading{padding-left:2px;border-left:1px solid #eceef2;padding-left:18px}
+.checkout-heading h1{color:var(--checkout-ink)}
+.checkout-heading>span{color:var(--checkout-red)}
+.checkout-progress{background:rgba(255,255,255,.96)}
+.checkout-step[data-estado="ok"]>b{border-color:#f4cf73;background:var(--checkout-gold-soft);color:#9a6500}
+.checkout-step[data-estado="ok"]{color:#9a6500}
+.checkout-step[data-estado="pendente"]>b{border-color:#f4dba0}
+.checkout-card{border-color:#ece7e7}
+.card-icon{border-color:#ffd9dc;background:var(--checkout-red-soft)}
+#alterarEndereco,#btnCupom{background:var(--checkout-red)}
+.delivery-preview{border-color:#f4dfb1;background:linear-gradient(135deg,#fffaf0,#fff7f8)}
+.payment-option:has(input:checked){border-color:var(--checkout-red);background:var(--checkout-red-soft);box-shadow:0 0 0 3px rgba(229,27,42,.07)}
+.summary-badge{background:var(--checkout-gold-soft);color:#9a6500}
+.linha.discount strong{color:#9a6500}
+.linha.total strong{color:var(--checkout-red)}
+.summary-trust{background:#fffaf0}
+.summary-trust>span{background:#fff0c9;color:#9a6500}
+.summary-trust strong{color:#6d4a00}
+.summary-trust small{color:#806b39}
+#finalizarPedido{background:linear-gradient(135deg,#e51b2a,#c91422);box-shadow:0 14px 30px rgba(229,27,42,.24)}
+.checkout-fast-lane{border-color:#f4dfb1;background:linear-gradient(135deg,#fffaf0,#fff);box-shadow:0 10px 28px rgba(255,183,27,.10)}
+.checkout-fast-icon{background:#fff0c9}
+.checkout-fast-lane strong{color:#6d4a00}
+.checkout-fast-lane small{color:#806b39}
+.checkout-fast-badge{background:#fff0c9;color:#9a6500}
+.cupom-box input:focus,#observacoesPedido:focus,#trocoPara:focus{border-color:var(--checkout-red);box-shadow:0 0 0 3px rgba(229,27,42,.08)}
+@media(max-width:760px){
+  .checkout-header-inner{width:calc(100% - 20px);min-height:72px}
+  .checkout-brand img{width:118px}
+  .checkout-heading{padding-left:12px}
+  .checkout-heading h1{font-size:18px}
+}
+@media(max-width:420px){
+  .checkout-brand img{width:104px}
+  .checkout-heading{display:none}
+}
