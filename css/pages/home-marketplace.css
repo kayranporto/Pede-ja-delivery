@@ -284,3 +284,23 @@
 @media(max-width:430px){
   .home-page .logo-mark{width:108px}
 }
+
+
+/* Logo oficial — proporção vertical da referência aprovada */
+.home-page .logo{
+  display:flex;
+  align-items:center;
+  min-width:100px;
+  flex:0 0 auto;
+}
+.home-page .logo-mark{
+  display:block;
+  width:98px;
+  height:auto;
+  max-height:74px;
+  object-fit:contain;
+  border-radius:0;
+}
+@media(max-width:900px){
+  .home-page .logo-mark{width:92px;max-height:70px}
+}
