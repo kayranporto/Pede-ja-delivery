@@ -12,6 +12,7 @@ const filtroAberto = document.getElementById("toggleAberto");
 const ordenarTaxa = document.getElementById("ordenarTaxa");
 const resumoResultado = document.getElementById("resultadoResumo");
 const carts = document.querySelectorAll("#botaoAbrirCarrinho, #floatingCart");
+const heroBuscar = document.getElementById("heroBuscarRestaurantes");
 const topbar = document.querySelector(".topbar");
 const topbarClose = document.getElementById("fecharTopbar");
 const TOPBAR_STORAGE_KEY = "multi-delivery-topbar-hidden";
@@ -374,7 +375,7 @@ async function carregarDestaques() {
         const data = menus
             .filter((resultado) => resultado.status === "fulfilled")
             .flatMap((resultado) => resultado.value)
-            .slice(0, 6);
+            .slice(0, 4);
 
         container.replaceChildren();
         if (!data.length) {
@@ -478,13 +479,17 @@ function atualizarContadoresCarrinho() {
         const valor = Number(item?.quantidade || 0);
         return soma + (Number.isFinite(valor) && valor > 0 ? valor : 0);
     }, 0);
-    document.querySelectorAll(".cart span, .floating-cart span, .cart-count").forEach((span) => {
+    document.querySelectorAll(".floating-cart span, .cart-count").forEach((span) => {
         span.textContent = String(quantidade);
     });
 }
 
 window.addEventListener("carrinho-atualizado", atualizarContadoresCarrinho);
 window.addEventListener("carrinho-sincronizar", atualizarContadoresCarrinho);
+
+heroBuscar?.addEventListener("click", () => {
+    document.getElementById("restaurantes")?.scrollIntoView({ behavior: "smooth" });
+});
 
 cards?.addEventListener("click", async (event) => {
     const favorito = event.target.closest("[data-favorite-id]");
