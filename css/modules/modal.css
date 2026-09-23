@@ -150,3 +150,57 @@ textarea{
 @media(max-width:520px){
     .lista-variantes{grid-template-columns:1fr}
 }
+
+
+/* Mockup aprovado — detalhes do produto */
+.modal-content{
+  border:1px solid #eceef2;
+  border-radius:24px;
+  box-shadow:0 26px 70px rgba(20,25,36,.18);
+}
+.modal-content img{
+  height:330px;
+  background:#fff8e6;
+  object-fit:contain;
+}
+.modal-body{padding:24px 26px 28px}
+.modal-body h2{margin:0 0 7px;color:#20242b;font-size:26px;line-height:1.15}
+.modal-body>p{margin:0 0 20px;color:#69707d;font-size:13px;line-height:1.6}
+.modal-body h3{margin:20px 0 9px;color:#20242b;font-size:14px}
+.grupo-adicional,.lista-variantes{margin-top:8px}
+.adicional,.variante-opcao{
+  min-height:48px;
+  padding:12px 14px;
+  border:1px solid #eceef2;
+  border-radius:13px;
+  background:#fff;
+}
+.adicional{align-items:center}
+.adicional label{font-size:12px;font-weight:650}
+.quantidade-modal{
+  justify-content:space-between;
+  margin:20px 0 14px;
+  padding:9px;
+  border:1px solid #eceef2;
+  border-radius:15px;
+  background:#fafafa;
+}
+.quantidade-modal button{
+  width:42px;height:42px;
+  background:#e51b2a;
+  box-shadow:0 7px 15px rgba(229,27,42,.15);
+}
+#confirmarProduto{
+  min-height:54px;
+  border-radius:14px;
+  background:#e51b2a;
+  box-shadow:0 12px 24px rgba(229,27,42,.18);
+  font-size:14px;
+  font-weight:800;
+}
+@media(max-width:680px){
+  .modal-content{border-radius:22px}
+  .modal-content img{height:230px}
+  .modal-body{padding:19px 18px calc(18px + env(safe-area-inset-bottom))}
+  .modal-body h2{font-size:22px}
+}
