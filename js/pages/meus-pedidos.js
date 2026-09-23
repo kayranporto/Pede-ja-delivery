@@ -101,6 +101,16 @@ function criarCard(pedido, indice) {
     card.style.animationDelay = `${Math.min(indice * 55, 330)}ms`;
 
     const info = criar("div", "order-info");
+    const itensPedido = Array.isArray(pedido.pedido_itens) ? pedido.pedido_itens : [];
+    const primeiroItem = itensPedido[0] || {};
+    const thumb = criar("div", "order-thumb");
+    const imagem = primeiroItem.imagem_url || primeiroItem.imagem || primeiroItem.produto_imagem || primeiroItem.imagem_produto || "../assets/produto-padrao.svg";
+    const thumbImg = document.createElement("img");
+    thumbImg.src = imagem;
+    thumbImg.alt = primeiroItem.nome_produto ? primeiroItem.nome_produto : "Imagem do pedido";
+    thumbImg.loading = "lazy";
+    thumbImg.onerror = () => { thumbImg.src = "../assets/produto-padrao.svg"; };
+    thumb.append(thumbImg);
     const topo = criar("div", "order-topline");
     const titulo = criar("h3", "order-number", `Pedido #${pedido.numero || String(pedido.id || "").slice(0, 8) || "—"}`);
     const data = criar("span", "order-date", dataBr(pedido.created_at));
@@ -109,7 +119,7 @@ function criarCard(pedido, indice) {
     const itens = criar("p", "order-items", (pedido.pedido_itens || [])
         .map((item) => `${Number(item?.quantidade) || 1}x ${item?.nome_produto || "Produto"}${item?.variante_nome ? ` • ${item.variante_nome}` : ""}`)
         .join(" • ") || "Itens do pedido");
-    info.append(topo, restaurante, itens);
+    info.append(thumb, topo, restaurante, itens);
     const avaliacao = criarAvaliacao(pedido);
     if (avaliacao) info.append(avaliacao);
 
