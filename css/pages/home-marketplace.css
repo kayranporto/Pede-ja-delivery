@@ -2105,3 +2105,74 @@
     width:72%;
   }
 }
+
+
+/* Correção: o Hero não é uma imagem única.
+   Texto e controles ficam em HTML; a arte fica somente à direita. */
+.home-page .hero-reference-frame{
+  background:#fffaf3!important;
+}
+.home-page .hero-reference-art{
+  display:block!important;
+  overflow:hidden!important;
+  width:58%!important;
+  height:100%!important;
+  z-index:2!important;
+}
+.home-page .hero-reference-art::before,
+.home-page .hero-reference-art::after{
+  display:none!important;
+}
+.home-page .hero-reference-art img{
+  position:absolute;
+  top:0;
+  right:0;
+  width:auto;
+  height:100%;
+  min-width:0;
+  max-width:none;
+  object-fit:contain;
+  object-position:right center;
+  display:block;
+  filter:none;
+  mix-blend-mode:normal;
+}
+.home-page .hero-reference-copy{
+  width:58%!important;
+  z-index:4!important;
+  background:linear-gradient(90deg,#fffaf3 0%,#fffaf3 88%,rgba(255,250,243,.94) 96%,rgba(255,250,243,0) 100%)!important;
+}
+@media(max-width:900px){
+  .home-page .hero-reference-frame{
+    min-height:400px;
+  }
+  .home-page .hero-reference-copy{
+    width:63%!important;
+    min-height:400px;
+    padding-left:5.5%;
+  }
+  .home-page .hero-reference-art{
+    width:55%!important;
+  }
+}
+@media(max-width:680px){
+  .home-page .hero-reference-frame{
+    min-height:420px;
+    background:#fffaf3!important;
+  }
+  .home-page .hero-reference-copy{
+    width:100%!important;
+    min-height:420px;
+    padding:28px 18px 175px;
+    background:linear-gradient(180deg,rgba(255,250,243,.98) 0%,rgba(255,250,243,.92) 58%,rgba(255,250,243,.28) 100%)!important;
+  }
+  .home-page .hero-reference-art{
+    width:72%!important;
+    height:210px!important;
+    top:auto;
+    bottom:0;
+  }
+  .home-page .hero-reference-art img{
+    height:210px;
+  }
+}
