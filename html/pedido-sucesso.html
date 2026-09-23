@@ -1,58 +1,107 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com 'sha256-u0u1ecLVPYNekrgEx+XAUkD4bQUKUR6DUioTn79RARQ='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://va.vercel-scripts.com; frame-src 'self' https://challenges.cloudflare.com; worker-src 'self' blob:; manifest-src 'self'; form-action 'self'; upgrade-insecure-requests"/>
-  <meta name="referrer" content="strict-origin-when-cross-origin"/><link href="../assets/favicon.svg" rel="icon" type="image/svg+xml"/>
-<title>Pedido Realizado</title>
-<link href="../css/core/style.css?v=4.2.0" rel="stylesheet"/>
-<link href="../css/pages/pedido-sucesso.css?v=4.2.0" rel="stylesheet"/>
-<link href="../css/core/accessibility.css?v=4.2.0" rel="stylesheet"/><meta content="Pedido Realizado — plataforma de pedidos e restaurantes." name="description"/><link rel="manifest" href="../manifest.webmanifest"><meta name="theme-color" content="#ea1d2c"><link rel="stylesheet" href="../css/core/enhancements.css?v=4.4.7"></head>
-<body class="pedido-sucesso-page"><noscript>Este site precisa de JavaScript habilitado para funcionar.</noscript>
-<div class="sucesso">
-<div class="icone">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com 'sha256-u0u1ecLVPYNekrgEx+XAUkD4bQUKUR6DUioTn79RARQ='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://va.vercel-scripts.com; frame-src 'self' https://challenges.cloudflare.com; worker-src 'self' blob:; manifest-src 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
+<link href="../css/core/style.css?v=4.2.0" rel="stylesheet">
+<link href="../css/pages/pedido-sucesso.css?v=4.2.0" rel="stylesheet">
+<link href="../css/core/accessibility.css?v=4.2.0" rel="stylesheet">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="theme-color" content="#e51b2a">
+<title>Pedido realizado — Pede Já</title>
+</head>
+<body class="pedido-sucesso-page">
+<noscript>Este site precisa de JavaScript habilitado para funcionar.</noscript>
 
-        ✅
+<header class="success-header">
+  <a class="success-logo" href="../index.html" aria-label="Pede Já - início">
+    <img src="../assets/logo-pedeja.svg" alt="Pede Já">
+  </a>
+  <nav class="success-nav" aria-label="Navegação principal">
+    <a href="../index.html">Início</a>
+    <a href="restaurante.html">Restaurantes</a>
+    <a href="../index.html#categorias">Categorias</a>
+    <a href="suporte.html">Suporte</a>
+  </nav>
+  <div class="success-actions">
+    <a href="login.html">Entrar</a>
+    <a class="success-signup" href="cadastro.html">Cadastrar</a>
+    <a class="success-cart" href="checkout.html" aria-label="Carrinho">🛒<span>0</span></a>
+  </div>
+  <button class="success-menu" type="button" aria-label="Abrir menu">☰</button>
+</header>
 
+<main class="success-main">
+  <section class="success-hero">
+    <div class="success-copy">
+      <div class="success-check" aria-hidden="true">✓</div>
+      <h1>Pedido realizado!</h1>
+      <p class="success-lead">Seu pedido foi confirmado e já está sendo preparado pelo restaurante.</p>
+      <p class="success-sublead">Agora é só aguardar e logo mais seu pedido chegar!</p>
+      <div class="success-order-number">
+        <span>Número do pedido</span>
+        <strong id="numeroPedido">#25</strong>
+      </div>
+      <a class="success-track" href="meus-pedidos.html">🚚 <span>Acompanhar pedido</span> <b>→</b></a>
     </div>
-<h1>Pedido realizado!</h1>
-<p>
+    <div class="success-food" aria-hidden="true">
+      <div class="shape shape-red"></div>
+      <div class="shape shape-gold"></div>
+      <img src="../assets/hero-pedeja-hamburguer.webp" alt="">
+    </div>
+  </section>
 
-        Seu pedido foi enviado para o restaurante.
+  <section class="success-meta" aria-label="Resumo da entrega">
+    <article><span class="meta-icon">▣</span><div><small>Restaurante</small><strong id="restauranteNome">Burger House</strong><em>Hambúrgueres</em></div></article>
+    <article><span class="meta-icon">◷</span><div><small>Previsão de entrega</small><strong id="previsaoEntrega">30 – 45 min</strong></div></article>
+    <article><span class="meta-icon">♧</span><div><small>Taxa de entrega</small><strong>R$ 5,99</strong></div></article>
+    <article><span class="meta-icon">▤</span><div><small>Forma de pagamento</small><strong>Cartão de crédito</strong><em>(•••• 4242)</em></div></article>
+  </section>
 
-    </p>
-<div class="pedido-info">
-<h2>
+  <section class="success-grid">
+    <article class="success-card order-summary">
+      <h2>Resumo do pedido</h2>
+      <div class="order-item"><div class="food-thumb burger-thumb"></div><div><strong>X-Bacon</strong><span>Pão brioche, hambúrguer 180g, queijo cheddar, bacon crocante, alface, tomate</span></div><b>1x</b><strong>R$ 24,90</strong></div>
+      <div class="order-item"><div class="food-thumb fries-thumb"></div><div><strong>Batata Frita</strong><span>Porção média</span></div><b>1x</b><strong>R$ 12,90</strong></div>
+      <div class="order-item"><div class="food-thumb soda-thumb"></div><div><strong>Coca Cola</strong><span>Lata 350ml</span></div><b>1x</b><strong>R$ 6,90</strong></div>
+      <div class="order-totals"><span>Subtotal <b>R$ 44,70</b></span><span>Taxa de entrega <b>R$ 5,99</b></span><strong>Total <b>R$ 50,69</b></strong></div>
+    </article>
 
-            Pedido
-            <span id="numeroPedido"></span>
-</h2>
-<p>
+    <article class="success-card delivery-card">
+      <h2>Endereço de entrega</h2>
+      <p class="address"><b>📍 Rua das Palmeiras, 123</b><span>Jardim Paulista - São Paulo, SP</span><span>CEP 01420-000</span></p>
+      <button class="address-button" type="button">Ver detalhes do endereço</button>
+      <div class="tracking">
+        <h2>Acompanhe seu pedido</h2>
+        <ol>
+          <li class="done"><span>✓</span><div><strong>Pedido confirmado</strong><small>Hoje, 14:32</small></div></li>
+          <li class="current"><span>•</span><div><strong>Em preparo</strong><small>Restaurante já recebeu seu pedido · Hoje, 14:40</small></div></li>
+          <li><span>•</span><div><strong>Em rota de entrega</strong><small>Hoje, 15:10</small></div></li>
+          <li><span>•</span><div><strong>Pedido entregue</strong><small>Hoje, 15:40</small></div></li>
+        </ol>
+      </div>
+    </article>
+  </section>
+</main>
 
-            Tempo estimado
+<footer class="success-footer">
+  <img src="../assets/logo-pedeja.svg" alt="Pede Já">
+  <nav><a href="../index.html">Início</a><a href="restaurante.html">Restaurantes</a><a href="../index.html#categorias">Categorias</a><a href="suporte.html">Sobre</a><a href="suporte.html">Contato</a></nav>
+  <small>© 2025 Pede Já. Todos os direitos reservados.</small>
+</footer>
 
-        </p>
-<strong>
+<nav class="success-bottom-nav" aria-label="Navegação mobile">
+  <a href="../index.html"><span>⌂</span>Início</a>
+  <a href="../index.html#restaurantes"><span>⌕</span>Busca</a>
+  <a class="active" href="meus-pedidos.html"><span>▣</span>Pedidos</a>
+  <a href="perfil.html"><span>♙</span>Perfil</a>
+</nav>
 
-            30 - 45 minutos
-
-        </strong>
-</div>
-<div class="acoes">
-<a class="btn" href="meus-pedidos.html">
-
-            Acompanhar Pedido
-
-        </a>
-<a class="btn secundario" href="../index.html">
-
-            Voltar para Home
-
-        </a>
-</div>
-</div>
-<script defer src="../js/core/app-utils.js?v=4.4.7"></script><script defer src="../js/pages/pedido-sucesso.js?v=4.2.0"></script>
-<script defer src="../js/core/site-enhancements.js?v=4.4.7"></script></body>
+<script defer src="../js/core/app-utils.js?v=4.4.7"></script>
+<script defer src="../js/pages/pedido-sucesso.js?v=4.2.0"></script>
+<script defer src="../js/core/site-enhancements.js?v=4.4.7"></script>
+</body>
 </html>
