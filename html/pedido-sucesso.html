@@ -74,11 +74,11 @@
       <button class="address-button" type="button">Ver detalhes do endereço</button>
       <div class="tracking">
         <h2>Acompanhe seu pedido</h2>
-        <ol>
-          <li class="done"><span>✓</span><div><strong>Pedido confirmado</strong><small>Hoje, 14:32</small></div></li>
-          <li class="current"><span>•</span><div><strong>Em preparo</strong><small>Restaurante já recebeu seu pedido · Hoje, 14:40</small></div></li>
-          <li><span>•</span><div><strong>Em rota de entrega</strong><small>Hoje, 15:10</small></div></li>
-          <li><span>•</span><div><strong>Pedido entregue</strong><small>Hoje, 15:40</small></div></li>
+        <ol id="timelinePedido">
+          <li data-status="recebido"><span>✓</span><div><strong>Pedido recebido</strong><small>Aguardando</small></div></li>
+          <li data-status="preparando"><span>•</span><div><strong>Em preparo</strong><small>Aguardando</small></div></li>
+          <li data-status="saiu_para_entrega"><span>•</span><div><strong>Em rota de entrega</strong><small>Aguardando</small></div></li>
+          <li data-status="entregue"><span>•</span><div><strong>Pedido entregue</strong><small>Aguardando</small></div></li>
         </ol>
       </div>
     </article>
