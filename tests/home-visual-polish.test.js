@@ -21,7 +21,7 @@ test("home mantém a composição do Hero sem faixa informativa antiga", () => {
     const html = read("index.html");
     assert.match(html, /class="market-hero"/);
     assert.match(html, /class="hero-reference-frame"/);
-    assert.match(html, /assets\/hero-pedeja-final\.webp/);
+    assert.match(html, /id="heroTitulo"/);
     assert.doesNotMatch(html, /id="fecharTopbar"/);
 });
 

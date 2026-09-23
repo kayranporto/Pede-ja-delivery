@@ -89,11 +89,26 @@
   </header>
 
   <main>
-    <section class="market-hero" aria-label="Hero principal do Pede Já">
+    <section class="market-hero" aria-labelledby="heroTitulo">
       <div class="hero-reference-frame">
-        <img src="assets/hero-pedeja-final.webp" alt="Pede Já — Sua comida favorita, sem sair de casa!" decoding="async" fetchpriority="high" width="580" height="197"/>
-        <a class="hero-reference-address" href="html/enderecos.html?redirect=../index.html" aria-label="Digitar seu endereço"></a>
-        <button class="hero-reference-search" type="button" id="heroBuscarRestaurantes" aria-label="Buscar restaurantes"></button>
+        <div class="hero-reference-copy">
+          <span class="hero-reference-kicker">Delivery na sua região</span>
+          <h1 id="heroTitulo">Sua comida<br/>favorita, <span>sem<br/>sair de casa!</span></h1>
+          <p>Encontre os melhores restaurantes da sua região e peça agora mesmo.</p>
+          <div class="hero-reference-searchbar">
+            <a href="html/enderecos.html?redirect=../index.html" aria-label="Digitar seu endereço">
+              <span aria-hidden="true">⌖</span>
+              <span>Digite seu endereço</span>
+            </a>
+            <button type="button" id="heroBuscarRestaurantes" aria-label="Buscar restaurantes">⌕</button>
+          </div>
+          <div class="hero-reference-benefits" aria-label="Benefícios do Pede Já">
+            <span><b aria-hidden="true">ϟ</b> Entrega rápida</span>
+            <span><b aria-hidden="true">✓</b> Pedidos seguros</span>
+            <span><b aria-hidden="true">★</b> Vários restaurantes</span>
+          </div>
+        </div>
+        <div class="hero-reference-art" aria-hidden="true"></div>
       </div>
     </section>
 

@@ -26,7 +26,7 @@ test("Home carrega, oferece busca e categorias acessíveis", async ({ page }) =>
     await abrir(page, "/");
 
     await expect(page).toHaveTitle(/Pede Já/i);
-    await expect(page.locator('.hero-reference-frame img[alt*="Sua comida favorita"]')).toBeVisible();
+    await expect(page.locator('#heroTitulo')).toBeVisible();
     const busca = page.getByRole("textbox", { name: /Buscar restaurante ou comida/i });
     if ((page.viewportSize()?.width || 1280) <= 700) {
         await expect(page.getByRole("link", { name: "Busca" })).toBeVisible();
