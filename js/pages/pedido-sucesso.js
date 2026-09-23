@@ -56,6 +56,11 @@ function renderizarPedido(pedido) {
             const row = document.createElement("div");
             row.className = "order-item";
 
+            const thumb = document.createElement("div");
+            thumb.className = "food-thumb";
+            const imagem = item.imagem_url || item.imagem || item.produto_imagem || item.imagem_produto;
+            thumb.style.backgroundImage = `url("${imagem || "../assets/produto-padrao.svg"}")`;
+
             const info = document.createElement("div");
             const nome = document.createElement("strong");
             nome.textContent = item.nome_produto || "Produto";
@@ -76,7 +81,7 @@ function renderizarPedido(pedido) {
             const valor = document.createElement("strong");
             valor.textContent = dinheiro((Number(item.preco_unitario || 0) + adicionaisTotal) * Number(item.quantidade || 1));
 
-            row.append(info, quantidade, valor);
+            row.append(thumb, info, quantidade, valor);
             box.append(row);
         });
 
