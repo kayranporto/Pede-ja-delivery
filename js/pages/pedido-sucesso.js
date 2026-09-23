@@ -1,6 +1,9 @@
 "use strict";
 
 const pedido = App.lerJSON("pedidoAtual", null);
+let canalPedido = null;
+const ordemStatus = ["recebido", "preparando", "saiu_para_entrega", "entregue"];
+const nomesStatus = { recebido: "Pedido recebido", preparando: "Em preparo", saiu_para_entrega: "Em rota de entrega", entregue: "Pedido entregue", cancelado: "Pedido cancelado" };
 
 function dinheiro(valor) {
     return App.dinheiro(Number(valor || 0));
@@ -88,6 +91,33 @@ function renderizarPedido(pedido) {
         if (!box.children.length) box.textContent = "Nenhum item encontrado neste pedido.";
     }
 
+    const timeline = document.querySelector("#timelinePedido");
+    if (timeline) {
+        const status = String(pedido.status || "recebido");
+        const atual = ordemStatus.indexOf(status);
+        timeline.hidden = status === "cancelado";
+        timeline.querySelectorAll("li").forEach((li, indice) => {
+            const statusItem = li.dataset.status;
+            const indiceStatus = ordemStatus.indexOf(statusItem);
+            const ativo = statusItem === status;
+            li.classList.toggle("done", status === "entregue" || (atual >= 0 && indiceStatus >= 0 && indiceStatus < atual));
+            li.classList.toggle("current", ativo);
+            const titulo = li.querySelector("strong");
+            if (titulo) titulo.textContent = nomesStatus[statusItem] || statusItem;
+            const tempo = li.querySelector("small");
+            if (tempo) {
+                if (ativo) tempo.textContent = status === "entregue" ? "Concluído" : "Status atual";
+                else if (atual >= 0 && indiceStatus >= 0 && indiceStatus < atual) tempo.textContent = "Concluído";
+                else tempo.textContent = "Aguardando";
+            }
+        });
+    }
+    const statusTopo = document.querySelector(".success-sublead");
+    if (statusTopo) {
+        const status = String(pedido.status || "recebido");
+        statusTopo.textContent = status === "cancelado" ? "Este pedido foi cancelado." : (nomesStatus[status] || "Acompanhe o andamento do seu pedido.");
+    }
+
     const subtotal = document.getElementById("subtotalPedido");
     if (subtotal) subtotal.textContent = dinheiro(pedido.subtotal);
 
@@ -96,6 +126,24 @@ function renderizarPedido(pedido) {
 
     const total = document.getElementById("totalPedido");
     if (total) total.textContent = dinheiro(pedido.total);
+
+    const acompanhar = document.querySelector(".success-track");
+    if (acompanhar && pedido.id) acompanhar.href = `acompanhamento.html?id=${encodeURIComponent(pedido.id)}`;
 }
 
 renderizarPedido(pedido);
+
+async function iniciarAtualizacaoTempoReal() {
+    if (!pedido?.id || !window.db?.channel) return;
+    const { data: { user } = {} } = await window.db.auth.getUser().catch(() => ({ data: {} }));
+    if (!user) return;
+    canalPedido = db.channel(`pedido-sucesso-${pedido.id}`)
+        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "pedidos", filter: `id=eq.${pedido.id}` }, (payload) => {
+            Object.assign(pedido, payload.new);
+            renderizarPedido(pedido);
+        })
+        .subscribe();
+}
+
+iniciarAtualizacaoTempoReal();
+addEventListener("beforeunload", () => { if (canalPedido) db.removeChannel(canalPedido); });
