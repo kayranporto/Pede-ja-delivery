@@ -237,7 +237,7 @@ function renderizarEmpresas(lista) {
 
     const fragmento = document.createDocumentFragment();
 
-    lista.forEach((empresa) => {
+    lista.forEach((empresa, indice) => {
         const card = document.createElement("article");
         card.className = "card";
         card.dataset.id = empresa.id;
@@ -256,6 +256,13 @@ function renderizarEmpresas(lista) {
         header.className = "card-header";
         header.append(criarTexto("h3", "", empresa.nome || "Restaurante"));
 
+        const badgeTexto = indice === 0 ? "Mais pedido" : (indice === 2 ? "Promoção" : "");
+        if (badgeTexto) {
+            const badge = criarTexto("span", `restaurant-badge ${badgeTexto === "Promoção" ? "promo" : ""}`, badgeTexto);
+            badge.setAttribute("aria-hidden", "true");
+            card.append(badge);
+        }
+
         const favorite = document.createElement("button");
         favorite.type = "button";
         favorite.className = "favorite";
@@ -273,7 +280,8 @@ function renderizarEmpresas(lista) {
         } else {
             info.append(criarTexto("span", "rating-info rating-new", "☆ Novo"));
         }
-        info.append(criarTexto("span", "", `🚚 ${dinheiro(empresa.taxa_entrega)}`));
+        const taxa = Number(empresa.taxa_entrega || 0);
+        info.append(criarTexto("span", "", taxa > 0 ? `🛵 ${dinheiro(taxa)}` : "🛵 Grátis"));
         info.append(criarTexto("span", "", `Pedido mínimo ${dinheiro(empresa.pedido_minimo)}`));
         const minimo = Number(empresa.tempo_estimado_min || 25);
         const maximo = Number(empresa.tempo_estimado_max || 45);
