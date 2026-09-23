@@ -1864,3 +1864,66 @@
     padding:14px 12px 10px!important;
   }
 }
+
+
+/* =========================================================
+   Hero — imagem escolhida pelo usuário
+   ========================================================= */
+.home-page .market-hero{
+  width:100%!important;
+  max-width:none!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  display:block!important;
+  background:#fff!important;
+}
+.home-page .hero-reference-frame{
+  position:relative;
+  width:min(1280px,100%);
+  margin:0 auto;
+  overflow:hidden;
+  line-height:0;
+  background:#fff;
+}
+.home-page .hero-reference-frame img{
+  display:block;
+  width:100%;
+  height:auto;
+  max-width:none;
+  border:0;
+  border-radius:0;
+  object-fit:contain;
+  box-shadow:none;
+  filter:none;
+  mix-blend-mode:normal;
+}
+.home-page .hero-reference-address,
+.home-page .hero-reference-search{
+  position:absolute;
+  display:block;
+  z-index:5;
+  margin:0;
+  padding:0;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+}
+.home-page .hero-reference-address{
+  left:7.2%;
+  top:67.3%;
+  width:39.5%;
+  height:12.5%;
+}
+.home-page .hero-reference-search{
+  left:47.5%;
+  top:67.2%;
+  width:5.6%;
+  height:13%;
+  border-radius:10px;
+}
+.home-page .hero-reference-address:focus-visible,
+.home-page .hero-reference-search:focus-visible{
+  outline:3px solid rgba(229,27,42,.5);
+  outline-offset:2px;
+}

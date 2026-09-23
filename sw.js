@@ -1,6 +1,6 @@
 "use strict";
 
-const VERSION = "4.4.7";
+const VERSION = "4.4.8";
 const CACHE = `multi-delivery-v${VERSION}`;
 const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}`;
 const SHELL = [
@@ -14,7 +14,7 @@ const SHELL = [
   "./assets/logo-restaurante.svg",
   "./assets/banner-padrao.svg",
   "./assets/banner1.svg",
-  "./assets/hero-pedeja-hamburguer.webp",
+  "./assets/hero-pedeja-final.webp",
   "./css/core/style.css?v=4.2.0",
   "./css/pages/home-4.2.1.css?v=4.2.1.4",
   "./css/pages/home-marketplace.css?v=4.4.7",
