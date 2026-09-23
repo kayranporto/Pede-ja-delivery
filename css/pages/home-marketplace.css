@@ -1308,3 +1308,38 @@
     border-radius:0;
   }
 }
+
+
+/* Hero — enquadramento final da foto escolhida */
+.home-page .market-hero-visual{
+  min-height:390px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+}
+.home-page .market-hero-visual img{
+  position:relative;
+  z-index:2;
+  width:118%;
+  max-width:900px;
+  height:470px;
+  object-fit:cover;
+  object-position:center 48%;
+  border-radius:0;
+  background:#fff;
+  mix-blend-mode:multiply;
+  filter:drop-shadow(0 22px 20px rgba(32,36,43,.10));
+  box-shadow:none;
+}
+@media(max-width:680px){
+  .home-page .market-hero-visual{
+    min-height:255px;
+  }
+  .home-page .market-hero-visual img{
+    width:125%;
+    max-width:none;
+    height:300px;
+    object-fit:cover;
+    object-position:center 50%;
+  }
+}
