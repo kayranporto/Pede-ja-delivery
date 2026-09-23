@@ -55,24 +55,22 @@
   </section>
 
   <section class="success-meta" aria-label="Resumo da entrega">
-    <article><span class="meta-icon">▣</span><div><small>Restaurante</small><strong id="restauranteNome">Burger House</strong><em>Hambúrgueres</em></div></article>
+    <article><span class="meta-icon">▣</span><div><small>Restaurante</small><strong id="restauranteNome">Restaurante</strong><em id="restauranteCategoria"></em></div></article>
     <article><span class="meta-icon">◷</span><div><small>Previsão de entrega</small><strong id="previsaoEntrega">30 – 45 min</strong></div></article>
-    <article><span class="meta-icon">♧</span><div><small>Taxa de entrega</small><strong>R$ 5,99</strong></div></article>
-    <article><span class="meta-icon">▤</span><div><small>Forma de pagamento</small><strong>Cartão de crédito</strong><em>(•••• 4242)</em></div></article>
+    <article><span class="meta-icon">♧</span><div><small>Taxa de entrega</small><strong id="taxaEntrega">R$ 0,00</strong></div></article>
+    <article><span class="meta-icon">▤</span><div><small>Forma de pagamento</small><strong id="formaPagamento">Pagamento</strong><em id="pagamentoDetalhe"></em></div></article>
   </section>
 
   <section class="success-grid">
     <article class="success-card order-summary">
       <h2>Resumo do pedido</h2>
-      <div class="order-item"><div class="food-thumb burger-thumb"></div><div><strong>X-Bacon</strong><span>Pão brioche, hambúrguer 180g, queijo cheddar, bacon crocante, alface, tomate</span></div><b>1x</b><strong>R$ 24,90</strong></div>
-      <div class="order-item"><div class="food-thumb fries-thumb"></div><div><strong>Batata Frita</strong><span>Porção média</span></div><b>1x</b><strong>R$ 12,90</strong></div>
-      <div class="order-item"><div class="food-thumb soda-thumb"></div><div><strong>Coca Cola</strong><span>Lata 350ml</span></div><b>1x</b><strong>R$ 6,90</strong></div>
-      <div class="order-totals"><span>Subtotal <b>R$ 44,70</b></span><span>Taxa de entrega <b>R$ 5,99</b></span><strong>Total <b>R$ 50,69</b></strong></div>
+      <div id="itensResumo" class="order-items-dynamic"></div>
+      <div class="order-totals"><span>Subtotal <b id="subtotalPedido">R$ 0,00</b></span><span>Taxa de entrega <b id="taxaPedido">R$ 0,00</b></span><strong>Total <b id="totalPedido">R$ 0,00</b></strong></div>
     </article>
 
     <article class="success-card delivery-card">
       <h2>Endereço de entrega</h2>
-      <p class="address"><b>📍 Rua das Palmeiras, 123</b><span>Jardim Paulista - São Paulo, SP</span><span>CEP 01420-000</span></p>
+      <p class="address"><b>📍 <span id="enderecoEntrega">Endereço não informado</span></b></p>
       <button class="address-button" type="button">Ver detalhes do endereço</button>
       <div class="tracking">
         <h2>Acompanhe seu pedido</h2>
