@@ -642,3 +642,27 @@ body.admin-compact .admin-card,body.admin-compact .admin-settings-card{padding:1
   .marketing-product-row small{grid-column:1}
   .marketing-product-row strong{grid-column:2;grid-row:1/3}
 }
+
+/* Permissões granulares de administradores — 4.5 */
+.admin-admin-actions{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.admin-permissions-form{display:grid;gap:14px}
+.admin-permissions-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.admin-permission-option{display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid rgba(21,25,37,.08);border-radius:13px;background:#fafbfc;cursor:pointer}
+.admin-permission-option:has(input:checked){border-color:rgba(239,36,53,.2);background:#fff8f8}
+.admin-permission-option input{margin-top:3px;flex:0 0 auto}
+.admin-permission-option span{min-width:0}
+.admin-permission-option strong,.admin-permission-option small{display:block}
+.admin-permission-option strong{font-size:12px}
+.admin-permission-option small{margin-top:3px;color:var(--muted);font-size:10px;line-height:1.35}
+#painelAdministradoresAdmin[hidden],#configuracoes .admin-settings-grid[hidden],#configuracoes .admin-settings-note[hidden],#restaurarConfigAdmin[hidden]{display:none!important}
+@media(max-width:760px){
+  .admin-admin-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .admin-admin-actions .admin-action{min-height:40px}
+  .admin-permissions-grid{grid-template-columns:1fr}
+  .admin-permission-option{padding:13px}
+}
+@media(max-width:480px){
+  .admin-admin-actions{grid-template-columns:1fr}
+  .admin-permission-option strong{font-size:11px}
+  .admin-permission-option small{font-size:9px}
+}
