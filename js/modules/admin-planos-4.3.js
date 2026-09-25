@@ -44,8 +44,12 @@
     if (relatorios) nav.insertBefore(link, relatorios); else nav.append(link);
 
     const section = document.createElement("section");
-    section.className = "admin-section";
+    section.className = "admin-section admin-view";
     section.id = "planos";
+    section.dataset.adminView = "";
+    section.tabIndex = -1;
+    section.setAttribute("aria-label", "Planos e assinaturas");
+    section.hidden = location.hash !== "#planos";
     section.innerHTML = `
       <div class="admin-section-title"><div><span class="admin-kicker">SAAS E ASSINATURAS</span><h2>Planos da plataforma</h2><p>Configure trial, preço e limites. Nenhuma cobrança é criada automaticamente nesta etapa.</p></div><button class="admin-secondary-button" id="recarregarPlanos43" type="button">↻ Atualizar</button></div>
       <p class="plans-note">O plano <strong>Legado</strong> mantém as operações existentes sem limites. Defina um plano comercial como “padrão para novos” somente quando preço, trial e limites estiverem decididos.</p>
