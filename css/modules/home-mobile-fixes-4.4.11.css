@@ -249,3 +249,324 @@
     max-height:58px!important;
   }
 }
+
+
+/* =========================================================
+   MOBILE FINAL — topo, hero e barra inferior
+   ========================================================= */
+@media (max-width:680px){
+  html{scroll-padding-bottom:86px}
+  .home-page{
+    padding-bottom:0!important;
+    overflow-x:hidden!important;
+  }
+
+  /* Topo: primeira linha limpa + ações da conta abaixo. */
+  .home-page .header{
+    position:sticky!important;
+    top:0!important;
+    z-index:1200!important;
+    background:#fff!important;
+    box-shadow:0 4px 18px rgba(23,26,33,.07)!important;
+  }
+  .home-page .container-header{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:
+      "logo menu"
+      "account account"!important;
+    min-height:0!important;
+    width:100%!important;
+    padding:10px 16px 9px!important;
+    gap:9px!important;
+  }
+  .home-page .logo{
+    grid-area:logo!important;
+    width:auto!important;
+    min-width:0!important;
+    flex:none!important;
+    justify-self:start!important;
+    align-self:center!important;
+  }
+  .home-page .logo .logo-mark{
+    width:92px!important;
+    max-height:62px!important;
+  }
+
+  .home-page .location,
+  .home-page .home-nav,
+  .home-page .header-search,
+  .home-page .cart{
+    display:none!important;
+  }
+
+  .home-page .mobile-menu{
+    grid-area:menu!important;
+    display:block!important;
+    justify-self:end!important;
+    align-self:center!important;
+    position:relative!important;
+    z-index:1300!important;
+  }
+  .home-page .mobile-menu summary{
+    display:grid!important;
+    width:44px!important;
+    height:44px!important;
+    place-items:center!important;
+    border:1px solid #e6e7ea!important;
+    border-radius:13px!important;
+    background:#fff!important;
+    color:#20242b!important;
+    box-shadow:0 7px 18px rgba(23,26,33,.07)!important;
+    font-size:25px!important;
+    line-height:1!important;
+    cursor:pointer!important;
+    list-style:none!important;
+  }
+  .home-page .mobile-menu summary::-webkit-details-marker{display:none!important}
+  .home-page .mobile-menu[open] summary{
+    background:#171a24!important;
+    color:#fff!important;
+    border-color:#171a24!important;
+  }
+  .home-page .mobile-menu-panel{
+    position:absolute!important;
+    top:52px!important;
+    right:0!important;
+    width:min(245px,calc(100vw - 32px))!important;
+    display:grid!important;
+    gap:5px!important;
+    padding:10px!important;
+    border:1px solid #e8e9ed!important;
+    border-radius:16px!important;
+    background:#fff!important;
+    box-shadow:0 20px 45px rgba(23,26,33,.16)!important;
+  }
+  .home-page .mobile-menu-panel a,
+  .home-page .mobile-menu-panel button{
+    min-height:42px!important;
+    display:flex!important;
+    align-items:center!important;
+    width:100%!important;
+    padding:9px 12px!important;
+    border:0!important;
+    border-radius:11px!important;
+    background:#f7f8fa!important;
+    color:#20242b!important;
+    font:600 .75rem Poppins,sans-serif!important;
+    text-decoration:none!important;
+    box-sizing:border-box!important;
+  }
+
+  .home-page #menuUsuario{
+    grid-area:account!important;
+    display:flex!important;
+    width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    gap:8px!important;
+    overflow-x:auto!important;
+    scrollbar-width:none!important;
+  }
+  .home-page #menuUsuario::-webkit-scrollbar{display:none!important}
+  .home-page #menuUsuario>a{
+    flex:1 1 0!important;
+    min-width:0!important;
+    justify-content:center!important;
+    text-align:center!important;
+  }
+  .home-page #menuUsuario .btn-admin,
+  .home-page #menuUsuario .btn-driver,
+  .home-page #menuUsuario .btn-primary{
+    min-height:43px!important;
+    padding:9px 12px!important;
+    border-radius:14px!important;
+    font-size:.74rem!important;
+    white-space:nowrap!important;
+    box-sizing:border-box!important;
+  }
+  .home-page #menuUsuario .btn-admin{
+    background:linear-gradient(135deg,#171a24,#343b4c)!important;
+    color:#fff!important;
+    border:1px solid #242938!important;
+    box-shadow:0 8px 18px rgba(23,26,36,.12)!important;
+  }
+  .home-page #menuUsuario .btn-primary{
+    background:#ea1d2c!important;
+    color:#fff!important;
+    box-shadow:0 8px 18px rgba(234,29,44,.16)!important;
+  }
+
+  /* Hero: menos altura e imagem separada do texto para evitar corte. */
+  .home-page .market-hero{
+    padding:0!important;
+    background:#fffaf3!important;
+  }
+  .home-page .hero-reference-frame{
+    min-height:0!important;
+    overflow:hidden!important;
+    background:#fffaf3!important;
+  }
+  .home-page .hero-reference-copy{
+    width:100%!important;
+    min-height:0!important;
+    padding:30px 18px 0!important;
+    background:linear-gradient(180deg,#fffaf3 0%,#fffaf3 76%,rgba(255,250,243,.96) 100%)!important;
+  }
+  .home-page .hero-reference-copy h1{
+    max-width:350px!important;
+    font-size:clamp(2.55rem,11vw,3.35rem)!important;
+    line-height:.96!important;
+    letter-spacing:-.06em!important;
+  }
+  .home-page .hero-reference-copy p{
+    max-width:340px!important;
+    margin-top:14px!important;
+    font-size:.76rem!important;
+    line-height:1.55!important;
+  }
+  .home-page .hero-reference-searchbar{
+    width:100%!important;
+    max-width:420px!important;
+    height:50px!important;
+    margin-top:15px!important;
+    border-radius:13px!important;
+  }
+  .home-page .hero-reference-searchbar a{
+    font-size:.75rem!important;
+  }
+  .home-page .hero-reference-searchbar button{
+    width:42px!important;
+    height:42px!important;
+    margin-right:4px!important;
+  }
+  .home-page .hero-reference-benefits{
+    gap:8px 14px!important;
+    margin-top:10px!important;
+    padding-bottom:2px!important;
+  }
+  .home-page .hero-reference-benefits span{
+    font-size:.57rem!important;
+  }
+  .home-page .hero-reference-art{
+    position:relative!important;
+    top:auto!important;
+    right:auto!important;
+    width:100%!important;
+    height:245px!important;
+    margin-top:-2px!important;
+    overflow:hidden!important;
+  }
+  .home-page .hero-reference-art img{
+    position:absolute!important;
+    right:-7%!important;
+    bottom:-3%!important;
+    width:116%!important;
+    height:245px!important;
+    object-fit:cover!important;
+    object-position:center center!important;
+  }
+
+  /* Categorias começam sem ficar escondidas pela barra fixa. */
+  .home-page .categorias{
+    padding:9px 11px 13px!important;
+    background:#fff!important;
+  }
+  .home-page .categoria-lista{
+    display:flex!important;
+    overflow-x:auto!important;
+    gap:8px!important;
+    padding-bottom:2px!important;
+    scrollbar-width:none!important;
+  }
+  .home-page .categoria-lista::-webkit-scrollbar{display:none!important}
+  .home-page .categoria{
+    flex:0 0 78px!important;
+    min-height:76px!important;
+  }
+
+  /* Barra inferior: altura estável e conteúdo acima dela. */
+  .home-page .mobile-bottom-nav{
+    position:fixed!important;
+    left:0!important;
+    right:0!important;
+    bottom:0!important;
+    z-index:1100!important;
+    display:grid!important;
+    grid-template-columns:repeat(4,1fr)!important;
+    align-items:stretch!important;
+    height:68px!important;
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))!important;
+    box-sizing:content-box!important;
+    border-top:1px solid #e7e8eb!important;
+    background:rgba(255,255,255,.97)!important;
+    box-shadow:0 -8px 24px rgba(23,26,33,.08)!important;
+    backdrop-filter:blur(14px)!important;
+  }
+  .home-page .mobile-bottom-nav a{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:3px!important;
+    min-width:0!important;
+    border-radius:12px!important;
+    color:#737984!important;
+    text-decoration:none!important;
+    font-weight:600!important;
+  }
+  .home-page .mobile-bottom-nav a span{
+    font-size:20px!important;
+    line-height:1!important;
+  }
+  .home-page .mobile-bottom-nav a small{
+    font-size:.58rem!important;
+    line-height:1.1!important;
+  }
+  .home-page .mobile-bottom-nav a.active{
+    color:#e51b2a!important;
+    background:#fff4f5!important;
+  }
+
+  /* Não deixar os flutuantes cobrirem a navegação inferior. */
+  .home-page .install-app{
+    left:12px!important;
+    right:auto!important;
+    bottom:calc(78px + env(safe-area-inset-bottom,0px))!important;
+    z-index:1150!important;
+    min-height:44px!important;
+    max-width:145px!important;
+    padding:10px 13px!important;
+    border-radius:14px!important;
+  }
+  .home-page .notification-center{
+    right:12px!important;
+    bottom:calc(78px + env(safe-area-inset-bottom,0px))!important;
+    z-index:1150!important;
+  }
+  .home-page .notification-trigger{
+    width:50px!important;
+    height:50px!important;
+    border-radius:16px!important;
+  }
+
+  .home-page main{
+    padding-bottom:92px!important;
+  }
+}
+
+@media(max-width:420px){
+  .home-page .container-header{padding-left:13px!important;padding-right:13px!important}
+  .home-page .logo .logo-mark{width:82px!important;max-height:58px!important}
+  .home-page .mobile-menu summary{width:42px!important;height:42px!important}
+  .home-page #menuUsuario .btn-admin,
+  .home-page #menuUsuario .btn-primary{
+    min-height:41px!important;
+    padding:8px 10px!important;
+    font-size:.7rem!important;
+  }
+  .home-page .hero-reference-copy{padding-left:16px!important;padding-right:16px!important}
+  .home-page .hero-reference-copy h1{font-size:clamp(2.45rem,11vw,3.15rem)!important}
+  .home-page .hero-reference-art,
+  .home-page .hero-reference-art img{height:225px!important}
+}
