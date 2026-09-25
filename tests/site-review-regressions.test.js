@@ -67,6 +67,11 @@ test("painel administrativo exibe apenas a seção escolhida e separa o conteúd
     assert.match(js, /function renderizarRegioesAdmin/);
     assert.match(js, /function renderizarMarketingAdmin/);
     assert.match(js, /function configurarNavegacao/);
+    assert.match(js, /function abrirEditorPermissoesAdmin/);
+    assert.match(js, /function temPermissaoAdmin/);
+    assert.match(js, /salvar_permissoes/);
+    assert.match(js, /adminPermissoes/);
+    assert.match(html, /id="painelAdministradoresAdmin"/);
     assert.match(js, /mostrarSecaoAdmin/);
     assert.match(js, /history\.pushState/);
     assert.match(js, /addEventListener\("hashchange"/);
