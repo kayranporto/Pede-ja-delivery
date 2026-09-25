@@ -64,6 +64,10 @@ test("painel administrativo exibe apenas a seção escolhida e separa o conteúd
     assert.match(html, /id="marketing"[^>]*data-admin-view[^>]*hidden/);
     assert.match(html, /id="novaRegiaoAdmin"/);
     assert.match(html, /id="novaCampanhaMarketing"/);
+    assert.match(html, /id="adminAlertSummaryCount"/);
+    assert.match(html, /id="adminPermissionChips"/);
+    assert.match(js, /function renderizarResumoAdmin/);
+    assert.match(js, /abrirResumoAlertasAdmin/);
     assert.match(js, /function renderizarRegioesAdmin/);
     assert.match(js, /function renderizarMarketingAdmin/);
     assert.match(js, /function configurarNavegacao/);
