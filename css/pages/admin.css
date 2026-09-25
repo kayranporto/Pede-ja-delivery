@@ -586,3 +586,59 @@ body.admin-compact .admin-card,body.admin-compact .admin-settings-card{padding:1
   .finance-movement span{grid-column:1/-1;grid-row:2}
   .delivery-row{grid-template-columns:minmax(0,1fr) auto}
 }
+
+/* Áreas de entrega e marketing — painel administrativo */
+.admin-region-kpis,.admin-marketing-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.admin-region-kpis article,.admin-marketing-kpis article{min-width:0;padding:18px;border:1px solid rgba(21,25,37,.07);border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(21,25,37,.05)}
+.admin-region-kpis small,.admin-marketing-kpis small{display:block;color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.admin-region-kpis strong,.admin-marketing-kpis strong{display:block;margin-top:7px;font-size:22px;line-height:1.1}
+.admin-region-kpis span,.admin-marketing-kpis span{display:block;margin-top:6px;color:var(--muted);font-size:10px;line-height:1.4}
+.admin-region-table{margin-top:0}
+.admin-marketing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.admin-marketing-wide{grid-column:1/-1}
+.admin-marketing-list,.admin-marketing-products{display:grid;gap:8px}
+.marketing-row,.marketing-opportunity,.marketing-product-row{display:grid;align-items:center;gap:10px;padding:12px 13px;border:1px solid rgba(21,25,37,.06);border-radius:13px;background:#fafbfc}
+.marketing-row{width:100%;grid-template-columns:auto minmax(0,1fr) auto;text-align:left;cursor:pointer}
+.marketing-row>div,.marketing-opportunity>span,.marketing-product-row>span{font-size:12px;font-weight:800}
+.marketing-row span,.marketing-opportunity small,.marketing-product-row small{color:var(--muted);font-size:10px;min-width:0}
+.marketing-row strong,.marketing-product-row strong{font-size:12px;white-space:nowrap}
+.marketing-row:hover,.marketing-opportunity:hover,.marketing-product-row:hover{border-color:rgba(239,36,53,.18);box-shadow:0 7px 20px rgba(21,25,37,.05)}
+.marketing-row:focus-visible{outline:3px solid rgba(239,36,53,.15);outline-offset:2px}
+.marketing-opportunity{grid-template-columns:minmax(0,1fr) auto}
+.marketing-product-row{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) auto}
+@media(max-width:900px){
+  .admin-region-kpis,.admin-marketing-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .admin-marketing-grid{grid-template-columns:1fr}
+  .admin-marketing-wide{grid-column:auto}
+}
+@media(max-width:760px){
+  #areas .admin-region-table{border:0;background:transparent;box-shadow:none;overflow:visible}
+  #areas .admin-region-table table{display:block;width:100%;min-width:0;border-collapse:separate;border-spacing:0 10px}
+  #areas .admin-region-table thead{display:none}
+  #areas .admin-region-table tbody{display:grid;gap:10px;width:100%}
+  #areas .admin-region-table tr{display:grid;gap:0;width:100%;box-sizing:border-box;padding:13px;border:1px solid rgba(21,25,37,.07);border-radius:17px;background:#fff;box-shadow:0 7px 20px rgba(21,25,37,.055);overflow:hidden}
+  #areas .admin-region-table td{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;max-width:100%;box-sizing:border-box;padding:7px 0;border:0;font-size:10px;overflow:hidden;overflow-wrap:anywhere}
+  #areas .admin-region-table td:first-child{padding-top:0;padding-bottom:11px;margin-bottom:3px;border-bottom:1px solid #eef0f3}
+  #areas .admin-region-table td:not(:first-child)::before{color:var(--muted);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  #areas .admin-region-table td:nth-child(2)::before{content:"Área"}
+  #areas .admin-region-table td:nth-child(3)::before{content:"Entrega"}
+  #areas .admin-region-table td:nth-child(4)::before{content:"Mínimo"}
+  #areas .admin-region-table td:nth-child(5)::before{content:"Tempo"}
+  #areas .admin-region-table td:nth-child(6)::before{content:"Status"}
+  #areas .admin-region-table td:last-child{display:block;padding-bottom:0}
+  #areas .admin-region-table td:last-child::before{display:block;margin-bottom:7px}
+  #areas .admin-region-table .admin-action-group{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;width:100%}
+  #areas .admin-region-table .admin-action-group button{min-width:0;min-height:40px;margin:0;border-radius:10px}
+  #areas .admin-region-table td strong{font-size:12px}
+  #areas .admin-region-table td small{font-size:9px}
+}
+@media(max-width:560px){
+  .admin-region-kpis,.admin-marketing-kpis{grid-template-columns:1fr}
+  .admin-region-kpis article,.admin-marketing-kpis article{padding:15px;border-radius:15px}
+  .admin-region-kpis strong,.admin-marketing-kpis strong{font-size:20px}
+  .marketing-row{grid-template-columns:1fr auto}
+  .marketing-row span{grid-column:1/-1;grid-row:2}
+  .marketing-product-row{grid-template-columns:1fr auto}
+  .marketing-product-row small{grid-column:1}
+  .marketing-product-row strong{grid-column:2;grid-row:1/3}
+}
