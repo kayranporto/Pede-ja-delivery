@@ -15,6 +15,22 @@ let recarregarTimer = null;
 let carregandoDados = false;
 let paginaPedidos = 1;
 const pedidosPorPagina = 10;
+const ADMIN_PERMISSOES = [
+    { chave: "overview", rotulo: "Visão geral", descricao: "Indicadores e resumo da operação." },
+    { chave: "pedidos", rotulo: "Pedidos", descricao: "Consulta e gestão dos pedidos." },
+    { chave: "financeiro", rotulo: "Financeiro", descricao: "Recebimentos, conciliação e assinaturas." },
+    { chave: "entregas", rotulo: "Entregas", descricao: "Operação logística e entregadores." },
+    { chave: "areas", rotulo: "Áreas de entrega", descricao: "Regras regionais de atendimento." },
+    { chave: "restaurantes", rotulo: "Restaurantes", descricao: "Moderação e dados das lojas." },
+    { chave: "usuarios", rotulo: "Usuários", descricao: "Contas, bloqueios e comunidade." },
+    { chave: "cupons", rotulo: "Cupons", descricao: "Promoções e cupons." },
+    { chave: "marketing", rotulo: "Marketing", descricao: "Campanhas e inteligência promocional." },
+    { chave: "relatorios", rotulo: "Relatórios", descricao: "Relatórios e inteligência operacional." },
+    { chave: "suporte", rotulo: "Suporte", descricao: "Chamados, risco e pendências." },
+    { chave: "configuracoes", rotulo: "Configurações", descricao: "Preferências deste painel." },
+    { chave: "administradores", rotulo: "Administradores", descricao: "Convidar contas e editar permissões." }
+];
+let adminPermissoes = new Set(ADMIN_PERMISSOES.map((item) => item.chave));
 const avisosCompatibilidadeAdmin = new Set();
 
 const modal = document.getElementById("adminModal");
@@ -25,16 +41,56 @@ const modalAcoes = document.getElementById("adminModalActions");
 let focoAntesModal = null;
 let resolverModal = null;
 
+function normalizarPermissoesAdmin(valor) {
+    if (!Array.isArray(valor) || !valor.length) return new Set(ADMIN_PERMISSOES.map((item) => item.chave));
+    const permitidas = new Set(valor.filter((item) => ADMIN_PERMISSOES.some((permissao) => permissao.chave === item)));
+    return permitidas.size ? permitidas : new Set(ADMIN_PERMISSOES.map((item) => item.chave));
+}
+
+function temPermissaoAdmin(permissao) {
+    return permissao === "overview" || adminPermissoes.has(permissao);
+}
+
+function podeAcessarSecaoAdmin(secao) {
+    if (secao === "overview") return true;
+    if (secao === "configuracoes") {
+        return temPermissaoAdmin("configuracoes") || temPermissaoAdmin("administradores");
+    }
+    return temPermissaoAdmin(secao);
+}
+
+function atualizarPermissoesAdminUI() {
+    document.querySelectorAll(".admin-sidebar nav a[href^='#']").forEach((link) => {
+        const secao = link.getAttribute("href")?.slice(1) || "";
+        link.hidden = !podeAcessarSecaoAdmin(secao);
+    });
+    document.querySelectorAll("[data-admin-nav]").forEach((item) => {
+        const secao = item.getAttribute("data-admin-nav") || "";
+        item.hidden = !podeAcessarSecaoAdmin(secao);
+    });
+    const painelAdmins = document.getElementById("painelAdministradoresAdmin");
+    if (painelAdmins) painelAdmins.hidden = !temPermissaoAdmin("administradores");
+    const preferencias = document.querySelectorAll("#configuracoes .admin-settings-grid, #configuracoes .admin-settings-note, #restaurarConfigAdmin");
+    preferencias.forEach((item) => { item.hidden = !temPermissaoAdmin("configuracoes"); });
+}
+
+function resumoPermissoesAdmin(permissoes) {
+    const chaves = normalizarPermissoesAdmin(permissoes);
+    if (ADMIN_PERMISSOES.every((item) => chaves.has(item.chave))) return "Todas as áreas";
+    const nomes = ADMIN_PERMISSOES.filter((item) => chaves.has(item.chave)).map((item) => item.rotulo);
+    return nomes.length ? nomes.join(" • ") : "Sem permissões";
+}
+
 function gerarNotificacoesAdmin() {
     const notificacoes = [];
     const pendentes = adminEmpresas.filter((empresa) => ["pendente", "aguardando", "em_analise"].includes(String(empresa.status || empresa.aprovacao_status || "").toLowerCase())).length;
-    if (pendentes > 0) notificacoes.push({ id: "restaurantes-pendentes", tipo: "atenção", titulo: "Restaurantes aguardando aprovação", detalhe: pendentes === 1 ? "1 cadastro precisa de análise." : `${pendentes} cadastros precisam de análise.`, destino: "restaurantes" });
+    if (pendentes > 0 && temPermissaoAdmin("restaurantes")) notificacoes.push({ id: "restaurantes-pendentes", tipo: "atenção", titulo: "Restaurantes aguardando aprovação", detalhe: pendentes === 1 ? "1 cadastro precisa de análise." : `${pendentes} cadastros precisam de análise.`, destino: "restaurantes" });
     const cancelados = adminPedidos.filter((pedido) => String(pedido.status || "").toLowerCase() === "cancelado").length;
-    if (cancelados > 0) notificacoes.push({ id: "pedidos-cancelados", tipo: "alerta", titulo: "Pedidos cancelados", detalhe: `${cancelados} pedido(s) cancelado(s) no conjunto carregado.`, destino: "pedidos" });
+    if (cancelados > 0 && temPermissaoAdmin("pedidos")) notificacoes.push({ id: "pedidos-cancelados", tipo: "alerta", titulo: "Pedidos cancelados", detalhe: `${cancelados} pedido(s) cancelado(s) no conjunto carregado.`, destino: "pedidos" });
     const pagamentos = adminPedidos.filter((pedido) => String(pedido.pagamento_status || "").toLowerCase() === "pendente").length;
-    if (pagamentos > 0) notificacoes.push({ id: "pagamentos-pendentes", tipo: "atenção", titulo: "Pagamentos pendentes", detalhe: `${pagamentos} pedido(s) aguardam confirmação de pagamento.`, destino: "pedidos" });
+    if (pagamentos > 0 && (temPermissaoAdmin("pedidos") || temPermissaoAdmin("financeiro"))) notificacoes.push({ id: "pagamentos-pendentes", tipo: "atenção", titulo: "Pagamentos pendentes", detalhe: `${pagamentos} pedido(s) aguardam confirmação de pagamento.`, destino: "financeiro" });
     const chamados = Number(document.getElementById("opsChamados")?.textContent?.replace(/\D/g, "") || 0);
-    if (chamados > 0) notificacoes.push({ id: "chamados-abertos", tipo: "suporte", titulo: "Chamados de suporte abertos", detalhe: `${chamados} chamado(s) aguardam atendimento.`, destino: "suporte" });
+    if (chamados > 0 && temPermissaoAdmin("suporte")) notificacoes.push({ id: "chamados-abertos", tipo: "suporte", titulo: "Chamados de suporte abertos", detalhe: `${chamados} chamado(s) aguardam atendimento.`, destino: "suporte" });
     return notificacoes;
 }
 
@@ -1254,7 +1310,12 @@ async function carregarDadosAdmin() {
         preencherFiltroRegioes();
         atualizarMetricasAdmin(); renderizarGraficoAdmin(); renderizarPedidosRecentes(); renderizarFinanceiroAdmin(); renderizarEntregasAdmin(); renderizarRegioesAdmin(); renderizarMarketingAdmin(); renderizarPedidos();
         renderizarEmpresas(); renderizarUsuarios(); renderizarCupons();
-        await carregarRelatorio(); exibirAvisoCompatibilidade();
+        if (temPermissaoAdmin("relatorios")) {
+            await carregarRelatorio();
+            exibirAvisoCompatibilidade();
+        } else {
+            adminRelatorio = null;
+        }
     } finally {
         carregandoDados = false;
     }
@@ -1265,9 +1326,67 @@ function agendarRecarregamento() {
     recarregarTimer = setTimeout(() => carregarDadosAdmin().catch((erro) => mostrarErro("Não foi possível atualizar o painel", erro)), 500);
 }
 
+function abrirEditorPermissoesAdmin(admin) {
+    const selecionadas = normalizarPermissoesAdmin(admin.permissoes);
+    const form = elemento("form", "admin-permissions-form");
+    const grid = elemento("div", "admin-permissions-grid");
+    ADMIN_PERMISSOES.forEach((permissao) => {
+        const caixa = elemento("label", "admin-permission-option");
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.value = permissao.chave;
+        input.checked = selecionadas.has(permissao.chave);
+        if (admin.id === window.__ADMIN_USER_ID__ && permissao.chave === "administradores") input.disabled = true;
+        const texto = elemento("span");
+        texto.append(elemento("strong", "", permissao.rotulo), elemento("small", "", permissao.descricao));
+        caixa.append(input, texto);
+        grid.append(caixa);
+    });
+    form.append(
+        elemento("p", "admin-form-help full", admin.id === window.__ADMIN_USER_ID__
+            ? "Seu próprio acesso a Administradores não pode ser removido por esta tela."
+            : "As permissões entram em vigor na próxima sessão atualizada da conta."),
+        grid
+    );
+    const cancelar = botao("Cancelar");
+    cancelar.addEventListener("click", () => fecharModal());
+    const salvar = botao("Salvar permissões", "admin-primary-button");
+    salvar.addEventListener("click", async () => {
+        const permissoes = [...form.querySelectorAll("input[type='checkbox']:checked")].map((input) => input.value);
+        if (!permissoes.length) {
+            window.AppToast?.("Permissões inválidas", "Selecione pelo menos uma área.", "error");
+            return;
+        }
+        if (admin.id === window.__ADMIN_USER_ID__ && !permissoes.includes("administradores")) {
+            window.AppToast?.("Acesso protegido", "Seu próprio acesso administrativo não pode perder a permissão de Administradores.", "error");
+            return;
+        }
+        salvar.disabled = true;
+        try {
+            const resposta = await db.functions.invoke("admin-usuarios", {
+                body: { acao: "salvar_permissoes", usuario_id: admin.id, permissoes }
+            });
+            if (resposta.error) throw resposta.error;
+            fecharModal();
+            window.AppToast?.("Permissões atualizadas", "O conjunto de acessos do administrador foi salvo.", "success");
+            await carregarAdministradores();
+        } catch (error) {
+            mostrarErro("Não foi possível salvar as permissões", error);
+        } finally {
+            salvar.disabled = false;
+        }
+    });
+    abrirModal({
+        titulo: "Permissões de " + (admin.email || "Administrador"),
+        kicker: "ACESSO ADMINISTRATIVO",
+        corpo: form,
+        acoes: [cancelar, salvar]
+    });
+}
+
 async function carregarAdministradores() {
     const lista = document.getElementById("listaAdministradores");
-    if (!lista) return;
+    if (!lista || !temPermissaoAdmin("administradores")) return;
     lista.replaceChildren(elemento("p", "", "Carregando administradores..."));
     try {
         const { data, error } = await db.functions.invoke("admin-usuarios", { body: { acao: "listar" } });
@@ -1278,7 +1397,15 @@ async function carregarAdministradores() {
         admins.forEach((admin) => {
             const row = elemento("div", "admin-admin-row");
             const info = elemento("div");
-            info.append(elemento("strong", "", admin.email || "Administrador"), elemento("small", "", admin.confirmado ? "Conta ativa" : "Convite pendente"));
+            info.append(
+                elemento("strong", "", admin.email || "Administrador"),
+                elemento("small", "", admin.confirmado ? "Conta ativa • " + resumoPermissoesAdmin(admin.permissoes) : "Convite pendente • " + resumoPermissoesAdmin(admin.permissoes))
+            );
+            const acoes = elemento("div", "admin-admin-actions");
+            const permissao = botao(admin.id === window.__ADMIN_USER_ID__ ? "Seu acesso" : "Permissões", "admin-action secondary");
+            permissao.disabled = admin.id === window.__ADMIN_USER_ID__;
+            permissao.title = permissao.disabled ? "As suas próprias permissões são protegidas." : "Editar permissões deste administrador";
+            permissao.addEventListener("click", () => abrirEditorPermissoesAdmin(admin));
             const remover = botao("Remover acesso", "admin-action danger");
             remover.disabled = admin.id === window.__ADMIN_USER_ID__;
             remover.title = remover.disabled ? "Você não pode remover seu próprio acesso." : "Remover acesso administrativo";
@@ -1291,13 +1418,20 @@ async function carregarAdministradores() {
                     if (resposta.error) throw resposta.error;
                     window.AppToast?.("Acesso removido", admin.email + " não poderá mais acessar a administração.", "success");
                     await carregarAdministradores();
-                } catch (error) { mostrarErro("Não foi possível remover o administrador", error); remover.disabled = false; }
+                } catch (error) {
+                    mostrarErro("Não foi possível remover o administrador", error);
+                    remover.disabled = false;
+                }
             });
-            row.append(info, remover); lista.append(row);
+            acoes.append(permissao, remover);
+            row.append(info, acoes);
+            lista.append(row);
         });
-    } catch (error) { lista.replaceChildren(elemento("p", "", "Não foi possível carregar os administradores.")); mostrarErro("Gestão de administradores indisponível", error); }
+    } catch (error) {
+        lista.replaceChildren(elemento("p", "", "Não foi possível carregar os administradores."));
+        mostrarErro("Gestão de administradores indisponível", error);
+    }
 }
-
 async function adicionarAdministrador(evento) {
     evento.preventDefault();
     const email = document.getElementById("novoAdminEmail")?.value.trim().toLowerCase();
@@ -1357,6 +1491,8 @@ function configurarNavegacao() {
     const links = [...document.querySelectorAll(".admin-sidebar nav a[href^='#']")];
     const viewIds = new Set(views.map((view) => view.id));
 
+    atualizarPermissoesAdminUI();
+
     const titulos = {
         overview: "Central administrativa",
         pedidos: "Gestão de pedidos",
@@ -1378,7 +1514,8 @@ function configurarNavegacao() {
     }
 
     mostrarSecaoAdmin = function(id, { atualizarHistorico = false, focar = false } = {}) {
-        const secaoId = idSecao(id);
+        const solicitada = idSecao(id);
+        const secaoId = podeAcessarSecaoAdmin(solicitada) ? solicitada : "overview";
         views.forEach((view) => {
             const ativa = view.id === secaoId;
             view.hidden = !ativa;
@@ -1433,18 +1570,21 @@ async function iniciarAdmin() {
     aplicarTamanhoFonte(localStorage.getItem("admin_font_size") || "normal");
     const { data: { user } } = await db.auth.getUser();
     window.__ADMIN_USER_ID__ = user?.id || "";
+    adminPermissoes = normalizarPermissoesAdmin(user?.app_metadata?.admin_permissions);
+    atualizarPermissoesAdminUI();
     if (!user) { localStorage.setItem("redirect", "admin.html"); location.replace("login.html"); return; }
     let permitido = false, error = null; try { permitido = (await window.DeliveryAPI.request("/v1/admin/dashboard")) !== null; } catch (erro) { error = erro; }
     if (error || permitido !== true) { alert("Esta conta não possui acesso administrativo."); location.replace("perfil.html"); return; }
     try {
         await carregarDadosAdmin();
+        atualizarPermissoesAdminUI();
         const loadingAdmin = document.getElementById("adminLoading");
         if (loadingAdmin) {
             loadingAdmin.hidden = true;
             loadingAdmin.style.display = "none";
         }
         document.getElementById("adminApp").hidden = false;
-        carregarAdministradores();
+        if (temPermissaoAdmin("administradores")) carregarAdministradores();
         canalAdmin = db.channel("admin-plataforma")
             .on("postgres_changes", { event: "*", schema: "public", table: "pedidos" }, agendarRecarregamento)
             .on("postgres_changes", { event: "*", schema: "public", table: "empresas" }, agendarRecarregamento)
@@ -1602,4 +1742,5 @@ ouvir("adminLogout", "click", async () => { await db.auth.signOut(); App.limparD
 addEventListener("beforeunload", () => { clearTimeout(recarregarTimer); if (canalAdmin) db.removeChannel(canalAdmin); });
 configurarNavegacao();
 carregarConfiguracoesAdmin();
+atualizarPermissoesAdminUI();
 iniciarAdmin();
