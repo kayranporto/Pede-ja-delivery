@@ -42,6 +42,17 @@
     link.innerHTML = '◇ <span>Planos</span>';
     const relatorios = nav.querySelector('a[href="#relatorios"]');
     if (relatorios) nav.insertBefore(link, relatorios); else nav.append(link);
+    if (typeof window.__ADMIN_PODE_ACESSAR_SECAO__ === "function") {
+      link.hidden = !window.__ADMIN_PODE_ACESSAR_SECAO__("planos");
+    }
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (typeof window.__ADMIN_MOSTRAR_SECAO__ === "function") {
+        window.__ADMIN_MOSTRAR_SECAO__("#planos", { atualizarHistorico: true, focar: true });
+      } else {
+        location.hash = "planos";
+      }
+    });
 
     const section = document.createElement("section");
     section.className = "admin-section admin-view";
@@ -86,6 +97,9 @@
         <div class="plans-table-wrap"><table class="plans-table"><thead><tr><th>Restaurante</th><th>Plano</th><th>Status</th><th>Início</th><th>Fim do trial</th></tr></thead><tbody id="assinaturasAdminLista43"></tbody></table></div>
       </article>`;
     main.append(section);
+    if (typeof window.__ADMIN_MOSTRAR_SECAO__ === "function") {
+      window.__ADMIN_MOSTRAR_SECAO__(location.hash || "#overview");
+    }
 
     document.getElementById("planoAdminNome43").addEventListener("input", (event) => {
       if (!planoEditando) document.getElementById("planoAdminSlug43").value = slugify(event.target.value);
