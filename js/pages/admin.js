@@ -6,6 +6,8 @@ let adminPedidos = [];
 let adminCupons = [];
 let adminLogs = [];
 let adminAuditoria = [];
+let adminRegioes = [];
+let adminUnidades = [];
 let adminRelatorio = null;
 let adminInteligencia = { produtos: [], clientes_recorrentes: [], seguranca: {} };
 let canalAdmin = null;
@@ -403,6 +405,226 @@ function renderizarAuditoria() {
     });
 }
 
+function unidadeNome(id) {
+    return adminUnidades.find((unidade) => String(unidade.id) === String(id))?.nome || "Unidade";
+}
+
+function unidadesDaEmpresa(empresaId) {
+    return adminUnidades.filter((unidade) => String(unidade.empresa_id) === String(empresaId));
+}
+
+function regiaoEmpresa(regiao) {
+    return adminEmpresas.find((empresa) => String(empresa.id) === String(regiao.empresa_id));
+}
+
+function preencherFiltroRegioes() {
+    const select = document.getElementById("filtroRegiaoEmpresa");
+    if (!select) return;
+    const valor = select.value;
+    select.replaceChildren();
+    const todos = document.createElement("option");
+    todos.value = "";
+    todos.textContent = "Todos";
+    select.append(todos);
+    adminEmpresas.forEach((empresa) => {
+        const option = document.createElement("option");
+        option.value = empresa.id;
+        option.textContent = empresa.nome;
+        select.append(option);
+    });
+    select.value = valor;
+}
+
+function renderizarRegioesAdmin() {
+    const tbody = document.getElementById("adminRegioes");
+    if (!tbody) return;
+    const termo = document.getElementById("buscaAdminRegiao")?.value.trim().toLowerCase() || "";
+    const empresaFiltro = document.getElementById("filtroRegiaoEmpresa")?.value || "";
+    const statusFiltro = document.getElementById("filtroRegiaoStatus")?.value || "";
+    const lista = adminRegioes.filter((regiao) => {
+        const empresa = regiaoEmpresa(regiao);
+        const busca = [regiao.bairro, regiao.cidade, regiao.uf, empresa?.nome, unidadeNome(regiao.unidade_id)].filter(Boolean).join(" ").toLowerCase();
+        return (!termo || busca.includes(termo))
+            && (!empresaFiltro || String(regiao.empresa_id) === String(empresaFiltro))
+            && (!statusFiltro || (statusFiltro === "ativa" ? regiao.ativo === true : regiao.ativo !== true));
+    });
+    tbody.replaceChildren();
+    document.getElementById("regioesTotal").textContent = String(adminRegioes.length);
+    const ativas = adminRegioes.filter((item) => item.ativo === true);
+    document.getElementById("regioesAtivas").textContent = String(ativas.length);
+    document.getElementById("regioesEmpresas").textContent = String(new Set(ativas.map((item) => String(item.empresa_id))).size);
+    const somaTaxas = ativas.reduce((total, item) => total + Number(item.taxa_entrega || 0), 0);
+    document.getElementById("regioesTaxaMedia").textContent = App.dinheiro(ativas.length ? somaTaxas / ativas.length : 0);
+
+    if (!lista.length) {
+        tbody.append(vazioTabela(7, "Nenhuma área corresponde aos filtros."));
+        return;
+    }
+
+    lista.forEach((regiao) => {
+        const empresa = regiaoEmpresa(regiao);
+        const tr = document.createElement("tr");
+        const nome = document.createElement("td");
+        nome.append(elemento("strong", "", empresa?.nome || "Restaurante"), elemento("small", "", unidadeNome(regiao.unidade_id)));
+        const area = document.createElement("td");
+        area.append(elemento("strong", "", regiao.bairro === "*" ? "Todos os bairros" : regiao.bairro), elemento("small", "", regiao.cidade + "/" + regiao.uf));
+        const acoes = elemento("td", "");
+        const grupo = elemento("div", "admin-action-group");
+        const editar = botao("Editar", "admin-action secondary");
+        editar.addEventListener("click", () => abrirFormularioRegiao(regiao));
+        const alternar = botao(regiao.ativo ? "Desativar" : "Ativar", "admin-action " + (regiao.ativo ? "warning" : "primary"));
+        alternar.addEventListener("click", () => definirRegiaoStatus(regiao, !regiao.ativo, alternar));
+        const excluir = botao("Excluir", "admin-action danger");
+        excluir.addEventListener("click", async () => {
+            if (!await confirmarAcao("Excluir área de entrega", regiao.bairro + " será removido das regras de entrega desta unidade.", "Excluir área", true)) return;
+            excluir.disabled = true;
+            try {
+                await window.DeliveryAPI.adminAcao({ acao: "regiao_excluir", id: regiao.id });
+                window.AppToast?.("Área excluída", "A regra de entrega foi removida.", "success");
+                await carregarDadosAdmin();
+            } catch (error) {
+                excluir.disabled = false;
+                mostrarErro("Não foi possível excluir a área", error);
+            }
+        });
+        grupo.append(editar, alternar, excluir);
+        acoes.append(grupo);
+        const status = document.createElement("td");
+        status.append(elemento("span", "status-pill " + (regiao.ativo ? "active" : "blocked"), regiao.ativo ? "Ativa" : "Inativa"));
+        tr.append(nome, area, elemento("td", "", App.dinheiro(regiao.taxa_entrega)), elemento("td", "", App.dinheiro(regiao.pedido_minimo)), elemento("td", "", regiao.tempo_min + "–" + regiao.tempo_max + " min"), status, acoes);
+        tbody.append(tr);
+    });
+}
+
+function abrirFormularioRegiao(regiao = null) {
+    const empresas = adminEmpresas.filter((empresa) => empresa.excluida_em == null);
+    const empresaInicial = regiao?.empresa_id || empresas[0]?.id || "";
+    const unidades = unidadesDaEmpresa(empresaInicial);
+    const unidadeInicial = regiao?.unidade_id || unidades.find((item) => item.principal)?.id || unidades[0]?.id || "";
+    const empresa = regiaoEmpresa(regiao || { empresa_id: empresaInicial }) || empresas.find((item) => String(item.id) === String(empresaInicial));
+    const unidade = adminUnidades.find((item) => String(item.id) === String(unidadeInicial));
+    const form = elemento("form", "admin-form-grid");
+    const empresaCampo = campoFormulario("Restaurante", "adminRegiaoEmpresa", "select", empresaInicial, { required: true, items: empresas.map((item) => ({ value: item.id, label: item.nome })) });
+    const unidadeCampo = campoFormulario("Unidade", "adminRegiaoUnidade", "select", unidadeInicial, { required: true, items: unidades.map((item) => ({ value: item.id, label: item.nome })) });
+    const bairro = campoFormulario("Bairro", "adminRegiaoBairro", "text", regiao?.bairro === "*" ? "" : regiao?.bairro || "", { required: true, placeholder: "Ex.: Centro" });
+    const cidade = campoFormulario("Cidade", "adminRegiaoCidade", "text", regiao?.cidade || unidade?.cidade || empresa?.cidade_atendimento || "", { required: true });
+    const uf = campoFormulario("UF", "adminRegiaoUf", "text", regiao?.uf || unidade?.uf || empresa?.uf_atendimento || "", { required: true, placeholder: "MG" });
+    const taxa = campoFormulario("Taxa de entrega", "adminRegiaoTaxa", "number", regiao?.taxa_entrega ?? empresa?.taxa_entrega ?? 0, { min: 0, step: 0.01, required: true });
+    const minimo = campoFormulario("Pedido mínimo", "adminRegiaoMinimo", "number", regiao?.pedido_minimo ?? empresa?.pedido_minimo ?? 0, { min: 0, step: 0.01, required: true });
+    const tempoMin = campoFormulario("Tempo mínimo (min)", "adminRegiaoTempoMin", "number", regiao?.tempo_min ?? empresa?.tempo_estimado_min ?? 25, { min: 5, max: 240, required: true });
+    const tempoMax = campoFormulario("Tempo máximo (min)", "adminRegiaoTempoMax", "number", regiao?.tempo_max ?? empresa?.tempo_estimado_max ?? 45, { min: 5, max: 300, required: true });
+    const ativo = campoCheck("Área ativa para cálculo de entrega", "adminRegiaoAtivo", regiao?.ativo !== false);
+    const ajuda = elemento("p", "admin-form-help full", "O pedido mínimo da região não pode ser menor que o mínimo geral do restaurante.");
+
+    function atualizarUnidades() {
+        const lista = unidadesDaEmpresa(empresaCampo.entrada.value);
+        unidadeCampo.entrada.replaceChildren();
+        lista.forEach((item) => {
+            const option = document.createElement("option");
+            option.value = item.id;
+            option.textContent = item.nome;
+            unidadeCampo.entrada.append(option);
+        });
+        unidadeCampo.entrada.value = lista.find((item) => item.principal)?.id || lista[0]?.id || "";
+        const selecionada = lista.find((item) => String(item.id) === String(unidadeCampo.entrada.value));
+        if (!regiao) {
+            if (selecionada?.cidade) cidade.entrada.value = selecionada.cidade;
+            if (selecionada?.uf) uf.entrada.value = selecionada.uf;
+        }
+    }
+
+    empresaCampo.entrada.addEventListener("change", atualizarUnidades);
+    form.append(empresaCampo.caixa, unidadeCampo.caixa, bairro.caixa, cidade.caixa, uf.caixa, taxa.caixa, minimo.caixa, tempoMin.caixa, tempoMax.caixa, ativo.caixa, ajuda);
+
+    const cancelar = botao("Cancelar");
+    cancelar.addEventListener("click", () => fecharModal());
+    const salvar = botao(regiao ? "Salvar alterações" : "Criar área", "admin-primary-button");
+    salvar.addEventListener("click", async () => {
+        if (!form.reportValidity()) return;
+        salvar.disabled = true;
+        try {
+            await window.DeliveryAPI.adminAcao({
+                acao: "regiao_salvar",
+                id: regiao?.id || null,
+                empresa_id: empresaCampo.entrada.value,
+                unidade_id: unidadeCampo.entrada.value,
+                bairro: bairro.entrada.value.trim(),
+                cidade: cidade.entrada.value.trim(),
+                uf: uf.entrada.value.trim().toUpperCase(),
+                taxa_entrega: Number(taxa.entrada.value || 0),
+                pedido_minimo: Number(minimo.entrada.value || 0),
+                tempo_min: Number(tempoMin.entrada.value || 25),
+                tempo_max: Number(tempoMax.entrada.value || 45),
+                ativo: ativo.entrada.checked
+            });
+            fecharModal();
+            await carregarDadosAdmin();
+            window.AppToast?.("Área salva", "A configuração de entrega foi atualizada.", "success");
+        } catch (error) {
+            mostrarErro("Não foi possível salvar a área", error);
+        } finally {
+            salvar.disabled = false;
+        }
+    });
+    abrirModal({ titulo: regiao ? "Editar área de entrega" : "Nova área de entrega", kicker: "ÁREA DE ENTREGA", corpo: form, acoes: [cancelar, salvar] });
+}
+
+async function definirRegiaoStatus(regiao, ativo, botaoStatus) {
+    botaoStatus.disabled = true;
+    try {
+        await window.DeliveryAPI.adminAcao({ acao: "regiao_status", id: regiao.id, ativo });
+        await carregarDadosAdmin();
+        window.AppToast?.(ativo ? "Área ativada" : "Área desativada", ativo ? "O cálculo regional voltou a aceitar pedidos." : "A área não será usada no cálculo regional.", "success");
+    } catch (error) {
+        botaoStatus.disabled = false;
+        mostrarErro("Não foi possível atualizar a área", error);
+    }
+}
+
+function renderizarMarketingAdmin() {
+    const ativos = adminCupons.filter((cupom) => cupom.ativo === true);
+    const usos = adminCupons.reduce((total, cupom) => total + Number(cupom.usos || 0), 0);
+    const descontoPedidos = adminPedidos.filter((pedido) => pedido.status === "entregue").reduce((total, pedido) => total + Number(pedido.desconto || 0), 0);
+    const restaurantesComCampanha = new Set(ativos.filter((cupom) => cupom.empresa_id).map((cupom) => String(cupom.empresa_id)));
+    document.getElementById("mktCuponsAtivos").textContent = String(ativos.length);
+    document.getElementById("mktUsos").textContent = String(usos);
+    document.getElementById("mktDesconto").textContent = App.dinheiro(descontoPedidos);
+    document.getElementById("mktRestaurantes").textContent = String(restaurantesComCampanha.size);
+
+    const campanhasBox = document.getElementById("adminMarketingCampanhas");
+    campanhasBox.replaceChildren();
+    if (!ativos.length) campanhasBox.append(elemento("p", "admin-loading-inline", "Nenhuma campanha ativa no momento."));
+    ativos.slice(0, 8).forEach((cupom) => {
+        const row = elemento("button", "marketing-row");
+        row.type = "button";
+        row.append(elemento("div", "", cupom.codigo || "Cupom"), elemento("span", "", (cupom.empresa_id ? nomeEmpresa(cupom.empresa_id) : "Global") + " • " + beneficioCupom(cupom)), elemento("strong", "", String(cupom.usos || 0) + (cupom.limite_usos ? "/" + cupom.limite_usos : " usos")));
+        row.addEventListener("click", () => abrirFormularioCupom(cupom));
+        campanhasBox.append(row);
+    });
+
+    const oportunidades = adminEmpresas.filter((empresa) => empresa.publicado === true && !restaurantesComCampanha.has(String(empresa.id))).slice(0, 8);
+    const oportunidadesBox = document.getElementById("adminMarketingOportunidades");
+    oportunidadesBox.replaceChildren();
+    if (!oportunidades.length) oportunidadesBox.append(elemento("p", "admin-loading-inline", "Todos os restaurantes publicados já possuem alguma campanha ativa."));
+    oportunidades.forEach((empresa) => {
+        const row = elemento("div", "marketing-opportunity");
+        row.append(elemento("span", "", empresa.nome), elemento("small", "", "Sem cupom ativo"));
+        const abrir = botao("+ Criar", "admin-action primary");
+        abrir.addEventListener("click", () => abrirFormularioCupom({ empresa_id: empresa.id, tipo: "percentual", valor: 10, ativo: true, primeiro_pedido: false, limite_por_usuario: 1 }));
+        row.append(abrir);
+        oportunidadesBox.append(row);
+    });
+
+    const produtosBox = document.getElementById("adminMarketingProdutos");
+    produtosBox.replaceChildren();
+    const produtos = adminInteligencia.produtos || [];
+    if (!produtos.length) produtosBox.append(elemento("p", "admin-loading-inline", "Ainda não há dados de venda suficientes."));
+    produtos.slice(0, 8).forEach((produto, index) => {
+        const row = elemento("div", "marketing-product-row");
+        row.append(elemento("span", "", (index + 1) + ". " + (produto.nome || "Produto")), elemento("small", "", produto.empresa_nome || "Restaurante"), elemento("strong", "", String(produto.quantidade || 0) + " un."));
+        produtosBox.append(row);
+    });
+}
 function pedidosDoPeriodoAdmin(dias) {
     const limite = Date.now() - Number(dias || 30) * 86400000;
     return adminPedidos.filter((pedido) => {
@@ -1024,9 +1246,12 @@ async function carregarDadosAdmin() {
         adminCupons = resCupons.data || [];
         adminLogs = resLogs.data || [];
         adminAuditoria = resAuditoria.data || [];
+        adminRegioes = snapshot?.regioes || [];
+        adminUnidades = snapshot?.unidades || [];
         renderizarNotificacoesAdmin();
         preencherFiltroEmpresas();
-        atualizarMetricasAdmin(); renderizarGraficoAdmin(); renderizarPedidosRecentes(); renderizarFinanceiroAdmin(); renderizarEntregasAdmin(); renderizarPedidos();
+        preencherFiltroRegioes();
+        atualizarMetricasAdmin(); renderizarGraficoAdmin(); renderizarPedidosRecentes(); renderizarFinanceiroAdmin(); renderizarEntregasAdmin(); renderizarRegioesAdmin(); renderizarMarketingAdmin(); renderizarPedidos();
         renderizarEmpresas(); renderizarUsuarios(); renderizarCupons();
         await carregarRelatorio(); exibirAvisoCompatibilidade();
     } finally {
@@ -1136,6 +1361,8 @@ function configurarNavegacao() {
         pedidos: "Gestão de pedidos",
         financeiro: "Financeiro da plataforma",
         entregas: "Entregas e operação",
+        areas: "Áreas de entrega",
+        marketing: "Marketing e campanhas",
         restaurantes: "Moderação de restaurantes",
         usuarios: "Usuários da plataforma",
                 cupons: "Gestão de cupons",
@@ -1277,6 +1504,19 @@ ouvir("novoCupom", "click", () => abrirFormularioCupom());
 ouvir("periodoRelatorio", "change", carregarRelatorio);
 ouvir("exportarRelatorio", "click", exportarRelatorioCsv);
 ouvir("periodoFinanceiro", "change", renderizarFinanceiroAdmin);
+ouvir("buscaAdminRegiao", "input", renderizarRegioesAdmin);
+ouvir("filtroRegiaoEmpresa", "change", renderizarRegioesAdmin);
+ouvir("filtroRegiaoStatus", "change", renderizarRegioesAdmin);
+ouvir("limparFiltrosRegiao", "click", () => {
+    document.getElementById("buscaAdminRegiao").value = "";
+    document.getElementById("filtroRegiaoEmpresa").value = "";
+    document.getElementById("filtroRegiaoStatus").value = "";
+    renderizarRegioesAdmin();
+});
+ouvir("novaRegiaoAdmin", "click", () => abrirFormularioRegiao());
+ouvir("abrirCuponsMarketing", "click", () => mostrarSecaoAdmin("cupons", { atualizarHistorico: true, focar: true }));
+ouvir("novaCampanhaMarketing", "click", () => abrirFormularioCupom());
+
 ouvir("exportarFinanceiro", "click", () => {
     const periodo = Number(document.getElementById("periodoFinanceiro")?.value || 30);
     const dados = pedidosDoPeriodoAdmin(periodo);
