@@ -91,10 +91,7 @@
 }
 .home-page .location-chevron{color:#777;font-size:.85rem}
 .home-page .home-nav{
-  display:flex;
-  align-items:center;
-  gap:27px;
-  margin-left:auto;
+  display:none!important;
 }
 .home-page .home-nav a{
   position:relative;
@@ -118,9 +115,11 @@
 }
 .home-page .header-spacer{display:none}
 .home-page .header-search{
-  width:168px;
-  min-width:168px;
-  max-width:168px;
+  width:min(360px,34vw);
+  min-width:270px;
+  max-width:360px;
+  flex:1 1 360px;
+  margin-left:12px;
   height:42px;
   display:flex;
   align-items:center;
@@ -164,8 +163,8 @@
   box-shadow:0 8px 18px rgba(32,36,43,.06);
 }
 .home-page .header-search:focus-within{
-  width:188px;
-  max-width:188px;
+  width:min(390px,36vw);
+  max-width:390px;
   background:#fff;
   border-color:rgba(229,27,42,.34);
   box-shadow:0 0 0 3px rgba(229,27,42,.08),0 10px 24px rgba(32,36,43,.08);
