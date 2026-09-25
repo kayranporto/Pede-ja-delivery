@@ -96,6 +96,38 @@ function gerarNotificacoesAdmin() {
 
 let filtroNotificacoesAdmin = "todas";
 
+function renderizarResumoAdmin() {
+    const contadorAlertas = document.getElementById("adminAlertSummaryCount");
+    const listaAlertas = document.getElementById("adminAlertSummaryList");
+    const contadorAcesso = document.getElementById("adminAccessSummaryCount");
+    const chips = document.getElementById("adminPermissionChips");
+    if (!contadorAlertas || !listaAlertas || !contadorAcesso || !chips) return;
+
+    const alertas = gerarNotificacoesAdmin();
+    contadorAlertas.textContent = String(alertas.length);
+    listaAlertas.replaceChildren();
+    if (!alertas.length) {
+        listaAlertas.append(elemento("p", "admin-loading-inline", "Nenhuma pendência administrativa com as permissões atuais."));
+    } else {
+        alertas.slice(0, 4).forEach((item) => {
+            const botaoAlerta = elemento("button", "admin-alert-summary-item");
+            botaoAlerta.type = "button";
+            botaoAlerta.dataset.adminNotificationId = item.id;
+            botaoAlerta.dataset.adminNotificationTarget = item.destino;
+            const texto = elemento("span");
+            texto.append(elemento("strong", "", item.titulo), elemento("small", "", item.detalhe));
+            botaoAlerta.append(elemento("span", "admin-alert-summary-icon", "!"), texto);
+            listaAlertas.append(botaoAlerta);
+        });
+    }
+
+    const permissoes = ADMIN_PERMISSOES.filter((item) => adminPermissoes.has(item.chave));
+    contadorAcesso.textContent = String(permissoes.length);
+    chips.replaceChildren();
+    permissoes.slice(0, 8).forEach((item) => chips.append(elemento("span", "admin-permission-chip", item.rotulo)));
+    if (permissoes.length > 8) chips.append(elemento("span", "admin-permission-chip muted", "+" + (permissoes.length - 8)));
+}
+
 function renderizarNotificacoesAdmin() {
     const lista = document.getElementById("adminNotificationsList");
     const contador = document.getElementById("adminNotificationsCount");
@@ -106,6 +138,7 @@ function renderizarNotificacoesAdmin() {
     const exibidas = filtroNotificacoesAdmin === "novas" ? novas : todas;
     contador.textContent = String(novas.length);
     contador.hidden = novas.length === 0;
+    if (document.getElementById("adminAlertSummaryCount")) renderizarResumoAdmin();
     lista.replaceChildren();
     if (!exibidas.length) { lista.append(elemento("p", "admin-notifications-empty", filtroNotificacoesAdmin === "novas" ? "Nenhum alerta não lido." : "Nenhuma pendência administrativa encontrada.")); return; }
     exibidas.forEach((item) => {
@@ -1306,6 +1339,7 @@ async function carregarDadosAdmin() {
         adminRegioes = snapshot?.regioes || [];
         adminUnidades = snapshot?.unidades || [];
         renderizarNotificacoesAdmin();
+        renderizarResumoAdmin();
         preencherFiltroEmpresas();
         preencherFiltroRegioes();
         atualizarMetricasAdmin(); renderizarGraficoAdmin(); renderizarPedidosRecentes(); renderizarFinanceiroAdmin(); renderizarEntregasAdmin(); renderizarRegioesAdmin(); renderizarMarketingAdmin(); renderizarPedidos();
@@ -1697,6 +1731,17 @@ ouvir("restaurarConfigAdmin", "click", () => {
 ouvir("adminNotifications", "click", abrirCentralNotificacoes);
 ouvir("fecharAdminNotifications", "click", fecharCentralNotificacoes);
 ouvir("marcarAdminNotificationsLidas", "click", marcarNotificacoesVistas);
+ouvir("abrirResumoAlertasAdmin", "click", abrirCentralNotificacoes);
+ouvir("abrirPermissoesAdmin", "click", () => {
+    mostrarSecaoAdmin("configuracoes", { atualizarHistorico: true, focar: true });
+    setTimeout(() => document.getElementById("novoAdminEmail")?.focus(), 0);
+});
+ouvir("adminAlertSummaryList", "click", (evento) => {
+    const card = evento.target.closest("[data-admin-notification-id]");
+    if (!card) return;
+    marcarNotificacaoComoVista(card.dataset.adminNotificationId);
+    mostrarSecaoAdmin(card.dataset.adminNotificationTarget, { atualizarHistorico: true, focar: true });
+});
 configurarFiltrosNotificacoesAdmin();
 ouvir("adminNotificationsList", "click", (evento) => {
     const card = evento.target.closest("[data-admin-notification-id]");
@@ -1743,4 +1788,5 @@ addEventListener("beforeunload", () => { clearTimeout(recarregarTimer); if (cana
 configurarNavegacao();
 carregarConfiguracoesAdmin();
 atualizarPermissoesAdminUI();
+renderizarResumoAdmin();
 iniciarAdmin();
