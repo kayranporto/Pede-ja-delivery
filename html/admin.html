@@ -29,9 +29,11 @@
         <a href="#pedidos">▣ <span>Pedidos</span><b id="pedidosMenu">0</b></a>
         <a href="#financeiro">R$ <span>Financeiro</span></a>
         <a href="#entregas">↗ <span>Entregas</span></a>
+        <a href="#areas">⌖ <span>Áreas de entrega</span></a>
         <a href="#restaurantes">▦ <span>Restaurantes</span><b id="pendentesMenu">0</b></a>
         <a href="#usuarios">♙ <span>Usuários</span></a>
         <a href="#cupons">% <span>Cupons</span></a>
+        <a href="#marketing">✦ <span>Marketing</span></a>
         <a href="#relatorios">↗ <span>Relatórios</span></a>
         <a href="#suporte">? <span>Suporte</span><b id="suporteMenu">0</b></a>
         <a href="#configuracoes">⚙ <span>Configurações</span></a>
@@ -57,11 +59,13 @@
             <button type="button" data-admin-nav="pedidos"><span>▣</span><strong>Pedidos</strong><small>Operação</small></button>
             <button type="button" data-admin-nav="financeiro"><span>R$</span><strong>Financeiro</strong><small>Recebimentos</small></button>
             <button type="button" data-admin-nav="entregas"><span>↗</span><strong>Entregas</strong><small>Logística</small></button>
+            <button type="button" data-admin-nav="areas"><span>⌖</span><strong>Áreas</strong><small>Entrega</small></button>
             <button type="button" data-admin-nav="restaurantes"><span>▦</span><strong>Restaurantes</strong><small>Moderação</small></button>
             <button type="button" data-admin-nav="suporte"><span>?</span><strong>Suporte</strong><small>Pendências</small></button>
             <button type="button" data-admin-nav="relatorios"><span>↗</span><strong>Relatórios</strong><small>Indicadores</small></button>
             <button type="button" data-admin-nav="usuarios"><span>♙</span><strong>Usuários</strong><small>Contas</small></button>
             <button type="button" data-admin-nav="cupons"><span>%</span><strong>Cupons</strong><small>Promoções</small></button>
+            <button type="button" data-admin-nav="marketing"><span>✦</span><strong>Marketing</strong><small>Campanhas</small></button>
             <button type="button" data-admin-nav="configuracoes"><span>⚙</span><strong>Administradores</strong><small>Acessos</small></button>
           </div>
 
@@ -149,6 +153,53 @@
           </div>
         </section>
 
+        <section class="admin-section admin-view" id="areas" data-admin-view tabindex="-1" aria-label="Áreas de entrega" hidden>
+          <div class="admin-section-title">
+            <div><span class="admin-kicker">LOGÍSTICA REGIONAL</span><h2>Áreas de entrega</h2><p>Configure bairros, taxas, pedido mínimo e tempo estimado por unidade. As regras ficam validadas no servidor.</p></div>
+            <button class="admin-primary-button" id="novaRegiaoAdmin" type="button">+ Nova área</button>
+          </div>
+          <div class="admin-filters">
+            <label class="wide"><span>Buscar</span><input id="buscaAdminRegiao" type="search" placeholder="Bairro, cidade ou restaurante"/></label>
+            <label><span>Restaurante</span><select id="filtroRegiaoEmpresa"><option value="">Todos</option></select></label>
+            <label><span>Status</span><select id="filtroRegiaoStatus"><option value="">Todas</option><option value="ativa">Ativas</option><option value="inativa">Inativas</option></select></label>
+            <button class="admin-secondary-button" id="limparFiltrosRegiao" type="button">Limpar filtros</button>
+          </div>
+          <div class="admin-region-kpis" aria-label="Resumo das áreas de entrega">
+            <article><small>Áreas cadastradas</small><strong id="regioesTotal">0</strong><span>regras de atendimento</span></article>
+            <article><small>Áreas ativas</small><strong id="regioesAtivas">0</strong><span>aceitando cálculo por região</span></article>
+            <article><small>Restaurantes atendidos</small><strong id="regioesEmpresas">0</strong><span>com regras regionais</span></article>
+            <article><small>Taxa média</small><strong id="regioesTaxaMedia">R$ 0,00</strong><span>das áreas ativas</span></article>
+          </div>
+          <div class="admin-table-wrap admin-region-table"><table><thead><tr><th>Restaurante</th><th>Área</th><th>Entrega</th><th>Mínimo</th><th>Tempo</th><th>Status</th><th>Ações</th></tr></thead><tbody id="adminRegioes"><tr><td colspan="7">Carregando...</td></tr></tbody></table></div>
+        </section>
+
+        <section class="admin-section admin-view" id="marketing" data-admin-view tabindex="-1" aria-label="Marketing" hidden>
+          <div class="admin-section-title">
+            <div><span class="admin-kicker">PROMOÇÃO E CRESCIMENTO</span><h2>Marketing</h2><p>Use cupons e campanhas promocionais para movimentar restaurantes e pedidos.</p></div>
+            <div class="admin-title-actions"><button class="admin-secondary-button" id="abrirCuponsMarketing" type="button">Ver cupons</button><button class="admin-primary-button" id="novaCampanhaMarketing" type="button">+ Criar campanha</button></div>
+          </div>
+          <div class="admin-marketing-kpis" aria-label="Indicadores de marketing">
+            <article><small>Cupons ativos</small><strong id="mktCuponsAtivos">0</strong><span>campanhas disponíveis</span></article>
+            <article><small>Usos registrados</small><strong id="mktUsos">0</strong><span>utilizações contabilizadas</span></article>
+            <article><small>Desconto concedido</small><strong id="mktDesconto">R$ 0,00</strong><span>nos pedidos carregados</span></article>
+            <article><small>Restaurantes com campanha</small><strong id="mktRestaurantes">0</strong><span>com cupom ativo</span></article>
+          </div>
+          <div class="admin-marketing-grid">
+            <article class="admin-card">
+              <div class="admin-section-title"><div><span class="admin-kicker">CAMPANHAS ATUAIS</span><h3>Cupons em destaque</h3></div></div>
+              <div id="adminMarketingCampanhas" class="admin-marketing-list"></div>
+            </article>
+            <article class="admin-card">
+              <div class="admin-section-title"><div><span class="admin-kicker">OPORTUNIDADES</span><h3>Restaurantes sem promoção</h3></div></div>
+              <div id="adminMarketingOportunidades" class="admin-marketing-list"></div>
+            </article>
+            <article class="admin-card admin-marketing-wide">
+              <div class="admin-section-title"><div><span class="admin-kicker">DESEMPENHO</span><h3>Produtos com maior saída</h3><small>Baseado no relatório operacional do período selecionado.</small></div></div>
+              <div id="adminMarketingProdutos" class="admin-marketing-products"></div>
+            </article>
+          </div>
+        </section>
+
         <section class="admin-section admin-view" id="restaurantes" data-admin-view tabindex="-1" aria-label="Restaurantes" hidden>
           <div class="admin-section-title"><div><span class="admin-kicker">MODERAÇÃO</span><h2>Restaurantes</h2><p>Aprove cadastros e controle a disponibilidade das lojas.</p></div><label class="admin-search">⌕<input id="buscaAdminEmpresa" type="search" placeholder="Buscar restaurante"/></label></div>
           <div class="admin-table-wrap"><table><thead><tr><th>Restaurante</th><th>Contato</th><th>Cadastro</th><th>Publicação</th><th>Operação</th><th>Ações</th></tr></thead><tbody id="adminEmpresas"><tr><td colspan="6">Carregando...</td></tr></tbody></table></div>
@@ -204,7 +255,7 @@
   <script defer src="../js/core/config.js?v=4.4.7"></script>
   <script defer src="../js/core/monitoring.js?v=4.2.0"></script>
   <script defer src="../js/core/notifications.js?v=4.2.0"></script>
-  <script defer src="../js/pages/admin.js?v=4.4.12"></script>
+  <script defer src="../js/pages/admin.js?v=4.4.13"></script>
   <script defer src="../js/modules/operacao-admin.js?v=4.2.0"></script>
   <script defer src="../js/core/site-enhancements.js?v=4.4.7"></script>
 </body>
