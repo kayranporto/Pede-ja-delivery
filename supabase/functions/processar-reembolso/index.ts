@@ -32,6 +32,11 @@ Deno.serve(async (request) => {
   try {
     const { data: { user }, error: authError } = await userClient.auth.getUser();
     if (authError || !user) return json(request, { error: "Sessão administrativa inválida." }, 401);
+    if (user.app_metadata?.role !== "admin") return json(request, { error: "Acesso administrativo negado." }, 403);
+    const rawPermissions = user.app_metadata?.admin_permissions;
+    if (Array.isArray(rawPermissions) && rawPermissions.length && !rawPermissions.includes("financeiro")) {
+      return json(request, { error: "Permissão financeira necessária." }, 403);
+    }
 
     const body: any = await request.json().catch(() => ({}));
     const pedidoId = String(body?.pedido_id || "");
