@@ -403,6 +403,119 @@ function renderizarAuditoria() {
     });
 }
 
+function pedidosDoPeriodoAdmin(dias) {
+    const limite = Date.now() - Number(dias || 30) * 86400000;
+    return adminPedidos.filter((pedido) => {
+        const criado = new Date(pedido.created_at).getTime();
+        return Number.isFinite(criado) && criado >= limite;
+    });
+}
+
+function ehPedidoPagoEntregue(pedido) {
+    return pedido.status === "entregue" && pedido.pagamento_status === "pago";
+}
+
+function renderizarFinanceiroAdmin() {
+    const periodo = Number(document.getElementById("periodoFinanceiro")?.value || 30);
+    const pedidos = pedidosDoPeriodoAdmin(periodo);
+    const pagos = pedidos.filter(ehPedidoPagoEntregue);
+    const faturamento = pagos.reduce((soma, pedido) => soma + Number(pedido.total || 0), 0);
+    const descontos = pagos.reduce((soma, pedido) => soma + Number(pedido.desconto || 0), 0);
+    const taxas = pagos.reduce((soma, pedido) => soma + Number(pedido.taxa_entrega || 0), 0);
+    const online = pagos.filter((pedido) => pedido.pagamento_modalidade === "online");
+    const naEntrega = pagos.filter((pedido) => pedido.pagamento_modalidade !== "online");
+    document.getElementById("finFaturamento").textContent = App.dinheiro(faturamento);
+    document.getElementById("finPedidosPagos").textContent = String(pagos.length) + " pedido" + (pagos.length === 1 ? "" : "s") + " pagos";
+    document.getElementById("finTicket").textContent = App.dinheiro(pagos.length ? faturamento / pagos.length : 0);
+    document.getElementById("finDescontos").textContent = App.dinheiro(descontos);
+    document.getElementById("finTaxas").textContent = App.dinheiro(taxas);
+    document.getElementById("finOnlineValor").textContent = App.dinheiro(online.reduce((soma, pedido) => soma + Number(pedido.total || 0), 0));
+    document.getElementById("finOnlineQtd").textContent = String(online.length) + " pedido" + (online.length === 1 ? "" : "s");
+    document.getElementById("finEntregaValor").textContent = App.dinheiro(naEntrega.reduce((soma, pedido) => soma + Number(pedido.total || 0), 0));
+    document.getElementById("finEntregaQtd").textContent = String(naEntrega.length) + " pedido" + (naEntrega.length === 1 ? "" : "s");
+
+    const pagamentoBox = document.getElementById("finPagamentoResumo");
+    pagamentoBox.replaceChildren();
+    if (!pagos.length) pagamentoBox.append(elemento("p", "admin-loading-inline", "Nenhum pedido pago no período."));
+    [["Online", online], ["Na entrega", naEntrega]].forEach(([rotulo, lista]) => {
+        if (!pagos.length) return;
+        const valor = lista.reduce((soma, pedido) => soma + Number(pedido.total || 0), 0);
+        const row = elemento("div", "finance-row");
+        row.append(elemento("span", "", rotulo + " • " + lista.length + " pedido" + (lista.length === 1 ? "" : "s")), elemento("strong", "", App.dinheiro(valor)));
+        pagamentoBox.append(row);
+    });
+
+    const porRestaurante = new Map();
+    pagos.forEach((pedido) => {
+        const id = String(pedido.empresa_id || "plataforma");
+        const atual = porRestaurante.get(id) || { valor: 0, pedidos: 0 };
+        atual.valor += Number(pedido.total || 0);
+        atual.pedidos += 1;
+        porRestaurante.set(id, atual);
+    });
+    const topRestaurantes = [...porRestaurante.entries()].sort((a, b) => b[1].valor - a[1].valor).slice(0, 6);
+    const restauranteBox = document.getElementById("finRestaurantesResumo");
+    restauranteBox.replaceChildren();
+    if (!topRestaurantes.length) restauranteBox.append(elemento("p", "admin-loading-inline", "Nenhum restaurante com faturamento no período."));
+    topRestaurantes.forEach(([id, dados]) => {
+        const row = elemento("div", "finance-row");
+        row.append(elemento("span", "", nomeEmpresa(id)), elemento("strong", "", App.dinheiro(dados.valor) + " • " + dados.pedidos + " ped."));
+        restauranteBox.append(row);
+    });
+
+    const movimentosBox = document.getElementById("finMovimentacoes");
+    movimentosBox.replaceChildren();
+    const recentes = [...pedidos].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 10);
+    if (!recentes.length) movimentosBox.append(elemento("p", "admin-loading-inline", "Nenhuma movimentação financeira no período."));
+    recentes.forEach((pedido) => {
+        const row = elemento("div", "finance-movement");
+        const status = pedido.pagamento_status === "pago" ? "Pago" : pedido.pagamento_status === "estornado" ? "Estornado" : "Pendente";
+        row.append(elemento("div", "", "#" + (pedido.numero || String(pedido.id).slice(0, 8))), elemento("span", "", nomeEmpresa(pedido.empresa_id) + " • " + status), elemento("strong", "", App.dinheiro(pedido.total)));
+        row.addEventListener("click", () => abrirDetalhesPedido(pedido));
+        row.tabIndex = 0;
+        row.setAttribute("role", "button");
+        row.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); abrirDetalhesPedido(pedido); } });
+        movimentosBox.append(row);
+    });
+}
+
+function renderizarEntregasAdmin() {
+    const ativos = adminPedidos.filter((pedido) => ["recebido", "preparando", "saiu_para_entrega"].includes(pedido.status)).sort((a, b) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime());
+    const hojeInicio = new Date();
+    hojeInicio.setHours(0, 0, 0, 0);
+    const entreguesHoje = adminPedidos.filter((pedido) => pedido.status === "entregue" && new Date(pedido.updated_at || pedido.created_at).getTime() >= hojeInicio.getTime());
+    const tempos = entreguesHoje.map((pedido) => (new Date(pedido.updated_at).getTime() - new Date(pedido.created_at).getTime()) / 60000).filter((tempo) => Number.isFinite(tempo) && tempo >= 0 && tempo <= 1440);
+    const media = tempos.length ? tempos.reduce((total, tempo) => total + tempo, 0) / tempos.length : 0;
+    document.getElementById("entregasAguardando").textContent = String(adminPedidos.filter((pedido) => pedido.status === "recebido").length);
+    document.getElementById("entregasPreparo").textContent = String(adminPedidos.filter((pedido) => pedido.status === "preparando").length);
+    document.getElementById("entregasRota").textContent = String(adminPedidos.filter((pedido) => pedido.status === "saiu_para_entrega").length);
+    document.getElementById("entregasHoje").textContent = String(entreguesHoje.length);
+    document.getElementById("entregasTempo").textContent = Math.round(media) + " min";
+
+    const ativosBox = document.getElementById("adminEntregasAtivas");
+    const recentesBox = document.getElementById("adminEntregasRecentes");
+    ativosBox.replaceChildren();
+    recentesBox.replaceChildren();
+    if (!ativos.length) ativosBox.append(elemento("p", "admin-loading-inline", "Nenhum pedido ativo em operação."));
+    ativos.slice(0, 12).forEach((pedido) => {
+        const row = elemento("button", "delivery-row");
+        row.type = "button";
+        row.append(elemento("div", "", "#" + (pedido.numero || String(pedido.id).slice(0, 8)) + " • " + nomeEmpresa(pedido.empresa_id)), elemento("span", "", (pedido.cliente_nome || "Cliente") + " • " + statusLegivel(pedido.status)), elemento("strong", "", App.dinheiro(pedido.total)));
+        row.addEventListener("click", () => abrirDetalhesPedido(pedido));
+        ativosBox.append(row);
+    });
+    const recentes = [...entreguesHoje].sort((a, b) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime()).slice(0, 10);
+    if (!recentes.length) recentesBox.append(elemento("p", "admin-loading-inline", "Nenhuma entrega concluída hoje."));
+    recentes.forEach((pedido) => {
+        const row = elemento("button", "delivery-row");
+        row.type = "button";
+        const tempo = (new Date(pedido.updated_at).getTime() - new Date(pedido.created_at).getTime()) / 60000;
+        row.append(elemento("div", "", "#" + (pedido.numero || String(pedido.id).slice(0, 8)) + " • " + nomeEmpresa(pedido.empresa_id)), elemento("span", "", (pedido.cliente_nome || "Cliente") + " • " + (Number.isFinite(tempo) && tempo >= 0 ? Math.round(tempo) + " min" : "tempo indisponível")), elemento("strong", "", App.dinheiro(pedido.total)));
+        row.addEventListener("click", () => abrirDetalhesPedido(pedido));
+        recentesBox.append(row);
+    });
+}
+
 function renderizarRelatorio() {
     if (!adminRelatorio) return;
     const total = Number(adminRelatorio.pedidos || 0);
@@ -913,7 +1026,7 @@ async function carregarDadosAdmin() {
         adminAuditoria = resAuditoria.data || [];
         renderizarNotificacoesAdmin();
         preencherFiltroEmpresas();
-        atualizarMetricasAdmin(); renderizarGraficoAdmin(); renderizarPedidosRecentes(); renderizarPedidos();
+        atualizarMetricasAdmin(); renderizarGraficoAdmin(); renderizarPedidosRecentes(); renderizarFinanceiroAdmin(); renderizarEntregasAdmin(); renderizarPedidos();
         renderizarEmpresas(); renderizarUsuarios(); renderizarCupons();
         await carregarRelatorio(); exibirAvisoCompatibilidade();
     } finally {
@@ -1021,6 +1134,8 @@ function configurarNavegacao() {
     const titulos = {
         overview: "Central administrativa",
         pedidos: "Gestão de pedidos",
+        financeiro: "Financeiro da plataforma",
+        entregas: "Entregas e operação",
         restaurantes: "Moderação de restaurantes",
         usuarios: "Usuários da plataforma",
                 cupons: "Gestão de cupons",
@@ -1161,6 +1276,16 @@ ouvir("exportarPedidos", "click", () => baixarCsv(linhasCsv(pedidosFiltrados()),
 ouvir("novoCupom", "click", () => abrirFormularioCupom());
 ouvir("periodoRelatorio", "change", carregarRelatorio);
 ouvir("exportarRelatorio", "click", exportarRelatorioCsv);
+ouvir("periodoFinanceiro", "change", renderizarFinanceiroAdmin);
+ouvir("exportarFinanceiro", "click", () => {
+    const periodo = Number(document.getElementById("periodoFinanceiro")?.value || 30);
+    const dados = pedidosDoPeriodoAdmin(periodo);
+    baixarCsv([["numero", "restaurante", "cliente", "status", "pagamento", "modalidade", "subtotal", "desconto", "taxa_entrega", "total", "criado_em", "atualizado_em"], ...dados.map((p) => [p.numero, nomeEmpresa(p.empresa_id), p.cliente_nome || "", p.status, p.pagamento_status, p.pagamento_modalidade || "na_entrega", p.subtotal || "", p.desconto || "", p.taxa_entrega || "", p.total || "", p.created_at, p.updated_at])], "multi-delivery-financeiro-" + new Date().toISOString().slice(0, 10) + ".csv");
+});
+ouvir("atualizarEntregasAdmin", "click", () => {
+    renderizarEntregasAdmin();
+    window.AppToast?.("Entregas atualizadas", "O fluxo operacional foi recalculado com os pedidos mais recentes.", "success");
+});
 async function atualizarPainelAdminManual() {
     const botao = document.getElementById("atualizarPainelAdmin");
     if (!botao || botao.disabled) return;
