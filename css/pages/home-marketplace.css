@@ -2189,3 +2189,39 @@
     height:210px;
   }
 }
+
+
+/* Painel administrativo — acabamento visual Pede Já */
+.home-page #menuUsuario .btn-admin{
+  min-height:48px;
+  padding:0 17px;
+  gap:9px;
+  border:1px solid #d81726;
+  border-radius:14px;
+  background:linear-gradient(135deg,#e51b2a 0%,#c91422 100%);
+  color:#fff;
+  box-shadow:0 10px 24px rgba(229,27,42,.20),inset 0 1px 0 rgba(255,255,255,.18);
+  font-size:.72rem;
+  font-weight:800;
+  letter-spacing:-.01em;
+  transition:transform .2s ease,box-shadow .2s ease,filter .2s ease;
+}
+.home-page #menuUsuario .btn-admin .btn-admin-icon{
+  width:25px;
+  height:25px;
+  display:grid;
+  place-items:center;
+  flex:0 0 25px;
+  border-radius:8px;
+  background:rgba(255,255,255,.16);
+  color:#ffcf55;
+  font-size:.68rem;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14);
+}
+.home-page #menuUsuario .btn-admin:hover,
+.home-page #menuUsuario .btn-admin:focus-visible{
+  transform:translateY(-2px);
+  filter:saturate(1.04);
+  box-shadow:0 14px 30px rgba(229,27,42,.27),inset 0 1px 0 rgba(255,255,255,.2);
+}
+.home-page #menuUsuario .btn-admin:active{transform:translateY(0)}
