@@ -56,6 +56,9 @@ function podeAcessarSecaoAdmin(secao) {
     if (secao === "configuracoes") {
         return temPermissaoAdmin("configuracoes") || temPermissaoAdmin("administradores");
     }
+    if (secao === "planos") {
+        return temPermissaoAdmin("financeiro");
+    }
     return temPermissaoAdmin(secao);
 }
 
@@ -1521,33 +1524,42 @@ function aplicarTamanhoFonte(valor) {
 let mostrarSecaoAdmin = () => {};
 
 function configurarNavegacao() {
-    const views = [...document.querySelectorAll("[data-admin-view]")];
-    const links = [...document.querySelectorAll(".admin-sidebar nav a[href^='#']")];
-    const viewIds = new Set(views.map((view) => view.id));
-
     atualizarPermissoesAdminUI();
 
     const titulos = {
         overview: "Central administrativa",
         pedidos: "Gestão de pedidos",
         financeiro: "Financeiro da plataforma",
+        planos: "Planos e assinaturas",
         entregas: "Entregas e operação",
         areas: "Áreas de entrega",
         marketing: "Marketing e campanhas",
         restaurantes: "Moderação de restaurantes",
         usuarios: "Usuários da plataforma",
-                cupons: "Gestão de cupons",
+        cupons: "Gestão de cupons",
         relatorios: "Relatórios e inteligência",
         suporte: "Suporte e pendências",
         configuracoes: "Configurações da plataforma"
     };
 
+    function obterViewsAdmin() {
+        return [...document.querySelectorAll("[data-admin-view]")];
+    }
+
+    function obterLinksAdmin() {
+        return [...document.querySelectorAll(".admin-sidebar nav a[href^='#']")];
+    }
+
     function idSecao(valor = location.hash) {
         const id = String(valor || "").replace(/^#/, "");
+        const viewIds = new Set(obterViewsAdmin().map((view) => view.id));
         return viewIds.has(id) ? id : "overview";
     }
 
     mostrarSecaoAdmin = function(id, { atualizarHistorico = false, focar = false } = {}) {
+        atualizarPermissoesAdminUI();
+        const views = obterViewsAdmin();
+        const links = obterLinksAdmin();
         const solicitada = idSecao(id);
         const secaoId = podeAcessarSecaoAdmin(solicitada) ? solicitada : "overview";
         views.forEach((view) => {
