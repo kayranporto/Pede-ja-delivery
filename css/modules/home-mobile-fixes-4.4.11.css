@@ -570,3 +570,26 @@
   .home-page .hero-reference-art,
   .home-page .hero-reference-art img{height:225px!important}
 }
+
+
+/* Painel admin mobile — manter identidade visual do Pede Já */
+@media(max-width:680px){
+  .home-page #menuUsuario .btn-admin{
+    min-height:43px!important;
+    padding:9px 13px!important;
+    border:1px solid #d81726!important;
+    border-radius:14px!important;
+    background:linear-gradient(135deg,#e51b2a 0%,#c91422 100%)!important;
+    color:#fff!important;
+    box-shadow:0 8px 18px rgba(229,27,42,.16)!important;
+  }
+  .home-page #menuUsuario .btn-admin .btn-admin-icon{
+    color:#ffcf55!important;
+    background:rgba(255,255,255,.16)!important;
+    width:23px!important;
+    height:23px!important;
+    border-radius:7px!important;
+    display:grid!important;
+    place-items:center!important;
+  }
+}
