@@ -83,6 +83,9 @@ test("painel administrativo exibe apenas a seção escolhida e separa o conteúd
     assert.match(js, /adminPermissoes/);
     assert.match(html, /id="painelAdministradoresAdmin"/);
     assert.match(js, /mostrarSecaoAdmin/);
+    assert.match(js, /const links = \[\.\.\.document\.querySelectorAll\("\.admin-sidebar nav a\[href\^='#'\]"\)\]/);
+    assert.match(js, /window\.\__ADMIN_MOSTRAR_SECAO__ = mostrarSecaoAdmin/);
+    assert.match(js, /window\.\__ADMIN_PODE_ACESSAR_SECAO__ = podeAcessarSecaoAdmin/);
     assert.match(js, /history\.pushState/);
     assert.match(js, /addEventListener\("hashchange"/);
     assert.match(css, /\.admin-view\[hidden\]\s*\{\s*display:\s*none\s*!important\s*\}/);
