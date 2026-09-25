@@ -455,11 +455,24 @@ async function companyPanelAction(ctx: RouteContext, body: Json) {
   return error(ctx.request,404,"acao_nao_encontrada","Ação do painel não encontrada.");
 }
 async function adminOperation(ctx: RouteContext) {
+  const access = await getAdminAccess(ctx);
+  if (!access) return error(ctx.request,403,"acesso_negado","Acesso administrativo negado.");
+  const podeSuporte = access.permissions.has("suporte");
+  const podeFinanceiro = access.permissions.has("financeiro");
+  const podePedidos = access.permissions.has("pedidos");
   const [chamados,reembolsos,cancelamentos,conciliacao] = await Promise.all([
-    ctx.db.from("chamados_suporte").select("id,assunto,mensagem,status,prioridade,created_at").in("status",["aberto","em_analise"]).order("prioridade",{ascending:false}).order("created_at").limit(50),
-    ctx.db.from("pedidos").select("id,numero,empresa_nome,cliente_nome,total,reembolso_status,pagamento_reconciliacao_status").in("reembolso_status",["aguardando_pagamento","pendente","processando","falhou"]).order("updated_at").limit(50),
-    ctx.db.from("pedidos").select("id,numero,empresa_nome,cliente_nome,cancelamento_motivo").eq("cancelamento_status","solicitado").order("cancelamento_solicitado_em").limit(50),
-    ctx.db.rpc("admin_conciliacao_pagamentos",{p_limite:50})
+    podeSuporte
+      ? ctx.db.from("chamados_suporte").select("id,assunto,mensagem,status,prioridade,created_at").in("status",["aberto","em_analise"]).order("prioridade",{ascending:false}).order("created_at").limit(50)
+      : Promise.resolve({data:[],error:null}),
+    podeFinanceiro
+      ? ctx.db.from("pedidos").select("id,numero,empresa_nome,cliente_nome,total,reembolso_status,pagamento_reconciliacao_status").in("reembolso_status",["aguardando_pagamento","pendente","processando","falhou"]).order("updated_at").limit(50)
+      : Promise.resolve({data:[],error:null}),
+    podePedidos
+      ? ctx.db.from("pedidos").select("id,numero,empresa_nome,cliente_nome,cancelamento_motivo").eq("cancelamento_status","solicitado").order("cancelamento_solicitado_em").limit(50)
+      : Promise.resolve({data:[],error:null}),
+    podeFinanceiro
+      ? ctx.db.rpc("admin_conciliacao_pagamentos",{p_limite:50})
+      : Promise.resolve({data:{pedidos:[]},error:null})
   ]);
   const e=chamados.error||reembolsos.error||cancelamentos.error||conciliacao.error;
   if(e) return error(ctx.request,502,"operacao_admin_indisponivel","Não foi possível carregar a operação administrativa.");
