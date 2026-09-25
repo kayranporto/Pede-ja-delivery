@@ -2225,3 +2225,46 @@
   box-shadow:0 14px 30px rgba(229,27,42,.27),inset 0 1px 0 rgba(255,255,255,.2);
 }
 .home-page #menuUsuario .btn-admin:active{transform:translateY(0)}
+
+
+/* =========================================================
+   Layout desktop — ocupar toda a largura da tela
+   ========================================================= */
+@media (min-width: 681px){
+  .home-page .container-header,
+  .home-page .market-section,
+  .home-page .offer-strip,
+  .home-page .footer-container{
+    width:100%!important;
+    max-width:none!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    padding-left:clamp(24px,3vw,52px)!important;
+    padding-right:clamp(24px,3vw,52px)!important;
+    box-sizing:border-box;
+  }
+
+  .home-page .container-header{
+    min-height:76px;
+  }
+
+  .home-page .market-hero{
+    width:100%!important;
+    max-width:none!important;
+  }
+
+  .home-page .hero-reference-frame{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+  }
+
+  .home-page .hero-reference-copy{
+    padding-left:clamp(40px,7vw,110px)!important;
+  }
+
+  .home-page .offer-card{
+    width:100%;
+    box-sizing:border-box;
+  }
+}
