@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="../css/pages/admin.css?v=4.4.14"/>
+  <link rel="stylesheet" href="../css/pages/admin.css?v=4.4.15"/>
   <link rel="stylesheet" href="../css/core/accessibility.css?v=4.2.0"/>
   <link rel="stylesheet" href="../css/core/enhancements.css?v=4.4.7"/>
 </head>
@@ -51,7 +51,7 @@
       <main class="admin-main">
         <section class="admin-view is-active" id="overview" data-admin-view tabindex="-1" aria-label="Visão geral">
           <div class="admin-hero">
-            <div><span class="admin-kicker">PEDEJÁ 4.4.14</span><h2>Visão completa da operação.</h2><p>Aprove restaurantes, acompanhe pedidos e mantenha a plataforma saudável. Os entregadores são gerenciados pelas próprias empresas.</p></div>
+            <div><span class="admin-kicker">PEDEJÁ 4.4.15</span><h2>Visão completa da operação.</h2><p>Aprove restaurantes, acompanhe pedidos e mantenha a plataforma saudável. Os entregadores são gerenciados pelas próprias empresas.</p></div>
             <div class="admin-health" id="saudeOperacao"><i></i><div><small>STATUS DO SISTEMA</small><strong id="saudeOperacaoTexto">Verificando operação...</strong></div></div>
           </div>
 
@@ -67,6 +67,25 @@
             <button type="button" data-admin-nav="cupons"><span>%</span><strong>Cupons</strong><small>Promoções</small></button>
             <button type="button" data-admin-nav="marketing"><span>✦</span><strong>Marketing</strong><small>Campanhas</small></button>
             <button type="button" data-admin-nav="configuracoes"><span>⚙</span><strong>Administradores</strong><small>Acessos</small></button>
+          </div>
+
+          <div class="admin-overview-admin-grid">
+            <article class="admin-card admin-alert-summary">
+              <div class="admin-section-title">
+                <div><span class="admin-kicker">ATENÇÃO OPERACIONAL</span><h2>Central de alertas</h2><p>As pendências que sua conta pode acompanhar aparecem aqui.</p></div>
+                <strong id="adminAlertSummaryCount">0</strong>
+              </div>
+              <div id="adminAlertSummaryList" class="admin-alert-summary-list"><p class="admin-loading-inline">Carregando alertas...</p></div>
+              <button class="admin-secondary-button" id="abrirResumoAlertasAdmin" type="button">Abrir central de alertas</button>
+            </article>
+            <article class="admin-card admin-access-summary">
+              <div class="admin-section-title">
+                <div><span class="admin-kicker">SEGURANÇA</span><h2>Seu acesso administrativo</h2><p>Permissões aplicadas a esta conta.</p></div>
+                <strong id="adminAccessSummaryCount">0</strong>
+              </div>
+              <div id="adminPermissionChips" class="admin-permission-chips"></div>
+              <button class="admin-secondary-button" id="abrirPermissoesAdmin" type="button">Gerenciar administradores</button>
+            </article>
           </div>
 
           <div class="admin-metrics" aria-label="Indicadores da plataforma">
@@ -255,7 +274,7 @@
   <script defer src="../js/core/config.js?v=4.4.7"></script>
   <script defer src="../js/core/monitoring.js?v=4.2.0"></script>
   <script defer src="../js/core/notifications.js?v=4.2.0"></script>
-  <script defer src="../js/pages/admin.js?v=4.4.14"></script>
+  <script defer src="../js/pages/admin.js?v=4.4.15"></script>
   <script defer src="../js/modules/operacao-admin.js?v=4.2.0"></script>
   <script defer src="../js/core/site-enhancements.js?v=4.4.7"></script>
 </body>
