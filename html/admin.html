@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="../css/pages/admin.css?v=4.4.12"/>
+  <link rel="stylesheet" href="../css/pages/admin.css?v=4.4.14"/>
   <link rel="stylesheet" href="../css/core/accessibility.css?v=4.2.0"/>
   <link rel="stylesheet" href="../css/core/enhancements.css?v=4.4.7"/>
 </head>
@@ -51,7 +51,7 @@
       <main class="admin-main">
         <section class="admin-view is-active" id="overview" data-admin-view tabindex="-1" aria-label="Visão geral">
           <div class="admin-hero">
-            <div><span class="admin-kicker">PEDEJÁ 4.4.13</span><h2>Visão completa da operação.</h2><p>Aprove restaurantes, acompanhe pedidos e mantenha a plataforma saudável. Os entregadores são gerenciados pelas próprias empresas.</p></div>
+            <div><span class="admin-kicker">PEDEJÁ 4.4.14</span><h2>Visão completa da operação.</h2><p>Aprove restaurantes, acompanhe pedidos e mantenha a plataforma saudável. Os entregadores são gerenciados pelas próprias empresas.</p></div>
             <div class="admin-health" id="saudeOperacao"><i></i><div><small>STATUS DO SISTEMA</small><strong id="saudeOperacaoTexto">Verificando operação...</strong></div></div>
           </div>
 
@@ -225,8 +225,8 @@
           <div class="admin-section-title"><div><span class="admin-kicker">CONTROLE DA PLATAFORMA</span><h2>Configurações</h2><p>Ajuste o comportamento do painel administrativo neste dispositivo.</p></div><button class="admin-secondary-button" id="restaurarConfigAdmin" type="button">Restaurar padrão</button></div>
           <div class="admin-settings-grid"><article class="admin-settings-card"><div><strong>Atualização automática</strong><p>Atualiza os dados do painel quando houver novas alterações.</p></div><label class="admin-switch"><input id="configAutoAtualizacao" type="checkbox" checked><span></span></label></article><article class="admin-settings-card"><div><strong>Alertas administrativos</strong><p>Exibe avisos visuais para pendências e eventos importantes.</p></div><label class="admin-switch"><input id="configAlertas" type="checkbox" checked><span></span></label></article><article class="admin-settings-card"><div><strong>Confirmação de ações críticas</strong><p>Solicita confirmação antes de bloqueios e exclusões.</p></div><label class="admin-switch"><input id="configConfirmacoes" type="checkbox" checked><span></span></label></article><article class="admin-settings-card"><div><strong>Modo compacto</strong><p>Reduz espaçamentos para visualizar mais informações na tela.</p></div><label class="admin-switch"><input id="configCompacto" type="checkbox"><span></span></label></article></div>
           <div class="admin-settings-note"><strong>Importante</strong><p>Estas preferências controlam a experiência administrativa neste navegador. Alterações operacionais globais da plataforma devem ser configuradas no servidor para afetar todos os administradores.</p></div>
-          <div class="admin-settings-admins">
-            <div class="admin-section-title"><div><span class="admin-kicker">ACESSO</span><h3>Administradores do site</h3><p>Convide pessoas para administrar o PedeJá. O convite é enviado por e-mail.</p></div></div>
+          <div class="admin-settings-admins" id="painelAdministradoresAdmin">
+            <div class="admin-section-title"><div><span class="admin-kicker">ACESSO</span><h3>Administradores do site</h3><p>Convide pessoas e defina exatamente quais áreas da administração cada conta pode acessar.</p></div></div>
             <form id="formNovoAdmin" class="admin-admin-invite"><label class="admin-form-field full"><span>E-mail do novo administrador</span><input id="novoAdminEmail" type="email" autocomplete="email" placeholder="admin@exemplo.com" required></label><button class="admin-primary-button" type="submit">+ Adicionar administrador</button></form>
             <div id="listaAdministradores" class="admin-admin-list"><p>Carregando administradores...</p></div>
           </div>
@@ -255,7 +255,7 @@
   <script defer src="../js/core/config.js?v=4.4.7"></script>
   <script defer src="../js/core/monitoring.js?v=4.2.0"></script>
   <script defer src="../js/core/notifications.js?v=4.2.0"></script>
-  <script defer src="../js/pages/admin.js?v=4.4.13"></script>
+  <script defer src="../js/pages/admin.js?v=4.4.14"></script>
   <script defer src="../js/modules/operacao-admin.js?v=4.2.0"></script>
   <script defer src="../js/core/site-enhancements.js?v=4.4.7"></script>
 </body>
