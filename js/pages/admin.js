@@ -792,6 +792,7 @@ async function carregarRelatorio() {
         adminRelatorio = dados?.operacional || relatorioAdminLocal(dias);
         adminInteligencia = dados?.inteligencia || adminInteligencia;
         renderizarRelatorio();
+        renderizarMarketingAdmin();
     } catch (error) {
         adminRelatorio = relatorioAdminLocal(dias);
         renderizarRelatorio();
