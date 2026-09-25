@@ -1525,6 +1525,7 @@ let mostrarSecaoAdmin = () => {};
 
 function configurarNavegacao() {
     atualizarPermissoesAdminUI();
+    const links = [...document.querySelectorAll(".admin-sidebar nav a[href^='#']")];
 
     const titulos = {
         overview: "Central administrativa",
@@ -1586,6 +1587,9 @@ function configurarNavegacao() {
         window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
         if (focar) document.getElementById(secaoId)?.focus({ preventScroll: true });
     };
+
+    window.__ADMIN_MOSTRAR_SECAO__ = mostrarSecaoAdmin;
+    window.__ADMIN_PODE_ACESSAR_SECAO__ = podeAcessarSecaoAdmin;
 
     links.forEach((link) => link.addEventListener("click", (event) => {
         event.preventDefault();
