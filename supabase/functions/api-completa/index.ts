@@ -452,17 +452,28 @@ async function publicRestaurantUnits(ctx: RouteContext, id: string) { if (!uuid(
 async function adminDashboard(ctx: RouteContext) {
   const check = await ctx.db.rpc("usuario_eh_admin");
   if (check.error || check.data !== true) return error(ctx.request, 403, "acesso_negado", "Acesso administrativo negado.");
-  const [empresas, usuarios, pedidos, cupons, logs, auditoria] = await Promise.all([
-    ctx.db.from("empresas").select("id,usuario_id,nome,email,telefone,cnpj,descricao,categoria,taxa_entrega,pedido_minimo,tempo_estimado_min,tempo_estimado_max,publicado,status,created_at,excluida_em").is("excluida_em", null).order("created_at",{ascending:false}),
+  const [empresas, usuarios, pedidos, cupons, logs, auditoria, regioes, unidades] = await Promise.all([
+    ctx.db.from("empresas").select("id,usuario_id,nome,email,telefone,cnpj,descricao,categoria,taxa_entrega,pedido_minimo,tempo_estimado_min,tempo_estimado_max,publicado,status,cidade_atendimento,uf_atendimento,bairros_atendidos,created_at,excluida_em").is("excluida_em", null).order("created_at",{ascending:false}),
     ctx.db.from("usuarios").select("id,nome,sobrenome,telefone,avatar_url,bloqueado,created_at").order("created_at",{ascending:false}),
-    ctx.db.from("pedidos").select("id,numero,usuario_id,empresa_id,empresa_nome,cliente_nome,cliente_telefone,status,total,pagamento_status,pagamento_modalidade,agendado_para,created_at,updated_at").order("created_at",{ascending:false}).limit(5000),
+    ctx.db.from("pedidos").select("id,numero,usuario_id,empresa_id,empresa_nome,cliente_nome,cliente_telefone,status,total,pagamento_status,pagamento_modalidade,agendado_para,subtotal,desconto,taxa_entrega,endereco,created_at,updated_at").order("created_at",{ascending:false}).limit(5000),
     ctx.db.from("cupons").select("id,empresa_id,codigo,tipo,valor,desconto,pedido_minimo,ativo,usos,limite_usos,primeiro_pedido,inicio,fim,validade,max_desconto,limite_por_usuario,created_at").order("created_at",{ascending:false}),
     ctx.db.from("app_logs").select("nivel,contexto,mensagem,pagina,created_at").order("created_at",{ascending:false}).limit(50),
-    ctx.db.from("admin_auditoria").select("acao,alvo_id,detalhes,created_at").order("created_at",{ascending:false}).limit(30)
+    ctx.db.from("admin_auditoria").select("acao,alvo_id,detalhes,created_at").order("created_at",{ascending:false}).limit(30),
+    ctx.db.from("empresa_regioes").select("id,empresa_id,unidade_id,bairro,cidade,uf,taxa_entrega,pedido_minimo,tempo_min,tempo_max,ativo,created_at,updated_at").order("bairro").limit(5000),
+    ctx.db.from("empresa_unidades").select("id,empresa_id,nome,cidade,uf,ativa,principal,frete_distancia_ativo,frete_taxa_base,frete_valor_km,frete_raio_max_km").order("nome").limit(1000)
   ]);
-  const first = [empresas,usuarios,pedidos,cupons,logs,auditoria].find((r) => r.error);
+  const first = [empresas,usuarios,pedidos,cupons,logs,auditoria,regioes,unidades].find((r) => r.error);
   if (first) return error(ctx.request,502,"admin_dados_indisponiveis","Não foi possível carregar os dados administrativos.");
-  return response(ctx.request,{data:{empresas:empresas.data||[],usuarios:usuarios.data||[],pedidos:pedidos.data||[],cupons:cupons.data||[],logs:logs.data||[],auditoria:auditoria.data||[]}},200,"no-store");
+  return response(ctx.request,{data:{
+    empresas:empresas.data||[],
+    usuarios:usuarios.data||[],
+    pedidos:pedidos.data||[],
+    cupons:cupons.data||[],
+    logs:logs.data||[],
+    auditoria:auditoria.data||[],
+    regioes:regioes.data||[],
+    unidades:unidades.data||[]
+  }},200,"no-store");
 }
 async function adminAction(ctx: RouteContext, body: Json) {
   const check = await ctx.db.rpc("usuario_eh_admin");
@@ -477,6 +488,9 @@ async function adminAction(ctx: RouteContext, body: Json) {
   if (action === "restaurante_status") return rpc(ctx.db,ctx.request,"admin_definir_restaurante",{p_empresa_id:String(body.empresa_id||""),p_publicado:body.publicado===true,p_status:body.status===true});
   if (action === "restaurante_atualizar") return rpc(ctx.db,ctx.request,"admin_atualizar_restaurante",{p_empresa_id:String(body.p_empresa_id||body.empresa_id||""),p_nome:str(body.p_nome||body.nome,160),p_email:str(body.p_email||body.email,320),p_telefone:str(body.p_telefone||body.telefone,40),p_categoria:str(body.p_categoria||body.categoria,100),p_descricao:str(body.p_descricao||body.descricao,3000),p_taxa_entrega:Number(body.p_taxa_entrega??body.taxa_entrega??0),p_pedido_minimo:Number(body.p_pedido_minimo??body.pedido_minimo??0),p_tempo_min:Number(body.p_tempo_min??body.tempo_min??25),p_tempo_max:Number(body.p_tempo_max??body.tempo_max??45),p_publicado:body.p_publicado===true||body.publicado===true,p_status:body.p_status===true||body.status===true});
   if (action === "restaurante_excluir") return rpc(ctx.db,ctx.request,"admin_excluir_restaurante",{p_empresa_id:String(body.p_empresa_id||body.empresa_id||""),p_nome_confirmacao:str(body.p_nome_confirmacao||body.confirmacao,200)});
+  if (action === "regiao_salvar") return rpc(ctx.db,ctx.request,"admin_regiao_salvar",{p_id:body.id||null,p_empresa_id:String(body.empresa_id||""),p_unidade_id:String(body.unidade_id||""),p_bairro:str(body.bairro,160),p_cidade:str(body.cidade,100),p_uf:str(body.uf,2)?.toUpperCase(),p_taxa_entrega:Number(body.taxa_entrega??0),p_pedido_minimo:Number(body.pedido_minimo??0),p_tempo_min:Number(body.tempo_min??25),p_tempo_max:Number(body.tempo_max??45),p_ativo:body.ativo!==false});
+  if (action === "regiao_status") return rpc(ctx.db,ctx.request,"admin_regiao_status",{p_id:String(body.id||""),p_ativo:body.ativo===true});
+  if (action === "regiao_excluir") return rpc(ctx.db,ctx.request,"admin_regiao_excluir",{p_id:String(body.id||"")});
   if (action === "pedido_detalhe") return rpc(ctx.db,ctx.request,"admin_obter_pedido",{p_pedido_id:String(body.pedido_id||"")});
   if (action === "relatorios") return response(ctx.request,{data:{
     operacional:(await ctx.db.rpc("admin_relatorio_operacional",{p_dias:Math.min(Number(body.dias||30),3650)})).data||null,
