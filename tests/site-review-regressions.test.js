@@ -54,6 +54,12 @@ test("painel administrativo exibe apenas a seção escolhida e separa o conteúd
     const js = read("js/pages/admin.js");
     const css = read("css/pages/admin.css");
     assert.equal((html.match(/data-admin-view/g) || []).length, 12);
+    const planosJs = read("js/modules/admin-planos-4.3.js");
+    assert.match(planosJs, /className = "admin-section admin-view"/);
+    assert.match(planosJs, /dataset\.adminView = ""/);
+    assert.match(planosJs, /section\.hidden = location\.hash !== "#planos"/);
+    assert.match(js, /planos: "Planos e assinaturas"/);
+    assert.match(js, /secao === "planos"/);
     assert.match(html, /id="overview"[^>]*data-admin-view/);
     assert.match(html, /id="pedidos"[^>]*data-admin-view[^>]*hidden/);
     assert.match(html, /id="restaurantes"[^>]*data-admin-view[^>]*hidden/);
