@@ -551,3 +551,38 @@ body.admin-compact .admin-card,body.admin-compact .admin-settings-card{padding:1
 @media(max-width:760px){.admin-notification-button{width:40px;height:40px}.admin-notifications-panel{top:70px;right:8px;width:calc(100vw - 16px);padding:15px;border-radius:17px}}
 
 .admin-notifications-filters{display:flex;gap:7px;margin:0 0 12px;padding:4px;border-radius:12px;background:#f3f4f6}.admin-notifications-filters button{flex:1;min-height:34px;border:0;border-radius:9px;background:transparent;color:var(--muted);font:inherit;font-size:12px;font-weight:800;cursor:pointer}.admin-notifications-filters button.is-active{background:#fff;color:#171a21;box-shadow:0 2px 8px rgba(21,25,37,.08)}.admin-notification-state{margin-left:auto;color:#b7bcc5;font-size:16px;line-height:1}.admin-notification-item.is-new .admin-notification-state{color:#ea1d2c}.admin-notification-item:not(.is-new){opacity:.82}
+
+
+/* Financeiro e entregas — painel administrativo */
+.admin-finance-kpis,.admin-delivery-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.admin-finance-kpis article,.admin-delivery-kpis article{min-width:0;padding:18px;border:1px solid rgba(21,25,37,.07);border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(21,25,37,.05)}
+.admin-finance-kpis small,.admin-delivery-kpis small{display:block;color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.admin-finance-kpis strong,.admin-delivery-kpis strong{display:block;margin-top:7px;font-size:22px;line-height:1.1}
+.admin-finance-kpis span,.admin-delivery-kpis span{display:block;margin-top:6px;color:var(--muted);font-size:10px;line-height:1.4}
+.admin-finance-grid,.admin-delivery-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.admin-finance-wide{grid-column:1/-1}
+.admin-finance-list,.admin-finance-movements,.admin-delivery-list{display:grid;gap:8px}
+.finance-row,.finance-movement,.delivery-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px 13px;border:1px solid rgba(21,25,37,.06);border-radius:13px;background:#fafbfc}
+.finance-row span,.finance-movement span,.delivery-row span{color:var(--muted);font-size:10px}
+.finance-row strong,.finance-movement strong,.delivery-row strong{font-size:12px;white-space:nowrap}
+.finance-movement{grid-template-columns:auto minmax(0,1fr) auto;cursor:pointer}
+.finance-movement>div{font-weight:800;font-size:12px}
+.delivery-row{width:100%;text-align:left;grid-template-columns:minmax(0,1fr) auto;cursor:pointer}
+.delivery-row div{font-weight:800;font-size:12px;min-width:0}
+.delivery-row span{grid-column:1/-1;order:2}
+.delivery-row strong{grid-column:2;grid-row:1;align-self:start}
+.finance-movement:hover,.delivery-row:hover{border-color:rgba(239,36,53,.18);box-shadow:0 7px 20px rgba(21,25,37,.05)}
+.finance-movement:focus-visible,.delivery-row:focus-visible{outline:3px solid rgba(239,36,53,.15);outline-offset:2px}
+@media(max-width:900px){
+  .admin-finance-kpis,.admin-delivery-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .admin-finance-grid,.admin-delivery-grid{grid-template-columns:1fr}
+  .admin-finance-wide{grid-column:auto}
+}
+@media(max-width:560px){
+  .admin-finance-kpis,.admin-delivery-kpis{grid-template-columns:1fr}
+  .admin-finance-kpis article,.admin-delivery-kpis article{padding:15px;border-radius:15px}
+  .admin-finance-kpis strong,.admin-delivery-kpis strong{font-size:20px}
+  .finance-movement{grid-template-columns:1fr auto}
+  .finance-movement span{grid-column:1/-1;grid-row:2}
+  .delivery-row{grid-template-columns:minmax(0,1fr) auto}
+}
