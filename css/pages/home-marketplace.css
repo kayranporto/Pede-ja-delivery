@@ -2268,3 +2268,109 @@
     box-sizing:border-box;
   }
 }
+
+
+/* =========================================================
+   Hero — arte limpa do hambúrguer, sem fundo duplicado
+   ========================================================= */
+.home-page .hero-reference-frame{
+  background:#fffaf3!important;
+}
+.home-page .hero-reference-art{
+  position:absolute!important;
+  top:0!important;
+  right:0!important;
+  bottom:0!important;
+  width:48%!important;
+  height:100%!important;
+  overflow:hidden!important;
+  z-index:3!important;
+  pointer-events:none!important;
+}
+.home-page .hero-reference-art::before,
+.home-page .hero-reference-art::after{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  pointer-events:none!important;
+}
+.home-page .hero-reference-art::before{
+  top:-18%!important;
+  right:-12%!important;
+  width:88%!important;
+  height:86%!important;
+  background:#ffb71b!important;
+  border-radius:58% 0 0 52%!important;
+  transform:rotate(-7deg)!important;
+  z-index:0!important;
+}
+.home-page .hero-reference-art::after{
+  right:-18%!important;
+  bottom:-38%!important;
+  width:92%!important;
+  height:78%!important;
+  background:#e51b2a!important;
+  border-radius:58% 0 0 0!important;
+  border-top:12px solid #ffb71b!important;
+  transform:rotate(-8deg)!important;
+  z-index:1!important;
+}
+.home-page .hero-reference-art img{
+  position:absolute!important;
+  z-index:2!important;
+  right:-2%!important;
+  bottom:-2%!important;
+  width:108%!important;
+  height:104%!important;
+  min-width:0!important;
+  max-width:none!important;
+  object-fit:contain!important;
+  object-position:right bottom!important;
+  display:block!important;
+  border:0!important;
+  border-radius:0!important;
+  filter:drop-shadow(0 24px 22px rgba(32,36,43,.16))!important;
+  mix-blend-mode:normal!important;
+}
+.home-page .hero-art-gold,
+.home-page .hero-art-red{
+  display:none!important;
+}
+@media(max-width:900px){
+  .home-page .hero-reference-art{
+    width:50%!important;
+  }
+  .home-page .hero-reference-art img{
+    width:112%!important;
+    height:102%!important;
+  }
+}
+@media(max-width:680px){
+  .home-page .hero-reference-copy{
+    width:100%!important;
+    background:linear-gradient(90deg,#fffaf3 0%,#fffaf3 70%,rgba(255,250,243,.86) 100%)!important;
+  }
+  .home-page .hero-reference-art{
+    width:72%!important;
+    height:215px!important;
+    bottom:0!important;
+  }
+  .home-page .hero-reference-art::before{
+    top:12%!important;
+    right:-14%!important;
+    width:88%!important;
+    height:92%!important;
+  }
+  .home-page .hero-reference-art::after{
+    right:-20%!important;
+    bottom:-46%!important;
+    width:100%!important;
+    height:86%!important;
+  }
+  .home-page .hero-reference-art img{
+    right:-3%!important;
+    bottom:-5%!important;
+    width:118%!important;
+    height:112%!important;
+  }
+}
