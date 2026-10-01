@@ -385,3 +385,67 @@
     width:100%!important;
   }
 }
+
+
+/* HERO REAL — fotografia de comida */
+@media (min-width:681px){
+  .home-page .hero-reference-art{
+    width:52%!important;
+    height:398px!important;
+    background:#f2efe9!important;
+  }
+  .home-page .hero-reference-art::before{
+    display:block!important;
+    content:""!important;
+    position:absolute!important;
+    z-index:0!important;
+    top:-26%!important;
+    right:-16%!important;
+    width:70%!important;
+    height:70%!important;
+    background:#ffb71b!important;
+    border-radius:50%!important;
+  }
+  .home-page .hero-reference-art::after{
+    display:block!important;
+    content:""!important;
+    position:absolute!important;
+    z-index:0!important;
+    right:-18%!important;
+    bottom:-30%!important;
+    width:78%!important;
+    height:64%!important;
+    background:#e51b2a!important;
+    border-radius:55% 0 0 0!important;
+    border-top:12px solid #ffb71b!important;
+  }
+  .home-page .hero-reference-art img{
+    z-index:2!important;
+    inset:auto 0 0 auto!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center!important;
+    border-radius:0!important;
+    filter:saturate(1.05)!important;
+  }
+}
+
+@media (max-width:680px){
+  .home-page .hero-reference-art{
+    width:76%!important;
+    height:215px!important;
+    background:#f2efe9!important;
+  }
+  .home-page .hero-reference-art::before,
+  .home-page .hero-reference-art::after{
+    display:none!important;
+  }
+  .home-page .hero-reference-art img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center!important;
+    border-radius:20px 0 0 0!important;
+  }
+}
