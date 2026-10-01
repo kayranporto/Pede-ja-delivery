@@ -27,208 +27,43 @@
   <link href="css/pages/home-marketplace.css?v=4.4.16" rel="stylesheet"/>
   <link href="css/modules/mobile-restaurants-fix.css?v=1.0.0" rel="stylesheet"/>
   <link href="css/modules/home-mobile-fixes-4.4.11.css?v=4.4.14" rel="stylesheet"/>
+  <link href="css/pages/home-reference-final.css?v=1.0.0" rel="stylesheet"/>
   <link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/>
   <link rel="manifest" href="manifest.webmanifest"/>
   <meta name="theme-color" content="#e51b2a"/>
   <style id="hero-visual-fix">
-    /* Corrige a sobreposição da arte no Hero:
-       o fundo do texto permanece totalmente opaco para ocultar
-       qualquer conteúdo embutido na imagem original. */
-    .home-page .hero-reference-copy{
-      background:#fffaf3!important;
-      background-image:none!important;
-    }
-    .home-page .hero-reference-art{
-      overflow:hidden!important;
-    }
-    @media (min-width:681px){
-      .home-page .hero-reference-copy{
-        width:58%!important;
-      }
-      .home-page .hero-reference-art{
-        width:50%!important;
-      }
-    }
+    .home-page .hero-reference-copy{background:#fffaf3!important;background-image:none!important}
+    .home-page .hero-reference-art{overflow:hidden!important}
   </style>
 </head>
 <body class="home-page">
   <noscript>Este site precisa de JavaScript habilitado para funcionar.</noscript>
-
   <header class="header">
     <div class="container-header">
-      <a class="logo" href="index.html" aria-label="Pede Já — página inicial">
-        <img class="logo-mark" src="assets/logo-pedeja.svg" alt="Pede Já" width="150" height="114"/>
-      </a>
-
-      <button class="location" id="seletorEndereco" type="button" aria-label="Selecionar endereço de entrega">
-        <span class="location-pin" aria-hidden="true">⌖</span>
-        <span class="location-content">
-          <small>Sua localização</small>
-          <strong id="enderecoAtual">Selecionar endereço</strong>
-        </span>
-        <span class="location-chevron" aria-hidden="true">⌄</span>
-      </button>
-
-      <nav class="home-nav" aria-label="Navegação principal">
-        <a class="ativo" href="index.html">Início</a>
-        <a href="#restaurantes">Restaurantes</a>
-        <a href="#categoriasTitulo">Categorias</a>
-        <a href="html/suporte.html">Sobre</a>
-      </nav>
-
+      <a class="logo" href="index.html" aria-label="Pede Já — página inicial"><img class="logo-mark" src="assets/logo-pedeja.svg" alt="Pede Já" width="150" height="114"/></a>
+      <button class="location" id="seletorEndereco" type="button" aria-label="Selecionar endereço de entrega"><span class="location-pin" aria-hidden="true">⌖</span><span class="location-content"><small>Sua localização</small><strong id="enderecoAtual">Selecionar endereço</strong></span><span class="location-chevron" aria-hidden="true">⌄</span></button>
+      <nav class="home-nav" aria-label="Navegação principal"><a class="ativo" href="index.html">Início</a><a href="#restaurantes">Restaurantes</a><a href="#categoriasTitulo">Categorias</a><a href="html/suporte.html">Sobre</a></nav>
       <div class="header-spacer" aria-hidden="true"></div>
-
-      <label class="search header-search" aria-label="Buscar restaurante ou comida">
-        <span class="search-icon" aria-hidden="true">⌕</span>
-        <input aria-label="Buscar restaurante ou comida" autocomplete="off" id="campoBusca" maxlength="120" placeholder="Buscar" type="text"/>
-      </label>
-
-      <nav id="menuUsuario" class="account-nav" aria-label="Navegação da conta">
-        <a href="html/login.html">Entrar</a>
-        <a class="account-register" href="html/cadastro.html">Cadastrar</a>
-      </nav>
-
-      <button class="cart" id="botaoAbrirCarrinho" type="button" aria-label="Abrir carrinho">
-        <span aria-hidden="true">🛒</span>
-        <span class="cart-count">0</span>
-      </button>
-
-      <details class="mobile-menu">
-        <summary aria-label="Abrir menu">☰</summary>
-        <div class="mobile-menu-panel">
-          <a href="index.html">Início</a>
-          <a href="#restaurantes">Restaurantes</a>
-          <a href="#categoriasTitulo">Categorias</a>
-          <a href="html/suporte.html">Sobre</a>
-          <a href="html/login.html">Entrar</a>
-          <a href="html/cadastro.html">Cadastrar</a>
-          <button type="button" class="mobile-menu-cart" id="floatingCart">🛒 Carrinho <span class="floating-cart-count">0</span></button>
-        </div>
-      </details>
+      <label class="search header-search" aria-label="Buscar restaurante ou comida"><span class="search-icon" aria-hidden="true">⌕</span><input aria-label="Buscar restaurante ou comida" autocomplete="off" id="campoBusca" maxlength="120" placeholder="Buscar" type="text"/></label>
+      <nav id="menuUsuario" class="account-nav" aria-label="Navegação da conta"><a href="html/login.html">Entrar</a><a class="account-register" href="html/cadastro.html">Cadastrar</a></nav>
+      <button class="cart" id="botaoAbrirCarrinho" type="button" aria-label="Abrir carrinho"><span aria-hidden="true">🛒</span><span class="cart-count">0</span></button>
+      <details class="mobile-menu"><summary aria-label="Abrir menu">☰</summary><div class="mobile-menu-panel"><a href="index.html">Início</a><a href="#restaurantes">Restaurantes</a><a href="#categoriasTitulo">Categorias</a><a href="html/suporte.html">Sobre</a><a href="html/login.html">Entrar</a><a href="html/cadastro.html">Cadastrar</a><button type="button" class="mobile-menu-cart" id="floatingCart">🛒 Carrinho <span class="floating-cart-count">0</span></button></div></details>
     </div>
   </header>
-
   <main>
     <section class="market-hero" aria-labelledby="heroTitulo">
       <div class="hero-reference-frame">
-        <div class="hero-reference-copy">
-          <span class="hero-reference-kicker">Delivery na sua região</span>
-          <h1 id="heroTitulo">Sua comida<br/>favorita, <span>sem<br/>sair de casa!</span></h1>
-          <p>Encontre os melhores restaurantes da sua região e peça agora mesmo.</p>
-          <div class="hero-reference-searchbar">
-            <a href="html/enderecos.html?redirect=../index.html" aria-label="Digitar seu endereço">
-              <span aria-hidden="true">⌖</span>
-              <span>Digite seu endereço</span>
-            </a>
-            <button type="button" id="heroBuscarRestaurantes" aria-label="Buscar restaurantes">⌕</button>
-          </div>
-          <div class="hero-reference-benefits" aria-label="Benefícios do Pede Já">
-            <span><b aria-hidden="true">ϟ</b> Entrega rápida</span>
-            <span><b aria-hidden="true">✓</b> Pedidos seguros</span>
-            <span><b aria-hidden="true">★</b> Vários restaurantes</span>
-          </div>
-        </div>
+        <div class="hero-reference-copy"><span class="hero-reference-kicker">Delivery na sua região</span><h1 id="heroTitulo">Sua comida<br/>favorita, <span>sem<br/>sair de casa!</span></h1><p>Encontre os melhores restaurantes da sua região e peça agora mesmo.</p><div class="hero-reference-searchbar"><a href="html/enderecos.html?redirect=../index.html" aria-label="Digitar seu endereço"><span aria-hidden="true">⌖</span><span>Digite seu endereço</span></a><button type="button" id="heroBuscarRestaurantes" aria-label="Buscar restaurantes">⌕</button></div><div class="hero-reference-benefits" aria-label="Benefícios do Pede Já"><span><b aria-hidden="true">ϟ</b> Entrega rápida</span><span><b aria-hidden="true">✓</b> Pedidos seguros</span><span><b aria-hidden="true">★</b> Vários restaurantes</span></div></div>
         <div class="hero-reference-art" aria-hidden="true"><span class="hero-art-gold"></span><span class="hero-art-red"></span><img src="assets/hero-pedeja-hamburguer.webp" alt="" decoding="async"/></div>
       </div>
     </section>
-
-    <section class="categorias market-section" aria-labelledby="categoriasTitulo">
-      <div class="category-row" id="categoriasTitulo">
-        <div class="categoria-lista" aria-label="Categorias de comida">
-          <button type="button" class="categoria" data-categoria="" aria-pressed="false"><div aria-hidden="true">🍔</div><span>Hambúrguer</span></button>
-          <button type="button" class="categoria" data-categoria="Pizza" aria-pressed="false"><div aria-hidden="true">🍕</div><span>Pizza</span></button>
-          <button type="button" class="categoria" data-categoria="Sushi" aria-pressed="false"><div aria-hidden="true">🍣</div><span>Sushi</span></button>
-          <button type="button" class="categoria" data-categoria="Brasileira" aria-pressed="false"><div aria-hidden="true">🍛</div><span>Brasileira</span></button>
-          <button type="button" class="categoria" data-categoria="Frango" aria-pressed="false"><div aria-hidden="true">🍗</div><span>Frango</span></button>
-          <button type="button" class="categoria" data-categoria="Lanches" aria-pressed="false"><div aria-hidden="true">🥪</div><span>Lanches</span></button>
-          <button type="button" class="categoria" data-categoria="Doces" aria-pressed="false"><div aria-hidden="true">🍰</div><span>Sobremesas</span></button>
-          <button type="button" class="categoria" data-categoria="Bebidas" aria-pressed="false"><div aria-hidden="true">🥤</div><span>Bebidas</span></button>
-        </div>
-      </div>
-    </section>
-
-    <section class="restaurantes market-section" id="restaurantes" aria-labelledby="restaurantesTitulo">
-      <div class="market-section-header">
-        <div>
-          <span class="market-eyebrow">Perto de você</span>
-          <h2 id="restaurantesTitulo">Restaurantes em destaque</h2>
-        </div>
-        <a href="#restaurantes" id="verTodosRestaurantes">Ver todos <span aria-hidden="true">→</span></a>
-      </div>
-
-      <div class="restaurant-tools" aria-label="Filtros de restaurantes">
-        <button type="button" id="toggleAberto" class="filter-pill" aria-pressed="false">Aberto agora</button>
-        <button type="button" id="ordenarTaxa" class="filter-pill" aria-pressed="false">Menor taxa</button>
-        <div class="resultado-info" id="resultadoResumo" aria-live="polite">Carregando restaurantes...</div>
-      </div>
-
-      <div class="cards" id="listaRestaurantes">
-        <div class="loading">Carregando restaurantes...</div>
-      </div>
-    </section>
-
-    <section class="offer-strip cupom" aria-label="Oferta da semana">
-      <div class="offer-card">
-        <div class="offer-copy">
-          <span class="offer-icon" aria-hidden="true">🛵</span>
-          <div>
-            <h2>Peça agora<br/>e receba rapidinho!</h2>
-            <p>Seu pedido na sua porta, do seu jeito.</p>
-            <a href="#restaurantes">Ver restaurantes <span aria-hidden="true">→</span></a>
-          </div>
-        </div>
-        <img src="https://images.unsplash.com/photo-1643405509029-e5bc9f66d54d?auto=format&fit=crop&q=82&w=1200" alt="Hambúrguer, batatas e bebida" loading="lazy" width="900" height="260"/>
-      </div>
-    </section>
-
-    <section class="destaques market-section" id="destaques" aria-labelledby="destaquesTitulo">
-      <div class="market-section-header">
-        <div>
-          <span class="market-eyebrow">Mais pedidos</span>
-          <h2 id="destaquesTitulo">Mais pedidos da semana</h2>
-        </div>
-        <a href="#destaques" id="verTodosDestaques">Ver todos <span aria-hidden="true">→</span></a>
-      </div>
-      <div class="produtos" id="listaProdutos"></div>
-    </section>
+    <section class="categorias market-section" aria-labelledby="categoriasTitulo"><div class="category-row" id="categoriasTitulo"><div class="categoria-lista" aria-label="Categorias de comida"><button type="button" class="categoria" data-categoria="" aria-pressed="false"><div aria-hidden="true">🍔</div><span>Hambúrguer</span></button><button type="button" class="categoria" data-categoria="Pizza" aria-pressed="false"><div aria-hidden="true">🍕</div><span>Pizza</span></button><button type="button" class="categoria" data-categoria="Sushi" aria-pressed="false"><div aria-hidden="true">🍣</div><span>Sushi</span></button><button type="button" class="categoria" data-categoria="Brasileira" aria-pressed="false"><div aria-hidden="true">🍛</div><span>Brasileira</span></button><button type="button" class="categoria" data-categoria="Frango" aria-pressed="false"><div aria-hidden="true">🍗</div><span>Frango</span></button><button type="button" class="categoria" data-categoria="Lanches" aria-pressed="false"><div aria-hidden="true">🥪</div><span>Lanches</span></button><button type="button" class="categoria" data-categoria="Doces" aria-pressed="false"><div aria-hidden="true">🍰</div><span>Sobremesas</span></button><button type="button" class="categoria" data-categoria="Bebidas" aria-pressed="false"><div aria-hidden="true">🥤</div><span>Bebidas</span></button></div></div></section>
+    <section class="restaurantes market-section" id="restaurantes" aria-labelledby="restaurantesTitulo"><div class="market-section-header"><div><span class="market-eyebrow">Perto de você</span><h2 id="restaurantesTitulo">Restaurantes em destaque</h2></div><a href="#restaurantes" id="verTodosRestaurantes">Ver todos <span aria-hidden="true">→</span></a></div><div class="restaurant-tools" aria-label="Filtros de restaurantes"><button type="button" id="toggleAberto" class="filter-pill" aria-pressed="false">Aberto agora</button><button type="button" id="ordenarTaxa" class="filter-pill" aria-pressed="false">Menor taxa</button><div class="resultado-info" id="resultadoResumo" aria-live="polite">Carregando restaurantes...</div></div><div class="cards" id="listaRestaurantes"><div class="loading">Carregando restaurantes...</div></div></section>
+    <section class="offer-strip cupom" aria-label="Oferta da semana"><div class="offer-card"><div class="offer-copy"><span class="offer-icon" aria-hidden="true">🛵</span><div><h2>Peça agora<br/>e receba rapidinho!</h2><p>Seu pedido na sua porta, do seu jeito.</p><a href="#restaurantes">Ver restaurantes <span aria-hidden="true">→</span></a></div></div><img src="https://images.unsplash.com/photo-1643405509029-e5bc9f66d54d?auto=format&fit=crop&q=82&w=1200" alt="Hambúrguer, batatas e bebida" loading="lazy" width="900" height="260"/></div></section>
+    <section class="destaques market-section" id="destaques" aria-labelledby="destaquesTitulo"><div class="market-section-header"><div><span class="market-eyebrow">Mais pedidos</span><h2 id="destaquesTitulo">Mais pedidos da semana</h2></div><a href="#destaques" id="verTodosDestaques">Ver todos <span aria-hidden="true">→</span></a></div><div class="produtos" id="listaProdutos"></div></section>
   </main>
-
-  <nav class="mobile-bottom-nav" aria-label="Atalhos móveis">
-    <a class="active" href="index.html"><span aria-hidden="true">⌂</span><small>Início</small></a>
-    <a href="#restaurantes"><span aria-hidden="true">⌕</span><small>Busca</small></a>
-    <a href="html/meus-pedidos.html"><span aria-hidden="true">▣</span><small>Pedidos</small></a>
-    <a href="html/perfil.html"><span aria-hidden="true">♙</span><small>Perfil</small></a>
-  </nav>
-
-  <footer>
-    <div class="footer-container">
-      <div class="footer-brand">
-        <img class="footer-logo" src="assets/logo-pedeja.svg" alt="Pede Já" width="150" height="114"/>
-        <p>Encontre, escolha e peça.</p>
-      </div>
-      <nav aria-label="Links do rodapé">
-        <a href="index.html">Início</a>
-        <a href="#restaurantes">Restaurantes</a>
-        <a href="#categoriasTitulo">Categorias</a>
-        <a href="html/suporte.html">Sobre</a>
-        <a href="html/suporte.html">Contato</a>
-      </nav>
-      <div class="footer-social" aria-label="Redes sociais">
-        <span aria-hidden="true">◎</span><span aria-hidden="true">◉</span><span aria-hidden="true">◌</span><span aria-hidden="true">◍</span>
-      </div>
-    </div>
-    <div class="copyright">© 2026 Pede Já. Todos os direitos reservados.</div>
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" defer></script>
-  <script src="js/core/app-utils.js?v=4.4.7" defer></script>
-  <script src="js/core/supabase.js?v=4.4.7" defer></script>
-  <script src="js/core/config.js?v=4.4.7" defer></script>
-  <script src="js/core/monitoring.js?v=4.2.0" defer></script>
-  <script src="js/core/notifications.js?v=4.2.0" defer></script>
-  <script src="js/core/favorites-sync.js?v=4.2.1" defer></script>
-  <script src="js/modules/carrinho.js?v=4.4.7" defer></script>
-  <script src="js/pages/home.js?v=4.5.0" defer></script>
-  <script src="js/core/site-enhancements.js?v=4.4.8" defer></script>
+  <nav class="mobile-bottom-nav" aria-label="Atalhos móveis"><a class="active" href="index.html"><span aria-hidden="true">⌂</span><small>Início</small></a><a href="#restaurantes"><span aria-hidden="true">⌕</span><small>Busca</small></a><a href="html/meus-pedidos.html"><span aria-hidden="true">▣</span><small>Pedidos</small></a><a href="html/perfil.html"><span aria-hidden="true">♙</span><small>Perfil</small></a></nav>
+  <footer><div class="footer-container"><div class="footer-brand"><img class="footer-logo" src="assets/logo-pedeja.svg" alt="Pede Já" width="150" height="114"/><p>Encontre, escolha e peça.</p></div><nav aria-label="Links do rodapé"><a href="index.html">Início</a><a href="#restaurantes">Restaurantes</a><a href="#categoriasTitulo">Categorias</a><a href="html/suporte.html">Sobre</a><a href="html/suporte.html">Contato</a></nav><div class="footer-social" aria-label="Redes sociais"><span aria-hidden="true">◎</span><span aria-hidden="true">◉</span><span aria-hidden="true">◌</span><span aria-hidden="true">◍</span></div></div><div class="copyright">© 2026 Pede Já. Todos os direitos reservados.</div></footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0" defer></script><script src="js/core/app-utils.js?v=4.4.7" defer></script><script src="js/core/supabase.js?v=4.4.7" defer></script><script src="js/core/config.js?v=4.4.7" defer></script><script src="js/core/monitoring.js?v=4.2.0" defer></script><script src="js/core/notifications.js?v=4.2.0" defer></script><script src="js/core/favorites-sync.js?v=4.2.1" defer></script><script src="js/modules/carrinho.js?v=4.4.7" defer></script><script src="js/pages/home.js?v=4.5.0" defer></script><script src="js/core/site-enhancements.js?v=4.4.8" defer></script>
 </body>
 </html>
