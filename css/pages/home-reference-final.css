@@ -449,3 +449,178 @@
     border-radius:20px 0 0 0!important;
   }
 }
+
+
+/* =========================================================
+   HERO — réplica visual da referência aprovada
+   A arte local já contém a composição do hambúrguer,
+   fritas, bebida e grafismos vermelho/dourado.
+   ========================================================= */
+.home-page .market-hero{
+  width:100%!important;
+  height:398px!important;
+  min-height:398px!important;
+  padding:0!important;
+  margin:0!important;
+  display:block!important;
+  background:#fffaf3!important;
+  overflow:hidden!important;
+}
+
+.home-page .hero-reference-frame{
+  position:relative!important;
+  width:min(1180px,100%)!important;
+  height:398px!important;
+  min-height:398px!important;
+  margin:0 auto!important;
+  overflow:hidden!important;
+  background:#fffaf3!important;
+}
+
+.home-page .hero-reference-copy{
+  position:relative!important;
+  z-index:6!important;
+  width:57%!important;
+  height:398px!important;
+  min-height:398px!important;
+  margin:0!important;
+  padding:44px 0 0 82px!important;
+  box-sizing:border-box!important;
+  background:#fffaf3!important;
+}
+
+.home-page .hero-reference-copy h1{
+  max-width:560px!important;
+  margin:0!important;
+  color:#20242b!important;
+  font-size:68px!important;
+  line-height:.92!important;
+  letter-spacing:-.066em!important;
+  font-weight:800!important;
+}
+
+.home-page .hero-reference-copy p{
+  max-width:500px!important;
+  margin:18px 0 0!important;
+  color:#606772!important;
+  font-size:13px!important;
+  line-height:1.45!important;
+}
+
+.home-page .hero-reference-searchbar{
+  width:520px!important;
+  height:54px!important;
+  max-width:100%!important;
+  margin-top:18px!important;
+  border:1px solid #e5e2dd!important;
+  border-radius:12px!important;
+  background:#fff!important;
+  box-shadow:0 10px 25px rgba(32,36,43,.09)!important;
+}
+
+.home-page .hero-reference-searchbar a{
+  font-size:12px!important;
+}
+
+.home-page .hero-reference-searchbar button{
+  width:44px!important;
+  height:44px!important;
+  margin-right:4px!important;
+  border-radius:10px!important;
+}
+
+.home-page .hero-reference-benefits{
+  gap:22px!important;
+  margin-top:10px!important;
+}
+
+.home-page .hero-reference-benefits span{
+  font-size:10px!important;
+}
+
+.home-page .hero-reference-benefits b{
+  font-size:15px!important;
+}
+
+.home-page .hero-reference-art{
+  position:absolute!important;
+  z-index:5!important;
+  top:0!important;
+  right:0!important;
+  width:53%!important;
+  height:398px!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
+  background:transparent!important;
+}
+
+.home-page .hero-reference-art::before,
+.home-page .hero-reference-art::after,
+.home-page .hero-art-gold,
+.home-page .hero-art-red{
+  display:none!important;
+  content:none!important;
+}
+
+.home-page .hero-reference-art img{
+  position:absolute!important;
+  inset:0!important;
+  z-index:1!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  display:block!important;
+  border:0!important;
+  border-radius:0!important;
+  filter:none!important;
+  mix-blend-mode:normal!important;
+}
+
+/* desktop largo: preserva a mesma sensação de escala */
+@media (min-width:1500px){
+  .home-page .hero-reference-frame{width:min(1180px,100%)!important}
+  .home-page .hero-reference-copy{padding-left:82px!important}
+  .home-page .hero-reference-art{width:53%!important}
+}
+
+/* mobile continua separado da composição desktop */
+@media (max-width:680px){
+  .home-page .market-hero{
+    height:420px!important;
+    min-height:420px!important;
+  }
+
+  .home-page .hero-reference-frame{
+    height:420px!important;
+    min-height:420px!important;
+  }
+
+  .home-page .hero-reference-copy{
+    width:100%!important;
+    height:420px!important;
+    min-height:420px!important;
+    padding:28px 18px 175px!important;
+    background:linear-gradient(180deg,#fffaf3 0%,#fffaf3 67%,rgba(255,250,243,.55) 100%)!important;
+  }
+
+  .home-page .hero-reference-copy h1{
+    font-size:clamp(2.55rem,11vw,3.4rem)!important;
+  }
+
+  .home-page .hero-reference-art{
+    width:78%!important;
+    height:215px!important;
+    top:auto!important;
+    bottom:0!important;
+  }
+
+  .home-page .hero-reference-art img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center center!important;
+  }
+}
