@@ -30,6 +30,26 @@
   <link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/>
   <link rel="manifest" href="manifest.webmanifest"/>
   <meta name="theme-color" content="#e51b2a"/>
+  <style id="hero-visual-fix">
+    /* Corrige a sobreposição da arte no Hero:
+       o fundo do texto permanece totalmente opaco para ocultar
+       qualquer conteúdo embutido na imagem original. */
+    .home-page .hero-reference-copy{
+      background:#fffaf3!important;
+      background-image:none!important;
+    }
+    .home-page .hero-reference-art{
+      overflow:hidden!important;
+    }
+    @media (min-width:681px){
+      .home-page .hero-reference-copy{
+        width:58%!important;
+      }
+      .home-page .hero-reference-art{
+        width:50%!important;
+      }
+    }
+  </style>
 </head>
 <body class="home-page">
   <noscript>Este site precisa de JavaScript habilitado para funcionar.</noscript>
