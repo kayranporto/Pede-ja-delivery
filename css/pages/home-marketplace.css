@@ -2374,3 +2374,319 @@
     height:112%!important;
   }
 }
+
+
+/* =========================================================
+   HOME — referência visual aprovada em 30/09/2026
+   Mantém a estrutura funcional da home e aproxima o layout
+   da tela de referência enviada pelo usuário.
+   ========================================================= */
+.home-page{
+  background:#fff!important;
+}
+.home-page main{
+  background:#fff!important;
+}
+
+/* Área central da referência: 1180px aprox. */
+@media (min-width:681px){
+  .home-page .container-header,
+  .home-page .market-section,
+  .home-page .offer-strip,
+  .home-page .footer-container{
+    width:min(1180px,calc(100% - 48px))!important;
+    max-width:1180px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    padding-left:0!important;
+    padding-right:0!important;
+    box-sizing:border-box;
+  }
+
+  .home-page .container-header{
+    min-height:72px!important;
+    gap:18px!important;
+  }
+
+  .home-page .logo{
+    width:135px!important;
+    min-width:135px!important;
+    flex:0 0 135px!important;
+  }
+
+  .home-page .logo-mark{
+    width:86px!important;
+    height:58px!important;
+    object-fit:contain!important;
+  }
+
+  .home-page .location{
+    min-width:176px!important;
+    max-width:176px!important;
+    padding:8px 12px!important;
+    border:1px solid #ece8e1!important;
+    border-radius:14px!important;
+    background:#fff!important;
+    box-shadow:0 8px 22px rgba(32,36,43,.05)!important;
+  }
+
+  .home-page .location-pin{
+    font-size:16px!important;
+  }
+
+  .home-page .location-content small{
+    font-size:.58rem!important;
+  }
+
+  .home-page .location-content strong{
+    max-width:135px!important;
+    font-size:.66rem!important;
+  }
+
+  .home-page .header-search{
+    width:330px!important;
+    min-width:330px!important;
+    max-width:330px!important;
+    flex:0 0 330px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    height:46px!important;
+    padding:0 12px!important;
+    border:1px solid #e7e4df!important;
+    border-radius:15px!important;
+    background:#fff!important;
+    box-shadow:0 7px 20px rgba(32,36,43,.04)!important;
+  }
+
+  .home-page .header-search input{
+    font-size:.67rem!important;
+  }
+
+  .home-page .account-nav{
+    gap:8px!important;
+  }
+
+  .home-page #menuUsuario .btn-admin{
+    min-height:54px!important;
+    padding:0 16px!important;
+    border:1px solid #252a37!important;
+    border-radius:14px!important;
+    background:linear-gradient(135deg,#171a24 0%,#2a3040 100%)!important;
+    color:#fff!important;
+    box-shadow:0 9px 22px rgba(23,26,36,.15)!important;
+  }
+
+  .home-page #menuUsuario .btn-primary{
+    min-height:44px!important;
+    padding:0 17px!important;
+    border:0!important;
+    border-radius:14px!important;
+    background:#e91b2a!important;
+    color:#fff!important;
+    box-shadow:0 8px 18px rgba(229,27,42,.18)!important;
+  }
+
+  .home-page .cart{
+    width:48px!important;
+    height:48px!important;
+    min-width:48px!important;
+    margin-left:6px!important;
+    border:1px solid #eceff2!important;
+    border-radius:16px!important;
+    background:#fff!important;
+    box-shadow:0 8px 20px rgba(32,36,43,.05)!important;
+  }
+
+  /* Hero */
+  .home-page .market-hero{
+    width:100%!important;
+    max-width:none!important;
+    min-height:398px!important;
+    padding:0!important;
+    margin:0!important;
+    background:#fffaf3!important;
+  }
+
+  .home-page .hero-reference-frame{
+    width:min(1180px,100%)!important;
+    max-width:1180px!important;
+    min-height:398px!important;
+    margin:0 auto!important;
+    background:#fffaf3!important;
+  }
+
+  .home-page .hero-reference-copy{
+    width:58%!important;
+    min-height:398px!important;
+    padding:44px 0 28px 54px!important;
+    box-sizing:border-box!important;
+    background:linear-gradient(90deg,#fffaf3 0%,#fffaf3 87%,rgba(255,250,243,.95) 96%,rgba(255,250,243,0) 100%)!important;
+  }
+
+  .home-page .hero-reference-copy h1{
+    max-width:560px!important;
+    font-size:clamp(3.05rem,4vw,4.3rem)!important;
+    line-height:.94!important;
+    letter-spacing:-.067em!important;
+  }
+
+  .home-page .hero-reference-copy p{
+    max-width:500px!important;
+    margin-top:15px!important;
+    font-size:.82rem!important;
+  }
+
+  .home-page .hero-reference-searchbar{
+    width:475px!important;
+    max-width:100%!important;
+    height:49px!important;
+    margin-top:17px!important;
+    border-radius:11px!important;
+  }
+
+  .home-page .hero-reference-searchbar a{
+    font-size:.68rem!important;
+  }
+
+  .home-page .hero-reference-searchbar button{
+    width:40px!important;
+    height:40px!important;
+    border-radius:9px!important;
+  }
+
+  .home-page .hero-reference-benefits{
+    gap:18px!important;
+    margin-top:10px!important;
+  }
+
+  .home-page .hero-reference-benefits span{
+    font-size:.58rem!important;
+  }
+
+  .home-page .hero-reference-art{
+    width:49%!important;
+    height:100%!important;
+    top:0!important;
+    right:0!important;
+  }
+
+  .home-page .hero-reference-art img{
+    right:-1%!important;
+    bottom:-1%!important;
+    width:110%!important;
+    height:102%!important;
+    object-fit:contain!important;
+    object-position:right bottom!important;
+  }
+
+  .home-page .hero-reference-art::before{
+    top:-18%!important;
+    right:-12%!important;
+    width:88%!important;
+    height:86%!important;
+    background:#ffb71b!important;
+  }
+
+  .home-page .hero-reference-art::after{
+    right:-18%!important;
+    bottom:-38%!important;
+    width:92%!important;
+    height:78%!important;
+    background:#e51b2a!important;
+    border-top:12px solid #ffb71b!important;
+  }
+
+  /* Categorias */
+  .home-page .categorias{
+    width:100%!important;
+    padding:19px 0 18px!important;
+    background:#fff!important;
+  }
+
+  .home-page .categoria-lista{
+    width:min(1180px,100%)!important;
+    margin:0 auto!important;
+    gap:10px!important;
+  }
+
+  .home-page .categoria{
+    min-height:88px!important;
+    border-radius:14px!important;
+    padding:8px 6px 10px!important;
+  }
+
+  .home-page .categoria div{
+    width:40px!important;
+    height:40px!important;
+    border-radius:12px!important;
+    background:#f8f6f1!important;
+    font-size:1.46rem!important;
+  }
+
+  .home-page .categoria span{
+    font-size:.63rem!important;
+  }
+
+  /* Restaurantes em destaque */
+  .home-page .restaurantes{
+    padding-top:21px!important;
+    padding-bottom:26px!important;
+  }
+
+  .home-page .restaurant-tools{
+    display:flex!important;
+    align-items:center!important;
+    gap:8px!important;
+    padding:0 0 11px!important;
+  }
+
+  .home-page .filter-pill{
+    min-height:30px!important;
+    padding:5px 12px!important;
+    border-radius:999px!important;
+    background:#fff!important;
+    border:1px solid #e5e7ea!important;
+    font-size:.62rem!important;
+  }
+
+  .home-page .resultado-info{
+    margin-left:auto!important;
+    font-size:.6rem!important;
+  }
+
+  .home-page .cards{
+    gap:15px!important;
+  }
+
+  .home-page .card{
+    border-radius:11px!important;
+  }
+
+  .home-page .card-link>img{
+    height:142px!important;
+  }
+
+  .home-page .card .card-body{
+    padding:10px 11px 11px!important;
+  }
+}
+
+/* Mobile mantém a responsividade já existente; apenas preserva a
+   mesma linguagem visual da referência */
+@media(max-width:680px){
+  .home-page .market-hero{
+    background:#fffaf3!important;
+  }
+
+  .home-page .hero-reference-frame{
+    background:#fffaf3!important;
+  }
+
+  .home-page .categorias{
+    background:#fff!important;
+  }
+
+  .home-page .restaurant-tools{
+    display:grid!important;
+  }
+}
