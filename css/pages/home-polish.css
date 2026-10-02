@@ -1,0 +1,304 @@
+/* PedeJá — visual polish layer
+   Somente apresentação: não altera fluxos, dados ou JS. */
+
+.home-page {
+  --pj-red: #e51b2a;
+  --pj-red-dark: #c91422;
+  --pj-ink: #191c22;
+  --pj-muted: #69707c;
+  --pj-line: #ececef;
+  --pj-soft: #fff8ee;
+}
+
+.home-page main {
+  background: #fff !important;
+}
+
+/* Header: mais limpo, compacto e premium */
+.home-page .header {
+  background: rgba(255,255,255,.92) !important;
+  border-bottom: 1px solid rgba(25,28,34,.07) !important;
+  box-shadow: 0 8px 28px rgba(25,28,34,.055) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+}
+
+.home-page .logo-mark {
+  transition: transform .22s ease, filter .22s ease !important;
+}
+
+.home-page .logo:hover .logo-mark {
+  transform: translateY(-1px) scale(1.025) !important;
+}
+
+.home-page .location,
+.home-page .header-search,
+.home-page .cart {
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease !important;
+}
+
+.home-page .location:hover,
+.home-page .header-search:focus-within,
+.home-page .cart:hover {
+  border-color: rgba(229,27,42,.24) !important;
+  box-shadow: 0 8px 22px rgba(25,28,34,.08) !important;
+  transform: translateY(-1px) !important;
+}
+
+.home-page .home-nav a {
+  position: relative !important;
+  transition: color .2s ease !important;
+}
+
+.home-page .home-nav a::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  bottom: -7px !important;
+  width: 0 !important;
+  height: 2px !important;
+  border-radius: 99px !important;
+  background: var(--pj-red) !important;
+  transform: translateX(-50%) !important;
+  transition: width .2s ease !important;
+}
+
+.home-page .home-nav a:hover,
+.home-page .home-nav a.ativo {
+  color: var(--pj-red) !important;
+}
+
+.home-page .home-nav a:hover::after,
+.home-page .home-nav a.ativo::after {
+  width: 18px !important;
+}
+
+/* Hero: mais profundidade e CTA mais evidente */
+.home-page .market-hero {
+  background: linear-gradient(135deg, #fffaf3 0%, #fff5e7 52%, #fffaf3 100%) !important;
+}
+
+.home-page .hero-reference-frame {
+  border-radius: 0 0 34px 34px !important;
+  box-shadow: inset 0 -1px 0 rgba(25,28,34,.035) !important;
+}
+
+.home-page .hero-reference-copy h1 {
+  text-wrap: balance !important;
+}
+
+.home-page .hero-reference-copy h1 span {
+  position: relative !important;
+  display: inline-block !important;
+}
+
+.home-page .hero-reference-copy h1 span::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 3px !important;
+  right: 8px !important;
+  bottom: -5px !important;
+  height: 7px !important;
+  border-radius: 99px !important;
+  background: rgba(229,27,42,.10) !important;
+  transform: rotate(-1.5deg) !important;
+  z-index: -1 !important;
+}
+
+.home-page .hero-reference-searchbar {
+  border-color: rgba(25,28,34,.09) !important;
+  box-shadow: 0 16px 36px rgba(25,28,34,.10) !important;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease !important;
+}
+
+.home-page .hero-reference-searchbar:focus-within,
+.home-page .hero-reference-searchbar:hover {
+  border-color: rgba(229,27,42,.22) !important;
+  box-shadow: 0 18px 42px rgba(25,28,34,.13) !important;
+  transform: translateY(-2px) !important;
+}
+
+.home-page .hero-reference-searchbar button {
+  transition: transform .2s ease, background .2s ease, box-shadow .2s ease !important;
+}
+
+.home-page .hero-reference-searchbar button:hover {
+  background: var(--pj-red-dark) !important;
+  transform: scale(1.04) !important;
+  box-shadow: 0 10px 22px rgba(229,27,42,.28) !important;
+}
+
+/* Categorias: cards mais consistentes */
+.home-page .categoria {
+  position: relative !important;
+  overflow: hidden !important;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease !important;
+}
+
+.home-page .categoria::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(135deg, rgba(229,27,42,.055), transparent 55%) !important;
+  opacity: 0 !important;
+  transition: opacity .2s ease !important;
+}
+
+.home-page .categoria:hover,
+.home-page .categoria[aria-pressed="true"] {
+  border-color: rgba(229,27,42,.22) !important;
+  box-shadow: 0 12px 26px rgba(25,28,34,.09) !important;
+  transform: translateY(-4px) !important;
+}
+
+.home-page .categoria:hover::before,
+.home-page .categoria[aria-pressed="true"]::before {
+  opacity: 1 !important;
+}
+
+.home-page .categoria div {
+  transition: transform .2s ease, background .2s ease !important;
+}
+
+.home-page .categoria:hover div,
+.home-page .categoria[aria-pressed="true"] div {
+  background: #fff0ef !important;
+  transform: scale(1.06) !important;
+}
+
+/* Títulos de seção */
+.home-page .market-eyebrow {
+  letter-spacing: .11em !important;
+  text-transform: uppercase !important;
+  color: var(--pj-red) !important;
+  font-weight: 800 !important;
+}
+
+.home-page .market-section-header h2 {
+  color: var(--pj-ink) !important;
+  letter-spacing: -.035em !important;
+}
+
+.home-page .market-section-header > a {
+  color: var(--pj-red) !important;
+  font-weight: 800 !important;
+}
+
+/* Filtros */
+.home-page .filter-pill {
+  transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease !important;
+}
+
+.home-page .filter-pill:hover,
+.home-page .filter-pill[aria-pressed="true"] {
+  background: #fff0ef !important;
+  border-color: rgba(229,27,42,.24) !important;
+  color: var(--pj-red-dark) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Restaurantes e produtos: sensação de catálogo */
+.home-page .card,
+.home-page .produto,
+.home-page .product-card {
+  border: 1px solid rgba(25,28,34,.075) !important;
+  overflow: hidden !important;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease !important;
+}
+
+.home-page .card:hover,
+.home-page .produto:hover,
+.home-page .product-card:hover {
+  border-color: rgba(229,27,42,.16) !important;
+  box-shadow: 0 18px 34px rgba(25,28,34,.10) !important;
+  transform: translateY(-5px) !important;
+}
+
+.home-page .card-link > img,
+.home-page .produto img,
+.home-page .product-card img {
+  transition: transform .35s ease !important;
+}
+
+.home-page .card:hover .card-link > img,
+.home-page .produto:hover img,
+.home-page .product-card:hover img {
+  transform: scale(1.035) !important;
+}
+
+/* Oferta */
+.home-page .offer-card {
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  box-shadow: 0 18px 40px rgba(25,28,34,.10) !important;
+  border: 1px solid rgba(25,28,34,.06) !important;
+}
+
+.home-page .offer-card img {
+  filter: saturate(1.04) contrast(1.02) !important;
+}
+
+/* Footer */
+.home-page footer {
+  margin-top: 34px !important;
+  background: #171a20 !important;
+}
+
+.home-page footer a {
+  transition: color .2s ease, transform .2s ease !important;
+}
+
+.home-page footer a:hover {
+  color: #fff !important;
+  transform: translateX(2px) !important;
+}
+
+/* Mobile */
+@media (max-width: 680px) {
+  .home-page .header {
+    box-shadow: 0 5px 18px rgba(25,28,34,.07) !important;
+  }
+
+  .home-page .market-hero,
+  .home-page .hero-reference-frame {
+    border-radius: 0 0 24px 24px !important;
+  }
+
+  .home-page .hero-reference-copy h1 {
+    letter-spacing: -.055em !important;
+  }
+
+  .home-page .hero-reference-searchbar {
+    height: 52px !important;
+    box-shadow: 0 12px 28px rgba(25,28,34,.09) !important;
+  }
+
+  .home-page .categoria:hover,
+  .home-page .categoria[aria-pressed="true"] {
+    transform: translateY(-2px) !important;
+  }
+
+  .home-page .card:hover,
+  .home-page .produto:hover,
+  .home-page .product-card:hover {
+    transform: translateY(-2px) !important;
+  }
+
+  .home-page .offer-card {
+    border-radius: 18px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page *,
+  .home-page *::before,
+  .home-page *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
