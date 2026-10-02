@@ -458,3 +458,82 @@
     padding-bottom:10px!important;
   }
 }
+
+
+/* =========================================================
+   HERO FINAL — mostra somente a parte direita da arte aprovada
+   e elimina a duplicação do texto/busca que estava embutida
+   no arquivo de referência.
+   ========================================================= */
+@media (min-width:681px){
+  .home-page .hero-reference-frame{
+    width:min(1445px,100%)!important;
+    max-width:1445px!important;
+    background:#fffaf3!important;
+  }
+
+  .home-page .hero-reference-copy{
+    width:58%!important;
+    min-height:434px!important;
+    height:434px!important;
+    padding-left:85px!important;
+    background:#fffaf3!important;
+  }
+
+  .home-page .hero-reference-art{
+    display:block!important;
+    position:absolute!important;
+    right:0!important;
+    top:0!important;
+    width:50%!important;
+    height:434px!important;
+    z-index:4!important;
+    overflow:hidden!important;
+    pointer-events:none!important;
+    background:
+      url("assets/hero-pedeja-final.webp")
+      right center / auto 100% no-repeat!important;
+  }
+
+  .home-page .hero-reference-art::before,
+  .home-page .hero-reference-art::after,
+  .home-page .hero-art-gold,
+  .home-page .hero-art-red{
+    display:none!important;
+    content:none!important;
+  }
+
+  .home-page .hero-reference-art img{
+    display:none!important;
+  }
+}
+
+@media (max-width:680px){
+  .home-page .hero-reference-frame{
+    background:#fffaf3!important;
+  }
+
+  .home-page .hero-reference-copy{
+    background:#fffaf3!important;
+  }
+
+  .home-page .hero-reference-art{
+    display:block!important;
+    position:absolute!important;
+    right:0!important;
+    top:auto!important;
+    bottom:0!important;
+    width:78%!important;
+    height:215px!important;
+    z-index:4!important;
+    overflow:hidden!important;
+    pointer-events:none!important;
+    background:
+      url("assets/hero-pedeja-final.webp")
+      right center / auto 100% no-repeat!important;
+  }
+
+  .home-page .hero-reference-art img{
+    display:none!important;
+  }
+}
