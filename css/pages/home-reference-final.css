@@ -641,3 +641,73 @@
     object-position:center center!important;
   }
 }
+
+
+/* HERO — enquadramento 1:1 da imagem de referência enviada (655x422) */
+@media (min-width:681px){
+  .home-page .market-hero{
+    height:422px!important;
+    min-height:422px!important;
+  }
+
+  .home-page .hero-reference-frame{
+    width:min(1180px,100%)!important;
+    height:422px!important;
+    min-height:422px!important;
+    margin:0 auto!important;
+    overflow:hidden!important;
+    background:#fffaf3!important;
+  }
+
+  .home-page .hero-reference-copy{
+    width:58%!important;
+    height:422px!important;
+    min-height:422px!important;
+    padding-left:82px!important;
+    box-sizing:border-box!important;
+    background:linear-gradient(
+      90deg,
+      #fffaf3 0%,
+      #fffaf3 88%,
+      rgba(255,250,243,.98) 96%,
+      rgba(255,250,243,0) 100%
+    )!important;
+  }
+
+  .home-page .hero-reference-art{
+    display:block!important;
+    position:absolute!important;
+    top:0!important;
+    right:0!important;
+    width:655px!important;
+    height:422px!important;
+    z-index:4!important;
+    overflow:hidden!important;
+    background:transparent!important;
+  }
+
+  .home-page .hero-reference-art::before,
+  .home-page .hero-reference-art::after,
+  .home-page .hero-art-gold,
+  .home-page .hero-art-red{
+    display:none!important;
+    content:none!important;
+  }
+
+  .home-page .hero-reference-art img{
+    display:block!important;
+    position:absolute!important;
+    top:0!important;
+    right:0!important;
+    width:655px!important;
+    height:422px!important;
+    max-width:none!important;
+    min-width:0!important;
+    object-fit:fill!important;
+    object-position:center!important;
+    border:0!important;
+    border-radius:0!important;
+    filter:none!important;
+    mix-blend-mode:normal!important;
+  }
+}
