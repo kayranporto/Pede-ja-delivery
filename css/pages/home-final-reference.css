@@ -681,3 +681,150 @@
     min-height:120px !important;
   }
 }
+
+
+/* =========================================================
+   CORREÇÃO FINAL — usar a arte aprovada inteira no hero
+   ========================================================= */
+
+@media (min-width:681px){
+  .home-page .container-header{
+    width:min(1580px,calc(100% - 70px)) !important;
+    max-width:1580px !important;
+    gap:26px !important;
+  }
+
+  .home-page .logo{
+    width:168px !important;
+    min-width:168px !important;
+    flex:0 0 168px !important;
+  }
+
+  .home-page .logo-mark{
+    width:124px !important;
+    height:76px !important;
+  }
+
+  .home-page .location{
+    width:246px !important;
+    min-width:246px !important;
+    max-width:246px !important;
+  }
+
+  .home-page .header-search{
+    width:650px !important;
+    min-width:400px !important;
+    max-width:650px !important;
+    flex:0 1 650px !important;
+    margin-left:12px !important;
+    margin-right:auto !important;
+  }
+
+  .home-page .account-nav{
+    margin-left:auto !important;
+    gap:25px !important;
+  }
+}
+
+/* A referência enviada já contém texto, hambúrguer, busca, benefícios,
+   faixas vermelha/amarela e slogan. Não reconstruir esses elementos por CSS. */
+.home-page .market-hero,
+.home-page .hero-reference-frame{
+  height:420px !important;
+  min-height:420px !important;
+}
+
+.home-page .hero-reference-frame{
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  border-radius:0 0 42px 42px !important;
+  background:#08090b url("../../assets/hero-pedeja-final.webp") center center / cover no-repeat !important;
+}
+
+.home-page .hero-reference-frame::before,
+.home-page .hero-reference-frame::after,
+.home-page .market-hero::before,
+.home-page .market-hero::after{
+  display:none !important;
+}
+
+.home-page .hero-reference-copy,
+.home-page .hero-reference-art{
+  display:none !important;
+}
+
+/* CATEGORIAS — largura e proporções da referência */
+.home-page .categorias{
+  padding:24px 0 19px !important;
+}
+
+.home-page .category-row{
+  width:min(1530px,calc(100% - 70px)) !important;
+  max-width:1530px !important;
+  margin:0 auto !important;
+}
+
+.home-page .categoria-lista{
+  display:grid !important;
+  grid-template-columns:repeat(8,minmax(0,1fr)) !important;
+  gap:13px !important;
+}
+
+.home-page .categoria{
+  min-height:96px !important;
+  border-radius:22px !important;
+  padding:12px 8px !important;
+}
+
+.home-page .categoria div{
+  width:48px !important;
+  height:48px !important;
+}
+
+/* RESTAURANTES — mesmo alinhamento e largura da referência */
+.home-page .restaurantes{
+  width:min(1580px,calc(100% - 70px)) !important;
+  max-width:1580px !important;
+  margin:0 auto !important;
+  padding:11px 0 32px !important;
+}
+
+.home-page .market-section-header h2{
+  font-size:29px !important;
+}
+
+.home-page .market-section-header h2::after{
+  margin-left:41px !important;
+  font-size:13px !important;
+}
+
+.home-page .cards{
+  margin-top:14px !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:19px !important;
+}
+
+.home-page .card-link > img{
+  height:93px !important;
+  min-height:93px !important;
+}
+
+/* tablet/mobile */
+@media(max-width:680px){
+  .home-page .hero-reference-frame{
+    height:470px !important;
+    min-height:470px !important;
+    background-position:center center !important;
+  }
+
+  .home-page .category-row,
+  .home-page .restaurantes{
+    width:100% !important;
+  }
+
+  .home-page .categoria-lista{
+    display:flex !important;
+    overflow-x:auto !important;
+  }
+}
