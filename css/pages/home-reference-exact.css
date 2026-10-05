@@ -355,3 +355,160 @@
     height:120px !important;
   }
 }
+
+
+/* Ajustes finais para igualar a composição da referência enviada */
+@media (min-width:681px){
+  .home-page .container-header{
+    width:min(1500px,calc(100% - 120px)) !important;
+    max-width:1500px !important;
+    gap:24px !important;
+  }
+
+  .home-page .logo{
+    width:165px !important;
+    min-width:165px !important;
+    flex:0 0 165px !important;
+  }
+
+  .home-page .logo-mark{
+    width:128px !important;
+    height:76px !important;
+  }
+
+  .home-page .location{
+    width:245px !important;
+    min-width:245px !important;
+    max-width:245px !important;
+  }
+
+  .home-page .header-spacer{
+    display:none !important;
+  }
+
+  .home-page .header-search{
+    width:650px !important;
+    min-width:360px !important;
+    max-width:650px !important;
+    flex:1 1 650px !important;
+    margin-left:16px !important;
+  }
+
+  .home-page .account-nav{
+    margin-left:auto !important;
+  }
+}
+
+.home-page .market-hero{
+  height:418px !important;
+  min-height:418px !important;
+}
+
+.home-page .hero-reference-frame{
+  height:418px !important;
+  min-height:418px !important;
+  border-radius:0 0 38px 38px !important;
+  background-position:center center !important;
+}
+
+.home-page .categorias{
+  padding:24px 0 18px !important;
+}
+
+.home-page .restaurantes{
+  padding-top:10px !important;
+}
+
+.home-page .market-section-header{
+  align-items:end !important;
+  margin-bottom:4px !important;
+}
+
+.home-page .market-eyebrow{
+  display:none !important;
+}
+
+.home-page .market-section-header h2{
+  margin:0 !important;
+  line-height:1.05 !important;
+}
+
+.home-page .market-section-header h2::after{
+  content:"Os mais pedidos, bem avaliados e pertinho de você!" !important;
+  display:block !important;
+  margin:5px 0 0 39px !important;
+  color:#707780 !important;
+  font-size:13px !important;
+  line-height:1.35 !important;
+  font-weight:500 !important;
+  letter-spacing:0 !important;
+}
+
+.home-page .restaurant-tools{
+  display:none !important;
+}
+
+.home-page .cards{
+  margin-top:13px !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:18px !important;
+}
+
+.home-page .card{
+  min-height:190px !important;
+  border-radius:14px !important;
+  overflow:hidden !important;
+}
+
+.home-page .card-link > img{
+  height:92px !important;
+  min-height:92px !important;
+  object-fit:cover !important;
+  object-position:center !important;
+}
+
+.home-page .card .card-body{
+  padding:10px 13px 11px !important;
+  gap:6px !important;
+}
+
+@media(max-width:1100px){
+  .home-page .container-header{
+    width:calc(100% - 40px) !important;
+    gap:14px !important;
+  }
+  .home-page .logo{
+    width:135px !important;
+    min-width:135px !important;
+    flex-basis:135px !important;
+  }
+  .home-page .location{
+    width:210px !important;
+    min-width:210px !important;
+  }
+  .home-page .header-search{
+    min-width:260px !important;
+  }
+}
+
+@media(max-width:680px){
+  .home-page .market-hero,
+  .home-page .hero-reference-frame{
+    height:470px !important;
+    min-height:470px !important;
+  }
+
+  .home-page .market-section-header h2::after{
+    margin-left:34px !important;
+    font-size:11px !important;
+  }
+
+  .home-page .cards{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+
+  .home-page .card-link > img{
+    height:120px !important;
+    min-height:120px !important;
+  }
+}
