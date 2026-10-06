@@ -681,3 +681,381 @@
     min-height:120px !important;
   }
 }
+
+
+/* =========================================================
+   FINAL MATCH — ajuste da composição para a referência
+   ========================================================= */
+
+/* Página */
+.home-page main{
+  padding:0 !important;
+  background:#fff !important;
+  overflow:hidden !important;
+}
+
+/* Header: mesma largura útil e distribuição da referência */
+@media (min-width:681px){
+  .home-page .container-header{
+    width:calc(100% - 160px) !important;
+    max-width:none !important;
+    min-height:88px !important;
+    height:88px !important;
+    margin:0 auto !important;
+    gap:24px !important;
+  }
+
+  .home-page .logo{
+    width:165px !important;
+    min-width:165px !important;
+    flex:0 0 165px !important;
+  }
+
+  .home-page .logo-mark{
+    width:124px !important;
+    height:76px !important;
+  }
+
+  .home-page .location{
+    width:246px !important;
+    min-width:246px !important;
+    max-width:246px !important;
+    height:54px !important;
+    min-height:54px !important;
+  }
+
+  .home-page .header-search{
+    flex:1 1 auto !important;
+    width:auto !important;
+    min-width:420px !important;
+    max-width:none !important;
+    height:52px !important;
+    margin:0 !important;
+  }
+
+  .home-page .account-nav{
+    flex:0 0 auto !important;
+    margin-left:auto !important;
+    gap:24px !important;
+  }
+
+  .home-page .cart{
+    flex:0 0 54px !important;
+  }
+}
+
+/* Hero: sem a divisão vertical; foto ocupa o banner inteiro,
+   texto fica sobre um gradiente escuro */
+.home-page .market-hero{
+  height:420px !important;
+  min-height:420px !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  background:#070809 !important;
+}
+
+.home-page .hero-reference-frame{
+  position:relative !important;
+  width:100% !important;
+  max-width:none !important;
+  height:420px !important;
+  min-height:420px !important;
+  margin:0 !important;
+  border-radius:0 0 42px 42px !important;
+  overflow:hidden !important;
+  background:#070809 !important;
+}
+
+/* A foto ocupa a composição toda */
+.home-page .hero-reference-art{
+  position:absolute !important;
+  inset:0 !important;
+  display:block !important;
+  width:100% !important;
+  height:420px !important;
+  z-index:1 !important;
+  overflow:hidden !important;
+  background:#070809 !important;
+}
+
+.home-page .hero-reference-art::before{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  z-index:2 !important;
+  background:
+    linear-gradient(90deg,
+      rgba(0,0,0,.88) 0%,
+      rgba(0,0,0,.73) 29%,
+      rgba(0,0,0,.34) 50%,
+      rgba(0,0,0,.06) 72%,
+      rgba(0,0,0,.10) 100%) !important;
+}
+
+.home-page .hero-reference-art img{
+  position:absolute !important;
+  inset:0 !important;
+  display:block !important;
+  width:100% !important;
+  max-width:none !important;
+  height:100% !important;
+  object-fit:fill !important;
+  object-position:center center !important;
+  border-radius:0 !important;
+  filter:saturate(1.04) contrast(1.03) !important;
+  z-index:1 !important;
+}
+
+/* Copy sem bloco preto; só o gradiente da foto aparece */
+.home-page .hero-reference-copy{
+  position:relative !important;
+  z-index:5 !important;
+  width:67% !important;
+  height:420px !important;
+  min-height:420px !important;
+  padding:31px 0 24px 7.1% !important;
+  box-sizing:border-box !important;
+  background:transparent !important;
+}
+
+/* remove a versão artificial anterior do slogan */
+.home-page .hero-reference-frame .hero-reference-copy::after,
+.home-page .hero-reference-frame .hero-reference-copy::before{
+  display:none !important;
+}
+
+/* Faixas decorativas como na referência */
+.home-page .market-hero::before,
+.home-page .market-hero::after{
+  content:"" !important;
+  position:absolute !important;
+  bottom:-120px !important;
+  width:610px !important;
+  height:230px !important;
+  z-index:7 !important;
+  pointer-events:none !important;
+  border-radius:50% !important;
+}
+
+.home-page .market-hero::before{
+  left:-190px !important;
+  background:
+    radial-gradient(ellipse at 60% 0,
+      transparent 0 54%,
+      #ffc400 55% 67%,
+      #ed1b2b 68% 83%,
+      transparent 84%) !important;
+  transform:rotate(-5deg) !important;
+}
+
+.home-page .market-hero::after{
+  right:-180px !important;
+  background:
+    radial-gradient(ellipse at 40% 0,
+      transparent 0 54%,
+      #ffc400 55% 66%,
+      #ed1b2b 67% 82%,
+      transparent 83%) !important;
+  transform:rotate(5deg) !important;
+}
+
+/* Categorias: ocupar a mesma largura visual da referência */
+.home-page .categorias{
+  padding:24px 0 20px !important;
+  background:#fff !important;
+}
+
+.home-page .category-row{
+  width:calc(100% - 234px) !important;
+  max-width:none !important;
+  margin:0 auto !important;
+}
+
+.home-page .categoria-lista{
+  display:grid !important;
+  grid-template-columns:repeat(8,minmax(0,1fr)) !important;
+  gap:12px !important;
+}
+
+.home-page .categoria{
+  min-height:96px !important;
+  padding:12px 8px !important;
+  border:0 !important;
+  border-radius:22px !important;
+  background:#fff !important;
+  box-shadow:0 7px 24px rgba(25,28,34,.09) !important;
+}
+
+.home-page .categoria:first-child,
+.home-page .categoria[aria-pressed="true"]{
+  background:#ed1b2b !important;
+  box-shadow:0 11px 28px rgba(237,27,43,.22) !important;
+}
+
+.home-page .categoria:first-child div,
+.home-page .categoria[aria-pressed="true"] div{
+  background:transparent !important;
+}
+
+.home-page .categoria:first-child span,
+.home-page .categoria[aria-pressed="true"] span{
+  color:#fff !important;
+}
+
+/* Restaurante: largura, espaçamento e cards da referência */
+.home-page .restaurantes{
+  width:calc(100% - 160px) !important;
+  max-width:none !important;
+  margin:0 auto !important;
+  padding:11px 0 32px !important;
+}
+
+.home-page .market-eyebrow{
+  display:none !important;
+}
+
+.home-page .market-section-header{
+  margin-bottom:2px !important;
+}
+
+.home-page .market-section-header h2{
+  font-size:29px !important;
+  line-height:1.05 !important;
+}
+
+.home-page .market-section-header h2::before{
+  content:"♛" !important;
+  color:#ed1b2b !important;
+  margin-right:14px !important;
+}
+
+.home-page .market-section-header h2::after{
+  content:"Os mais pedidos, bem avaliados e pertinho de você!" !important;
+  display:block !important;
+  margin:5px 0 0 40px !important;
+  color:#707781 !important;
+  font-size:13px !important;
+  line-height:1.35 !important;
+  font-weight:500 !important;
+}
+
+.home-page .market-section-header>a{
+  color:#ed1b2b !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+}
+
+.home-page .restaurant-tools{
+  display:none !important;
+}
+
+.home-page .cards{
+  margin-top:14px !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:19px !important;
+}
+
+.home-page .card{
+  min-width:0 !important;
+  border-radius:14px !important;
+  overflow:hidden !important;
+  background:#fff !important;
+  border:0 !important;
+  box-shadow:0 8px 24px rgba(25,28,34,.09) !important;
+}
+
+.home-page .card-link > img{
+  width:100% !important;
+  height:92px !important;
+  min-height:92px !important;
+  object-fit:cover !important;
+  object-position:center !important;
+  padding:0 !important;
+  background:#fff !important;
+}
+
+.home-page .card .card-body{
+  padding:10px 13px 11px !important;
+  gap:6px !important;
+}
+
+/* Indicador verde de abertura */
+.home-page .card::before{
+  content:"Aberto agora" !important;
+  position:absolute !important;
+  z-index:8 !important;
+  left:14px !important;
+  top:12px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  min-height:26px !important;
+  padding:5px 11px !important;
+  border-radius:999px !important;
+  background:#12b76a !important;
+  color:#fff !important;
+  font-size:11px !important;
+  font-weight:800 !important;
+  line-height:1 !important;
+  box-shadow:0 5px 12px rgba(10,120,70,.18) !important;
+}
+
+/* Esconder o coração que destoa da referência */
+.home-page .card .favorite,
+.home-page .card [class*="favorite"],
+.home-page .card .favorito{
+  display:none !important;
+}
+
+@media(max-width:1100px){
+  .home-page .container-header{
+    width:calc(100% - 40px) !important;
+  }
+
+  .home-page .category-row{
+    width:calc(100% - 60px) !important;
+  }
+
+  .home-page .restaurantes{
+    width:calc(100% - 40px) !important;
+  }
+}
+
+@media(max-width:680px){
+  .home-page .market-hero,
+  .home-page .hero-reference-frame{
+    height:470px !important;
+    min-height:470px !important;
+  }
+
+  .home-page .hero-reference-art{
+    height:470px !important;
+  }
+
+  .home-page .hero-reference-copy{
+    width:100% !important;
+    height:470px !important;
+    min-height:470px !important;
+    padding:30px 18px 20px !important;
+  }
+
+  .home-page .category-row{
+    width:100% !important;
+  }
+
+  .home-page .restaurantes{
+    width:100% !important;
+    padding:13px 12px 25px !important;
+  }
+
+  .home-page .categoria-lista{
+    display:flex !important;
+    overflow-x:auto !important;
+    gap:9px !important;
+  }
+
+  .home-page .cards{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:10px !important;
+  }
+}
