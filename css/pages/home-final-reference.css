@@ -1059,3 +1059,57 @@
     gap:10px !important;
   }
 }
+
+
+/* =========================================================
+   HERO FINAL — usar a arte completa, sem distorção
+   ========================================================= */
+.home-page .market-hero{
+  height:420px !important;
+  min-height:420px !important;
+  padding:0 !important;
+  margin:0 !important;
+  overflow:hidden !important;
+  background:#08090b !important;
+}
+
+.home-page .hero-reference-frame{
+  width:100% !important;
+  max-width:none !important;
+  height:420px !important;
+  min-height:420px !important;
+  margin:0 !important;
+  padding:0 !important;
+  position:relative !important;
+  overflow:hidden !important;
+  border-radius:0 0 42px 42px !important;
+  background:#08090b url("../../assets/hero-pedeja-final.webp") center center / cover no-repeat !important;
+}
+
+/* A arte já contém foto, textos e elementos decorativos */
+.home-page .hero-reference-copy,
+.home-page .hero-reference-art{
+  display:none !important;
+}
+
+/* Não desenhar curvas por cima da arte */
+.home-page .market-hero::before,
+.home-page .market-hero::after,
+.home-page .hero-reference-frame::before,
+.home-page .hero-reference-frame::after{
+  display:none !important;
+}
+
+@media(max-width:680px){
+  .home-page .market-hero,
+  .home-page .hero-reference-frame{
+    height:470px !important;
+    min-height:470px !important;
+  }
+
+  .home-page .hero-reference-frame{
+    border-radius:0 0 26px 26px !important;
+    background-position:center center !important;
+    background-size:cover !important;
+  }
+}
