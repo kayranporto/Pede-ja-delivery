@@ -8,6 +8,29 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
+test("Endereço é cadastrado pela página Meus endereços e apenas selecionado no checkout", () => {
+    const home = read("index.html");
+    const checkout = read("html/checkout.html");
+    assert.match(home, /id="seletorEndereco"/);
+    assert.match(home, /id="heroBuscarRestaurantes" type="button">Explorar restaurantes/);
+    assert.doesNotMatch(home, /href="html\/enderecos\.html\?redirect=\.\.\/index\.html"/);
+    assert.doesNotMatch(home, /Digite seu endereço/);
+    assert.match(read("js/pages/home.js"), /window\.location\.href = "html\/enderecos\.html\?redirect=\.\.\/index\.html"/);
+    assert.match(checkout, /id="alterarEndereco"/);
+    assert.doesNotMatch(checkout, /id="(?:cep|logradouro|numero)"/);
+    assert.match(read("html/enderecos.html"), /id="enderecoForm"/);
+});
+
+test("Destaque da home mantém conteúdo e CTA utilizáveis em telas pequenas", () => {
+    const home = read("index.html");
+    const polish = read("css/pages/home-polish-4.5.1.css");
+    assert.match(home, /<main id="conteudoPrincipal">/);
+    assert.match(home, /id="heroTitulo">Seu próximo pedido favorito começa aqui\./);
+    assert.match(home, /home-polish-4\.5\.1\.css\?v=4\.5\.1/);
+    assert.match(polish, /@media\s*\(max-width:\s*680px\)/);
+    assert.match(polish, /\.hero-reference-copy > :not\(\.hero-reference-searchbar\)/);
+});
+
 test("Home usa horário real no filtro Aberto agora", () => {
     const home = read("js/pages/home.js");
     assert.match(home, /DeliveryAPI\.disponibilidade\(/);
@@ -90,5 +113,3 @@ test("painel administrativo exibe apenas a seção escolhida e separa o conteúd
     assert.match(js, /addEventListener\("hashchange"/);
     assert.match(css, /\.admin-view\[hidden\]\s*\{\s*display:\s*none\s*!important\s*\}/);
 });
-
-

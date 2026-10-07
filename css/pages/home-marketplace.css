@@ -1964,7 +1964,7 @@
   overflow:hidden;
   isolation:isolate;
   background:
-    url("assets/hero-pedeja-final.webp") right center / cover no-repeat,
+    url("../../assets/hero-pedeja-hamburguer.webp") right center / cover no-repeat,
     #fffaf3;
 }
 .home-page .hero-reference-copy{

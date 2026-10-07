@@ -247,7 +247,12 @@ function renderizarEmpresas(lista) {
         link.href = `html/restaurante.html?id=${encodeURIComponent(empresa.id)}`;
         link.setAttribute("aria-label", `Abrir cardápio de ${empresa.nome}`);
 
-        link.append(imagemComFallback(empresa.logo || fotoRealPorTexto([empresa.nome, empresa.categoria, empresa.tipo].join(" ")), empresa.nome));
+        const foto = imagemComFallback(
+            fotoRealPorTexto([empresa.nome, empresa.categoria, empresa.tipo].join(" ")),
+            `Foto de ${empresa.nome || "restaurante"}`
+        );
+        foto.className = "restaurant-cover";
+        link.append(foto);
 
         const body = document.createElement("div");
         body.className = "card-body";
@@ -271,7 +276,9 @@ function renderizarEmpresas(lista) {
         favorite.textContent = favoritado ? "❤️" : "🤍";
         favorite.setAttribute("aria-label", favoritado ? `Remover ${empresa.nome} dos favoritos` : `Adicionar ${empresa.nome} aos favoritos`);
         favorite.setAttribute("aria-pressed", String(favoritado));
-        body.append(header);
+        const logo = imagemComFallback(empresa.logo, `Logo de ${empresa.nome || "restaurante"}`);
+        logo.className = "restaurant-logo";
+        body.append(logo, header);
 
         const info = document.createElement("div");
         info.className = "info";
@@ -292,7 +299,7 @@ function renderizarEmpresas(lista) {
         body.append(info);
 
         const aberta = empresa.abertaAgora ?? (empresa.status !== false);
-        const status = criarTexto("span", `status ${aberta ? "aberto" : "fechado"}`, aberta ? "Aberto" : "Fechado");
+        const status = criarTexto("span", `status ${aberta ? "aberto" : "fechado"}`, aberta ? "Aberto agora" : "Fechado");
         body.append(status);
         link.append(body);
         card.append(link, favorite);
