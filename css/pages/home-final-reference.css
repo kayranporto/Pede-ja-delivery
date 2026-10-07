@@ -358,6 +358,7 @@
   object-position:center!important;
 }
 
+<<<<<<< HEAD
 .home-page .market-hero,
 .home-page .hero-reference-frame{
   width:100%!important;
@@ -452,4 +453,37 @@
 .home-page .hero-reference-searchbar button:focus-visible{
   outline:3px solid #fff!important;
   outline-offset:2px!important;
+=======
+
+/* AJUSTE CORRETO DA REFERÊNCIA — não distorcer nem cortar a arte do hero */
+@media (min-width:681px){
+  .home-page .hero-reference-art{
+    width:61%!important;
+    height:418px!important;
+    right:0!important;
+    top:0!important;
+    overflow:hidden!important;
+    background:#070809!important;
+  }
+
+  .home-page .hero-reference-art img{
+    position:absolute!important;
+    top:0!important;
+    right:0!important;
+    left:auto!important;
+    width:auto!important;
+    height:418px!important;
+    max-width:none!important;
+    object-fit:contain!important;
+    object-position:right center!important;
+    mix-blend-mode:normal!important;
+    filter:none!important;
+  }
+
+  .home-page .hero-reference-art{
+    background:
+      linear-gradient(90deg,#070809 0%,rgba(7,8,9,.82) 8%,rgba(7,8,9,.18) 28%,rgba(7,8,9,0) 48%),
+      #070809!important;
+  }
+>>>>>>> eaec60b03b95d85bdca174e1e3a0709533c741fc
 }
