@@ -12,9 +12,9 @@ test("Endereço é cadastrado pela página Meus endereços e apenas selecionado 
     const home = read("index.html");
     const checkout = read("html/checkout.html");
     assert.match(home, /id="seletorEndereco"/);
-    assert.match(home, /id="heroBuscarRestaurantes" type="button">Explorar restaurantes/);
-    assert.doesNotMatch(home, /href="html\/enderecos\.html\?redirect=\.\.\/index\.html"/);
-    assert.doesNotMatch(home, /Digite seu endereço/);
+    assert.match(home, /id="heroBuscarRestaurantes" type="button" aria-label="Explorar restaurantes">⌕/);
+    assert.match(home, /href="html\/enderecos\.html\?redirect=\.\.\/index\.html"/);
+    assert.match(home, /Digite seu endereço/);
     assert.match(read("js/pages/home.js"), /window\.location\.href = "html\/enderecos\.html\?redirect=\.\.\/index\.html"/);
     assert.match(checkout, /id="alterarEndereco"/);
     assert.doesNotMatch(checkout, /id="(?:cep|logradouro|numero)"/);
@@ -25,7 +25,7 @@ test("Destaque da home mantém conteúdo e CTA utilizáveis em telas pequenas", 
     const home = read("index.html");
     const polish = read("css/pages/home-polish-4.5.1.css");
     assert.match(home, /<main id="conteudoPrincipal">/);
-    assert.match(home, /id="heroTitulo">Seu próximo pedido favorito começa aqui\./);
+    assert.match(home, /id="heroTitulo">Sua comida favorita, <span>sem sair de casa!<\/span><\/h1>/);
     assert.match(home, /home-polish-4\.5\.1\.css\?v=4\.5\.1/);
     assert.match(polish, /@media\s*\(max-width:\s*680px\)/);
     assert.match(polish, /\.hero-reference-copy > :not\(\.hero-reference-searchbar\)/);
