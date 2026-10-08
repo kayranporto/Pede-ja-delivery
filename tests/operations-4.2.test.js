@@ -95,9 +95,9 @@ test("estoque mantém trilha de auditoria protegida", () => {
     assert.match(read("empresa-dashboard.html"), /id="estoqueMovimentos"/);
 });
 
-test("release 4.4.7 está versionado de forma consistente", () => {
-    assert.equal(JSON.parse(read("package.json")).version, "4.4.7");
-    assert.equal(JSON.parse(read("package-lock.json")).version, "4.4.7");
-    assert.match(read("sw.js"), /const VERSION = "4\.4\.7"/);
-    assert.match(read("js/core/site-enhancements.js"), /sw\.js\?v=4\.4\.7/);
+test("release 4.4.8 está versionado de forma consistente", () => {
+    assert.equal(JSON.parse(read("package.json")).version, "4.4.8");
+    assert.equal(JSON.parse(read("package-lock.json")).version, "4.4.8");
+    assert.match(read("sw.js"), /const VERSION = "4\.4\.8"/);
+    assert.match(read("js/core/site-enhancements.js"), /sw\.js\?v=4\.4\.8/);
 });

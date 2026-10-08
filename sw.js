@@ -27,7 +27,7 @@ const SHELL = [
   "./css/modules/checkout-4.2.3.css?v=4.2.4",
   "./css/modules/operacao-restaurante-4.2.7.css?v=4.2.7.1",
   "./js/core/app-utils.js?v=4.4.7",
-  "./js/core/config.js?v=4.4.7",
+  "./.4.8",
   "./js/core/monitoring.js?v=4.2.0",
   "./js/core/notifications.js?v=4.4.3",
   "./js/core/favorites-sync.js?v=4.2.1",

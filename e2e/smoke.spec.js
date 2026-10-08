@@ -19,8 +19,6 @@ async function abrir(page, rota) {
     expect(response.status(), `A rota ${rota} deve responder HTTP 2xx`).toBeLessThan(300);
 }
 
-const tituloHome = /Sua comida favorita, sem sair de casa!/i;
-
 test("Home carrega, oferece busca e categorias acessíveis", async ({ page }) => {
     const semErroFatal = observarErrosFatais(page);
     await abrir(page, "/");
@@ -74,17 +72,24 @@ test("Rotas públicas essenciais entregam uma página utilizável", async ({ pag
 test("Navegação principal leva ao login e protege a central de suporte", async ({ page }) => {
     await abrir(page, "/");
 
-    await page.getByRole("link", { name: "Entrar" }).click();
+    const mobile = (page.viewportSize()?.width || 1280) <= 700;
+    if (mobile) {
+        const menu = page.locator(".mobile-menu");
+        await menu.locator("summary").click();
+        await menu.getByRole("link", { name: "Entrar" }).click();
+    } else {
+        await page.getByRole("link", { name: "Entrar" }).click();
+    }
     await expect(page).toHaveURL(/\/html\/login\.html$/);
     await expect(page.getByRole("heading", { level: 1, name: /Entre na sua conta/i })).toBeVisible();
 
     await abrir(page, "/");
-    if ((page.viewportSize()?.width || 1280) <= 700) {
+    if (mobile) {
         const menu = page.locator(".mobile-menu");
         await menu.locator("summary").click();
         await menu.getByRole("link", { name: "Sobre" }).click();
     } else {
-        await page.locator(".home-nav").getByRole("link", { name: "Sobre" }).click();
+        await page.locator("footer").getByRole("link", { name: "Sobre" }).click();
     }
     await expect(page).toHaveURL(/\/html\/login\.html$/, { timeout: 12000 });
     await expect.poll(() => page.evaluate(() => localStorage.getItem("redirect"))).toBe("suporte.html");
@@ -94,7 +99,7 @@ test("Página de restaurante sem id volta para a Home", async ({ page }) => {
     const semErroFatal = observarErrosFatais(page);
     await abrir(page, "/html/restaurante.html");
     await expect(page).toHaveURL(/\/(?:index\.html)?$/, { timeout: 12000 });
-    await expect(page.locator('.hero-reference-frame img[alt*="Sua comida favorita"]')).toBeVisible();
+    await expect(page.locator("#heroTitulo")).toBeVisible();
     semErroFatal();
 });
 
