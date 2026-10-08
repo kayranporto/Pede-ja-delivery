@@ -1,6 +1,6 @@
 "use strict";
 
-const VERSION = "4.5.0";
+const VERSION = "4.4.8";
 const CACHE = `multi-delivery-v${VERSION}`;
 const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}`;
 const SHELL = [
@@ -17,6 +17,7 @@ const SHELL = [
   "./css/core/style.css?v=4.2.0",
   "./css/pages/home-4.2.1.css?v=4.2.1.4",
   "./css/pages/home-marketplace.css?v=4.4.16",
+  "./css/pages/home-polish-4.5.1.css?v=4.5.1",
   "./css/pages/home-final-reference.css?v=3.0.0",
   "./css/core/paginas.css?v=4.2.0",
   "./css/core/accessibility.css?v=4.2.0",
