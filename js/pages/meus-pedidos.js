@@ -43,6 +43,9 @@ function grupoDoPedido(pedido) {
 
 function pedidosFiltrados() {
     if (filtroAtual === "todos") return pedidos;
+    if (filtroAtual === "saiu_para_entrega") {
+        return pedidos.filter((pedido) => pedido.status === "saiu_para_entrega");
+    }
     return pedidos.filter((pedido) => grupoDoPedido(pedido) === filtroAtual);
 }
 
@@ -50,12 +53,14 @@ function atualizarContagens() {
     const quantidades = {
         todos: pedidos.length,
         andamento: pedidos.filter((pedido) => grupoDoPedido(pedido) === "andamento").length,
+        saiu_para_entrega: pedidos.filter((pedido) => pedido.status === "saiu_para_entrega").length,
         entregues: pedidos.filter((pedido) => grupoDoPedido(pedido) === "entregues").length,
         cancelados: pedidos.filter((pedido) => grupoDoPedido(pedido) === "cancelados").length
     };
     document.getElementById("totalPedidos").textContent = String(quantidades.todos);
     document.getElementById("contagemTodos").textContent = String(quantidades.todos);
     document.getElementById("contagemAndamento").textContent = String(quantidades.andamento);
+    document.getElementById("contagemSaiuParaEntrega").textContent = String(quantidades.saiu_para_entrega);
     document.getElementById("contagemEntregues").textContent = String(quantidades.entregues);
     document.getElementById("contagemCancelados").textContent = String(quantidades.cancelados);
 }
@@ -214,6 +219,7 @@ function renderizar() {
     const nomes = {
         todos: "todos os pedidos",
         andamento: "pedidos em andamento",
+        saiu_para_entrega: "pedidos que saíram para entrega",
         entregues: "pedidos entregues",
         cancelados: "pedidos cancelados"
     };
