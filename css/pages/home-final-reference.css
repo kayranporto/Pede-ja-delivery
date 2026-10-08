@@ -507,3 +507,16 @@
     bottom:10px!important;
   }
 }
+
+
+/* Acessibilidade e smoke E2E: manter o conteúdo principal do hero visível. */
+.home-page .hero-reference-copy {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+.home-page #heroTitulo {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
