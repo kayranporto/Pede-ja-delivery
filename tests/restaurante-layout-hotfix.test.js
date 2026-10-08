@@ -33,3 +33,20 @@ test("cabeçalho mantém nome abaixo do banner e limita a sobreposição ao logo
   assert.match(html, /restaurante-4\.2\.2\.css\?v=4\.2\.4/);
   assert.match(sw, /restaurante-4\.2\.2\.css\?v=4\.2\.4/);
 });
+
+test("página do restaurante usa o acabamento visual compartilhado sem alterar o carrinho", () => {
+  const css = read("css/pages/restaurant-experience.css");
+  const loader = read("js/core/site-enhancements.js");
+  const sw = read("sw.js");
+  const html = read("html/restaurante.html");
+
+  assert.match(loader, /paginaLegada\.toLowerCase\(\) === "restaurante\.html"/);
+  assert.match(loader, /restaurant-experience\.css\?v=1\.0\.0/);
+  assert.match(sw, /restaurant-experience\.css\?v=1\.0\.0/);
+  assert.match(css, /\.pj-restaurant-page > header \.logo img\s*\{[^}]*width: 112px !important;[^}]*height: 48px !important;/);
+  assert.match(css, /\.pj-restaurant-page \.banner-restaurante\s*\{[^}]*height: clamp\(220px, 23vw, 300px\) !important;/);
+  assert.match(css, /\.pj-restaurant-page \.banner-restaurante \+ \.info-restaurante\s*\{[^}]*grid-template-columns: 100px minmax\(0, 1fr\) !important;/);
+  assert.match(css, /@media \(max-width: 680px\)/);
+  assert.match(css, /\.pj-restaurant-page \.banner-restaurante ~ \.categorias\s*\{[^}]*position: static !important;/);
+  assert.match(html, /id="carrinho"/);
+});

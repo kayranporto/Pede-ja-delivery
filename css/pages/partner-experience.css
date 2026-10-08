@@ -1,0 +1,300 @@
+.pj-partner-page {
+  --primary: #e51b2a;
+  --primary-hover: #c91423;
+  --secondary: #ffc400;
+}
+
+.pj-partner-page.auth-business {
+  --auth-primary: #e51b2a;
+  --auth-primary-dark: #bd1421;
+  --auth-primary-soft: #fff0f1;
+  --auth-accent: #ffc400;
+  --auth-accent-soft: #fff8dc;
+  --auth-shadow: 0 28px 80px rgba(23, 25, 35, .15);
+}
+
+.pj-partner-page.auth-business .auth-showcase {
+  background:
+    radial-gradient(circle at 86% 12%, rgba(239, 28, 43, .48), transparent 20rem),
+    linear-gradient(145deg, #17191e 0%, #202127 58%, #311c1d 100%);
+}
+
+.pj-partner-page.auth-business .auth-brand-mark {
+  width: 58px;
+  height: 52px;
+  padding: 4px;
+  border-color: rgba(255, 255, 255, .68);
+  border-radius: 13px;
+  background: #fff;
+  object-fit: contain;
+}
+
+.pj-partner-page.auth-business .auth-brand > span:last-child {
+  display: grid;
+  gap: 1px;
+}
+
+.pj-partner-page.auth-business .auth-brand small {
+  color: #ffc400;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.pj-partner-page.auth-business .auth-kicker {
+  border-color: rgba(255, 196, 0, .35);
+  background: rgba(255, 196, 0, .12);
+}
+
+.pj-partner-page.auth-business .auth-kicker-dot {
+  background: #ffc400;
+}
+
+.pj-partner-page.auth-business .auth-metric strong {
+  color: #ffc400;
+}
+
+.pj-partner-page.auth-business .auth-panel {
+  background: #fff;
+}
+
+.pj-partner-page.auth-business .auth-mobile-brand .auth-brand-mark {
+  width: 44px;
+  height: 40px;
+}
+
+.pj-partner-page.auth-business .auth-button {
+  background: linear-gradient(135deg, #ef2435, #c91423);
+}
+
+.pj-partner-page.auth-business .auth-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #d91c2b, #b80f1d);
+}
+
+.pj-partner-page .dashboard-sidebar {
+  background: linear-gradient(180deg, #17191e, #202127 72%, #17191e);
+}
+
+.pj-partner-page .dashboard-brand-logo {
+  width: 44px;
+  height: 44px;
+  padding: 3px;
+  border: 1px solid #f0f1f3;
+  border-radius: 13px;
+  background: #fff;
+  object-fit: contain;
+}
+
+.pj-partner-page .dashboard-sidebar nav a.active {
+  box-shadow: inset 3px 0 #ffc400;
+}
+
+.pj-partner-page .overview-hero {
+  background: linear-gradient(125deg, #17191e, #24252c 62%, #351c20);
+}
+
+.pj-partner-page .overview-hero:after {
+  background: radial-gradient(circle, rgba(229, 27, 42, .62), transparent 68%);
+}
+
+.pj-partner-page .section-kicker,
+.pj-partner-page .header-copy span {
+  color: #e51b2a;
+}
+
+.pj-partner-page .chart-line {
+  stroke: #e51b2a;
+}
+
+.pj-partner-page .dashboard-shell {
+  background: #f6f7f9;
+}
+
+.pj-partner-page .dashboard-header {
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 5px 22px rgba(23, 26, 33, .045);
+}
+
+.pj-partner-page .menu-toggle {
+  border: 1px solid #e7e9ee;
+  background: #fff;
+}
+
+.pj-partner-page .menu-toggle:hover,
+.pj-partner-page .alert-button:hover,
+.pj-partner-page .refresh-button:hover {
+  border-color: #f0c5c9;
+  background: #fff7f7;
+}
+
+.pj-partner-page .dashboard-sidebar nav a.active {
+  background: rgba(229, 27, 42, .14);
+}
+
+.pj-partner-page .dashboard-sidebar nav a b {
+  background: #e51b2a;
+}
+
+.pj-partner-page .sidebar-footer {
+  border-color: rgba(255, 255, 255, .1);
+  background: rgba(255, 255, 255, .055);
+}
+
+.pj-partner-page .sidebar-footer a:hover {
+  color: #ffc400;
+}
+
+.pj-partner-page .overview-hero {
+  min-height: 190px;
+  padding: 34px 38px;
+  border: 1px solid rgba(255, 255, 255, .06);
+  box-shadow: 0 20px 46px rgba(23, 26, 33, .14);
+}
+
+.pj-partner-page .overview-copy h2 {
+  letter-spacing: -.04em;
+}
+
+.pj-partner-page .overview-hero .eyebrow {
+  color: #ffc400;
+}
+
+.pj-partner-page .store-control {
+  border-color: rgba(255, 255, 255, .14);
+  background: rgba(255, 255, 255, .085);
+}
+
+.pj-partner-page .store-control small {
+  color: #d6d8de;
+}
+
+.pj-partner-page .store-switch span {
+  background: #777b85;
+}
+
+.pj-partner-page .store-switch input:checked + span {
+  background: #168447;
+}
+
+.pj-partner-page .dashboard-toolbar {
+  min-height: 54px;
+  padding: 8px 14px;
+  border: 1px solid #e7e9ee;
+  border-radius: 15px;
+  background: #fff;
+}
+
+.pj-partner-page .dashboard-toolbar select {
+  border-color: #e7e9ee;
+  border-radius: 10px;
+}
+
+.pj-partner-page .dashboard-toolbar select:focus {
+  border-color: #e51b2a;
+  box-shadow: 0 0 0 3px rgba(229, 27, 42, .1);
+}
+
+.pj-partner-page .metric-card {
+  border-color: #e7e9ee;
+  border-radius: 18px;
+  box-shadow: 0 5px 18px rgba(23, 26, 33, .045);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.pj-partner-page .metric-card:hover {
+  transform: translateY(-2px);
+  border-color: #f0c5c9;
+  box-shadow: 0 12px 26px rgba(23, 26, 33, .09);
+}
+
+.pj-partner-page .metric-card.red .metric-icon {
+  color: #c91423;
+  background: #fff0f1;
+}
+
+.pj-partner-page .analytics-grid {
+  gap: 16px;
+}
+
+.pj-partner-page .dashboard-card {
+  border-color: #e7e9ee;
+  border-radius: 20px;
+  box-shadow: 0 5px 18px rgba(23, 26, 33, .045);
+}
+
+.pj-partner-page .dashboard-card .section-heading h2 {
+  color: #171a20;
+  letter-spacing: -.035em;
+}
+
+.pj-partner-page .chart-grid {
+  stroke: #eceef2;
+}
+
+.pj-partner-page .chart-point {
+  fill: #fff;
+  stroke: #e51b2a;
+}
+
+.pj-partner-page .top-products > *,
+.pj-partner-page .top-product {
+  border-color: #e7e9ee;
+  border-radius: 13px;
+}
+
+@media (max-width: 760px) {
+  .pj-partner-page.auth-business .auth-brand small {
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 1120px) {
+  .pj-partner-page .overview-hero {
+    padding: 28px;
+  }
+}
+
+@media (max-width: 820px) {
+  .pj-partner-page .dashboard-main {
+    gap: 17px;
+  }
+}
+
+@media (max-width: 620px) {
+  .pj-partner-page .overview-hero {
+    min-height: 0;
+    padding: 23px 20px;
+    border-radius: 20px;
+  }
+
+  .pj-partner-page .overview-hero .store-control {
+    border-radius: 14px;
+  }
+
+  .pj-partner-page .dashboard-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pj-partner-page .metrics-grid {
+    gap: 9px;
+  }
+
+  .pj-partner-page .metric-card {
+    gap: 10px;
+    padding: 13px;
+    border-radius: 15px;
+  }
+
+  .pj-partner-page .metric-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .pj-partner-page .dashboard-card {
+    padding: 18px;
+    border-radius: 18px;
+  }
+}

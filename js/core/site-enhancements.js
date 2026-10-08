@@ -52,6 +52,59 @@
   mobileCss.href = `${assetRoot}css/modules/mobile-pwa-4.2.6.css?v=4.2.6`;
   document.head.append(mobileCss);
 
+  const paginaParceiro = new Set([
+    "empresa-cadastro.html",
+    "empresa-dashboard.html",
+    "empresa-login.html",
+  ]);
+  if (paginaParceiro.has(paginaLegada.toLowerCase())) {
+    document.body.classList.add("pj-partner-page");
+    const partnerCss = document.createElement("link");
+    partnerCss.rel = "stylesheet";
+    partnerCss.href = `${assetRoot}css/pages/partner-experience.css?v=1.0.0`;
+    document.head.append(partnerCss);
+  }
+
+  const paginaCliente = new Set([
+    "acompanhamento.html",
+    "cadastro.html",
+    "checkout.html",
+    "dados.html",
+    "enderecos.html",
+    "favoritos.html",
+    "login.html",
+    "meus-pedidos.html",
+    "nova-senha.html",
+    "pedido-sucesso.html",
+    "perfil.html",
+    "privacidade.html",
+    "recuperar-senha.html",
+    "restaurante.html",
+    "suporte.html",
+  ]);
+  if (paginaCliente.has(paginaLegada.toLowerCase())) {
+    document.body.classList.add("pj-customer-page");
+    if (paginaLegada.toLowerCase() === "checkout.html") {
+      document.body.classList.add("pj-checkout-page");
+    } else if (paginaLegada.toLowerCase() === "meus-pedidos.html") {
+      document.body.classList.add("pj-orders-page");
+    } else if (paginaLegada.toLowerCase() === "acompanhamento.html") {
+      document.body.classList.add("pj-track-page");
+    }
+    const customerCss = document.createElement("link");
+    customerCss.rel = "stylesheet";
+    customerCss.href = `${assetRoot}css/pages/customer-experience.css?v=1.0.5`;
+    document.head.append(customerCss);
+  }
+
+  if (paginaLegada.toLowerCase() === "restaurante.html") {
+    document.body.classList.add("pj-restaurant-page");
+    const restaurantCss = document.createElement("link");
+    restaurantCss.rel = "stylesheet";
+    restaurantCss.href = `${assetRoot}css/pages/restaurant-experience.css?v=1.0.0`;
+    document.head.append(restaurantCss);
+  }
+
   if (/empresa-dashboard\.html$/i.test(location.pathname)) {
     const entregaPropriaCss = document.createElement("link");
     entregaPropriaCss.rel = "stylesheet";

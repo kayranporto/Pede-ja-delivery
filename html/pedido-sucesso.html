@@ -1,110 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com 'sha256-u0u1ecLVPYNekrgEx+XAUkD4bQUKUR6DUioTn79RARQ='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://va.vercel-scripts.com; frame-src 'self' https://challenges.cloudflare.com; worker-src 'self' blob:; manifest-src 'self'; form-action 'self'; upgrade-insecure-requests">
-<meta name="referrer" content="strict-origin-when-cross-origin">
-<link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
-<link href="../css/core/style.css?v=4.2.0" rel="stylesheet">
-<link href="../css/pages/pedido-sucesso.css?v=4.2.0" rel="stylesheet">
-<link href="../css/core/accessibility.css?v=4.2.0" rel="stylesheet">
-<link href="../css/core/enhancements.css?v=4.4.8" rel="stylesheet">
-<link rel="manifest" href="../manifest.webmanifest">
-<meta name="theme-color" content="#e51b2a">
-<title>Pedido realizado — Pede Já</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com 'sha256-u0u1ecLVPYNekrgEx+XAUkD4bQUKUR6DUioTn79RARQ='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://va.vercel-scripts.com; frame-src 'self' https://challenges.cloudflare.com; worker-src 'self' blob:; manifest-src 'self'; form-action 'self'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="theme-color" content="#e51b2a">
+  <title>Pedido confirmado | Pede Já</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="stylesheet" href="../css/pages/pedido-sucesso.css?v=4.3.0">
+  <link rel="stylesheet" href="../css/core/accessibility.css?v=4.2.0">
+  <link rel="stylesheet" href="../css/core/enhancements.css?v=4.4.8">
 </head>
 <body class="pedido-sucesso-page">
-<noscript>Este site precisa de JavaScript habilitado para funcionar.</noscript>
-
-<header class="success-header">
-  <a class="success-logo" href="../index.html" aria-label="Pede Já - início">
-    <img src="../assets/logo-pedeja.svg" alt="Pede Já">
-  </a>
-  <nav class="success-nav" aria-label="Navegação principal">
-    <a href="../index.html">Início</a>
-    <a href="restaurante.html">Restaurantes</a>
-    <a href="../index.html#categorias">Categorias</a>
-    <a href="suporte.html">Suporte</a>
-  </nav>
-  <div class="success-actions">
-    <a href="login.html">Entrar</a>
-    <a class="success-signup" href="cadastro.html">Cadastrar</a>
-    <a class="success-cart" href="checkout.html" aria-label="Carrinho">🛒<span>0</span></a>
-  </div>
-  <button class="success-menu" type="button" aria-label="Abrir menu">☰</button>
-</header>
-
-<main class="success-main">
-  <section class="success-hero">
-    <div class="success-copy">
-      <div class="success-check" aria-hidden="true">✓</div>
-      <h1>Pedido realizado!</h1>
-      <p class="success-lead">Seu pedido foi confirmado e já está sendo preparado pelo restaurante.</p>
-      <p class="success-sublead">Agora é só aguardar e logo mais seu pedido chegar!</p>
-      <div class="success-order-number">
-        <span>Número do pedido</span>
-        <strong id="numeroPedido">#25</strong>
-      </div>
-      <a class="success-track" href="meus-pedidos.html">🚚 <span>Acompanhar pedido</span> <b>→</b></a>
-    </div>
-    <div class="success-food" aria-hidden="true">
-      <div class="shape shape-red"></div>
-      <div class="shape shape-gold"></div>
-      <img src="../assets/hero-pedeja-hamburguer.webp" alt="">
-    </div>
-  </section>
-
-  <section class="success-meta" aria-label="Resumo da entrega">
-    <article><span class="meta-icon">▣</span><div><small>Restaurante</small><strong id="restauranteNome">Restaurante</strong><em id="restauranteCategoria"></em></div></article>
-    <article><span class="meta-icon">◷</span><div><small>Previsão de entrega</small><strong id="previsaoEntrega">30 – 45 min</strong></div></article>
-    <article><span class="meta-icon">♧</span><div><small>Taxa de entrega</small><strong id="taxaEntrega">R$ 0,00</strong></div></article>
-    <article><span class="meta-icon">▤</span><div><small>Forma de pagamento</small><strong id="formaPagamento">Pagamento</strong><em id="pagamentoDetalhe"></em></div></article>
-  </section>
-
-  <section class="success-grid">
-    <article class="success-card order-summary">
-      <h2>Resumo do pedido</h2>
-      <div id="itensResumo" class="order-items-dynamic"></div>
-      <div class="order-totals"><span>Subtotal <b id="subtotalPedido">R$ 0,00</b></span><span>Taxa de entrega <b id="taxaPedido">R$ 0,00</b></span><strong>Total <b id="totalPedido">R$ 0,00</b></strong></div>
-    </article>
-
-    <article class="success-card delivery-card">
-      <h2>Endereço de entrega</h2>
-      <p class="address"><b>📍 <span id="enderecoEntrega">Endereço não informado</span></b></p>
-      <button class="address-button" type="button">Ver detalhes do endereço</button>
-      <div class="tracking">
-        <h2>Acompanhe seu pedido</h2>
-        <ol id="timelinePedido">
-          <li data-status="recebido"><span>✓</span><div><strong>Pedido recebido</strong><small>Aguardando</small></div></li>
-          <li data-status="preparando"><span>•</span><div><strong>Em preparo</strong><small>Aguardando</small></div></li>
-          <li data-status="saiu_para_entrega"><span>•</span><div><strong>Em rota de entrega</strong><small>Aguardando</small></div></li>
-          <li data-status="entregue"><span>•</span><div><strong>Pedido entregue</strong><small>Aguardando</small></div></li>
-        </ol>
-      </div>
-    </article>
-  </section>
-</main>
-
-<footer class="success-footer">
-  <img src="../assets/logo-pedeja.svg" alt="Pede Já">
-  <nav><a href="../index.html">Início</a><a href="restaurante.html">Restaurantes</a><a href="../index.html#categorias">Categorias</a><a href="suporte.html">Sobre</a><a href="suporte.html">Contato</a></nav>
-  <small>© 2025 Pede Já. Todos os direitos reservados.</small>
-</footer>
-
-<nav class="success-bottom-nav" aria-label="Navegação mobile">
-  <a href="../index.html"><span>⌂</span>Início</a>
-  <a href="../index.html#restaurantes"><span>⌕</span>Busca</a>
-  <a class="active" href="meus-pedidos.html"><span>▣</span>Pedidos</a>
-  <a href="perfil.html"><span>♙</span>Perfil</a>
-</nav>
-
-<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
-<script defer src="../js/core/app-utils.js?v=4.4.7"></script>
-<script defer src="../js/core/supabase.js?v=4.4.7"></script>
-<script defer src="../js/core/config.js?v=4.4.8"></script>
-<script defer src="../js/core/monitoring.js?v=4.2.0"></script>
-<script defer src="../js/pages/pedido-sucesso.js?v=4.4.7"></script>
-<script defer src="../js/core/site-enhancements.js?v=4.4.8"></script>
+  <noscript>Este site precisa de JavaScript habilitado para funcionar.</noscript>
+  <main class="success-confirmation" id="conteudoPrincipal">
+    <section class="success-confirmation-card" aria-labelledby="confirmationTitle">
+      <span class="success-confirmation-check" aria-hidden="true">✓</span>
+      <h1 id="confirmationTitle">Pedido confirmado!</h1>
+      <a class="success-confirmation-button" id="acompanharPedido" href="acompanhamento.html">
+        Acompanhar pedido
+        <span aria-hidden="true">→</span>
+      </a>
+    </section>
+  </main>
+  <script defer src="../js/core/app-utils.js?v=4.4.7"></script>
+  <script defer src="../js/pages/pedido-sucesso.js?v=4.5.0"></script>
+  <script defer src="../js/core/site-enhancements.js?v=4.4.8"></script>
 </body>
 </html>

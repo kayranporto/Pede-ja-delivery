@@ -29,6 +29,10 @@ test("Destaque da home mantém conteúdo e CTA utilizáveis em telas pequenas", 
     assert.match(home, /home-polish-4\.5\.1\.css\?v=4\.5\.1/);
     assert.match(polish, /@media\s*\(max-width:\s*680px\)/);
     assert.match(polish, /\.hero-reference-copy > :not\(\.hero-reference-searchbar\)/);
+    assert.match(polish, /\.market-hero\s*\{\s*height:\s*auto !important;\s*min-height:\s*0 !important;/);
+    assert.match(polish, /\.categorias\s*\{\s*position:\s*relative !important;\s*z-index:\s*8 !important;\s*margin-top:\s*-36px !important;/);
+    assert.match(polish, /\.hero-reference-benefits span\s*\{\s*min-height:\s*16px !important;\s*line-height:\s*1\.3 !important;/);
+    assert.match(polish, /@media \(min-width: 1001px\)\s*\{[\s\S]*?#heroTitulo\s*\{\s*max-width:\s*700px !important;\s*font-size:\s*clamp\(40px, 3\.7vw, 54px\) !important;/);
 });
 
 test("Home usa horário real no filtro Aberto agora", () => {
