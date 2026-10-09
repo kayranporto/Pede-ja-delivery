@@ -24,15 +24,32 @@ test("Endereço é cadastrado pela página Meus endereços e apenas selecionado 
 test("Destaque da home mantém conteúdo e CTA utilizáveis em telas pequenas", () => {
     const home = read("index.html");
     const polish = read("css/pages/home-polish-4.5.1.css");
+    const reference = read("css/pages/home-final-reference.css");
     assert.match(home, /<main id="conteudoPrincipal">/);
     assert.match(home, /id="heroTitulo">Sua comida favorita, <span>sem sair de casa!<\/span><\/h1>/);
-    assert.match(home, /home-polish-4\.5\.1\.css\?v=4\.5\.1/);
+    assert.match(home, /home-final-reference\.css\?v=3\.4\.2/);
+    assert.match(home, /href="assets\/home-banner-reference\.png" as="image" fetchpriority="high"\/>/);
+    assert.match(home, /class="hero-reference-art" aria-hidden="true"><img src="assets\/home-banner-reference\.png"/);
     assert.match(polish, /@media\s*\(max-width:\s*680px\)/);
     assert.match(polish, /\.hero-reference-copy > :not\(\.hero-reference-searchbar\)/);
     assert.match(polish, /\.market-hero\s*\{\s*height:\s*auto !important;\s*min-height:\s*0 !important;/);
     assert.match(polish, /\.categorias\s*\{\s*position:\s*relative !important;\s*z-index:\s*8 !important;\s*margin-top:\s*-36px !important;/);
     assert.match(polish, /\.hero-reference-benefits span\s*\{\s*min-height:\s*16px !important;\s*line-height:\s*1\.3 !important;/);
     assert.match(polish, /@media \(min-width: 1001px\)\s*\{[\s\S]*?#heroTitulo\s*\{\s*max-width:\s*700px !important;\s*font-size:\s*clamp\(40px, 3\.7vw, 54px\) !important;/);
+    assert.match(reference, /grid-template-areas:\s*"logo search menu"/);
+    assert.match(reference, /\.home-page \.account-nav,[\s\S]{0,100}\.home-page \.cart\{display:none!important\}/);
+    assert.match(reference, /\.hero-reference-copy > :not\(\.hero-reference-searchbar\)\{[^}]*clip-path:none!important;/);
+    assert.match(reference, /\.hero-reference-searchbar\{[^}]*position:relative!important;/);
+    assert.match(reference, /\.hero-reference-art\{[^}]*background-image:\s*$/m);
+    assert.match(reference, /url\("\.\.\/\.\.\/assets\/home-banner-reference\.png"\)!important;/);
+    assert.match(reference, /@media\(max-width:680px\)\{[\s\S]*?\.home-page \.hero-reference-frame\{[^}]*min-height:clamp\(390px,105vw,430px\)!important;[^}]*url\("\.\.\/\.\.\/assets\/home-banner-reference\.png"\) center 48% \/ cover no-repeat!important;/);
+    assert.match(reference, /\.home-page \.hero-reference-frame\{[^}]*background:[\s\S]*?rgba\(18,12,8,\.2\)[\s\S]*?url\("\.\.\/\.\.\/assets\/home-banner-reference\.png"\) center 48% \/ cover no-repeat!important;/);
+    assert.match(reference, /\.home-page \.hero-reference-art\{[^}]*display:none!important;/);
+    assert.match(reference, /\.home-page \.hero-reference-copy\{[^}]*position:absolute!important;[^}]*height:100%!important;[^}]*background:transparent!important;/);
+    assert.match(reference, /\.home-page #heroTitulo\{[^}]*color:#fff!important;[^}]*text-shadow:0 2px 12px rgba\(0,0,0,\.72\)!important;/);
+    assert.match(reference, /\.hero-reference-art img\{display:none!important\}/);
+    assert.match(reference, /@media\(min-width:681px\)\{\s*\.home-page \.market-hero\{[^}]*padding:clamp\(16px,2vw,28px\) clamp\(18px,3vw,42px\) 14px!important;/);
+    assert.match(reference, /\.home-page \.hero-reference-frame\{[^}]*border-radius:30px!important;[^}]*box-shadow:0 22px 52px rgba\(20,24,32,\.16\)!important;/s);
 });
 
 test("Home usa horário real no filtro Aberto agora", () => {
