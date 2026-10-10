@@ -49,6 +49,7 @@
       .unit-empty{padding:24px;border:1px dashed #d8dbe0;border-radius:14px;color:#777e88;text-align:center;font-size:11px}
       @media(max-width:1000px){.unit-switcher{min-width:170px}.units-layout{grid-template-columns:1fr}}
       @media(max-width:720px){.unit-switcher{order:3;width:100%}.dashboard-header .header-actions{flex-wrap:wrap}.units-hero{align-items:flex-start;flex-direction:column}.units-form-grid{grid-template-columns:1fr}.units-field.wide{grid-column:auto}.unit-item{grid-template-columns:1fr}.unit-item-actions{justify-content:flex-start}}
+      @media(max-width:620px){.unit-switcher{display:none!important}}
     `;
     document.head.append(style);
   }
