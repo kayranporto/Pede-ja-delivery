@@ -21,6 +21,7 @@ let quantidade = 1;
 let gruposAtuais = [];
 let variantesAtuais = [];
 let varianteSelecionada = null;
+let exigirEscolhaTamanhoPizza = false;
 let elementoFocoAnterior = null;
 let adicionaisCarregados = false;
 let solicitacaoModal = 0;
@@ -83,6 +84,24 @@ async function carregarVariantes(produtoId, solicitacao) {
     const produto = (menu?.produtos || []).find((item) => String(item.id) === String(produtoId));
     const data = produto?.variantes || [];
     if (solicitacao !== solicitacaoModal) return false;
+
+    const categoriaProduto = (menu?.categorias || []).find(
+        (item) => String(item.id) === String(produto?.categoria_id)
+    );
+    const contextoProduto = [
+        menu?.restaurante?.categoria,
+        menu?.restaurante?.tipo,
+        categoriaProduto?.nome,
+        produto?.nome
+    ].filter(Boolean).join(" ").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    exigirEscolhaTamanhoPizza = contextoProduto.includes("pizz");
+    const tituloVariantes = blocoVariantes.querySelector("h3");
+    if (tituloVariantes) {
+        tituloVariantes.textContent = exigirEscolhaTamanhoPizza
+            ? "Escolha o tamanho da pizza"
+            : "Escolha uma opção";
+    }
+
     variantesAtuais = data.filter((item) => item.ativo !== false);
     if (!variantesAtuais.length) return true;
 
@@ -95,7 +114,7 @@ async function carregarVariantes(produtoId, solicitacao) {
         input.type = "radio";
         input.name = "produto-variante";
         input.value = String(variante.id);
-        input.checked = indice === 0;
+        input.checked = !exigirEscolhaTamanhoPizza && indice === 0;
         const texto = document.createElement("span");
         texto.textContent = variante.nome || "Opção";
         const preco = document.createElement("small");
@@ -103,7 +122,7 @@ async function carregarVariantes(produtoId, solicitacao) {
         label.append(input, texto, preco);
         listaVariantes.append(label);
     });
-    varianteSelecionada = variantesAtuais[0] || null;
+    varianteSelecionada = exigirEscolhaTamanhoPizza ? null : (variantesAtuais[0] || null);
     return true;
 }
 
@@ -189,6 +208,9 @@ async function abrirModalProduto(produto) {
     gruposAtuais = [];
     variantesAtuais = [];
     varianteSelecionada = null;
+    exigirEscolhaTamanhoPizza = false;
+    const tituloVariantes = blocoVariantes.querySelector("h3");
+    if (tituloVariantes) tituloVariantes.textContent = "Escolha uma opção";
     adicionaisCarregados = false;
     elementoFocoAnterior = document.activeElement;
     observacao.value = "";
@@ -229,6 +251,10 @@ async function abrirModalProduto(produto) {
 
 function atualizarPreco() {
     if (!produtoAtual) return;
+    if (exigirEscolhaTamanhoPizza && variantesAtuais.length && !varianteSelecionada) {
+        precoFinal.textContent = "Escolha o tamanho";
+        return;
+    }
     let total = precoBaseAtual();
     listaAdicionais.querySelectorAll("input:checked").forEach((input) => {
         total += Number(input.dataset.preco || 0);
@@ -238,6 +264,10 @@ function atualizarPreco() {
 
 function validarGrupos() {
     if (!adicionaisCarregados) return false;
+    if (exigirEscolhaTamanhoPizza && variantesAtuais.length && !varianteSelecionada) {
+        avisarModal("Tamanho obrigatório", "Selecione o tamanho da pizza para continuar.");
+        return false;
+    }
     for (const grupo of gruposAtuais) {
         const seletor = `input[data-grupo-id="${CSS.escape(grupo.id)}"]:checked`;
         const quantidadeSelecionada = listaAdicionais.querySelectorAll(seletor).length;
