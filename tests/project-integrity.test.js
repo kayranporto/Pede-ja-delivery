@@ -163,3 +163,17 @@ test("favoritos usam apenas a API para consultar o catálogo", () => {
     assert.match(api, /rawIds\.length > 200/);
     assert.match(api, /\.in\("id", ids\)/);
 });
+
+
+test("pizzarias exigem escolha explícita do tamanho quando o produto tem variações", () => {
+    const modal = fs.readFileSync(path.join(root, "js/modules/modal.js"), "utf8");
+    const painel = fs.readFileSync(path.join(root, "html/empresa-dashboard.html"), "utf8");
+    const restaurante = fs.readFileSync(path.join(root, "html/restaurante.html"), "utf8");
+
+    assert.match(modal, /contextoProduto\.includes\("pizz"\)/);
+    assert.match(modal, /input\.checked = !exigirEscolhaTamanhoPizza && indice === 0/);
+    assert.match(modal, /Tamanho obrigatório/);
+    assert.match(modal, /Escolha o tamanho da pizza/);
+    assert.match(painel, /Broto, Pequena, Média, Grande ou Família/);
+    assert.match(restaurante, /js\/modules\/modal\.js\?v=4\.2\.3/);
+});
