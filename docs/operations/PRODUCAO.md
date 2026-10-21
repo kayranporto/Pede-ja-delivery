@@ -41,7 +41,7 @@ Funções obrigatórias para pagamento online:
 
 `enviar-push` é opcional. Configure segredos somente no ambiente de funções; nunca no frontend.
 
-Enquanto o sandbox não estiver completamente aprovado, mantenha `pagamentoOnlineAtivo: false` em `js/core/config.js`. Ative a opção somente depois de confirmar os segredos, a compatibilidade do token com o ambiente e os fluxos de pagamento, webhook e reembolso.
+Enquanto o sandbox não estiver completamente aprovado, mantenha `pagamentoOnlineAtivo: false` em `js/core/config.js` e `PAYMENT_ONLINE_ENABLED` ausente ou definido como `false` nos segredos da Edge Function. A função `criar-pagamento` agora recusa novas cobranças com HTTP 503, salvo quando `PAYMENT_ONLINE_ENABLED` é explicitamente `true`. Habilite as duas chaves somente depois de confirmar credenciais, ambiente correto e testes de pagamento, webhook e reembolso.
 
 ## 4. Testes obrigatórios de sandbox
 
