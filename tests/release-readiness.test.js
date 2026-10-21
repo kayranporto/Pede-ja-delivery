@@ -262,6 +262,12 @@ test("webhook valida assinatura e reconcilia valor, moeda e idempotência no ban
     assert.doesNotMatch(webhook, /\.from\(["']pedidos["']\)\s*\.update/);
 });
 
+test("reembolso exige permissão financeira explícita e falha fechado", () => {
+    const edge = read("supabase/functions/processar-reembolso/index.ts");
+    assert.match(edge, /if \(!Array\.isArray\(rawPermissions\) \|\| !rawPermissions\.includes\("financeiro"\)\)/);
+    assert.doesNotMatch(edge, /Array\.isArray\(rawPermissions\) && rawPermissions\.length && !rawPermissions\.includes\("financeiro"\)/);
+});
+
 test("reembolso usa endpoint do provedor e chave de idempotência", () => {
     const edge = read("supabase/functions/processar-reembolso/index.ts");
     assert.match(edge, /\/v1\/payments\/\$\{encodeURIComponent\(paymentId\)\}\/refunds/);
