@@ -57,13 +57,13 @@ const ADMIN_PERMISSION_KEYS = [
 ] as const;
 
 function normalizeAdminPermissions(value: unknown): Set<string> {
-  if (!Array.isArray(value) || value.length === 0) return new Set(ADMIN_PERMISSION_KEYS);
-  const normalized = new Set(
+  // Fail closed: metadados ausentes, vazios ou inválidos não concedem acesso administrativo.
+  if (!Array.isArray(value) || value.length === 0) return new Set();
+  return new Set(
     value.filter((item): item is string =>
       typeof item === "string" && (ADMIN_PERMISSION_KEYS as readonly string[]).includes(item)
     )
   );
-  return normalized.size ? normalized : new Set(ADMIN_PERMISSION_KEYS);
 }
 
 async function getAdminAccess(ctx: RouteContext) {
