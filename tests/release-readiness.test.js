@@ -262,6 +262,16 @@ test("webhook valida assinatura e reconcilia valor, moeda e idempotência no ban
     assert.doesNotMatch(webhook, /\.from\(["']pedidos["']\)\s*\.update/);
 });
 
+test("RPC SQL de preparo de reembolso exige permissão financeira explícita", () => {
+    const sql = read("supabase/migrations/20261021235000_require_finance_permission_for_refund_rpc.sql");
+    assert.match(sql, /create or replace function public\.admin_preparar_reembolso\(p_pedido_id uuid\)/);
+    assert.match(sql, /not private\.is_admin\(\)/);
+    assert.match(sql, /jsonb_typeof\(v_permissoes\) is distinct from 'array'/);
+    assert.match(sql, /not \(v_permissoes \? 'financeiro'\)/);
+    assert.match(sql, /revoke all on function public\.admin_preparar_reembolso\(uuid\)/);
+    assert.match(sql, /^begin;[\s\S]*commit;\s*$/im);
+});
+
 test("reembolso exige permissão financeira explícita e falha fechado", () => {
     const edge = read("supabase/functions/processar-reembolso/index.ts");
     assert.match(edge, /if \(!Array\.isArray\(rawPermissions\) \|\| !rawPermissions\.includes\("financeiro"\)\)/);
