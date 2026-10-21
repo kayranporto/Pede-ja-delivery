@@ -6,6 +6,22 @@ Cada função possui `deno.json` próprio e usa versão exata das dependências.
 
 ## Segredos
 
+A criação de novas cobranças online fica **bloqueada por padrão no servidor**. A variável `PAYMENT_ONLINE_ENABLED` precisa ser exatamente `true` para liberar a Edge Function `criar-pagamento`; se estiver ausente ou diferente, a função responde HTTP 503. Essa trava é independente de `pagamentoOnlineAtivo` no frontend.
+
+Mantenha desativada enquanto os cenários de sandbox e a revisão operacional não estiverem aprovados:
+
+```bash
+supabase secrets set PAYMENT_ONLINE_ENABLED="false"
+```
+
+Somente depois de aprovar os testes e revisar as credenciais do ambiente correto, habilite-a deliberadamente:
+
+```bash
+supabase secrets set PAYMENT_ONLINE_ENABLED="true"
+```
+
+A variável libera apenas a criação de novas preferências/cobranças; não desativa o webhook nem o processamento de reembolsos de pagamentos já existentes.
+
 ```bash
 supabase secrets set MERCADO_PAGO_ACCESS_TOKEN="..."
 supabase secrets set MERCADO_PAGO_WEBHOOK_SECRET="..."
