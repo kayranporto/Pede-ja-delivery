@@ -31,6 +31,13 @@ Deno.serve(async (request) => {
   }
   if (request.method !== "POST") return json(request, { error: "Método não permitido." }, 405);
 
+  // Fail closed: habilitar a interface não basta para liberar cobranças.
+  // A variável de ambiente precisa ser configurada explicitamente como "true".
+  const paymentOnlineEnabled = Deno.env.get("PAYMENT_ONLINE_ENABLED") === "true";
+  if (!paymentOnlineEnabled) {
+    return json(request, { error: "Pagamento online está desativado no servidor." }, 503);
+  }
+
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const publishableKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
