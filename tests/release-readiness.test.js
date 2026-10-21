@@ -381,3 +381,9 @@ test("permissões administrativas ausentes ou inválidas falham de forma segura"
     assert.match(api, /if \(!Array\.isArray\(value\) \|\| value\.length === 0\) return new Set\(\)/);
     assert.doesNotMatch(api, /return normalized\.size \? normalized : new Set\(ADMIN_PERMISSION_KEYS\)/);
 });
+
+test("catálogo autenticado não expõe variantes de produtos indisponíveis", () => {
+    const migration = read("supabase/migrations/20261021223000_harden_authenticated_variant_catalog.sql");
+    assert.match(migration, /create policy catalogo_variantes_authenticated[\s\S]*?and p\.disponivel = true/i);
+    assert.match(migration, /drop policy if exists catalogo_variantes_authenticated/i);
+});
