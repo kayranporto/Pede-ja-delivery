@@ -374,3 +374,10 @@ test("criar-pagamento exige ativação explícita no servidor", () => {
     assert.match(read("supabase/functions/README.md"), /PAYMENT_ONLINE_ENABLED/);
     assert.match(read("js/core/config.js"), /pagamentoOnlineAtivo:\s*false/);
 });
+
+test("permissões administrativas ausentes ou inválidas falham de forma segura", () => {
+    const api = read("supabase/functions/api-completa/index.ts");
+    assert.match(api, /function normalizeAdminPermissions\(value: unknown\): Set<string>/);
+    assert.match(api, /if \(!Array\.isArray\(value\) \|\| value\.length === 0\) return new Set\(\)/);
+    assert.doesNotMatch(api, /return normalized\.size \? normalized : new Set\(ADMIN_PERMISSION_KEYS\)/);
+});
