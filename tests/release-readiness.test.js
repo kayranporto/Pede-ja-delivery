@@ -361,3 +361,16 @@ test("Speed Insights is loaded on Vercel without Next.js", () => {
         assert.doesNotMatch(html, /@vercel\/speed-insights\/next/);
     }
 });
+
+
+test("criar-pagamento exige ativação explícita no servidor", () => {
+    const edge = read("supabase/functions/criar-pagamento/index.ts");
+    const enabledCheck = edge.indexOf('Deno.env.get("PAYMENT_ONLINE_ENABLED") === "true"');
+    const configRead = edge.indexOf('const supabaseUrl = Deno.env.get("SUPABASE_URL")');
+    assert.ok(enabledCheck >= 0, "Edge Function sem trava explícita de ativação");
+    assert.ok(configRead > enabledCheck, "A trava precisa ocorrer antes da inicialização do fluxo de pagamento");
+    assert.match(edge, /if \(!paymentOnlineEnabled\)\s*\{[\s\S]{0,180}503\);/);
+    assert.match(read("supabase/.env.example"), /^PAYMENT_ONLINE_ENABLED=false$/m);
+    assert.match(read("supabase/functions/README.md"), /PAYMENT_ONLINE_ENABLED/);
+    assert.match(read("js/core/config.js"), /pagamentoOnlineAtivo:\s*false/);
+});
