@@ -57,7 +57,14 @@ test.beforeEach(async ({ page }) => {
             async empresaOperacao() {
                 return { pedidos: [], produtos: tabelas.produtos.map((item) => ({ ...item })), categorias: tabelas.categorias.map((item) => ({ ...item })), disponibilidade: { aberto: true }, financeiro: {} };
             },
-            async empresaPainelAcao() { return true; },
+            async empresaPainelAcao(payload) {
+                if (payload?.acao === "empresa_atualizar") {
+                    window.qaChamadas.push({ nome: "empresa_atualizar", params: { ...payload } });
+                    Object.assign(empresa, payload);
+                    return { ...empresa };
+                }
+                return true;
+            },
             async empresaOperacaoAcao() { return true; },
             async empresaImportacaoCatalogo() {
                 return { produtos: tabelas.produtos.map((item) => ({ ...item })), categorias: tabelas.categorias.map((item) => ({ ...item })) };
@@ -169,4 +176,28 @@ test("painel bloqueia CSV inválido e permite cidade inteira sem preencher bairr
     await expect(page.locator("#regiaoBairro")).toBeDisabled();
     await page.getByLabel("Atender todos os bairros desta cidade").uncheck();
     await expect(page.locator("#regiaoBairro")).toBeEnabled();
+});
+
+
+test("restaurante escolhe uma categoria alinhada aos filtros da página inicial", async ({ page }) => {
+    page.on("dialog", (dialog) => dialog.accept());
+    await page.goto("/html/empresa-dashboard.html#configuracoes");
+
+    const categoria = page.locator("#lojaCategoria");
+    await expect(categoria).toBeVisible();
+    await expect(categoria.locator("option")).toHaveCount(9);
+    const categoriasDisponiveis = await categoria.locator("option").evaluateAll((opcoes) =>
+        opcoes.map((opcao) => opcao.value).filter(Boolean)
+    );
+    expect(categoriasDisponiveis).toEqual([
+        "Hambúrguer", "Pizza", "Sushi", "Brasileira",
+        "Frango", "Lanches", "Doces", "Bebidas"
+    ]);
+
+    await categoria.selectOption("Pizza");
+    await page.getByRole("button", { name: "Salvar configurações" }).click();
+    await expect.poll(() => page.evaluate(() =>
+        window.qaChamadas.findLast((chamada) => chamada.nome === "empresa_atualizar")?.params?.categoria
+    )).toBe("Pizza");
+    await expect(categoria).toHaveValue("Pizza");
 });

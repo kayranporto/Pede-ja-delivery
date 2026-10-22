@@ -306,7 +306,17 @@
             <div class="grid">
               <div class="field"><label for="lojaNome">Nome</label><input autocomplete="organization" id="lojaNome" maxlength="100" required/></div>
               <div class="field"><label for="lojaTelefone">Telefone</label><input autocomplete="tel" id="lojaTelefone" maxlength="30"/></div>
-              <div class="field"><label for="lojaCategoria">Categoria</label><input id="lojaCategoria" maxlength="80" placeholder="Ex.: Pizza, Lanches"/></div>
+              <div class="field"><label for="lojaCategoria">Categoria</label><select id="lojaCategoria">
+                <option value="">Selecione uma categoria</option>
+                <option value="Hambúrguer">Hambúrguer</option>
+                <option value="Pizza">Pizza</option>
+                <option value="Sushi">Sushi</option>
+                <option value="Brasileira">Brasileira</option>
+                <option value="Frango">Frango</option>
+                <option value="Lanches">Lanches</option>
+                <option value="Doces">Doces e sobremesas</option>
+                <option value="Bebidas">Bebidas</option>
+              </select><small>Use uma das categorias exibidas nos filtros da página inicial.</small></div>
               <div class="field"><label for="lojaTaxa">Taxa de entrega</label><input id="lojaTaxa" min="0" required step="0.01" type="number"/></div>
               <div class="field"><label for="lojaMinimo">Pedido mínimo</label><input id="lojaMinimo" min="0" required step="0.01" type="number"/></div>
               <div class="field"><label for="lojaCidade">Cidade principal</label><input autocomplete="address-level2" id="lojaCidade" maxlength="100"/><small>Outras cidades podem ser adicionadas em Operação → Cidades e regiões de entrega.</small></div>

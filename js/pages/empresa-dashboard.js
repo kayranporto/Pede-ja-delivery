@@ -1012,7 +1012,16 @@ function preencherLoja() {
     document.getElementById("textoStatusLoja").textContent = empresa.status !== false ? "Aberta e recebendo" : "Fechada temporariamente";
     document.getElementById("lojaNome").value = empresa.nome || "";
     document.getElementById("lojaTelefone").value = empresa.telefone || "";
-    document.getElementById("lojaCategoria").value = empresa.categoria || empresa.tipo || "";
+    const campoCategoria = document.getElementById("lojaCategoria");
+    const categoriaAtual = String(empresa.categoria || empresa.tipo || "").trim();
+    if (categoriaAtual && !Array.from(campoCategoria.options).some((opcao) => opcao.value === categoriaAtual)) {
+        // Mantém categorias antigas personalizadas visíveis até o restaurante escolher uma opção padronizada.
+        const opcaoLegada = document.createElement("option");
+        opcaoLegada.value = categoriaAtual;
+        opcaoLegada.textContent = `${categoriaAtual} (categoria atual)`;
+        campoCategoria.insertBefore(opcaoLegada, campoCategoria.options[1] || null);
+    }
+    campoCategoria.value = categoriaAtual;
     document.getElementById("lojaTaxa").value = Number(empresa.taxa_entrega || 0).toFixed(2);
     document.getElementById("lojaMinimo").value = Number(empresa.pedido_minimo || 0).toFixed(2);
     document.getElementById("lojaCidade").value = empresa.cidade_atendimento || "";
