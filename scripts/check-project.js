@@ -59,6 +59,12 @@ for (const file of publicFiles) {
 }
 
 const packageJson = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+const packageLock = JSON.parse(fs.readFileSync(path.join(root, "package-lock.json"), "utf8"));
+for (const [arquivo, versao] of [["package-lock.json", packageLock.version], ["package-lock.json packages[\"\"]", packageLock.packages?.[""]?.version]]) {
+    if (versao !== packageJson.version) {
+        failures.push(`Versão divergente: package.json=${packageJson.version} e ${arquivo}=${versao || "ausente"}.`);
+    }
+}
 const configContent = fs.readFileSync(path.join(root, "js/core/config.js"), "utf8");
 const serviceWorkerContent = fs.readFileSync(path.join(root, "sw.js"), "utf8");
 const configVersion = configContent.match(/\bappVersion:\s*["']([^"']+)["']/)?.[1];
