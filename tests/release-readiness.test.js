@@ -259,6 +259,9 @@ test("webhook valida assinatura e reconcilia valor, moeda e idempotência no ban
         "x-signature", "x-request-id", "HMAC", "MERCADO_PAGO_COLLECTOR_ID",
         "transaction_amount", "currency_id", "dedupeKey", "reconciliar_pagamento_mercado_pago"
     ]) assert.ok(webhook.includes(trecho), `webhook sem ${trecho}`);
+    assert.match(webhook, /if \(!secret \|\| !accessToken \|\| !expectedCollectorId\)/);
+    assert.match(webhook, /if \(String\(payment\.collector_id \|\| ""\) !== expectedCollectorId\)/);
+    assert.doesNotMatch(webhook, /if \(expectedCollectorId && String\(payment\.collector_id/);
     assert.doesNotMatch(webhook, /\.from\(["']pedidos["']\)\s*\.update/);
 });
 
