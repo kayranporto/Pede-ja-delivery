@@ -67,3 +67,54 @@ test.describe("API pública publicada", () => {
         }
     });
 });
+
+const fs = require("node:fs");
+const pathModule = require("node:path");
+
+// A chave publishable é pública e é a mesma usada pelo cliente do site.
+// Isso permite validar a rota real sem exigir secrets opcionais no GitHub Actions.
+const publicClientConfig = fs.readFileSync(pathModule.join(__dirname, "../js/core/supabase.js"), "utf8");
+const supabaseUrl = String(process.env.SUPABASE_URL || publicClientConfig.match(/const SUPABASE_URL = "([^"]+)"/)?.[1] || "").replace(/\/$/, "");
+const searchApiUrl = String(process.env.API_PUBLICA_URL || `${supabaseUrl}/functions/v1/api-completa`).replace(/\/$/, "");
+const searchApiKey = String(process.env.API_PUBLICA_KEY || publicClientConfig.match(/const SUPABASE_PUBLISHABLE_KEY = "([^"]+)"/)?.[1] || "");
+
+test("busca pública de produtos funciona na API publicada", async ({ request }) => {
+    expect(searchApiUrl).not.toBe("");
+    expect(searchApiKey).toMatch(/^sb_publishable_/);
+
+    const requestId = `e2e-busca-produtos-${Date.now()}`;
+    const response = await request.get(
+        `${searchApiUrl}/v1/produtos/buscar?busca=pizza&limite=3`,
+        {
+            headers: {
+                apikey: searchApiKey,
+                "x-request-id": requestId,
+                accept: "application/json"
+            },
+            timeout: 20000
+        }
+    );
+    const rawBody = await response.text();
+    expect(response.status(), rawBody).toBe(200);
+    expect(response.headers()["content-type"]).toContain("application/json");
+    expect(response.headers()["x-api-version"]).toBeTruthy();
+
+    const body = JSON.parse(rawBody);
+    expect(body.request_id).toBe(requestId);
+    expect(body.data).toEqual(expect.any(Array));
+    expect(body.data.length).toBeGreaterThan(0);
+    expect(body.data.length).toBeLessThanOrEqual(3);
+
+    for (const product of body.data) {
+        expect(product.id).toBeTruthy();
+        expect(product.empresa_id).toBeTruthy();
+        expect(product.nome).toBeTruthy();
+        expect(product.empresa.id).toBe(product.empresa_id);
+        expect(product.empresa.status).toBe(true);
+    }
+
+    const serialized = JSON.stringify(body);
+    for (const field of ["usuario_id", "cnpj", "email", "telefone"]) {
+        expect(serialized).not.toContain(`"${field}"`);
+    }
+});
