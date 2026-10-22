@@ -438,10 +438,6 @@ async function finalizarPedido() {
 
     const pagamento = document.querySelector("input[name='pagamento']:checked")?.value;
     if (!pagamento) return avisarCheckout("Selecione uma forma de pagamento.", "info");
-    if (pagamento === "Online" && window.DELIVERY_CONFIG?.pagamentoOnlineAtivo !== true) {
-        return avisarCheckout("O pagamento online está temporariamente indisponível. Escolha uma forma de pagamento na entrega.", "info");
-    }
-
     const troco = pagamento === "Dinheiro" ? valorTroco() : null;
     if (pagamento === "Dinheiro" && trocoPara.value.trim() && (troco === null || troco < calcularTotal())) {
         return avisarCheckout("Informe um valor de troco maior ou igual ao total do pedido.", "info");
@@ -467,7 +463,7 @@ async function finalizarPedido() {
             unidade_id: carrinhoMeta.unidade_id ? String(carrinhoMeta.unidade_id) : null,
             endereco_id: enderecoSelecionado.id,
             endereco,
-            pagamento: pagamento === "Online" ? "Cartão" : pagamento,
+            pagamento,
             observacoes: observacoesFinais,
             cupom: cupomAplicado || null,
             itens,
@@ -480,18 +476,6 @@ async function finalizarPedido() {
         if (!pedidoBanco) throw new Error("Não foi possível carregar o pedido criado.");
 
         App.salvarJSON("pedidoAtual", pedidoBanco);
-        if (pagamento === "Online") {
-            const respostaOnline = await window.DeliveryAPI.request("/v1/pagamentos/criar", {
-                method: "POST",
-                body: JSON.stringify({ pedido_id: pedidoBanco.id })
-            });
-            if (!respostaOnline?.checkout_url) throw new Error("O gateway de pagamento não retornou a URL de checkout.");
-            pedidoBanco.pagamento_modalidade = "online";
-            App.salvarJSON("pedidoAtual", pedidoBanco);
-            limparCheckoutConcluido();
-            window.location.href = respostaOnline.checkout_url;
-            return;
-        }
         limparCheckoutConcluido();
         window.location.href = "pedido-sucesso.html";
     } catch (error) {
@@ -516,27 +500,9 @@ document.querySelectorAll("input[name='pagamento']").forEach((input) => {
     input.addEventListener("change", () => {
         trocoField.hidden = input.value !== "Dinheiro" || !input.checked;
         if (trocoField.hidden) trocoPara.value = "";
-        if (input.checked) pagamentoNota.textContent = input.value === "Online"
-            ? "Você será redirecionado para o ambiente seguro do Mercado Pago. O restaurante só verá a confirmação do pagamento."
-            : "O pagamento será realizado diretamente ao restaurante na entrega. Nenhum dado de cartão é solicitado neste site.";
+        if (input.checked) pagamentoNota.textContent = "O pagamento será realizado diretamente ao restaurante na entrega. Nenhum dado de cartão é solicitado neste site.";
     });
 });
-
-const pagamentoOnline = document.querySelector("input[name='pagamento'][value='Online']");
-const pagamentoOnlineAtivo = window.DELIVERY_CONFIG?.pagamentoOnlineAtivo === true;
-if (pagamentoOnline) {
-    pagamentoOnline.disabled = !pagamentoOnlineAtivo;
-    pagamentoOnline.closest(".payment-option")?.toggleAttribute("data-pagamento-indisponivel", !pagamentoOnlineAtivo);
-    const statusOnline = document.getElementById("pagamentoOnlineStatus");
-    const badgeOnline = document.getElementById("pagamentoOnlineBadge");
-    if (statusOnline) statusOnline.textContent = pagamentoOnlineAtivo ? "PIX ou cartão pelo Mercado Pago" : "Temporariamente indisponível";
-    if (badgeOnline) badgeOnline.textContent = pagamentoOnlineAtivo ? "ONLINE" : "EM BREVE";
-    if (!pagamentoOnlineAtivo && pagamentoOnline.checked) {
-        pagamentoOnline.checked = false;
-        const pix = document.querySelector("input[name='pagamento'][value='PIX']");
-        if (pix) pix.checked = true;
-    }
-}
 observacoes.addEventListener("input", () => {
     if (observacoesContador) observacoesContador.textContent = `${observacoes.value.length}/500`;
 });
