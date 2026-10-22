@@ -32,8 +32,8 @@ test("checkout 4.2.3 preserva as regras do fluxo existente", () => {
     const core = ler("js/pages/checkout.js");
     assert.match(core, /DeliveryAPI\.calcularEntrega\(/);
     assert.match(core, /DeliveryAPI\.criarPedido\(/);
-    assert.match(core, /DeliveryAPI\.request\("\/v1\/pagamentos\/criar"/);
-    assert.match(core, /pagamentoOnlineAtivo/);
+    assert.doesNotMatch(core, /\/v1\/pagamentos\/criar/);
+    assert.doesNotMatch(core, /pagamentoOnlineAtivo|value=["']Online["']/);
 });
 
 test("checkout rápido recolhe opcionais e reaproveita preferências", () => {
