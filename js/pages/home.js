@@ -148,6 +148,7 @@ function iniciarHeroInterativo() {
 
 let empresas = [];
 let categoriaSelecionada = "";
+let resumoAvaliacoesEmpresas = new Map();
 const favoritos = new Set();
 const cacheBuscaProdutos = new Map();
 let temporizadorBuscaProdutos = null;
@@ -431,10 +432,11 @@ async function concluirBuscaProdutos(resultados, sequencia, termoNormalizado) {
         const empresa = produto?.empresa;
         const id = empresa?.id ? String(empresa.id) : "";
         if (id && !existentes.has(id) && !novasPorId.has(id)) {
+            const resumo = resumoAvaliacoesEmpresas.get(id);
             novasPorId.set(id, {
                 ...empresa,
-                nota_media: 0,
-                quantidade_avaliacoes: 0
+                nota_media: resumo?.media || 0,
+                quantidade_avaliacoes: resumo?.quantidade || 0
             });
         }
     });
@@ -542,6 +544,7 @@ async function carregarEmpresas() {
         return;
     }
 
+    resumoAvaliacoesEmpresas = resumoAvaliacoes;
     const catalogo = (Array.isArray(data) ? data : [])
         .filter((empresa) => empresa?.id && empresa?.nome)
         .map((empresa) => ({
