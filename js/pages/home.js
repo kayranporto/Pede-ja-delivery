@@ -149,6 +149,27 @@ function iniciarHeroInterativo() {
 let empresas = [];
 let categoriaSelecionada = "";
 const favoritos = new Set();
+const cacheBuscaProdutos = new Map();
+let temporizadorBuscaProdutos = null;
+let sequenciaBuscaProdutos = 0;
+let empresasCarregadas = false;
+let resolverEmpresasCarregadas;
+const promessaEmpresasCarregadas = new Promise((resolve) => { resolverEmpresasCarregadas = resolve; });
+let estadoBuscaProdutos = {
+    termo: "",
+    carregando: false,
+    falhou: false,
+    pronto: false,
+    idsEmpresas: new Set(),
+    quantidade: 0
+};
+
+function sinalizarEmpresasCarregadas() {
+    if (empresasCarregadas) return;
+    empresasCarregadas = true;
+    resolverEmpresasCarregadas();
+}
+
 
 function normalizar(valor) {
     return String(valor || "")
@@ -318,6 +339,32 @@ function renderizarEmpresas(lista) {
 
 function atualizarResumo(total) {
     if (!resumoResultado) return;
+
+    const textoBusca = normalizar(pesquisa?.value).trim();
+    if (textoBusca.length >= 2 && estadoBuscaProdutos.termo === textoBusca) {
+        if (estadoBuscaProdutos.carregando) {
+            resumoResultado.textContent = `Buscando "${pesquisa.value.trim()}" nos cardápios...`;
+            return;
+        }
+        if (estadoBuscaProdutos.falhou) {
+            resumoResultado.textContent = total
+                ? `Mostrando ${total} ${total === 1 ? "restaurante" : "restaurantes"}. Não foi possível pesquisar os cardápios.`
+                : "Não foi possível pesquisar os cardápios. Tente novamente.";
+            return;
+        }
+        if (estadoBuscaProdutos.pronto) {
+            if (total === 0) {
+                resumoResultado.textContent = `Nenhum restaurante ou produto encontrado para "${pesquisa.value.trim()}".`;
+                return;
+            }
+            const plural = total === 1 ? "restaurante" : "restaurantes";
+            resumoResultado.textContent = estadoBuscaProdutos.quantidade
+                ? `Mostrando ${total} ${plural}; ${estadoBuscaProdutos.quantidade} produtos correspondem à busca nos cardápios.`
+                : `Mostrando ${total} ${plural}. Nenhum produto correspondente foi encontrado nos cardápios.`;
+            return;
+        }
+    }
+
     if (total === 0) {
         resumoResultado.textContent = "Nenhum restaurante corresponde aos filtros atuais.";
         return;
@@ -342,6 +389,9 @@ function atualizarResumo(total) {
 function aplicarFiltros() {
     const texto = normalizar(pesquisa?.value).trim();
     const categoria = normalizar(categoriaSelecionada).trim();
+    const idsProdutos = estadoBuscaProdutos.termo === texto
+        ? estadoBuscaProdutos.idsEmpresas
+        : new Set();
 
     const resultado = empresas.filter((empresa) => {
         const conteudo = normalizar([
@@ -351,7 +401,7 @@ function aplicarFiltros() {
             empresa.tipo
         ].join(" "));
 
-        return (!texto || conteudo.includes(texto)) &&
+        return (!texto || conteudo.includes(texto) || idsProdutos.has(String(empresa.id))) &&
             (!categoria || conteudo.includes(categoria)) &&
             (!filtros.abertoAgora || empresa.abertaAgora === true);
     });
@@ -361,6 +411,116 @@ function aplicarFiltros() {
     }
 
     renderizarEmpresas(resultado);
+}
+
+async function concluirBuscaProdutos(resultados, sequencia, termoNormalizado) {
+    if (sequencia !== sequenciaBuscaProdutos || normalizar(pesquisa?.value).trim() !== termoNormalizado) return;
+
+    // Aguarda o primeiro carregamento do catálogo para evitar perder resultados
+    // se a pessoa começar a pesquisar assim que a página abrir.
+    if (!empresasCarregadas) await promessaEmpresasCarregadas;
+    if (sequencia !== sequenciaBuscaProdutos || normalizar(pesquisa?.value).trim() !== termoNormalizado) return;
+
+    const encontrados = Array.isArray(resultados) ? resultados : [];
+    const existentes = new Set(empresas.map((empresa) => String(empresa.id)));
+    const novasPorId = new Map();
+
+    encontrados.forEach((produto) => {
+        const empresa = produto?.empresa;
+        const id = empresa?.id ? String(empresa.id) : "";
+        if (id && !existentes.has(id) && !novasPorId.has(id)) {
+            novasPorId.set(id, {
+                ...empresa,
+                nota_media: 0,
+                quantidade_avaliacoes: 0
+            });
+        }
+    });
+
+    if (novasPorId.size) {
+        const novasDisponibilidades = await carregarDisponibilidadeEmpresas([...novasPorId.values()]);
+        if (sequencia !== sequenciaBuscaProdutos || normalizar(pesquisa?.value).trim() !== termoNormalizado) return;
+        const idsAtuais = new Set(empresas.map((empresa) => String(empresa.id)));
+        empresas.push(...novasDisponibilidades.filter((empresa) => !idsAtuais.has(String(empresa.id))));
+    }
+
+    const idsEmpresas = new Set(
+        encontrados
+            .map((produto) => String(produto?.empresa_id || produto?.empresa?.id || ""))
+            .filter(Boolean)
+    );
+    estadoBuscaProdutos = {
+        termo: termoNormalizado,
+        carregando: false,
+        falhou: false,
+        pronto: true,
+        idsEmpresas,
+        quantidade: encontrados.length
+    };
+    aplicarFiltros();
+}
+
+function programarBuscaProdutos() {
+    if (temporizadorBuscaProdutos !== null) {
+        window.clearTimeout(temporizadorBuscaProdutos);
+        temporizadorBuscaProdutos = null;
+    }
+
+    const buscaOriginal = String(pesquisa?.value || "").trim();
+    const termoNormalizado = normalizar(buscaOriginal).trim();
+    const sequencia = ++sequenciaBuscaProdutos;
+
+    if (termoNormalizado.length < 2) {
+        estadoBuscaProdutos = {
+            termo: "",
+            carregando: false,
+            falhou: false,
+            pronto: false,
+            idsEmpresas: new Set(),
+            quantidade: 0
+        };
+        aplicarFiltros();
+        return;
+    }
+
+    estadoBuscaProdutos = {
+        termo: termoNormalizado,
+        carregando: true,
+        falhou: false,
+        pronto: false,
+        idsEmpresas: new Set(),
+        quantidade: 0
+    };
+    aplicarFiltros();
+
+    // A chave preserva acentos para não reutilizar o resultado de uma busca diferente.
+    const chave = buscaOriginal.toLocaleLowerCase("pt-BR").replace(/\\s+/g, " ");
+    const cache = cacheBuscaProdutos.get(chave);
+    if (cache) {
+        void concluirBuscaProdutos(cache, sequencia, termoNormalizado);
+        return;
+    }
+
+    temporizadorBuscaProdutos = window.setTimeout(async () => {
+        temporizadorBuscaProdutos = null;
+        try {
+            const resultados = await window.DeliveryAPI.buscarProdutos(buscaOriginal, 30);
+            cacheBuscaProdutos.set(chave, resultados);
+            await concluirBuscaProdutos(resultados, sequencia, termoNormalizado);
+        } catch (erro) {
+            if (sequencia !== sequenciaBuscaProdutos || normalizar(pesquisa?.value).trim() !== termoNormalizado) return;
+            console.warn("Busca de produtos nos cardápios indisponível:", erro);
+            estadoBuscaProdutos = {
+                termo: termoNormalizado,
+                carregando: false,
+                falhou: true,
+                pronto: false,
+                idsEmpresas: new Set(),
+                quantidade: 0
+            };
+            aplicarFiltros();
+        }
+    }, 350);
 }
 
 async function carregarEmpresas() {
@@ -376,6 +536,7 @@ async function carregarEmpresas() {
     } catch (error) {
         console.error("Erro ao carregar empresas pela API:", error);
         cards.replaceChildren(criarTexto("p", "sem-restaurantes", "Não foi possível carregar os restaurantes. Tente novamente em instantes."));
+        sinalizarEmpresasCarregadas();
         return;
     }
 
@@ -387,6 +548,7 @@ async function carregarEmpresas() {
             quantidade_avaliacoes: resumoAvaliacoes.get(String(empresa.id))?.quantidade || 0
         }));
     empresas = await carregarDisponibilidadeEmpresas(catalogo);
+    sinalizarEmpresasCarregadas();
     aplicarFiltros();
 }
 
@@ -553,7 +715,7 @@ cards?.addEventListener("click", async (event) => {
 
 });
 
-pesquisa?.addEventListener("input", aplicarFiltros);
+pesquisa?.addEventListener("input", programarBuscaProdutos);
 
 categorias[0]?.classList.add("ativa");
 
@@ -594,6 +756,19 @@ cupomButton?.addEventListener("click", async () => {
 
 verTodos?.addEventListener("click", (event) => {
     event.preventDefault();
+    if (temporizadorBuscaProdutos !== null) {
+        window.clearTimeout(temporizadorBuscaProdutos);
+        temporizadorBuscaProdutos = null;
+    }
+    sequenciaBuscaProdutos += 1;
+    estadoBuscaProdutos = {
+        termo: "",
+        carregando: false,
+        falhou: false,
+        pronto: false,
+        idsEmpresas: new Set(),
+        quantidade: 0
+    };
     categoriaSelecionada = "";
     filtros.abertoAgora = false;
     filtros.ordenarPorTaxa = false;
