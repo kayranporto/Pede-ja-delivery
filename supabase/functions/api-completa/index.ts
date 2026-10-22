@@ -183,17 +183,18 @@ async function searchPublicProducts(ctx: RouteContext) {
 
   const companyIds = [...new Set(productList.map((item) => item.empresa_id))];
   const companies = await ctx.db.from("empresas_catalogo")
-    .select("id")
+    .select(RESTAURANT_FIELDS)
     .eq("status", true)
     .in("id", companyIds);
   if (companies.error) {
     return error(ctx.request, 502, "busca_indisponivel", "Não foi possível pesquisar os cardápios.");
   }
 
-  const activeCompanyIds = new Set((companies.data || []).map((item: any) => String(item.id)));
+  const activeCompanies = new Map((companies.data || []).map((item: any) => [String(item.id), item]));
   const data = productList
-    .filter((item) => activeCompanyIds.has(item.empresa_id))
-    .slice(0, limit);
+    .filter((item) => activeCompanies.has(item.empresa_id))
+    .slice(0, limit)
+    .map((item) => ({ ...item, empresa: activeCompanies.get(item.empresa_id) }));
   return response(ctx.request, { data }, 200, "public, max-age=15, stale-while-revalidate=30");
 }
 
