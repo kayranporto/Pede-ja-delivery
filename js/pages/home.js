@@ -221,7 +221,8 @@ async function carregarDisponibilidadeEmpresas(lista) {
             return { ...empresa, abertaAgora: data?.aberto === true };
         } catch (erro) {
             console.warn(`Disponibilidade de ${empresa.nome || empresa.id}:`, erro);
-            return { ...empresa, abertaAgora: true };
+            // Não afirmar que o restaurante está aberto quando a API falha.
+            return { ...empresa, abertaAgora: false, disponibilidadeDesconhecida: true };
         }
     }));
 }
@@ -298,8 +299,13 @@ function renderizarEmpresas(lista) {
         }
         body.append(info);
 
-        const aberta = empresa.abertaAgora ?? (empresa.status !== false);
-        const status = criarTexto("span", `status ${aberta ? "aberto" : "fechado"}`, aberta ? "Aberto agora" : "Fechado");
+        const disponibilidadeDesconhecida = empresa.disponibilidadeDesconhecida === true;
+        const aberta = !disponibilidadeDesconhecida && (empresa.abertaAgora ?? (empresa.status !== false));
+        const status = criarTexto(
+            "span",
+            `status ${disponibilidadeDesconhecida ? "indisponivel" : (aberta ? "aberto" : "fechado")}`,
+            disponibilidadeDesconhecida ? "Status indisponível" : (aberta ? "Aberto agora" : "Fechado")
+        );
         body.append(status);
         link.append(body);
         card.append(link, favorite);
