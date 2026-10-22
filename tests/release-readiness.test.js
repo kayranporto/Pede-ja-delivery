@@ -336,8 +336,8 @@ test("versão de assets e caches é consistente", () => {
         .filter((file) => file.endsWith(".html")).map((file) => fs.readFileSync(file, "utf8"))];
     const joined = sources.join("\n");
     assert.doesNotMatch(joined, /(?:js\/core\/(?:config|site-enhancements)\.js|sw\.js)\?v=(?:2\.|3\.)/);
-    assert.match(read("sw.js"), /const VERSION = "4\.4\.8"/);
-    assert.match(read("js/core/site-enhancements.js"), /sw\.js\?v=4\.4\.8/);
+    assert.match(read("sw.js"), /const VERSION = "4\.4\.9"/);
+    assert.match(read("js/core/site-enhancements.js"), /sw\.js\?v=4\.4\.9/);
     assert.match(read("sw.js"), /mobile-pwa-4\.2\.6\.css\?v=4\.2\.6/);
     assert.match(read("sw.js"), /operacao-restaurante-4\.2\.7\.js\?v=4\.2\.7/);
 });

@@ -10,7 +10,7 @@ const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 test("PWA 4.4.9 versiona caches e remove caches antigos", () => {
   const sw = read("sw.js");
-  assert.match(sw, /const VERSION = "4\.4\.8"/);
+  assert.match(sw, /const VERSION = "4\.4\.9"/);
   assert.match(sw, /multi-delivery-v\$\{VERSION\}/);
   assert.match(sw, /key\.startsWith\("multi-delivery-"\)/);
   assert.match(sw, /SKIP_WAITING/);
@@ -18,7 +18,7 @@ test("PWA 4.4.9 versiona caches e remove caches antigos", () => {
 
 test("PWA 4.4.9 registra service worker sem cache de atualização", () => {
   const js = read("js/core/site-enhancements.js");
-  assert.match(js, /sw\.js\?v=4\.4\.8/);
+  assert.match(js, /sw\.js\?v=4\.4\.9/);
   assert.match(js, /updateViaCache:"none"/);
   assert.match(js, /controllerchange/);
   assert.match(js, /Nova versão disponível/);
