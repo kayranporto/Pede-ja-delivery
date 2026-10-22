@@ -494,7 +494,7 @@ function programarBuscaProdutos() {
     aplicarFiltros();
 
     // A chave preserva acentos para não reutilizar o resultado de uma busca diferente.
-    const chave = buscaOriginal.toLocaleLowerCase("pt-BR").replace(/\\s+/g, " ");
+    const chave = buscaOriginal.toLocaleLowerCase("pt-BR").replace(/\s+/g, " ");
     const cache = cacheBuscaProdutos.get(chave);
     if (cache) {
         void concluirBuscaProdutos(cache, sequencia, termoNormalizado);
