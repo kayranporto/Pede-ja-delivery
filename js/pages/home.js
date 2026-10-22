@@ -2,6 +2,7 @@
 
 const cards = document.getElementById("listaRestaurantes");
 const pesquisa = document.getElementById("campoBusca");
+const pesquisaMobile = document.getElementById("campoBuscaMobile");
 const categorias = document.querySelectorAll(".categoria");
 const menuUsuario = document.getElementById("menuUsuario");
 const locationBox = document.querySelector(".location");
@@ -720,7 +721,14 @@ cards?.addEventListener("click", async (event) => {
 
 });
 
-pesquisa?.addEventListener("input", programarBuscaProdutos);
+pesquisa?.addEventListener("input", () => {
+    if (pesquisaMobile && pesquisaMobile.value !== pesquisa.value) pesquisaMobile.value = pesquisa.value;
+    programarBuscaProdutos();
+});
+pesquisaMobile?.addEventListener("input", () => {
+    if (pesquisa && pesquisa.value !== pesquisaMobile.value) pesquisa.value = pesquisaMobile.value;
+    programarBuscaProdutos();
+});
 
 categorias[0]?.classList.add("ativa");
 
@@ -780,6 +788,7 @@ verTodos?.addEventListener("click", (event) => {
     filtroAberto?.classList.remove("active");
     ordenarTaxa?.classList.remove("active");
     if (pesquisa) pesquisa.value = "";
+    if (pesquisaMobile) pesquisaMobile.value = "";
     categorias.forEach((item) => item.classList.toggle("ativa", !item.dataset.categoria));
     categorias.forEach((item) => item.setAttribute("aria-pressed", item.dataset.categoria ? "false" : "true"));
     aplicarFiltros();
@@ -841,7 +850,9 @@ carts.forEach((cart) => {
 
 // Atalhos de busca e teclado da página inicial.
 document.addEventListener('DOMContentLoaded', () => {
-    const busca = document.getElementById('campoBusca');
+    const busca = window.matchMedia("(max-width: 680px)").matches
+        ? (document.getElementById("campoBuscaMobile") || document.getElementById("campoBusca"))
+        : (document.getElementById("campoBusca") || document.getElementById("campoBuscaMobile"));
     document.querySelectorAll('[data-search]').forEach((botao) => {
       botao.addEventListener('click', () => {
         if (!busca) return;

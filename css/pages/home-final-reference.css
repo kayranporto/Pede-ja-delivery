@@ -1225,3 +1225,70 @@
     color:var(--pj-red)!important;
   }
 }
+
+
+/* Busca mobile e filtros utilizáveis na página inicial */
+.home-page .restaurant-tools{
+  display:flex!important;
+  align-items:center!important;
+  flex-wrap:wrap!important;
+  gap:8px!important;
+  margin:12px 0 14px!important;
+  padding:0 0 12px!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.home-page .mobile-search{display:none!important}
+.home-page .mobile-search .search-icon{font-size:19px;color:#7b828d;line-height:1}
+@media(max-width:680px){
+  .home-page .mobile-search{
+    display:flex!important;
+    align-items:center!important;
+    gap:10px!important;
+    box-sizing:border-box!important;
+    width:100%!important;
+    min-height:46px!important;
+    margin:12px 0 10px!important;
+    padding:0 13px!important;
+    border:1px solid #e1e4e9!important;
+    border-radius:14px!important;
+    background:#fff!important;
+    box-shadow:0 6px 18px rgba(20,24,32,.06)!important;
+  }
+  .home-page .mobile-search:focus-within{
+    border-color:#ef1c2b!important;
+    box-shadow:0 0 0 3px rgba(239,28,43,.1)!important;
+  }
+  .home-page .mobile-search input{
+    display:block!important;
+    flex:1 1 auto!important;
+    width:100%!important;
+    min-width:0!important;
+    height:44px!important;
+    padding:0!important;
+    border:0!important;
+    outline:0!important;
+    background:transparent!important;
+    color:#151922!important;
+    font:500 .82rem Poppins,system-ui,sans-serif!important;
+    box-shadow:none!important;
+  }
+  .home-page .restaurant-tools{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:8px!important;
+    margin:6px 0 12px!important;
+  }
+  .home-page .restaurant-tools .filter-pill{
+    min-height:38px!important;
+    padding:8px 12px!important;
+    font-size:.72rem!important;
+  }
+  .home-page .restaurant-tools .resultado-info{
+    flex:1 0 100%!important;
+    margin:2px 0 0!important;
+    font-size:.68rem!important;
+    line-height:1.45!important;
+  }
+}
