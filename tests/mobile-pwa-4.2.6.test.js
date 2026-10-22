@@ -8,7 +8,7 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
-test("PWA 4.4.8 versiona caches e remove caches antigos", () => {
+test("PWA 4.4.9 versiona caches e remove caches antigos", () => {
   const sw = read("sw.js");
   assert.match(sw, /const VERSION = "4\.4\.8"/);
   assert.match(sw, /multi-delivery-v\$\{VERSION\}/);
@@ -16,7 +16,7 @@ test("PWA 4.4.8 versiona caches e remove caches antigos", () => {
   assert.match(sw, /SKIP_WAITING/);
 });
 
-test("PWA 4.4.8 registra service worker sem cache de atualização", () => {
+test("PWA 4.4.9 registra service worker sem cache de atualização", () => {
   const js = read("js/core/site-enhancements.js");
   assert.match(js, /sw\.js\?v=4\.4\.8/);
   assert.match(js, /updateViaCache:"none"/);
@@ -24,7 +24,7 @@ test("PWA 4.4.8 registra service worker sem cache de atualização", () => {
   assert.match(js, /Nova versão disponível/);
 });
 
-test("PWA 4.4.8 mantém a camada mobile global 4.2.6", () => {
+test("PWA 4.4.9 mantém a camada mobile global 4.2.6", () => {
   const js = read("js/core/site-enhancements.js");
   const css = read("css/modules/mobile-pwa-4.2.6.css");
   assert.match(js, /mobile-pwa-4\.2\.6\.css\?v=4\.2\.6/);
@@ -55,6 +55,6 @@ test("shell do service worker inclui assets das versões recentes", () => {
     "operacao-restaurante-4.2.7.js",
     "carrinho-4.2.5.js",
     "checkout-4.2.3.js",
-    "site-enhancements.js?v=4.4.8"
+    "site-enhancements.js?v=4.4.9"
   ]) assert.ok(sw.includes(arquivo), `shell sem ${arquivo}`);
 });

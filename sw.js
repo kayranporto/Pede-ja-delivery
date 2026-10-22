@@ -42,7 +42,7 @@ const SHELL = [
   "./js/modules/checkout-4.2.3.js?v=4.2.4",
   "./js/modules/operacao-restaurante-4.2.7.js?v=4.2.7",
   "./js/pages/suporte.js?v=4.2.0",
-  "./js/core/site-enhancements.js?v=4.4.8"
+  "./js/core/site-enhancements.js?v=4.4.9"
 ];
 
 self.addEventListener("install", (event) => {
