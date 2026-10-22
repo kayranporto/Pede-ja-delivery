@@ -12,7 +12,7 @@ test("busca pública de produtos pesquisa nomes, descrições e variantes sem au
     const source = read("supabase/functions/api-completa/index.ts");
     const api = read("js/core/supabase.js");
 
-    assert.match(source, /\/\^\\\/v1\\\/produtos\\\/buscar\\\/?\$\//);
+    assert.ok(source.includes(String.raw`/^\/v1\/produtos\/buscar\/?$/`));
     assert.match(source, /if \(p === "\/v1\/produtos\/buscar"\) return searchPublicProducts\(ctx\)/);
     assert.match(source, /\.ilike\("nome", pattern\)/);
     assert.match(source, /\.ilike\("descricao", pattern\)/);
