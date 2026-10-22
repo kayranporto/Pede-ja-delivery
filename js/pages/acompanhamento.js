@@ -136,7 +136,6 @@ function render(pedido) {
         ? "pago"
         : pedido.pagamento_status === "estornado" ? "estornado" : pedido.pagamento_modalidade === "online" ? "aguardando pagamento online" : "pendente na entrega";
     document.getElementById("pagamentoPedido").textContent = `${pedido.pagamento || "—"} • ${pagamentoStatus}`;
-    document.getElementById("pagarOnline").hidden = window.DELIVERY_CONFIG?.pagamentoOnlineAtivo !== true || pedido.pagamento_modalidade !== "online" || pedido.pagamento_status === "pago" || status === "cancelado";
     document.getElementById("dataPedido").textContent = dataBr(pedido.created_at);
 
     const telefone = document.getElementById("telefoneEmpresa");
@@ -324,21 +323,6 @@ document.getElementById("mensagemForm").addEventListener("submit", async (event)
         alert(`Não foi possível enviar: ${App.mensagemErro(error)}`);
     } finally {
         App.definirCarregando(botao, false);
-    }
-});
-document.getElementById("pagarOnline").addEventListener("click", async (event) => {
-    if (!pedidoAtual) return; App.definirCarregando(event.currentTarget, true, "Abrindo pagamento...");
-    try {
-        const data = await window.DeliveryAPI.request("/v1/pagamentos/criar", {
-            method: "POST",
-            body: JSON.stringify({ pedido_id: pedidoAtual.id })
-        });
-        if (!data?.checkout_url) throw new Error("O gateway de pagamento não retornou a URL de checkout.");
-        location.href = data.checkout_url;
-    } catch (error) {
-        alert(`Não foi possível abrir o pagamento: ${App.mensagemErro(error)}`);
-    } finally {
-        App.definirCarregando(event.currentTarget, false);
     }
 });
 document.getElementById("pedirNovamente").addEventListener("click", (event) => {
