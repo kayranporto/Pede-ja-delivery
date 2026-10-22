@@ -100,6 +100,14 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
             async cardapio(empresaId) {
                 return apiRequest(`/v1/restaurantes/${encodeURIComponent(String(empresaId))}/cardapio`);
             },
+            async buscarProdutos(busca, limite = 20) {
+                const params = new URLSearchParams({
+                    busca: String(busca || "").trim(),
+                    limite: String(Math.min(Math.max(Number(limite) || 20, 1), 30))
+                });
+                const data = await apiRequest(`/v1/produtos/buscar?${params}`);
+                return Array.isArray(data) ? data : [];
+            },
             async disponibilidade(empresaId, quando = new Date().toISOString()) {
                 return apiRequest(`/v1/restaurantes/${encodeURIComponent(String(empresaId))}/disponibilidade?quando=${encodeURIComponent(quando)}`);
             },
