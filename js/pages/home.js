@@ -340,7 +340,7 @@ function renderizarEmpresas(lista) {
 function atualizarResumo(total) {
     if (!resumoResultado) return;
 
-    const textoBusca = normalizar(pesquisa?.value).trim();
+    const textoBusca = normalizar(pesquisa?.value).trim().replace(/\s+/g, " ");
     if (textoBusca.length >= 2 && estadoBuscaProdutos.termo === textoBusca) {
         if (estadoBuscaProdutos.carregando) {
             resumoResultado.textContent = `Buscando "${pesquisa.value.trim()}" nos cardápios...`;
@@ -354,7 +354,9 @@ function atualizarResumo(total) {
         }
         if (estadoBuscaProdutos.pronto) {
             if (total === 0) {
-                resumoResultado.textContent = `Nenhum restaurante ou produto encontrado para "${pesquisa.value.trim()}".`;
+                resumoResultado.textContent = estadoBuscaProdutos.quantidade
+                    ? `Foram encontrados produtos para "${pesquisa.value.trim()}", mas nenhum restaurante corresponde aos filtros atuais.`
+                    : `Nenhum restaurante ou produto encontrado para "${pesquisa.value.trim()}".`;
                 return;
             }
             const plural = total === 1 ? "restaurante" : "restaurantes";
@@ -387,7 +389,7 @@ function atualizarResumo(total) {
 }
 
 function aplicarFiltros() {
-    const texto = normalizar(pesquisa?.value).trim();
+    const texto = normalizar(pesquisa?.value).trim().replace(/\s+/g, " ");
     const categoria = normalizar(categoriaSelecionada).trim();
     const idsProdutos = estadoBuscaProdutos.termo === texto
         ? estadoBuscaProdutos.idsEmpresas
@@ -466,7 +468,7 @@ function programarBuscaProdutos() {
         temporizadorBuscaProdutos = null;
     }
 
-    const buscaOriginal = String(pesquisa?.value || "").trim();
+    const buscaOriginal = String(pesquisa?.value || "").trim().replace(/\s+/g, " ");
     const termoNormalizado = normalizar(buscaOriginal).trim();
     const sequencia = ++sequenciaBuscaProdutos;
 
@@ -494,7 +496,7 @@ function programarBuscaProdutos() {
     aplicarFiltros();
 
     // A chave preserva acentos para não reutilizar o resultado de uma busca diferente.
-    const chave = buscaOriginal.toLocaleLowerCase("pt-BR").replace(/\s+/g, " ");
+    const chave = buscaOriginal.toLocaleLowerCase("pt-BR");
     const cache = cacheBuscaProdutos.get(chave);
     if (cache) {
         void concluirBuscaProdutos(cache, sequencia, termoNormalizado);
