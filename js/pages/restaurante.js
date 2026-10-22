@@ -223,10 +223,14 @@ function renderizarProdutos(lista) {
 }
 
 function filtrarProdutos() {
-    const texto = normalizar(pesquisaProduto.value);
+    const texto = normalizar(pesquisaProduto.value).trim();
     const lista = produtos.filter((produto) => {
         const categoriaOk = !categoriaSelecionada || String(produto.categoria_id) === categoriaSelecionada;
-        const textoOk = !texto || normalizar(`${produto.nome} ${produto.descricao}`).includes(texto);
+        const variantes = Array.isArray(produto.variantes)
+            ? produto.variantes.map((variante) => variante?.nome || variante?.descricao || "").join(" ")
+            : "";
+        const conteudo = normalizar(`${produto.nome || ""} ${produto.descricao || ""} ${variantes}`);
+        const textoOk = !texto || conteudo.includes(texto);
         return categoriaOk && textoOk;
     });
     renderizarProdutos(lista);
