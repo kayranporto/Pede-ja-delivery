@@ -23,12 +23,21 @@
     return document.getElementById("unidadePainelSelect")?.value || "";
   }
 
+  function obterEmpresaId() {
+    return typeof empresa !== "undefined" && empresa?.id ? String(empresa.id).trim() : "";
+  }
+
   async function carregarEstado() {
     const id = unidadeId();
     const texto = document.getElementById("unidadeGpsStatus44");
     const botao = document.getElementById("unidadeGps44");
     if (!id || !texto || !botao || atualizando) return;
-    const unidades = await window.DeliveryAPI.request(`/v1/empresa/unidades?empresa_id=${encodeURIComponent(String(App.lerJSON("empresaAtual", null)?.empresa_id || ""))}`);
+    const empresaId = obterEmpresaId();
+    if (!empresaId) {
+      texto.textContent = "Restaurante não identificado";
+      return;
+    }
+    const unidades = await window.DeliveryAPI.request(`/v1/empresa/unidades?empresa_id=${encodeURIComponent(empresaId)}`);
     const data = (Array.isArray(unidades) ? unidades : []).find((item) => String(item.id) === String(id));
     if (!data) {
       texto.textContent = "Localização indisponível";
@@ -42,6 +51,8 @@
   async function salvar() {
     const id = unidadeId();
     if (!id) return toast("Selecione uma unidade", "Escolha a unidade que está fisicamente neste local.", "warning");
+    const empresaId = obterEmpresaId();
+    if (!empresaId) return toast("Restaurante não identificado", "Recarregue o painel do restaurante e tente novamente.", "warning");
     const botao = document.getElementById("unidadeGps44");
     atualizando = true;
     botao.disabled = true;
@@ -49,14 +60,13 @@
     botao.textContent = "Obtendo GPS...";
     try {
       const coords = await obterLocalizacao();
-      const meta = App.lerJSON("empresaAtual", null);
-      const unidades = await window.DeliveryAPI.request(`/v1/empresa/unidades?empresa_id=${encodeURIComponent(String(meta?.empresa_id || ""))}`);
+      const unidades = await window.DeliveryAPI.request(`/v1/empresa/unidades?empresa_id=${encodeURIComponent(empresaId)}`);
       const data = (Array.isArray(unidades) ? unidades : []).find((item) => String(item.id) === String(id));
       if (!data) throw new Error("Unidade não encontrada.");
       await window.DeliveryAPI.request("/v1/empresa/unidades", {
         method: "POST",
         body: JSON.stringify({
-          empresa_id: meta?.empresa_id,
+          empresa_id: empresaId,
           unidade_id: id,
           payload: { nome: data?.nome || "Unidade", latitude: coords.latitude, longitude: coords.longitude }
         })

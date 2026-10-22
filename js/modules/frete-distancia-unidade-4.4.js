@@ -19,6 +19,10 @@
     return $("unidadePainelSelect")?.value || "";
   }
 
+  function obterEmpresaId() {
+    return typeof empresa !== "undefined" && empresa?.id ? String(empresa.id).trim() : "";
+  }
+
   function numeroOuNulo(id) {
     const texto = String($(id)?.value || "").trim().replace(",", ".");
     if (!texto) return null;
@@ -55,10 +59,14 @@
     const id = unidadeId();
     const card = $("freteDistanciaCard44");
     if (!id || !card || carregando) return;
+    const empresaId = obterEmpresaId();
+    if (!empresaId) {
+      card.hidden = true;
+      return;
+    }
     carregando = true;
     try {
-      const meta = App.lerJSON("empresaAtual", null);
-      const unidades = await window.DeliveryAPI.request(`/v1/empresa/unidades?empresa_id=${encodeURIComponent(String(meta?.empresa_id || ""))}`);
+      const unidades = await window.DeliveryAPI.request(`/v1/empresa/unidades?empresa_id=${encodeURIComponent(empresaId)}`);
       const data = (Array.isArray(unidades) ? unidades : []).find((item) => String(item.id) === String(id));
       if (!data) {
         card.hidden = true;
@@ -75,6 +83,8 @@
     event.preventDefault();
     const id = unidadeId();
     if (!id) return toast("Selecione uma unidade", "Escolha a unidade antes de configurar o frete.", "warning");
+    const empresaId = obterEmpresaId();
+    if (!empresaId) return toast("Restaurante não identificado", "Recarregue o painel do restaurante e tente novamente.", "warning");
 
     const ativo = $("freteDistanciaAtivo44").checked;
     const taxaBase = numeroOuNulo("freteTaxaBase44");
@@ -94,13 +104,12 @@
     const botao = $("salvarFreteDistancia44");
     window.App?.definirCarregando?.(botao, true, "Salvando...");
     try {
-      const meta = App.lerJSON("empresaAtual", null);
-      const unidades = await window.DeliveryAPI.request(`/v1/empresa/unidades?empresa_id=${encodeURIComponent(String(meta?.empresa_id || ""))}`);
+      const unidades = await window.DeliveryAPI.request(`/v1/empresa/unidades?empresa_id=${encodeURIComponent(empresaId)}`);
       const data = (Array.isArray(unidades) ? unidades : []).find((item) => String(item.id) === String(id));
       await window.DeliveryAPI.request("/v1/empresa/unidades", {
         method: "POST",
         body: JSON.stringify({
-          empresa_id: meta?.empresa_id,
+          empresa_id: empresaId,
           unidade_id: id,
           payload: {
             nome: data?.nome || "Unidade",

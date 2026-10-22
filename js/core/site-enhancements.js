@@ -147,12 +147,12 @@
     document.body.append(planoEmpresaJs);
 
     const localizacaoUnidadeJs = document.createElement("script");
-    localizacaoUnidadeJs.src = `${assetRoot}js/modules/localizacao-unidade-4.4.js?v=4.4.0`;
+    localizacaoUnidadeJs.src = `${assetRoot}js/modules/localizacao-unidade-4.4.js?v=4.4.1`;
     localizacaoUnidadeJs.async = false;
     document.body.append(localizacaoUnidadeJs);
 
     const freteDistanciaJs = document.createElement("script");
-    freteDistanciaJs.src = `${assetRoot}js/modules/frete-distancia-unidade-4.4.js?v=4.4.0.1`;
+    freteDistanciaJs.src = `${assetRoot}js/modules/frete-distancia-unidade-4.4.js?v=4.4.1`;
     freteDistanciaJs.async = false;
     document.body.append(freteDistanciaJs);
 

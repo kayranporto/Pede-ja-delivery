@@ -97,6 +97,10 @@ test("dashboard configura distância pela API e o carregador limita o módulo ao
   assert.match(source, /freteValorKm44/);
   assert.match(source, /freteRaioMax44/);
   assert.match(source, /form\.addEventListener\("submit", salvar\)/);
+  assert.match(source, /function obterEmpresaId\(\)/);
+  assert.match(source, /if \(!empresaId\)/);
+  assert.match(source, /empresa_id: empresaId/);
+  assert.doesNotMatch(source, /App\.lerJSON\("empresaAtual"/);
   assert.match(loader, /empresa-dashboard\\\.html/);
   assert.match(loader, /frete-distancia-unidade-4\.4\.js/);
 });
