@@ -340,8 +340,8 @@ function atualizarResumo(total) {
 }
 
 function aplicarFiltros() {
-    const texto = normalizar(pesquisa?.value);
-    const categoria = normalizar(categoriaSelecionada);
+    const texto = normalizar(pesquisa?.value).trim();
+    const categoria = normalizar(categoriaSelecionada).trim();
 
     const resultado = empresas.filter((empresa) => {
         const conteudo = normalizar([
