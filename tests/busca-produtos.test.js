@@ -29,7 +29,9 @@ test("busca da página inicial usa debounce e cache e inclui restaurantes encont
     assert.match(home, /window\.setTimeout\(async \(\) => \{/);
     assert.match(home, /\}, 350\);/);
     assert.match(home, /idsProdutos\.has\(String\(empresa\.id\)\)/);
-    assert.match(home, /pesquisa\?\.addEventListener\("input", programarBuscaProdutos\)/);
+    assert.match(home, /pesquisa\?\.addEventListener\("input", \(\) => \{/);
+    assert.match(home, /pesquisaMobile\?\.addEventListener\("input"/);
+    assert.match(home, /programarBuscaProdutos\(\)/);
 });
 
 test("OpenAPI documenta a busca pública de produtos", () => {
