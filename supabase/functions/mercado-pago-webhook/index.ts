@@ -72,7 +72,12 @@ Deno.serve(async (request) => {
     const accessToken = Deno.env.get("MERCADO_PAGO_ACCESS_TOKEN") ?? "";
     const expectedCollectorId = Deno.env.get("MERCADO_PAGO_COLLECTOR_ID") ?? "";
 
-    if (!secret || !accessToken || topic !== "payment" || !await validSignature(request, dataId, secret)) {
+    // Falha fechado: sem o identificador da conta recebedora configurado,
+    // não é possível confirmar que o pagamento pertence ao recebedor esperado.
+    if (!secret || !accessToken || !expectedCollectorId) {
+      return response(503, "service not configured");
+    }
+    if (topic !== "payment" || !await validSignature(request, dataId, secret)) {
       return response(401, "unauthorized");
     }
 
@@ -85,7 +90,7 @@ Deno.serve(async (request) => {
     const pedidoId = String(payment.external_reference || "");
     if (!/^[0-9a-f-]{36}$/i.test(pedidoId)) return response(200);
 
-    if (expectedCollectorId && String(payment.collector_id || "") !== expectedCollectorId) {
+    if (String(payment.collector_id || "") !== expectedCollectorId) {
       console.error("Pagamento recebido por collector diferente", {
         payment_id: payment.id,
         collector_id: payment.collector_id,
