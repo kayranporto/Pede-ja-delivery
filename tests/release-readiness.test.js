@@ -228,16 +228,18 @@ test("RLS do entregador possui teste isolado, transacional e reversível", () =>
     assert.doesNotMatch(sql, /commit;/i);
 });
 
-test("checkout falha com segurança enquanto o gateway online está indisponível", () => {
-    const config = read("js/core/config.js");
+test("checkout e acompanhamento não expõem integração de pagamento online", () => {
     const html = read("checkout.html");
     const checkout = read("js/pages/checkout.js");
+    const acompanhamentoHtml = read("acompanhamento.html");
     const acompanhamento = read("js/pages/acompanhamento.js");
-    assert.match(config, /pagamentoOnlineAtivo:\s*false/);
-    assert.match(html, /<input disabled name="pagamento" type="radio" value="Online"/);
-    assert.match(html, /js\/core\/config\.js\?v=4\.4\.8/);
-    assert.match(checkout, /pagamentoOnlineAtivo !== true/);
-    assert.match(acompanhamento, /pagamentoOnlineAtivo !== true/);
+    assert.doesNotMatch(html, /value=["']Online["']|Pagar online/);
+    assert.doesNotMatch(checkout, /pagamentoOnlineAtivo|\/v1\/pagamentos\/criar/);
+    assert.doesNotMatch(acompanhamentoHtml, /id=["']pagarOnline["']/);
+    assert.doesNotMatch(acompanhamento, /pagamentoOnlineAtivo|\/v1\/pagamentos\/criar/);
+    assert.match(html, /value=["']PIX["']/);
+    assert.match(html, /value=["']Cartão["']/);
+    assert.match(html, /value=["']Dinheiro["']/);
 });
 
 test("carrinho sincroniza contadores e a home publica links rastreáveis", () => {
