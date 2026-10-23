@@ -101,12 +101,8 @@
         });
     }
     async function carregarCategorias() {
-        if (!window.db?.from) throw new Error("Não foi possível conectar ao banco de dados.");
-        const { data, error } = await window.db.from(TABELA)
-            .select("id,nome,icone,ordem,aliases")
-            .order("ordem", { ascending: true })
-            .order("nome", { ascending: true });
-        if (error) throw error;
+        if (!window.DeliveryAPI?.request) throw new Error("Não foi possível conectar à API.");
+        const data = await window.DeliveryAPI.request("/v1/categorias-filtros");
         categorias = Array.isArray(data) ? data : [];
         renderizarLista();
     }
@@ -114,8 +110,7 @@
         const mensagem = "Excluir o filtro “" + categoria.nome + "”? Os restaurantes não serão apagados, mas essa categoria deixará de aparecer na página inicial.";
         if (!window.confirm(mensagem)) return;
         try {
-            const { error } = await window.db.from(TABELA).delete().eq("id", categoria.id);
-            if (error) throw error;
+            await window.DeliveryAPI.request("/v1/admin/categorias-filtros/" + encodeURIComponent(String(categoria.id)), { method: "DELETE" });
             if (campoId?.value === String(categoria.id)) redefinirFormulario();
             await carregarCategorias();
             mostrarFeedback("Categoria excluída. A lista de filtros foi atualizada.", "success");
@@ -148,11 +143,10 @@
         salvando = true;
         if (botaoSalvar) botaoSalvar.disabled = true;
         try {
-            const consulta = atual
-                ? window.db.from(TABELA).update(payload).eq("id", atual.id)
-                : window.db.from(TABELA).insert(payload);
-            const { error } = await consulta;
-            if (error) throw error;
+            await window.DeliveryAPI.request(
+                atual ? "/v1/admin/categorias-filtros/" + encodeURIComponent(String(atual.id)) : "/v1/admin/categorias-filtros",
+                { method: atual ? "PATCH" : "POST", body: JSON.stringify(payload) }
+            );
             redefinirFormulario();
             await carregarCategorias();
             mostrarFeedback(atual ? "Categoria atualizada com sucesso." : "Categoria adicionada com sucesso.", "success");

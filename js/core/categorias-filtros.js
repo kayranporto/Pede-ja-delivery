@@ -6,12 +6,8 @@
         return String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLocaleLowerCase("pt-BR");
     }
     async function listar() {
-        if (!window.db || typeof window.db.from !== "function") throw new Error("O serviço de categorias não está disponível.");
-        const { data, error } = await window.db.from(TABELA)
-            .select("id,nome,icone,ordem,aliases")
-            .order("ordem", { ascending: true })
-            .order("nome", { ascending: true });
-        if (error) throw error;
+        if (!window.DeliveryAPI?.request) throw new Error("O serviço de categorias não está disponível.");
+        const data = await window.DeliveryAPI.request("/v1/categorias-filtros");
         return Array.isArray(data) ? data : [];
     }
     function corresponde(valor, categoria) {

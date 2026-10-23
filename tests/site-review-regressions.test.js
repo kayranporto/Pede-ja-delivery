@@ -97,7 +97,7 @@ test("painel administrativo exibe apenas a seção escolhida e separa o conteúd
     const html = read("html/admin.html");
     const js = read("js/pages/admin.js");
     const css = read("css/pages/admin.css");
-    assert.equal((html.match(/data-admin-view/g) || []).length, 12);
+    assert.equal((html.match(/data-admin-view/g) || []).length, 13);
     const planosJs = read("js/modules/admin-planos-4.3.js");
     assert.match(planosJs, /className = "admin-section admin-view"/);
     assert.match(planosJs, /dataset\.adminView = ""/);
@@ -147,9 +147,9 @@ test("filtros da Home são configuráveis por administradores e lidos de uma tab
     assert.match(html, /id="adminCategoriasFiltros"/);
     assert.match(admin, /chave: "categorias_filtros"/);
     assert.match(admin, /inicializarCategoriasFiltrosAdmin/);
-    assert.match(manager, /\.insert\(payload\)/);
-    assert.match(manager, /\.update\(payload\)/);
-    assert.match(manager, /\.delete\(\)/);
+    assert.match(manager, /method: atual \? "PATCH" : "POST"/);
+    assert.match(manager, /method: "DELETE"/);
+    assert.match(manager, /\/v1\/admin\/categorias-filtros/);
     assert.match(shared, /categorias_filtros_home/);
     assert.match(migration, /enable row level security/i);
     assert.match(migration, /for select to anon, authenticated/i);
