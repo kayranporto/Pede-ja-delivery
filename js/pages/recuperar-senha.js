@@ -2,6 +2,9 @@
 
 const form = document.getElementById("recuperarForm");
 
+// Este é o destino exato autorizado em supabase/config.toml e no Supabase Auth.
+const URL_RECUPERACAO_SENHA = "https://site-delivery-42.vercel.app/html/nova-senha.html";
+
 function avisarRecuperacao(titulo, mensagem, tipo = "info", campo = null, tempo = 5000) {
     window.AppToast?.(titulo, mensagem, tipo, tempo);
     campo?.focus?.();
@@ -19,9 +22,8 @@ form.addEventListener("submit", async (event) => {
     if (!window.DeliveryCaptcha?.validar()) return;
     App.definirCarregando(botao, true, "Enviando...");
     try {
-        const redirectTo = new URL("nova-senha.html", window.location.href).href;
         const captchaToken = window.DeliveryCaptcha?.getToken() || undefined;
-        const options = { redirectTo };
+        const options = { redirectTo: URL_RECUPERACAO_SENHA };
         if (captchaToken) options.captchaToken = captchaToken;
         const { error } = await window.db.auth.resetPasswordForEmail(email, options);
         if (error) throw error;
