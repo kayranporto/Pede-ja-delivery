@@ -84,7 +84,7 @@ if (!form || !submitButton) {
                 method: "POST",
                 body: JSON.stringify({ nome, email, telefone, cnpj })
             });
-            const empresa = respostaEmpresa?.data || null;
+            const empresa = respostaEmpresa || null;
             if (!empresa) throw new Error("Não foi possível inicializar o restaurante.");
 
             App.vincularUsuarioLocal(user.id);
