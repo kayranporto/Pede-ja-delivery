@@ -37,14 +37,29 @@ Desativar confirmação de e-mail aumenta a facilidade de criar contas com ender
 
 O e-mail continua necessário para recuperação de senha e comunicações operacionais. Alterar o e-mail da conta continua sendo uma operação confirmada.
 
+
+## URLs oficiais do GitHub Pages
+
+O PedeJá usa o site de projeto do GitHub Pages em `https://kayranporto.github.io/Pede-ja-delivery/`. A página de redefinição fica em `https://kayranporto.github.io/Pede-ja-delivery/html/nova-senha.html`.
+
+Para aplicar no projeto Supabase hospedado sem substituir outras configurações de autenticação ou apagar destinos de redirecionamento já usados, crie um token pessoal do Supabase com permissão para alterar a configuração de Auth e execute localmente:
+
+```powershell
+$env:SUPABASE_ACCESS_TOKEN="seu-token-pessoal"
+npm run configure:auth:github-pages
+Remove-Item Env:SUPABASE_ACCESS_TOKEN
+```
+
+O script atualiza somente a URL principal e adiciona a URL exata de redefinição à lista de destinos permitidos; em seguida, consulta novamente a API para confirmar os dois valores. O token é lido do ambiente e nunca é exibido ou salvo no repositório. Não compartilhe esse token no chat.
+
 ## Configuração dos rate limits
 
 O CAPTCHA permanecerá desativado por decisão de produto. O suporte opcional existente no frontend não exige remoção e não envia token enquanto `turnstileSiteKey` estiver vazio.
 
 As URLs e os limites recomendados estão versionados em `supabase/config.toml`:
 
-- URL principal: `https://site-delivery-42.vercel.app`;
-- redirect exato de recuperação: `https://site-delivery-42.vercel.app/html/nova-senha.html`;
+- URL principal oficial (GitHub Pages): `https://kayranporto.github.io/Pede-ja-delivery/`;
+- redirect exato de recuperação: `https://kayranporto.github.io/Pede-ja-delivery/html/nova-senha.html`;
 - login/cadastro: 30 requisições por 5 minutos por IP;
 - renovação de token: 150 requisições por 5 minutos por IP;
 - verificação de token/OTP: 30 requisições por 5 minutos por IP;
