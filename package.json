@@ -17,7 +17,8 @@
     "configure:auth:rate-limits": "node scripts/configurar-rate-limits-auth.js",
     "verify:production": "node scripts/verificar-producao.js",
     "backup:supabase": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/backup-supabase.ps1",
-    "restore:supabase": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/restore-supabase.ps1"
+    "restore:supabase": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/restore-supabase.ps1",
+    "configure:auth:github-pages": "node scripts/configurar-auth-github-pages.js"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",
