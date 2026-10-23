@@ -3,7 +3,7 @@
 (() => {
     const TABELA = "categorias_filtros_home";
     function normalizar(valor) {
-        return String(valor || "").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").trim().toLocaleLowerCase("pt-BR");
+        return String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLocaleLowerCase("pt-BR");
     }
     async function listar() {
         if (!window.db || typeof window.db.from !== "function") throw new Error("O serviço de categorias não está disponível.");

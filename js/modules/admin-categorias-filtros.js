@@ -21,7 +21,7 @@
     function normalizar(valor) {
         return window.CategoriasFiltros?.normalizar
             ? window.CategoriasFiltros.normalizar(valor)
-            : String(valor || "").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").trim().toLowerCase();
+            : String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
     }
     function mensagemErro(erro) {
         const mensagem = String(erro?.message || "Falha inesperada ao salvar.");
@@ -126,7 +126,7 @@
     async function salvarCategoria(evento) {
         evento.preventDefault();
         if (salvando || !formulario || !campoNome || !campoIcone || !campoOrdem) return;
-        const nome = campoNome.value.trim().replace(/\\s+/g, " ");
+        const nome = campoNome.value.trim().replace(/\s+/g, " ");
         const icone = campoIcone.value.trim();
         const ordem = Number(campoOrdem.value);
         if (!nome || !icone || !Number.isInteger(ordem) || ordem < 0 || ordem > 10000) {
