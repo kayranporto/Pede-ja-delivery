@@ -42,7 +42,18 @@ test("cadastros exigem sessão imediata e não instruem confirmação de e-mail"
     assert.match(read("supabase/config.toml"), /enable_confirmations = false/);
 });
 
-test("cadastro e login usam o objeto já desembrulhado pela API", () => {\n    const api = read("js/core/supabase.js");\n    const cadastro = read("js/pages/empresa-cadastro.js");\n    const login = read("js/pages/empresa-login.js");\n    assert.match(api, /return payload\\?\\.data;/);\n    assert.match(cadastro, /const empresa = respostaEmpresa \\|\\| null;/);\n    assert.doesNotMatch(cadastro, /respostaEmpresa\\?\\.data/);\n    assert.match(login, /return resposta \\|\\| null;/);\n    assert.doesNotMatch(login, /return resposta\\?\\.data/);\n});\n\ntest("autenticação usa publishable key, senha forte e CAPTCHA opcional", () => {
+test("cadastro e login usam o objeto já desembrulhado pela API", () => {
+    const api = read("js/core/supabase.js");
+    const cadastro = read("js/pages/empresa-cadastro.js");
+    const login = read("js/pages/empresa-login.js");
+    assert.ok(api.includes("return payload?.data;"));
+    assert.ok(cadastro.includes("const empresa = respostaEmpresa || null;"));
+    assert.ok(!cadastro.includes("respostaEmpresa?.data"));
+    assert.ok(login.includes("return resposta || null;"));
+    assert.ok(!login.includes("return resposta?.data"));
+});
+
+test("autenticação usa publishable key, senha forte e CAPTCHA opcional", () => {
     const supabase = read("js/core/supabase.js");
     assert.match(supabase, /SUPABASE_PUBLISHABLE_KEY/);
     assert.match(supabase, /sb_publishable_/);
