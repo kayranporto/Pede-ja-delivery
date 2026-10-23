@@ -3,7 +3,8 @@
 const cards = document.getElementById("listaRestaurantes");
 const pesquisa = document.getElementById("campoBusca");
 const pesquisaMobile = document.getElementById("campoBuscaMobile");
-const categorias = document.querySelectorAll(".categoria");
+let categorias = Array.from(document.querySelectorAll(".categoria"));
+const listaCategoriasHome = document.querySelector(".categoria-lista");
 const menuUsuario = document.getElementById("menuUsuario");
 const locationBox = document.querySelector(".location");
 const locationText = locationBox?.querySelector("strong");
@@ -149,6 +150,7 @@ function iniciarHeroInterativo() {
 
 let empresas = [];
 let categoriaSelecionada = "";
+let aliasesCategoriaSelecionada = [];
 let resumoAvaliacoesEmpresas = new Map();
 const favoritos = new Set();
 const cacheBuscaProdutos = new Map();
@@ -405,8 +407,14 @@ function aplicarFiltros() {
             empresa.tipo
         ].join(" "));
 
+        const categoriaEmpresa = normalizar([empresa.categoria, empresa.tipo].filter(Boolean).join(" "));
+        const termosCategoria = [categoria, ...aliasesCategoriaSelecionada]
+            .map((termo) => normalizar(termo).trim())
+            .filter(Boolean);
+        const correspondeCategoria = !termosCategoria.length
+            || termosCategoria.some((termo) => categoriaEmpresa.includes(termo));
         return (!texto || conteudo.includes(texto) || idsProdutos.has(String(empresa.id))) &&
-            (!categoria || conteudo.includes(categoria)) &&
+            correspondeCategoria &&
             (!filtros.abertoAgora || empresa.abertaAgora === true);
     });
 
@@ -730,23 +738,68 @@ pesquisaMobile?.addEventListener("input", () => {
     programarBuscaProdutos();
 });
 
+function renderizarCategoriasHome(lista) {
+    if (!listaCategoriasHome || !Array.isArray(lista) || !lista.length) return;
+    const fragmento = document.createDocumentFragment();
+    lista.forEach((categoria) => {
+        const botao = document.createElement("button");
+        botao.type = "button";
+        botao.className = "categoria";
+        botao.dataset.categoria = String(categoria.nome || "");
+        botao.dataset.aliases = JSON.stringify(Array.isArray(categoria.aliases) ? categoria.aliases : []);
+        botao.setAttribute("aria-pressed", "false");
+        const icone = document.createElement("div");
+        icone.setAttribute("aria-hidden", "true");
+        icone.textContent = categoria.icone || "🍽️";
+        const nome = document.createElement("span");
+        nome.textContent = categoria.nome || "Categoria";
+        botao.append(icone, nome);
+        fragmento.append(botao);
+    });
+    listaCategoriasHome.replaceChildren(fragmento);
+    categorias = Array.from(listaCategoriasHome.querySelectorAll(".categoria"));
+    const selecionada = categorias.find((botao) => {
+        const valores = [botao.dataset.categoria];
+        try { valores.push(...JSON.parse(botao.dataset.aliases || "[]")); } catch { /* Sem aliases antigos. */ }
+        return valores.some((valor) => normalizar(valor) === normalizar(categoriaSelecionada));
+    });
+    if (selecionada) {
+        categoriaSelecionada = selecionada.dataset.categoria || "";
+        try { aliasesCategoriaSelecionada = JSON.parse(selecionada.dataset.aliases || "[]"); } catch { aliasesCategoriaSelecionada = []; }
+        selecionada.classList.add("ativa");
+        selecionada.setAttribute("aria-pressed", "true");
+    } else {
+        categoriaSelecionada = "";
+        aliasesCategoriaSelecionada = [];
+        categorias[0]?.classList.add("ativa");
+    }
+}
+async function carregarCategoriasFiltrosHome() {
+    try {
+        const lista = await window.CategoriasFiltros?.listar();
+        if (Array.isArray(lista) && lista.length) renderizarCategoriasHome(lista);
+    } catch (erro) {
+        // Os botões estáticos do HTML continuam disponíveis como fallback se o banco não responder.
+        console.warn("Categorias de filtros não puderam ser atualizadas.", erro);
+    }
+}
 categorias[0]?.classList.add("ativa");
-
-categorias.forEach((categoria) => {
-    const selecionar = () => {
-        categorias.forEach((item) => {
-            item.classList.remove("ativa");
-            item.setAttribute("aria-pressed", "false");
-        });
-        categoria.classList.add("ativa");
-        categoria.setAttribute("aria-pressed", "true");
-        categoriaSelecionada = categoria.dataset.categoria || "";
-        aplicarFiltros();
-        document.getElementById("restaurantes")?.scrollIntoView({ behavior: "smooth" });
-    };
-
-    categoria.addEventListener("click", selecionar);
+listaCategoriasHome?.addEventListener("click", (evento) => {
+    const categoria = evento.target.closest(".categoria");
+    if (!categoria || !listaCategoriasHome.contains(categoria)) return;
+    categorias = Array.from(listaCategoriasHome.querySelectorAll(".categoria"));
+    categorias.forEach((item) => {
+        item.classList.remove("ativa");
+        item.setAttribute("aria-pressed", "false");
+    });
+    categoria.classList.add("ativa");
+    categoria.setAttribute("aria-pressed", "true");
+    categoriaSelecionada = categoria.dataset.categoria || "";
+    try { aliasesCategoriaSelecionada = JSON.parse(categoria.dataset.aliases || "[]"); } catch { aliasesCategoriaSelecionada = []; }
+    aplicarFiltros();
+    document.getElementById("restaurantes")?.scrollIntoView({ behavior: "smooth" });
 });
+void carregarCategoriasFiltrosHome();
 
 function editarEndereco() {
     window.location.href = "html/enderecos.html?redirect=../index.html";
@@ -783,6 +836,7 @@ verTodos?.addEventListener("click", (event) => {
         quantidade: 0
     };
     categoriaSelecionada = "";
+    aliasesCategoriaSelecionada = [];
     filtros.abertoAgora = false;
     filtros.ordenarPorTaxa = false;
     filtroAberto?.classList.remove("active");

@@ -1,6 +1,6 @@
 "use strict";
 
-const VERSION = "4.4.9";
+const VERSION = "4.5.0";
 const CACHE = `multi-delivery-v${VERSION}`;
 const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}`;
 const SHELL = [
@@ -36,7 +36,8 @@ const SHELL = [
   "./js/core/notifications.js?v=4.4.3",
   "./js/core/favorites-sync.js?v=4.2.1",
   "./js/core/supabase.js?v=4.4.9",
-  "./js/pages/home.js?v=4.5.1",
+  "./js/core/categorias-filtros.js?v=1.0.0",
+  "./js/pages/home.js?v=4.5.2",
   "./js/core/cart-store.js?v=4.2.0",
   "./js/modules/carrinho-4.2.5.js?v=4.2.6",
   "./js/modules/checkout-4.2.3.js?v=4.2.4",

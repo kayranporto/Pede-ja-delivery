@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="../css/pages/admin.css?v=4.4.15"/>
+  <link rel="stylesheet" href="../css/pages/admin.css?v=4.4.16"/>
   <link rel="stylesheet" href="../css/core/accessibility.css?v=4.2.0"/>
   <link rel="stylesheet" href="../css/core/enhancements.css?v=4.4.7"/>
 </head>
@@ -31,6 +31,7 @@
         <a href="#entregas">↗ <span>Entregas</span></a>
         <a href="#areas">⌖ <span>Áreas de entrega</span></a>
         <a href="#restaurantes">▦ <span>Restaurantes</span><b id="pendentesMenu">0</b></a>
+        <a href="#categorias_filtros">☷ <span>Filtros da Home</span></a>
         <a href="#usuarios">♙ <span>Usuários</span></a>
         <a href="#cupons">% <span>Cupons</span></a>
         <a href="#marketing">✦ <span>Marketing</span></a>
@@ -224,6 +225,30 @@
           <div class="admin-table-wrap"><table><thead><tr><th>Restaurante</th><th>Contato</th><th>Cadastro</th><th>Publicação</th><th>Operação</th><th>Ações</th></tr></thead><tbody id="adminEmpresas"><tr><td colspan="6">Carregando...</td></tr></tbody></table></div>
         </section>
 
+        <section class="admin-section admin-view" id="categorias_filtros" data-admin-view tabindex="-1" aria-label="Filtros da página inicial" hidden>
+          <div class="admin-section-title">
+            <div><span class="admin-kicker">EXPERIÊNCIA DE COMPRA</span><h2>Filtros da página inicial</h2><p>Adicione, edite, reordene ou exclua categorias exibidas na Home e no painel dos restaurantes.</p></div>
+            <button class="admin-secondary-button" id="atualizarCategoriasFiltrosAdmin" type="button">↻ Atualizar lista</button>
+          </div>
+          <div class="admin-filter-categories-layout">
+            <article class="admin-card admin-filter-category-editor">
+              <div class="admin-card-heading"><div><h3 id="filtroCategoriaFormTitulo">Adicionar categoria</h3><p>As alterações são salvas na plataforma e valem para todos.</p></div></div>
+              <form id="filtroCategoriaForm" class="admin-filter-category-form">
+                <input id="filtroCategoriaId" type="hidden"/>
+                <label for="filtroCategoriaNome">Nome da categoria<input id="filtroCategoriaNome" maxlength="60" required placeholder="Ex.: Açaí"/></label>
+                <label for="filtroCategoriaIcone">Emoji / ícone<input id="filtroCategoriaIcone" maxlength="12" required value="🍽️" placeholder="Ex.: 🍕"/></label>
+                <label for="filtroCategoriaOrdem">Posição na Home<input id="filtroCategoriaOrdem" type="number" min="0" max="10000" step="1" required value="90"/></label>
+                <div class="admin-filter-category-form-actions"><button class="admin-primary-button" id="filtroCategoriaSalvar" type="submit">Adicionar categoria</button><button class="admin-secondary-button" id="filtroCategoriaCancelar" type="button" hidden>Cancelar edição</button></div>
+                <p id="filtroCategoriaFeedback" class="admin-filter-category-feedback" role="status" aria-live="polite"></p>
+              </form>
+            </article>
+            <article class="admin-card admin-filter-category-list-card">
+              <div class="admin-card-heading"><div><h3>Categorias cadastradas</h3><p id="resumoCategoriasFiltros">Carregando categorias…</p></div></div>
+              <div id="adminCategoriasFiltros" class="admin-filter-category-list" aria-live="polite"><p class="admin-loading-inline">Carregando categorias...</p></div>
+            </article>
+          </div>
+        </section>
+
         <section class="admin-section admin-view" id="usuarios" data-admin-view tabindex="-1" aria-label="Usuários" hidden>
           <div class="admin-section-title"><div><span class="admin-kicker">COMUNIDADE</span><h2>Usuários</h2><p>O bloqueio impede novos pedidos sem excluir histórico ou conta.</p></div><label class="admin-search">⌕<input id="buscaAdminUsuario" type="search" placeholder="Buscar usuário"/></label></div>
           <div class="admin-table-wrap"><table><thead><tr><th>Usuário</th><th>Telefone</th><th>Cadastro</th><th>Status</th><th>Ação</th></tr></thead><tbody id="adminUsuarios"><tr><td colspan="5">Carregando...</td></tr></tbody></table></div>
@@ -271,10 +296,12 @@
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
   <script defer src="../js/core/app-utils.js?v=4.4.7"></script>
   <script defer src="../js/core/supabase.js?v=4.4.7"></script>
+  <script defer src="../js/core/categorias-filtros.js?v=1.0.0"></script>
   <script defer src="../js/core/config.js?v=4.4.9"></script>
   <script defer src="../js/core/monitoring.js?v=4.2.0"></script>
   <script defer src="../js/core/notifications.js?v=4.2.0"></script>
-  <script defer src="../js/pages/admin.js?v=4.4.15"></script>
+  <script defer src="../js/pages/admin.js?v=4.4.16"></script>
+  <script defer src="../js/modules/admin-categorias-filtros.js?v=1.0.0"></script>
   <script defer src="../js/modules/operacao-admin.js?v=4.2.0"></script>
   <script defer src="../js/core/site-enhancements.js?v=4.4.8"></script>
 </body>

@@ -57,8 +57,8 @@ test("Home usa horário real no filtro Aberto agora", () => {
     assert.match(home, /DeliveryAPI\.disponibilidade\(/);
     assert.match(home, /abertaAgora:\s*data\?\.aberto\s*===\s*true/);
     assert.match(home, /!filtros\.abertoAgora\s*\|\|\s*empresa\.abertaAgora\s*===\s*true/);
-    assert.match(read("index.html"), /js\/pages\/home\.js\?v=4\.5\.1/);
-    assert.match(read("sw.js"), /js\/pages\/home\.js\?v=4\.5\.1/);
+    assert.match(read("index.html"), /js\/pages\/home\.js\?v=4\.5\.2/);
+    assert.match(read("sw.js"), /js\/pages\/home\.js\?v=4\.5\.2/);
 });
 
 test("robots bloqueia as rotas privadas reais em html", () => {
@@ -133,4 +133,26 @@ test("painel administrativo exibe apenas a seção escolhida e separa o conteúd
     assert.match(js, /history\.pushState/);
     assert.match(js, /addEventListener\("hashchange"/);
     assert.match(css, /\.admin-view\[hidden\]\s*\{\s*display:\s*none\s*!important\s*\}/);
+});
+
+
+test("filtros da Home são configuráveis por administradores e lidos de uma tabela protegida", () => {
+    const html = read("html/admin.html");
+    const admin = read("js/pages/admin.js");
+    const manager = read("js/modules/admin-categorias-filtros.js");
+    const shared = read("js/core/categorias-filtros.js");
+    const migration = read("supabase/migrations/20261022232000_admin_categorias_filtros.sql");
+    assert.match(html, /id="categorias_filtros"[^>]*data-admin-view/);
+    assert.match(html, /id="filtroCategoriaForm"/);
+    assert.match(html, /id="adminCategoriasFiltros"/);
+    assert.match(admin, /chave: "categorias_filtros"/);
+    assert.match(admin, /inicializarCategoriasFiltrosAdmin/);
+    assert.match(manager, /\.insert\(payload\)/);
+    assert.match(manager, /\.update\(payload\)/);
+    assert.match(manager, /\.delete\(\)/);
+    assert.match(shared, /categorias_filtros_home/);
+    assert.match(migration, /enable row level security/i);
+    assert.match(migration, /for select to anon, authenticated/i);
+    assert.match(migration, /usuario_tem_permissao_admin\('categorias_filtros'\)/);
+    assert.match(migration, /create unique index/i);
 });

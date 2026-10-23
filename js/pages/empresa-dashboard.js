@@ -1001,6 +1001,33 @@ function editarProduto(produto) {
     document.getElementById("produtoNome").focus({ preventScroll: true });
 }
 
+async function sincronizarCategoriasLoja(valorAtual) {
+    const campo = document.getElementById("lojaCategoria");
+    if (!campo || !window.CategoriasFiltros?.listar) return;
+    try {
+        const lista = await window.CategoriasFiltros.listar();
+        if (!Array.isArray(lista) || !lista.length) {
+            if (valorAtual && !Array.from(campo.options).some((opcao) => opcao.value === valorAtual)) {
+                campo.insertBefore(new Option(valorAtual + " (categoria atual)", valorAtual), campo.options[1] || null);
+            }
+            campo.value = valorAtual;
+            return;
+        }
+        const normalizar = window.CategoriasFiltros.normalizar;
+        const selecionada = lista.find((categoria) =>
+            normalizar(categoria.nome) === normalizar(valorAtual)
+            || (Array.isArray(categoria.aliases) && categoria.aliases.some((alias) => normalizar(alias) === normalizar(valorAtual)))
+        );
+        campo.replaceChildren(new Option("Selecione uma categoria", ""));
+        lista.forEach((categoria) => campo.add(new Option(categoria.nome, categoria.nome)));
+        if (!selecionada && valorAtual) campo.add(new Option(valorAtual + " (categoria atual)", valorAtual, false, true), 1);
+        campo.value = selecionada?.nome || valorAtual || "";
+    } catch (erro) {
+        console.warn("Não foi possível atualizar as categorias da loja.", erro);
+        campo.value = valorAtual;
+    }
+}
+
 function preencherLoja() {
     document.getElementById("nomeEmpresa").textContent = empresa.nome || "Painel do Restaurante";
     const linkLoja = document.getElementById("linkLoja");
@@ -1012,16 +1039,8 @@ function preencherLoja() {
     document.getElementById("textoStatusLoja").textContent = empresa.status !== false ? "Aberta e recebendo" : "Fechada temporariamente";
     document.getElementById("lojaNome").value = empresa.nome || "";
     document.getElementById("lojaTelefone").value = empresa.telefone || "";
-    const campoCategoria = document.getElementById("lojaCategoria");
     const categoriaAtual = String(empresa.categoria || empresa.tipo || "").trim();
-    if (categoriaAtual && !Array.from(campoCategoria.options).some((opcao) => opcao.value === categoriaAtual)) {
-        // Mantém categorias antigas personalizadas visíveis até o restaurante escolher uma opção padronizada.
-        const opcaoLegada = document.createElement("option");
-        opcaoLegada.value = categoriaAtual;
-        opcaoLegada.textContent = `${categoriaAtual} (categoria atual)`;
-        campoCategoria.insertBefore(opcaoLegada, campoCategoria.options[1] || null);
-    }
-    campoCategoria.value = categoriaAtual;
+    void sincronizarCategoriasLoja(categoriaAtual);
     document.getElementById("lojaTaxa").value = Number(empresa.taxa_entrega || 0).toFixed(2);
     document.getElementById("lojaMinimo").value = Number(empresa.pedido_minimo || 0).toFixed(2);
     document.getElementById("lojaCidade").value = empresa.cidade_atendimento || "";

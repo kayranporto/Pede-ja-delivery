@@ -22,6 +22,7 @@ const ADMIN_PERMISSOES = [
     { chave: "entregas", rotulo: "Entregas", descricao: "Operação logística e entregadores." },
     { chave: "areas", rotulo: "Áreas de entrega", descricao: "Regras regionais de atendimento." },
     { chave: "restaurantes", rotulo: "Restaurantes", descricao: "Moderação e dados das lojas." },
+    { chave: "categorias_filtros", rotulo: "Filtros da página inicial", descricao: "Criar, editar e excluir categorias exibidas na Home." },
     { chave: "usuarios", rotulo: "Usuários", descricao: "Contas, bloqueios e comunidade." },
     { chave: "cupons", rotulo: "Cupons", descricao: "Promoções e cupons." },
     { chave: "marketing", rotulo: "Marketing", descricao: "Campanhas e inteligência promocional." },
@@ -1536,6 +1537,7 @@ function configurarNavegacao() {
         areas: "Áreas de entrega",
         marketing: "Marketing e campanhas",
         restaurantes: "Moderação de restaurantes",
+        categorias_filtros: "Filtros da página inicial",
         usuarios: "Usuários da plataforma",
         cupons: "Gestão de cupons",
         relatorios: "Relatórios e inteligência",
@@ -1634,6 +1636,7 @@ async function iniciarAdmin() {
             loadingAdmin.style.display = "none";
         }
         document.getElementById("adminApp").hidden = false;
+        window.inicializarCategoriasFiltrosAdmin?.();
         if (temPermissaoAdmin("administradores")) carregarAdministradores();
         canalAdmin = db.channel("admin-plataforma")
             .on("postgres_changes", { event: "*", schema: "public", table: "pedidos" }, agendarRecarregamento)
