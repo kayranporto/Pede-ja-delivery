@@ -3,7 +3,7 @@
 const form = document.getElementById("recuperarForm");
 
 // Este é o destino exato autorizado em supabase/config.toml e no Supabase Auth.
-const URL_RECUPERACAO_SENHA = "https://site-delivery-42.vercel.app/html/nova-senha.html";
+const URL_RECUPERACAO_SENHA = "https://kayranporto.github.io/Pede-ja-delivery/html/nova-senha.html";
 
 function avisarRecuperacao(titulo, mensagem, tipo = "info", campo = null, tempo = 5000) {
     window.AppToast?.(titulo, mensagem, tipo, tempo);
