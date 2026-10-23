@@ -58,8 +58,8 @@ test("produção Vercel possui verificação reproduzível de rotas e cabeçalho
 
 test("Auth de produção possui URLs exatas e rate limits declarativos", () => {
     const config = read("supabase/config.toml");
-    assert.match(config, /site_url = "https:\/\/site-delivery-42\.vercel\.app"/);
-    assert.match(config, /additional_redirect_urls = \["https:\/\/site-delivery-42\.vercel\.app\/html\/nova-senha\.html"\]/);
+    assert.match(config, /site_url = "https:\/\/kayranporto\.github\.io\/Pede-ja-delivery\/"/);
+    assert.match(config, /additional_redirect_urls = \["https:\/\/kayranporto\.github\.io\/Pede-ja-delivery\/html\/nova-senha\.html"\]/);
     for (const trecho of [
         "[auth.rate_limit]",
         "email_sent = 2",
