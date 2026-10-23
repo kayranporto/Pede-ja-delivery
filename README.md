@@ -13,7 +13,7 @@ npm run verify
 
 Os mesmos comandos funcionam em Linux, macOS, Prompt de Comando e PowerShell; a descoberta dos arquivos de teste é feita pelo próprio test runner do Node.js, sem depender de expansão de curingas pelo shell.
 
-`npm run verify` cobre 274 arquivos, sintaxe JavaScript, JSON, referências locais, IDs HTML duplicados, exposição de segredos, migrations críticas, 177 testes automatizados e o type-check TypeScript das Edge Functions.
+`npm run verify` cobre 274 arquivos, sintaxe JavaScript, JSON, referências locais, IDs HTML duplicados, exposição de segredos, migrations críticas, 178 testes automatizados e o type-check TypeScript das Edge Functions.
 
 Para gerar o pacote de publicação depois da verificação:
 
@@ -84,7 +84,7 @@ O diretório testado deve ser exatamente o diretório publicado. Não mantenha c
 - trava transacional para impedir duas corridas ativas por entregador;
 - cache PWA e gate de release alinhados na versão 4.4.7;
 - API pública v1 de catálogo, somente leitura, com OpenAPI e smoke remoto;
-- 177 testes automatizados.
+- 178 testes automatizados.
 
 ## Implantação
 
