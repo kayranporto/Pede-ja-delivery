@@ -23,7 +23,7 @@ test("link de recuperação usa o destino GitHub Pages autorizado no Supabase Au
     assert.ok(script.includes("const options = { redirectTo: URL_RECUPERACAO_SENHA };"));
     assert.ok(authConfig.includes(`site_url = "${siteUrl}"`));
     assert.ok(authConfig.includes(`additional_redirect_urls = ["${destino}"]`));
-    assert.match(html, /js\\/pages\\/recuperar-senha\\.js\\?v=4\\.4\\.11/);
+    assert.match(html, /recuperar-senha\.js\?v=4\.4\.11/);
     assert.ok(applyScript.includes("uri_allow_list"));
     assert.ok(applyScript.includes("site_url"));
     assert.match(applyScript, /request\("PATCH", patch\)/);
