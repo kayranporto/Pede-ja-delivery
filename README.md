@@ -1,4 +1,4 @@
-# PedeJá 4.4.7
+# PedeJá 4.4.9
 
 Aplicação web integrada ao Supabase para marketplace de restaurantes, pedidos, cozinha, entregadores, suporte e pagamentos pelo Mercado Pago.
 
