@@ -156,3 +156,10 @@ test("filtros da Home são configuráveis por administradores e lidos de uma tab
     assert.match(migration, /usuario_tem_permissao_admin\('categorias_filtros'\)/);
     assert.match(migration, /create unique index/i);
 });
+
+
+test("a versão do README acompanha a versão declarada no package.json", () => {
+    const packageJson = JSON.parse(read("package.json"));
+    const readme = read("README.md");
+    assert.match(readme, new RegExp(`^# PedeJá ${packageJson.version}$`, "m"));
+});
