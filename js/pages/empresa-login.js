@@ -35,7 +35,7 @@ async function obterOuCriarEmpresa(user) {
             cnpj
         })
     });
-    return resposta?.data || null;
+    return resposta || null;
 }
 
 async function resolverAcessoEmpresa(user) {
