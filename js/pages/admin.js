@@ -57,6 +57,9 @@ function podeAcessarSecaoAdmin(secao) {
     if (secao === "configuracoes") {
         return temPermissaoAdmin("configuracoes") || temPermissaoAdmin("administradores");
     }
+    if (secao === "categorias_filtros") {
+        return temPermissaoAdmin("categorias_filtros") || temPermissaoAdmin("configuracoes") || temPermissaoAdmin("administradores");
+    }
     if (secao === "planos") {
         return temPermissaoAdmin("financeiro");
     }
