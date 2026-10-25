@@ -9,6 +9,8 @@
     const campoId = document.getElementById("filtroCategoriaId");
     const campoNome = document.getElementById("filtroCategoriaNome");
     const campoIcone = document.getElementById("filtroCategoriaIcone");
+    const campoImagem = document.getElementById("filtroCategoriaImagem");
+    const previaImagem = document.getElementById("filtroCategoriaImagemPreview");
     const campoOrdem = document.getElementById("filtroCategoriaOrdem");
     const botaoSalvar = document.getElementById("filtroCategoriaSalvar");
     const botaoCancelar = document.getElementById("filtroCategoriaCancelar");
@@ -38,6 +40,8 @@
         formulario?.reset();
         if (campoId) campoId.value = "";
         if (campoIcone) campoIcone.value = "🍽️";
+        if (campoImagem) campoImagem.value = "";
+        atualizarPreviaImagem();
         if (campoOrdem) campoOrdem.value = String((categorias.length + 1) * 10);
         if (tituloFormulario) tituloFormulario.textContent = "Adicionar categoria";
         if (botaoSalvar) botaoSalvar.textContent = "Adicionar categoria";
@@ -48,13 +52,24 @@
         campoId.value = categoria.id;
         campoNome.value = categoria.nome || "";
         campoIcone.value = categoria.icone || "🍽️";
+        if (campoImagem) campoImagem.value = categoria.imagem_url || "";
         campoOrdem.value = String(Number(categoria.ordem) || 0);
         tituloFormulario.textContent = "Editar categoria";
         botaoSalvar.textContent = "Salvar alterações";
         botaoCancelar.hidden = false;
+        atualizarPreviaImagem();
         mostrarFeedback("A categoria selecionada está em edição.", "info");
         campoNome.focus();
         formulario.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    function atualizarPreviaImagem() {
+        if (!previaImagem || !campoImagem) return;
+        const img = previaImagem.querySelector("img");
+        const url = campoImagem.value.trim();
+        const valida = /^https:\/\//i.test(url);
+        previaImagem.hidden = !valida;
+        if (valida && img) { img.src = url; img.onerror = () => { previaImagem.hidden = true; }; }
+        else if (img) img.removeAttribute("src");
     }
     function criarBotao(rotulo, classe, acao, ariaLabel) {
         const botao = document.createElement("button");
@@ -82,7 +97,12 @@
             const icone = document.createElement("span");
             icone.className = "admin-filter-category-emoji";
             icone.setAttribute("aria-hidden", "true");
-            icone.textContent = categoria.icone || "🍽️";
+            if (categoria.imagem_url && /^https:\/\//i.test(categoria.imagem_url)) {
+                const img = document.createElement("img");
+                img.src = categoria.imagem_url; img.alt = ""; img.loading = "lazy";
+                img.onerror = () => { icone.replaceChildren(); icone.textContent = categoria.icone || "🍽️"; };
+                icone.append(img);
+            } else icone.textContent = categoria.icone || "🍽️";
             const texto = document.createElement("div");
             texto.className = "admin-filter-category-info";
             const nome = document.createElement("strong");
@@ -124,6 +144,11 @@
         const nome = campoNome.value.trim().replace(/\s+/g, " ");
         const icone = campoIcone.value.trim();
         const ordem = Number(campoOrdem.value);
+        const imagem_url = campoImagem?.value.trim() || null;
+        if (imagem_url && (!/^https:\/\//i.test(imagem_url) || imagem_url.length > 1000)) {
+            mostrarFeedback("Informe um link HTTPS válido para a imagem ou deixe o campo vazio.", "error");
+            return;
+        }
         if (!nome || !icone || !Number.isInteger(ordem) || ordem < 0 || ordem > 10000) {
             mostrarFeedback("Informe nome, emoji/ícone e uma posição válida.", "error");
             return;
@@ -139,7 +164,7 @@
         const aliasUnicos = [...new Map(aliases.map((alias) => [normalizar(alias), String(alias).trim()])).entries()]
             .filter(([normalizado, valor]) => normalizado && normalizado !== normalizar(nome) && valor)
             .map(([, valor]) => valor);
-        const payload = { nome, icone, ordem, aliases: aliasUnicos, updated_at: new Date().toISOString() };
+        const payload = { nome, icone, imagem_url, ordem, aliases: aliasUnicos, updated_at: new Date().toISOString() };
         salvando = true;
         if (botaoSalvar) botaoSalvar.disabled = true;
         try {
@@ -163,6 +188,7 @@
             && !window.__ADMIN_PODE_ACESSAR_SECAO__("categorias_filtros")) return;
         inicializado = true;
         formulario.addEventListener("submit", salvarCategoria);
+        campoImagem?.addEventListener("input", atualizarPreviaImagem);
         botaoCancelar?.addEventListener("click", () => {
             redefinirFormulario();
             mostrarFeedback("Edição cancelada.", "info");
