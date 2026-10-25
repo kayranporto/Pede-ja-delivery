@@ -237,6 +237,8 @@
                 <input id="filtroCategoriaId" type="hidden"/>
                 <label for="filtroCategoriaNome">Nome da categoria<input id="filtroCategoriaNome" maxlength="60" required placeholder="Ex.: Açaí"/></label>
                 <label for="filtroCategoriaIcone">Emoji / ícone<input id="filtroCategoriaIcone" maxlength="12" required value="🍽️" placeholder="Ex.: 🍕"/></label>
+                <label for="filtroCategoriaImagem">URL da imagem real (opcional)<input id="filtroCategoriaImagem" type="url" maxlength="1000" placeholder="https://.../pizza.jpg" autocomplete="url"/><small>Use um link direto para uma imagem HTTPS. Se ficar vazio, será exibido o ícone.</small></label>
+                <div class="admin-filter-image-preview" id="filtroCategoriaImagemPreview" hidden><img alt="Prévia da imagem do filtro"/><span>Prévia da imagem</span></div>
                 <label for="filtroCategoriaOrdem">Posição na Home<input id="filtroCategoriaOrdem" type="number" min="0" max="10000" step="1" required value="90"/></label>
                 <div class="admin-filter-category-form-actions"><button class="admin-primary-button" id="filtroCategoriaSalvar" type="submit">Adicionar categoria</button><button class="admin-secondary-button" id="filtroCategoriaCancelar" type="button" hidden>Cancelar edição</button></div>
                 <p id="filtroCategoriaFeedback" class="admin-filter-category-feedback" role="status" aria-live="polite"></p>
