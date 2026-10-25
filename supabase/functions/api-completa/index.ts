@@ -652,7 +652,7 @@ async function checkFilterCategoryPermission(ctx: RouteContext) {
   }
   return null;
 }
-const FILTER_CATEGORY_FIELDS = "id,nome,icone,ordem,aliases";
+const FILTER_CATEGORY_FIELDS = "id,nome,icone,imagem_url,ordem,aliases";
 function normalizedFilterCategoryName(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
 }
@@ -660,7 +660,9 @@ function parseFilterCategoryPayload(body: Json) {
   const nome = str(body.nome, 60)?.replace(/\s+/g, " ") || null;
   const icone = str(body.icone, 12) || "🍽️";
   const ordem = int(body.ordem, 0, 10000);
-  if (!nome || !icone || ordem === null) return null;
+  const imagemRaw = body.imagem_url == null ? "" : str(body.imagem_url, 1000) || "";
+  const imagem_url = imagemRaw.trim() || null;
+  if (!nome || !icone || ordem === null || (imagem_url !== null && !/^https:\/\//i.test(imagem_url))) return null;
   const rawAliases = Array.isArray(body.aliases)
     ? body.aliases.filter((value): value is string => typeof value === "string")
         .map((value) => value.trim())
@@ -669,7 +671,7 @@ function parseFilterCategoryPayload(body: Json) {
     : [];
   const aliasesByName = new Map<string, string>();
   rawAliases.forEach((value) => aliasesByName.set(normalizedFilterCategoryName(value), value));
-  return { nome, icone, ordem, aliases: [...aliasesByName.values()], updated_at: new Date().toISOString() };
+  return { nome, icone, imagem_url, ordem, aliases: [...aliasesByName.values()], updated_at: new Date().toISOString() };
 }
 function filterCategoryWriteError(ctx: RouteContext, dbError: { code?: string; message?: string }) {
   if (dbError.code === "23505") return error(ctx.request, 409, "categoria_duplicada", "Já existe uma categoria com esse nome.");
