@@ -749,8 +749,14 @@ function renderizarCategoriasHome(lista) {
         botao.dataset.aliases = JSON.stringify(Array.isArray(categoria.aliases) ? categoria.aliases : []);
         botao.setAttribute("aria-pressed", "false");
         const icone = document.createElement("div");
+        icone.className = "categoria-visual";
         icone.setAttribute("aria-hidden", "true");
-        icone.textContent = categoria.icone || "🍽️";
+        if (categoria.imagem_url && /^https:\/\//i.test(categoria.imagem_url)) {
+            const img = document.createElement("img");
+            img.src = categoria.imagem_url; img.alt = ""; img.loading = "lazy";
+            img.onerror = () => { icone.replaceChildren(); icone.textContent = categoria.icone || "🍽️"; };
+            icone.append(img);
+        } else icone.textContent = categoria.icone || "🍽️";
         const nome = document.createElement("span");
         nome.textContent = categoria.nome || "Categoria";
         botao.append(icone, nome);
