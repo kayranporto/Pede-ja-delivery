@@ -7,7 +7,7 @@ const path = require("node:path");
 
 const root = path.resolve(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
-const migrationPath = "supabase/migrations/20261026190000_planos_comerciais_mensalidade.sql";
+const migrationPath = "supabase/migrations/20261026223732_planos_comerciais_mensalidade.sql";
 
 test("planos comerciais cobram mensalidade fixa sem comissão", () => {
   const sql = read(migrationPath);
