@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="../css/pages/empresa-dashboard.css?v=4.5.2"/>
+  <link rel="stylesheet" href="../css/pages/empresa-dashboard.css?v=4.5.3"/>
   <link rel="stylesheet" href="../css/core/accessibility.css?v=4.2.0"/>
   <link rel="stylesheet" href="../css/core/enhancements.css?v=4.4.9"/>
 </head>
@@ -244,6 +244,16 @@
                 <div class="field"><label for="cupomFim">Válido até</label><input id="cupomFim" type="datetime-local"/></div>
               </div>
               <label class="checkbox-admin"><input id="cupomPrimeiro" type="checkbox"/> Somente no primeiro pedido</label>
+              <div class="flash-coupon-toggle">
+                <label class="checkbox-admin"><input id="cupomRelampago" type="checkbox"/> Destacar na Home como Oferta Relâmpago</label>
+                <div id="cupomCamposRelampago" class="flash-coupon-fields" hidden>
+                  <div class="grid">
+                    <div class="field field-wide"><label for="cupomTituloRelampago">Título da oferta</label><input id="cupomTituloRelampago" maxlength="70" placeholder="Ex.: 20% OFF nos hambúrgueres"/></div>
+                    <div class="field field-wide"><label for="cupomDescricaoRelampago">Descrição curta (opcional)</label><textarea id="cupomDescricaoRelampago" maxlength="180" rows="2" placeholder="Ex.: Aproveite só hoje."></textarea></div>
+                  </div>
+                  <p class="flash-coupon-help">Para aparecer na Home, a oferta precisa de uma data final futura e limite total de usos. O código será copiado pelo cliente e validado no checkout.</p>
+                </div>
+              </div>
               <button class="btn" type="submit">Criar promoção</button>
             </form>
           </article>
