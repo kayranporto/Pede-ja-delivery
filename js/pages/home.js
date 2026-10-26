@@ -632,6 +632,160 @@ async function carregarDestaques() {
     }
 }
 
+
+function formatarFimOferta(fim) {
+    const data = new Date(fim);
+    if (!Number.isFinite(data.getTime())) return "Tempo limitado";
+    return "Até " + data.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
+function imagemOfertaRelampago(oferta) {
+    const figure = document.createElement("div");
+    figure.className = "flash-offer-media";
+    const src = oferta?.restaurante?.banner || oferta?.restaurante?.logo || "";
+    if (src) {
+        try {
+            const url = new URL(src, window.location.href);
+            if (url.protocol === "https:" || url.origin === window.location.origin) {
+                const image = document.createElement("img");
+                image.src = url.href;
+                image.alt = "";
+                image.loading = "lazy";
+                image.decoding = "async";
+                figure.append(image);
+            }
+        } catch (_) {}
+    }
+    if (!figure.querySelector("img")) {
+        figure.classList.add("flash-offer-media-placeholder");
+        const emoji = document.createElement("span");
+        emoji.setAttribute("aria-hidden", "true");
+        emoji.textContent = "⚡";
+        figure.append(emoji);
+    }
+    const seal = document.createElement("span");
+    seal.className = "flash-offer-seal";
+    seal.textContent = "OFERTA RELÂMPAGO";
+    figure.append(seal);
+    return figure;
+}
+
+async function copiarCodigoOfertaRelampago(codigo, button) {
+    const textoOriginal = button.textContent;
+    try {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(codigo);
+        } else {
+            const campo = document.createElement("textarea");
+            campo.value = codigo;
+            campo.setAttribute("readonly", "");
+            campo.style.position = "fixed";
+            campo.style.opacity = "0";
+            document.body.append(campo);
+            campo.select();
+            const sucesso = document.execCommand("copy");
+            campo.remove();
+            if (!sucesso) throw new Error("cópia indisponível");
+        }
+        button.textContent = "Código copiado!";
+        window.AppToast?.("Cupom copiado", "Cole o código no checkout para aproveitar a oferta.", "success");
+    } catch (_) {
+        window.prompt("Copie o código da oferta:", codigo);
+    } finally {
+        window.setTimeout(() => { button.textContent = textoOriginal; }, 2200);
+    }
+}
+
+function renderizarOfertasRelampago(ofertas) {
+    const section = document.getElementById("ofertasRelampagoSection");
+    const container = document.getElementById("listaOfertasRelampago");
+    if (!section || !container) return;
+    const lista = (Array.isArray(ofertas) ? ofertas : [])
+        .filter((oferta) => oferta?.codigo && oferta?.restaurante?.id && Number(oferta.usos_restantes) > 0);
+    container.replaceChildren();
+    container.setAttribute("aria-busy", "false");
+    section.hidden = lista.length === 0;
+    if (!lista.length) return;
+
+    lista.slice(0, 8).forEach((oferta) => {
+        const card = document.createElement("article");
+        card.className = "flash-offer-card";
+        card.append(imagemOfertaRelampago(oferta));
+
+        const content = document.createElement("div");
+        content.className = "flash-offer-body";
+        const storeLine = document.createElement("div");
+        storeLine.className = "flash-offer-store";
+        const storeName = document.createElement("span");
+        storeName.textContent = oferta.restaurante.nome || "Restaurante";
+        storeLine.append(storeName);
+        if (oferta.restaurante.cidade) {
+            const locality = document.createElement("small");
+            locality.textContent = [oferta.restaurante.cidade, oferta.restaurante.uf].filter(Boolean).join(" · ");
+            storeLine.append(locality);
+        }
+
+        const benefit = document.createElement("strong");
+        benefit.className = "flash-offer-benefit";
+        benefit.textContent = oferta.beneficio || "Oferta especial";
+        const title = document.createElement("h3");
+        title.textContent = oferta.titulo || "Oferta por tempo limitado";
+        const description = document.createElement("p");
+        description.className = "flash-offer-description";
+        description.textContent = oferta.descricao || "Use este cupom no checkout antes que acabe.";
+        const conditions = document.createElement("div");
+        conditions.className = "flash-offer-conditions";
+        const count = document.createElement("span");
+        count.textContent = "Restam " + Number(oferta.usos_restantes) + " de " + Number(oferta.usos_limite) + " usos";
+        const deadline = document.createElement("span");
+        deadline.textContent = formatarFimOferta(oferta.fim);
+        conditions.append(count, deadline);
+
+        const codeWrap = document.createElement("div");
+        codeWrap.className = "flash-offer-code";
+        const codeLabel = document.createElement("span");
+        codeLabel.textContent = "CÓDIGO";
+        const code = document.createElement("strong");
+        code.textContent = String(oferta.codigo).toUpperCase();
+        codeWrap.append(codeLabel, code);
+
+        const actions = document.createElement("div");
+        actions.className = "flash-offer-actions";
+        const copy = document.createElement("button");
+        copy.type = "button";
+        copy.className = "flash-offer-copy";
+        copy.textContent = "Copiar cupom";
+        copy.addEventListener("click", () => { void copiarCodigoOfertaRelampago(String(oferta.codigo).toUpperCase(), copy); });
+        const visit = document.createElement("a");
+        visit.className = "flash-offer-visit";
+        visit.href = "html/restaurante.html?id=" + encodeURIComponent(String(oferta.restaurante.id));
+        visit.textContent = "Ver restaurante";
+        actions.append(copy, visit);
+
+        content.append(storeLine, benefit, title, description, conditions, codeWrap, actions);
+        card.append(content);
+        container.append(card);
+    });
+}
+
+async function carregarOfertasRelampago() {
+    const section = document.getElementById("ofertasRelampagoSection");
+    const container = document.getElementById("listaOfertasRelampago");
+    if (!section || !container) return;
+    try {
+        const resultado = await window.db.functions.invoke("ofertas-relampago", { body: { action: "listar" } });
+        if (resultado.error || resultado.data?.error) {
+            throw new Error(resultado.data?.error || resultado.error?.message || "Vitrine indisponível");
+        }
+        renderizarOfertasRelampago(resultado.data?.data || []);
+    } catch (error) {
+        console.warn("Não foi possível carregar ofertas relâmpago:", error);
+        section.hidden = true;
+        container.replaceChildren();
+        container.setAttribute("aria-busy", "false");
+    }
+}
+
 async function atualizarMenuUsuario(user) {
     if (!menuUsuario) return;
     if (!user) return;
@@ -897,7 +1051,7 @@ carts.forEach((cart) => {
     atualizarContadoresCarrinho();
     iniciarAnimacoes();
     iniciarHeroInterativo();
-    const conteudo = Promise.allSettled([carregarEmpresas(), carregarDestaques()]);
+    const conteudo = Promise.allSettled([carregarEmpresas(), carregarDestaques(), carregarOfertasRelampago()]);
     const usuario = window.db.auth.getUser()
         .then(({ data }) => data?.user || null)
         .catch(() => null);
