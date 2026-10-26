@@ -21,7 +21,7 @@ supabase functions deploy api-completa
 supabase functions deploy ofertas-relampago
 ```
 
-A migration `20261026235500_validar_limites_cupom_flash.sql` atualiza o trigger existente `zz_validar_promocao_avancada`: valida situação/validade, limite total, limite por cliente, primeiro pedido e valor mínimo; aplica o desconto no servidor e incrementa o contador de usos dentro da mesma transação. O bloqueio por linha do cupom impede que duas compras simultâneas consumam a última utilização.
+A migration `20261026232104_validar_limites_cupom_flash.sql` atualiza o trigger existente `zz_validar_promocao_avancada`: valida situação/validade, limite total, limite por cliente, primeiro pedido e valor mínimo; aplica o desconto no servidor e incrementa o contador de usos dentro da mesma transação. O bloqueio por linha do cupom impede que duas compras simultâneas consumam a última utilização.
 
 Não publique ofertas com código conhecido publicamente se não quiser que ele seja usado fora do card. O checkout sempre revalida validade e limites; a Home é apenas uma vitrine e pode ter cache de até 30 segundos. A função pública de ofertas é somente leitura e não retorna e-mail, telefone ou dados de pedidos.
 
