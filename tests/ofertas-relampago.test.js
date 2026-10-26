@@ -8,6 +8,7 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const migration = read("supabase/migrations/20261026235000_ofertas_relampago.sql");
+const checkoutMigration = read("supabase/migrations/20261026235500_validar_limites_cupom_flash.sql");
 const edge = read("supabase/functions/ofertas-relampago/index.ts");
 const api = read("supabase/functions/api-completa/index.ts");
 const home = read("index.html");
@@ -28,6 +29,13 @@ test("ofertas relâmpago reutilizam cupons e exigem validade e quantidade", () =
   assert.ok(api.includes("titulo_relampago"));
   assert.ok(api.includes("Number.isInteger(limiteUsos)"));
   assert.ok(api.includes("fimDate.getTime() <= Date.now()"));
+  assert.ok(checkoutMigration.includes("limit 1"));
+  assert.match(checkoutMigration, /for update/i);
+  assert.ok(checkoutMigration.includes("v_cupom.limite_usos"));
+  assert.ok(checkoutMigration.includes("set usos = coalesce(usos, 0) + 1"));
+  assert.ok(checkoutMigration.includes("v_cupom.primeiro_pedido"));
+  assert.ok(checkoutMigration.includes("new.desconto"));
+  assert.ok(checkoutMigration.includes("v_cupom.fim"));
 });
 
 test("API pública retorna apenas ofertas válidas e restaurantes publicados", () => {
