@@ -59,7 +59,7 @@ function resumoPlano(plano: PlainObject | null) {
 }
 
 Deno.serve(async (request: Request) => {
-  if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders(request, ["POST"]) });
+  if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders(request) });
   if (request.method !== "POST") return json(request, { error: "Método não permitido." }, 405);
 
   try {
@@ -272,6 +272,7 @@ Deno.serve(async (request: Request) => {
       },
       body: JSON.stringify({
         reason: ("PedeJá Delivery - Plano " + plano.nome).slice(0, 200),
+        status: "authorized",
         external_reference: empresa.id,
         payer_email: payerEmail,
         auto_recurring: {
