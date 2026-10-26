@@ -32,3 +32,11 @@ test("migration de planos é idempotente e não ativa cobrança recorrente", () 
   assert.match(sql, /cobrança recorrente não é ativada/i);
   assert.match(sql, /begin;[\s\S]*commit;/i);
 });
+
+test("a regra financeira não calcula comissão percentual sobre pedidos", () => {
+  const sql = read("supabase/migrations/20261026225301_empresas_sem_comissao.sql");
+  assert.match(sql, /set taxa_plataforma_percentual = 0/);
+  assert.match(sql, /alter column taxa_plataforma_percentual set default 0/);
+  assert.match(sql, /constraint empresas_sem_comissao_check/);
+  assert.match(sql, /check \(taxa_plataforma_percentual = 0\)/);
+});
