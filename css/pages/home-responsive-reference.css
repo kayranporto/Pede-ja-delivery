@@ -1,0 +1,365 @@
+/* Pede Já — layout responsivo alinhado à referência visual.
+   Carregado por último para consolidar os ajustes da página inicial sem
+   alterar os componentes e comportamentos JavaScript existentes. */
+
+.home-page {
+  --pj-red: #f3182b;
+  --pj-yellow: #ffc400;
+  --pj-ink: #171a21;
+  overflow-x: clip !important;
+}
+.home-page *,
+.home-page *::before,
+.home-page *::after { box-sizing: border-box; }
+.home-page img { max-width: 100%; }
+
+/* Cabeçalho desktop: faixa compacta, busca flexível e ações sempre visíveis. */
+@media (min-width: 681px) {
+  .home-page .header {
+    position: relative !important;
+    height: 74px !important;
+    min-height: 74px !important;
+    padding: 0 !important;
+    background: #fff !important;
+    box-shadow: 0 3px 16px rgba(20, 24, 32, .07) !important;
+  }
+  .home-page .container-header {
+    display: flex !important;
+    width: min(1540px, calc(100% - 48px)) !important;
+    max-width: 1540px !important;
+    height: 74px !important;
+    min-height: 74px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    gap: clamp(10px, 1.35vw, 22px) !important;
+    flex-wrap: nowrap !important;
+  }
+  .home-page .logo {
+    display: flex !important;
+    flex: 0 0 105px !important;
+    width: 105px !important;
+    min-width: 105px !important;
+    align-items: center !important;
+  }
+  .home-page .logo-mark {
+    display: block !important;
+    width: 100px !important;
+    height: 66px !important;
+    object-fit: contain !important;
+  }
+  .home-page .location {
+    display: flex !important;
+    flex: 0 1 190px !important;
+    width: 190px !important;
+    min-width: 145px !important;
+    max-width: 210px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    padding: 7px 12px !important;
+    border: 0 !important;
+    border-radius: 24px !important;
+    background: #fff !important;
+    box-shadow: 0 5px 20px rgba(20, 24, 32, .07) !important;
+  }
+  .home-page .location-content { min-width: 0 !important; }
+  .home-page .location-content strong {
+    display: block !important;
+    overflow: hidden !important;
+    max-width: 145px !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  .home-page .home-nav,
+  .home-page .header-spacer { display: none !important; }
+  .home-page .header-search {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 80px !important;
+    max-width: none !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 28px !important;
+    background: #f2f3f5 !important;
+    box-shadow: none !important;
+  }
+  .home-page .header-search input {
+    width: 100% !important;
+    min-width: 0 !important;
+    font-size: clamp(11px, .8vw, 13px) !important;
+  }
+  .home-page .account-nav {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: clamp(10px, 1.4vw, 24px) !important;
+    margin-left: 0 !important;
+    white-space: nowrap !important;
+  }
+  .home-page .account-nav a {
+    font-size: clamp(11px, .82vw, 14px) !important;
+    font-weight: 800 !important;
+  }
+  .home-page .account-nav .account-register {
+    padding: 12px clamp(13px, 1.3vw, 24px) !important;
+    border-radius: 13px !important;
+    background: var(--pj-red) !important;
+    color: #fff !important;
+    box-shadow: 0 5px 12px rgba(243, 24, 43, .18) !important;
+  }
+  .home-page .cart {
+    display: flex !important;
+    flex: 0 0 44px !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 0 !important;
+    border-radius: 50% !important;
+    background: #fff !important;
+    box-shadow: 0 5px 18px rgba(20, 24, 32, .08) !important;
+  }
+  .home-page .mobile-menu,
+  .home-page .mobile-bottom-nav { display: none !important; }
+
+  /* Banner com a mesma proporção da referência, sem esticar a arte. */
+  .home-page .market-hero {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 24px 24px 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+  .home-page .hero-reference-frame {
+    position: relative !important;
+    width: min(1320px, 100%) !important;
+    max-width: 1320px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: 1430 / 362 !important;
+    margin: 0 auto !important;
+    overflow: hidden !important;
+    border-radius: 24px !important;
+    background: #090909 url("../../assets/home-banner-reference.png") center / 100% 100% no-repeat !important;
+    box-shadow: 0 16px 36px rgba(20, 24, 32, .12) !important;
+  }
+  .home-page .hero-reference-copy,
+  .home-page .hero-reference-art { display: none !important; }
+
+  /* Categorias centralizadas e fluidas, sem cartões espremidos. */
+  .home-page .categorias {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 20px 24px 12px !important;
+    background: #fff !important;
+  }
+  .home-page .category-row {
+    width: min(1050px, 100%) !important;
+    max-width: 1050px !important;
+    margin: 0 auto !important;
+  }
+  .home-page .categoria-lista {
+    display: grid !important;
+    grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+    gap: clamp(8px, 1vw, 14px) !important;
+    width: 100% !important;
+  }
+  .home-page .categoria {
+    display: flex !important;
+    min-width: 0 !important;
+    min-height: 78px !important;
+    padding: 9px 5px !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    border: 0 !important;
+    border-radius: 20px !important;
+    background: #fff !important;
+    box-shadow: 0 7px 22px rgba(25, 28, 34, .08) !important;
+  }
+  .home-page .categoria div {
+    display: grid !important;
+    width: 36px !important;
+    height: 36px !important;
+    place-items: center !important;
+    font-size: 23px !important;
+    background: transparent !important;
+  }
+  .home-page .categoria span {
+    max-width: 100% !important;
+    color: #171a21 !important;
+    font-size: clamp(9px, .68vw, 11px) !important;
+    font-weight: 800 !important;
+    line-height: 1.15 !important;
+    text-align: center !important;
+    overflow-wrap: anywhere !important;
+  }
+  .home-page .categoria:first-child,
+  .home-page .categoria[aria-pressed="true"] {
+    background: var(--pj-red) !important;
+    box-shadow: 0 10px 24px rgba(243, 24, 43, .2) !important;
+  }
+  .home-page .categoria:first-child span,
+  .home-page .categoria[aria-pressed="true"] span { color: #fff !important; }
+
+  /* Listagem ocupa a largura útil; quatro colunas em monitores largos. */
+  .home-page .restaurantes,
+  .home-page .destaques {
+    width: min(1500px, calc(100% - 72px)) !important;
+    max-width: 1500px !important;
+    margin: 0 auto !important;
+    padding: 12px 0 30px !important;
+  }
+  .home-page .market-section-header {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: space-between !important;
+    gap: 16px !important;
+    margin-bottom: 8px !important;
+  }
+  .home-page .market-section-header h2 {
+    margin: 0 !important;
+    font-size: clamp(21px, 1.45vw, 28px) !important;
+    line-height: 1.15 !important;
+    letter-spacing: -.035em !important;
+  }
+  .home-page .market-section-header h2::after {
+    margin: 5px 0 0 34px !important;
+    font-size: clamp(10px, .72vw, 12px) !important;
+  }
+  .home-page .market-section-header > a {
+    flex: 0 0 auto !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+  }
+  .home-page .restaurant-tools {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    min-height: 30px !important;
+    margin: 4px 0 10px !important;
+  }
+  .home-page .filter-pill {
+    min-height: 28px !important;
+    padding: 5px 11px !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 999px !important;
+    background: #fff !important;
+    font-size: 10px !important;
+  }
+  .home-page .resultado-info {
+    margin-left: auto !important;
+    font-size: 10px !important;
+    text-align: right !important;
+  }
+  .home-page .cards {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    margin-top: 8px !important;
+  }
+  .home-page .card {
+    min-width: 0 !important;
+    border-radius: 14px !important;
+  }
+  .home-page .card-link > img {
+    display: block !important;
+    width: 100% !important;
+    height: clamp(76px, 6.2vw, 112px) !important;
+    min-height: 0 !important;
+    object-fit: cover !important;
+  }
+  .home-page .card .card-body {
+    min-width: 0 !important;
+    min-height: 78px !important;
+    padding: 10px 10px 12px 72px !important;
+  }
+  .home-page .card h3 {
+    overflow: hidden !important;
+    font-size: clamp(10px, .75vw, 12px) !important;
+    line-height: 1.3 !important;
+    text-overflow: ellipsis !important;
+  }
+  .home-page .card .info { gap: 4px 7px !important; }
+  .home-page .card .info span { font-size: 9px !important; }
+  .home-page .card::before {
+    top: 9px !important;
+    left: 9px !important;
+    padding: 5px 9px !important;
+    font-size: 9px !important;
+  }
+  .home-page .card::after {
+    right: 9px !important;
+    bottom: 9px !important;
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 18px !important;
+  }
+  .home-page .favorite {
+    top: 8px !important;
+    right: 8px !important;
+    width: 30px !important;
+    height: 30px !important;
+  }
+}
+
+/* Notebook e tablet horizontal: prioriza espaço de conteúdo. */
+@media (min-width: 681px) and (max-width: 1100px) {
+  .home-page .container-header {
+    width: calc(100% - 28px) !important;
+    gap: 9px !important;
+  }
+  .home-page .logo { flex-basis: 82px !important; width: 82px !important; min-width: 82px !important; }
+  .home-page .logo-mark { width: 80px !important; }
+  .home-page .location { flex-basis: 145px !important; width: 145px !important; min-width: 120px !important; padding: 6px 8px !important; }
+  .home-page .account-nav { gap: 9px !important; }
+  .home-page .account-nav .account-register { padding: 10px 12px !important; }
+  .home-page .market-hero { padding: 18px 18px 0 !important; }
+  .home-page .hero-reference-frame { border-radius: 18px !important; }
+  .home-page .categorias { padding: 16px 18px 10px !important; }
+  .home-page .categoria-lista { gap: 8px !important; }
+  .home-page .categoria { min-height: 70px !important; border-radius: 15px !important; }
+  .home-page .restaurantes,
+  .home-page .destaques { width: calc(100% - 36px) !important; }
+  .home-page .cards { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 11px !important; }
+  .home-page .card-link > img { height: 100px !important; }
+}
+
+/* Celular: impede qualquer largura mínima de gerar rolagem lateral. */
+@media (max-width: 680px) {
+  .home-page { width: 100% !important; }
+  .home-page .container-header,
+  .home-page .market-hero,
+  .home-page .categorias,
+  .home-page .restaurantes,
+  .home-page .destaques { min-width: 0 !important; max-width: 100% !important; }
+  .home-page .category-row { min-width: 0 !important; }
+  .home-page .categoria-lista { max-width: 100% !important; }
+  .home-page .restaurantes,
+  .home-page .destaques { width: 100% !important; }
+  .home-page .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  .home-page .card { min-width: 0 !important; }
+  .home-page .card h3,
+  .home-page .card .info { overflow-wrap: anywhere !important; }
+  .home-page .market-section-header { gap: 8px !important; }
+  .home-page .market-section-header > a { font-size: 10px !important; }
+  .home-page .restaurant-tools { flex-wrap: wrap !important; }
+  .home-page .resultado-info { flex-basis: 100% !important; margin-left: 0 !important; }
+  .home-page .offer-card { min-width: 0 !important; }
+}
+@media (max-width: 380px) {
+  .home-page .cards { grid-template-columns: minmax(0, 1fr) !important; }
+  .home-page .card-link > img { height: 150px !important; }
+  .home-page .market-section-header h2 { font-size: 19px !important; }
+}
