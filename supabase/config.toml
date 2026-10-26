@@ -18,6 +18,12 @@ verify_jwt = true
 [functions.api-completa]
 verify_jwt = false
 
+[functions.iniciar-assinatura]
+verify_jwt = true
+
+[functions.mercado-pago-assinaturas-webhook]
+verify_jwt = false
+
 [auth]
 enable_signup = true
 site_url = "https://kayranporto.github.io/Pede-ja-delivery/"
