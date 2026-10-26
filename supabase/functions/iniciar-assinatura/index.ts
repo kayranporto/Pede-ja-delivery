@@ -147,7 +147,7 @@ Deno.serve(async (request: Request) => {
       if ((mode === "sandbox" && !tokenIsTest) || (mode === "production" && tokenIsTest)) {
         return json(request, { error: "A credencial do Mercado Pago não corresponde ao ambiente configurado." }, 503);
       }
-      if (assinatura.provider !== "mercado_pago" || !assinatura.provider_subscription_id || assinatura.status !== "ativa") {
+      if (assinatura.provider !== "mercado_pago" || !assinatura.provider_subscription_id || ["cancelada", "expirada"].includes(String(assinatura.status))) {
         return json(request, { error: "Não foi encontrada uma assinatura recorrente ativa para cancelar." }, 409);
       }
       const id = String(assinatura.provider_subscription_id);
@@ -162,6 +162,18 @@ Deno.serve(async (request: Request) => {
         || String(subscriptionResource.collector_id || "") !== expectedCollectorId
         || (typeof subscriptionResource.live_mode === "boolean" && subscriptionResource.live_mode !== (mode === "production"))) {
         return json(request, { error: "A assinatura do provedor não corresponde a este restaurante ou ambiente." }, 409);
+      }
+      if (["cancelled", "canceled"].includes(String(subscriptionResource.status || "").toLowerCase())) {
+        const metadataAtual = assinatura.metadata && typeof assinatura.metadata === "object" ? assinatura.metadata as Record<string, unknown> : {};
+        const { error: sincronizacaoError } = await admin.from("empresa_assinaturas").update({
+          status: "cancelada", cancelada_em: assinatura.cancelada_em || new Date().toISOString(),
+          metadata: { ...metadataAtual, assinatura_pendente: null }
+        }).eq("empresa_id", empresa.id).eq("provider_subscription_id", id);
+        if (sincronizacaoError) throw sincronizacaoError;
+        return json(request, { ok: true, ja_cancelada: true, message: "A assinatura já estava cancelada no Mercado Pago." });
+      }
+      if (!["authorized", "paused"].includes(String(subscriptionResource.status || "").toLowerCase())) {
+        return json(request, { error: "O Mercado Pago não informa a assinatura como ativa ou pausada. Revise o status antes de cancelar." }, 409);
       }
       const cancelResponse = await fetch("https://api.mercadopago.com/preapproval/" + encodeURIComponent(id), {
         method: "PUT",
