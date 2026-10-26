@@ -273,9 +273,14 @@ function renderizarEmpresas(lista) {
         link.href = `html/restaurante.html?id=${encodeURIComponent(empresa.id)}`;
         link.setAttribute("aria-label", `Abrir cardápio de ${empresa.nome}`);
 
+        const fotoGenerica = fotoRealPorTexto([empresa.nome, empresa.categoria, empresa.tipo].join(" "));
+        const bannerRestaurante = typeof empresa.banner === "string" ? empresa.banner.trim() : "";
         const foto = imagemComFallback(
-            fotoRealPorTexto([empresa.nome, empresa.categoria, empresa.tipo].join(" ")),
-            `Foto de ${empresa.nome || "restaurante"}`
+            bannerRestaurante || fotoGenerica,
+            bannerRestaurante
+                ? `Banner de ${empresa.nome || "restaurante"}`
+                : `Foto de ${empresa.nome || "restaurante"}`,
+            bannerRestaurante ? fotoGenerica : "assets/logo-restaurante.svg"
         );
         foto.className = "restaurant-cover";
         link.append(foto);
