@@ -112,6 +112,10 @@ Deno.serve(async (request: Request) => {
     if (planoAtualError) throw planoAtualError;
 
     if (action === "listar") {
+      const assinaturaMetadata = assinatura.metadata && typeof assinatura.metadata === "object" ? assinatura.metadata as Record<string, unknown> : {};
+      const pendingCheckout = assinaturaMetadata.assinatura_pendente && typeof assinaturaMetadata.assinatura_pendente === "object" ? assinaturaMetadata.assinatura_pendente as Record<string, unknown> : {};
+      const checkoutPendente = Boolean(pendingCheckout.provider_subscription_id && pendingCheckout.checkout_url);
+      const possuiAssinaturaOnline = Boolean(assinatura.provider_subscription_id && !checkoutPendente);
       const { data: planos, error: planosError } = await admin
         .from("planos_plataforma")
         .select("id,slug,nome,descricao,preco_mensal,moeda,trial_dias,limite_unidades,limite_produtos,limite_funcionarios,limite_pedidos_mes,recursos,interno,ativo,ordem")
@@ -130,7 +134,10 @@ Deno.serve(async (request: Request) => {
           periodo_inicio: assinatura.periodo_inicio,
           periodo_fim: assinatura.periodo_fim,
           provider: assinatura.provider,
-          possui_assinatura_online: Boolean(assinatura.provider_subscription_id),
+          possui_assinatura_online: possuiAssinaturaOnline,
+          checkout_pendente: checkoutPendente,
+          checkout_pendente_plano_id: checkoutPendente ? String(pendingCheckout.plano_id || "") : null,
+          checkout_pendente_plano_slug: checkoutPendente ? String(pendingCheckout.plano_slug || "") : null,
           plano: resumoPlano(planoAtual),
         },
         cobranca_online_ativada: Deno.env.get("MERCADO_PAGO_SUBSCRIPTIONS_ENABLED") === "true",
