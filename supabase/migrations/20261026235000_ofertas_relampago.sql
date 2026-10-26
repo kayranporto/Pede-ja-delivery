@@ -22,6 +22,7 @@ begin
           empresa_id is not null
           and limite_usos is not null
           and limite_usos > 0
+          and inicio is not null
           and fim is not null
           and fim > inicio
           and titulo_relampago is not null
