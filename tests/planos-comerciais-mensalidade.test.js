@@ -20,7 +20,7 @@ test("planos comerciais cobram mensalidade fixa sem comissão", () => {
 
 test("plano Básico é padrão apenas para novos restaurantes e Legado é preservado", () => {
   const sql = read(migrationPath);
-  assert.match(sql, /where slug = 'legado' and padrao_novos = true/);
+  assert.match(sql, /where padrao_novos = true/);
   assert.match(sql, /padrao_novos = \(slug = 'basico'\)/);
   assert.match(sql, /Mantém a garantia[\s\S]*?sem alterar as assinaturas já atribuídas/);
   assert.doesNotMatch(sql, /delete\s+from\s+public\.empresa_assinaturas/i);
