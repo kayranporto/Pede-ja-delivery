@@ -1054,6 +1054,248 @@ function preencherLoja() {
     window.MediaUploader?.refreshAll();
 }
 
+let requisicaoPlanosRestaurante = 0;
+
+function dinheiroPlanoRestaurante(valor) {
+    if (valor === null || valor === undefined || !Number.isFinite(Number(valor))) return "—";
+    return Number(valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function limitePlanoRestaurante(valor, singular, plural) {
+    if (valor === null || valor === undefined) return plural + " ilimitados";
+    const quantidade = Number(valor);
+    return "Até " + quantidade + " " + (quantidade === 1 ? singular : plural);
+}
+
+function statusAssinaturaTexto(status) {
+    return ({
+        trial: "Período de teste",
+        ativa: "Ativo",
+        inadimplente: "Pagamento pendente",
+        cancelada: "Cancelada",
+        expirada: "Expirada"
+    })[String(status || "").toLowerCase()] || "Não definido";
+}
+
+function mensagemPlanosRestaurante(texto, tom = "") {
+    const elemento = document.getElementById("mensagemPlanosRestaurante");
+    if (!elemento) return;
+    elemento.textContent = texto;
+    if (tom) elemento.dataset.tone = tom;
+    else delete elemento.dataset.tone;
+}
+
+function adicionarUsoPlano(container, uso, limites) {
+    if (!uso || !limites) return;
+    const itens = [
+        ["Unidades", uso.unidades, limites.unidades],
+        ["Produtos", uso.produtos, limites.produtos],
+        ["Funcionários", uso.funcionarios, limites.funcionarios],
+        ["Pedidos neste mês", uso.pedidos_mes, limites.pedidos_mes]
+    ];
+    const grade = criarElemento("div", "current-plan-usage");
+    itens.forEach(([rotulo, valor, limite]) => {
+        const linha = criarElemento("div", "current-plan-usage-item");
+        const nome = criarElemento("span", "", rotulo);
+        const quantidade = criarElemento("strong", "", String(Number(valor || 0)) + " / " + (limite == null ? "∞" : String(limite)));
+        linha.append(nome, quantidade);
+        grade.append(linha);
+    });
+    container.append(grade);
+}
+
+function renderizarPlanoAtualRestaurante(data, dadosUso) {
+    const container = document.getElementById("planoAtualRestaurante");
+    if (!container) return;
+    container.replaceChildren();
+
+    const assinatura = data.assinatura || {};
+    const plano = assinatura.plano || {};
+    const status = String(assinatura.status || "");
+    const onlineAtivo = assinatura.possui_assinatura_online === true && status === "ativa";
+    const info = criarElemento("div", "current-plan-copy");
+    info.append(criarElemento("span", "current-plan-kicker", "SEU PLANO ATUAL"));
+    info.append(criarElemento("h3", "", plano.nome || "Plano não configurado"));
+
+    const descricao = plano.interno === true
+        ? "Plano técnico de compatibilidade. Escolha um plano comercial abaixo para contratar a mensalidade."
+        : (plano.descricao || "Plano comercial do PedeJá Delivery.");
+    info.append(criarElemento("p", "", descricao));
+
+    const priceBox = criarElemento("div", "current-plan-price");
+    if (plano.interno === true || plano.preco_mensal === null || plano.preco_mensal === undefined) {
+        priceBox.append(criarElemento("strong", "", "Sem mensalidade comercial"));
+    } else {
+        priceBox.append(criarElemento("strong", "", dinheiroPlanoRestaurante(plano.preco_mensal)));
+        priceBox.append(criarElemento("small", "", "por mês • sem comissão por pedido"));
+    }
+    priceBox.append(criarElemento("span", "current-plan-status", statusAssinaturaTexto(status)));
+
+    const actions = criarElemento("div", "current-plan-actions");
+    if (onlineAtivo && data.cobranca_online_ativada === true) {
+        const cancel = criarElemento("button", "current-plan-cancel", "Cancelar assinatura");
+        cancel.type = "button";
+        cancel.addEventListener("click", () => cancelarAssinaturaRestaurante(cancel));
+        actions.append(cancel);
+    }
+    container.append(info, priceBox, actions);
+
+    if (dadosUso?.uso && dadosUso?.limites) adicionarUsoPlano(container, dadosUso.uso, dadosUso.limites);
+    if (assinatura.periodo_fim) {
+        const periodo = criarElemento("p", "current-plan-period", "Próxima data informada pelo provedor: " + new Date(assinatura.periodo_fim).toLocaleDateString("pt-BR"));
+        container.append(periodo);
+    }
+}
+
+function renderizarPlanosComerciaisRestaurante(data) {
+    const container = document.getElementById("planosRestauranteGrid");
+    if (!container) return;
+    container.replaceChildren();
+
+    const planos = Array.isArray(data.planos) ? data.planos : [];
+    if (!planos.length) {
+        container.append(criarElemento("p", "empty", "Nenhum plano comercial está disponível no momento."));
+        return;
+    }
+
+    const assinatura = data.assinatura || {};
+    const planoAtual = assinatura.plano || {};
+    const statusAtual = String(assinatura.status || "");
+    const assinaturaOnlineAtiva = assinatura.possui_assinatura_online === true && statusAtual === "ativa";
+    const cobrancaAtiva = data.cobranca_online_ativada === true;
+
+    planos.forEach((plano) => {
+        const atual = String(plano.slug) === String(planoAtual.slug) && statusAtual === "ativa";
+        const card = criarElemento("article", "restaurant-plan-card" + (atual ? " is-current" : ""));
+        if (atual) card.append(criarElemento("span", "restaurant-plan-badge", "Plano atual"));
+
+        card.append(criarElemento("h4", "", plano.nome || "Plano"));
+        card.append(criarElemento("p", "plan-description", plano.descricao || ""));
+        const price = criarElemento("div", "plan-price");
+        price.append(criarElemento("strong", "", dinheiroPlanoRestaurante(plano.preco_mensal)));
+        price.append(criarElemento("span", "", "/ mês"));
+        card.append(price);
+        card.append(criarElemento("p", "plan-fee-note", "✓ Mensalidade fixa • 0% de comissão"));
+
+        const features = criarElemento("ul", "plan-feature-list");
+        [
+            "Cardápio digital, gestão de pedidos e painel de vendas",
+            limitePlanoRestaurante(plano.limite_unidades, "unidade", "unidades"),
+            limitePlanoRestaurante(plano.limite_produtos, "produto", "produtos"),
+            limitePlanoRestaurante(plano.limite_funcionarios, "funcionário", "funcionários"),
+            limitePlanoRestaurante(plano.limite_pedidos_mes, "pedido por mês", "pedidos por mês"),
+            "Sem percentual cobrado sobre cada venda"
+        ].forEach((texto) => features.append(criarElemento("li", "", texto)));
+        card.append(features);
+
+        const button = criarElemento("button", "plan-subscribe", "");
+        button.type = "button";
+        if (atual) {
+            button.textContent = "Plano atual";
+            button.disabled = true;
+        } else if (!cobrancaAtiva) {
+            button.textContent = "Assinatura em configuração";
+            button.disabled = true;
+            button.title = "A contratação online será liberada após a validação do Mercado Pago.";
+        } else if (assinaturaOnlineAtiva) {
+            button.textContent = "Cancele o plano atual para trocar";
+            button.disabled = true;
+        } else if (assinatura.possui_assinatura_online === true && !["cancelada", "expirada"].includes(statusAtual)) {
+            button.textContent = "Regularize a assinatura atual";
+            button.disabled = true;
+        } else {
+            button.textContent = "Assinar este plano";
+            button.addEventListener("click", () => contratarPlanoRestaurante(plano, button));
+        }
+        card.append(button);
+        container.append(card);
+    });
+}
+
+async function carregarPlanosRestaurante() {
+    const numeroRequisicao = ++requisicaoPlanosRestaurante;
+    const container = document.getElementById("planosRestauranteGrid");
+    if (!container) return;
+    mensagemPlanosRestaurante("Carregando planos e status da assinatura...");
+    container.replaceChildren(criarElemento("p", "empty", "Carregando opções..."));
+
+    try {
+        if (!window.db?.functions?.invoke) throw new Error("O serviço de assinatura ainda não está disponível.");
+        const resultado = await window.db.functions.invoke("iniciar-assinatura", { body: { action: "listar" } });
+        if (numeroRequisicao !== requisicaoPlanosRestaurante) return;
+        if (resultado.error || resultado.data?.error) {
+            throw new Error(resultado.data?.error || resultado.error?.message || "Não foi possível carregar os planos.");
+        }
+        const data = resultado.data || {};
+        let dadosUso = null;
+        try {
+            dadosUso = await window.DeliveryAPI.empresaPlano();
+        } catch (erroUso) {
+            console.warn("Uso atual do plano indisponível:", erroUso);
+        }
+        if (numeroRequisicao !== requisicaoPlanosRestaurante) return;
+
+        renderizarPlanoAtualRestaurante(data, dadosUso);
+        renderizarPlanosComerciaisRestaurante(data);
+        if (data.cobranca_online_ativada === true) {
+            mensagemPlanosRestaurante("Todos os planos têm mensalidade fixa. O plano só será alterado após a confirmação segura do Mercado Pago.", "success");
+        } else {
+            mensagemPlanosRestaurante("Os planos e preços já estão cadastrados. A contratação online está temporariamente bloqueada até concluir a configuração e os testes do Mercado Pago.", "");
+        }
+        if (new URLSearchParams(location.search).get("assinatura") === "retorno") {
+            mensagemPlanosRestaurante("Você retornou do checkout. A confirmação do pagamento e a ativação do plano são processadas pelo webhook do Mercado Pago. Atualize esta seção em instantes para consultar o status.", "");
+        }
+    } catch (erro) {
+        if (numeroRequisicao !== requisicaoPlanosRestaurante) return;
+        console.error("Não foi possível carregar os planos:", erro);
+        container.replaceChildren(criarElemento("p", "empty", "Falha ao carregar os planos. Use Atualizar para tentar novamente."));
+        mensagemPlanosRestaurante(erro?.message || "Não foi possível consultar a assinatura deste restaurante.", "error");
+    }
+}
+
+async function contratarPlanoRestaurante(plano, button) {
+    if (!plano?.id || button.disabled) return;
+    const textoAnterior = button.textContent;
+    button.disabled = true;
+    button.textContent = "Preparando checkout...";
+    try {
+        const resultado = await window.db.functions.invoke("iniciar-assinatura", {
+            body: { action: "iniciar", plano_id: String(plano.id) }
+        });
+        if (resultado.error || resultado.data?.error) {
+            throw new Error(resultado.data?.error || resultado.error?.message || "Não foi possível iniciar a assinatura.");
+        }
+        const checkout = new URL(String(resultado.data?.checkout_url || ""));
+        const host = checkout.hostname.toLowerCase();
+        const hostValido = host === "mercadopago.com" || host.endsWith(".mercadopago.com")
+            || host === "mercadopago.com.br" || host.endsWith(".mercadopago.com.br");
+        if (checkout.protocol !== "https:" || !hostValido) throw new Error("O provedor retornou um endereço de checkout inválido.");
+        window.location.assign(checkout.href);
+    } catch (erro) {
+        mensagemPlanosRestaurante(erro?.message || "Não foi possível iniciar a assinatura.", "error");
+        button.disabled = false;
+        button.textContent = textoAnterior;
+    }
+}
+
+async function cancelarAssinaturaRestaurante(button) {
+    if (!window.confirm("Deseja cancelar a assinatura recorrente atual no Mercado Pago? Isso poderá interromper o acesso aos recursos do plano após a confirmação.")) return;
+    button.disabled = true;
+    button.textContent = "Enviando cancelamento...";
+    try {
+        const resultado = await window.db.functions.invoke("iniciar-assinatura", { body: { action: "cancelar" } });
+        if (resultado.error || resultado.data?.error) {
+            throw new Error(resultado.data?.error || resultado.error?.message || "Não foi possível cancelar a assinatura.");
+        }
+        mensagemPlanosRestaurante("Pedido de cancelamento enviado ao Mercado Pago. O status será atualizado depois da confirmação do provedor.", "success");
+        window.setTimeout(() => { void carregarPlanosRestaurante(); }, 1800);
+    } catch (erro) {
+        mensagemPlanosRestaurante(erro?.message || "Não foi possível cancelar a assinatura.", "error");
+        button.disabled = false;
+        button.textContent = "Cancelar assinatura";
+    }
+}
+
 async function carregarPainel() {
     try {
         const { data: { user }, error: erroAuth } = await window.db.auth.getUser();
@@ -1567,12 +1809,14 @@ function mostrarSecaoPainel(id, { atualizarHistorico = false, focar = false } = 
     fecharSidebar();
     window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     if (focar) document.getElementById(secaoId)?.focus({ preventScroll: true });
+    if (secaoId === "plano") void carregarPlanosRestaurante();
 }
 
 dashboardLinks.forEach((link) => link.addEventListener("click", (event) => {
     event.preventDefault();
     mostrarSecaoPainel(link.hash, { atualizarHistorico: true, focar: true });
 }));
+document.getElementById("atualizarPlanosRestaurante")?.addEventListener("click", () => void carregarPlanosRestaurante());
 addEventListener("popstate", () => mostrarSecaoPainel(location.hash));
 addEventListener("hashchange", () => mostrarSecaoPainel(location.hash));
 mostrarSecaoPainel(location.hash);
