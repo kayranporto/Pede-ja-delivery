@@ -58,6 +58,8 @@ A configuração JWT também está declarada em `supabase/config.toml`.
 Os planos comerciais são cadastrados em `planos_plataforma` e as assinaturas em `empresa_assinaturas`. A Edge Function `iniciar-assinatura` lista os planos apenas para o proprietário autenticado e inicia o checkout de assinatura recorrente do Mercado Pago. O webhook separado `mercado-pago-assinaturas-webhook` confirma eventos consultando o recurso diretamente no provedor, validando assinatura HMAC, restaurante, conta recebedora, ambiente, plano, valor e moeda antes de alterar a assinatura.
 
 A ativação das assinaturas é **bloqueada por padrão** e é independente de `PAYMENT_ONLINE_ENABLED`:
+A migration `20261026225301_empresas_sem_comissao.sql` define a taxa financeira de plataforma como 0% para os restaurantes existentes e futuros e adiciona uma restrição de banco para impedir que relatórios voltem a calcular comissão por pedido.
+
 
 ```bash
 supabase secrets set MERCADO_PAGO_SUBSCRIPTIONS_ENABLED="false"
