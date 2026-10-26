@@ -1112,7 +1112,6 @@ function renderizarPlanoAtualRestaurante(data, dadosUso) {
     const assinatura = data.assinatura || {};
     const plano = assinatura.plano || {};
     const status = String(assinatura.status || "");
-    const onlineAtivo = assinatura.possui_assinatura_online === true && status === "ativa";
     const checkoutPendente = assinatura.checkout_pendente === true;
     const info = criarElemento("div", "current-plan-copy");
     info.append(criarElemento("span", "current-plan-kicker", "SEU PLANO ATUAL"));
