@@ -412,6 +412,7 @@ function renderizarCuponsEmpresa() {
     cuponsEmpresa.forEach((cupom) => {
         const card = criarElemento("article", "promo-card"); const header = criarElemento("header"); const titulo = criarElemento("div");
         titulo.append(criarElemento("strong", "", cupom.codigo), criarElemento("small", "", `${textoBeneficioCupom(cupom)} • mínimo ${App.dinheiro(cupom.pedido_minimo)}`));
+        if (cupom.relampago === true) titulo.append(criarElemento("span", "flash-coupon-badge", "⚡ Oferta relâmpago"));
         header.append(titulo, criarElemento("span", `promo-state ${cupom.ativo ? "" : "off"}`, cupom.ativo ? "Ativo" : "Pausado"));
         const validade = cupom.fim ? `Válido até ${new Date(cupom.fim).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}` : "Sem data final";
         const footer = criarElemento("footer"); const alternar = criarElemento("button", "", cupom.ativo ? "Pausar" : "Ativar"); const remover = criarElemento("button", "", "Excluir");
@@ -1131,6 +1132,18 @@ document.getElementById("cupomTipo").addEventListener("change", ({ target }) => 
     if (valor.disabled) valor.value = "0";
 });
 
+const cupomRelampago = document.getElementById("cupomRelampago");
+const cupomCamposRelampago = document.getElementById("cupomCamposRelampago");
+function sincronizarCamposCupomRelampago() {
+    const ativo = cupomRelampago?.checked === true;
+    if (cupomCamposRelampago) cupomCamposRelampago.hidden = !ativo;
+    document.getElementById("cupomTituloRelampago").required = ativo;
+    document.getElementById("cupomLimite").required = ativo;
+    document.getElementById("cupomFim").required = ativo;
+}
+cupomRelampago?.addEventListener("change", sincronizarCamposCupomRelampago);
+sincronizarCamposCupomRelampago();
+
 document.getElementById("cupomForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!empresa) return;
@@ -1138,16 +1151,26 @@ document.getElementById("cupomForm").addEventListener("submit", async (event) =>
     const codigo = document.getElementById("cupomCodigo").value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, "");
     if (codigo.length < 3) return alert("Use um código com pelo menos três caracteres.");
     const fimTexto = document.getElementById("cupomFim").value;
+    const relampago = cupomRelampago.checked;
+    const tituloRelampago = document.getElementById("cupomTituloRelampago").value.trim();
+    const descricaoRelampago = document.getElementById("cupomDescricaoRelampago").value.trim();
+    const limiteUsosTexto = document.getElementById("cupomLimite").value;
+    if (relampago && (tituloRelampago.length < 4 || !limiteUsosTexto || Number(limiteUsosTexto) < 1 || !fimTexto || new Date(fimTexto).getTime() <= Date.now())) {
+        return alert("Para publicar uma oferta relâmpago, informe título, limite total de usos e validade futura.");
+    }
     const payload = {
         empresa_id: String(empresa.id), codigo,
         tipo: document.getElementById("cupomTipo").value,
         valor: Number(document.getElementById("cupomValor").value || 0),
         pedido_minimo: Number(document.getElementById("cupomMinimo").value || 0),
         max_desconto: document.getElementById("cupomMaximo").value ? Number(document.getElementById("cupomMaximo").value) : null,
-        limite_usos: document.getElementById("cupomLimite").value ? Number(document.getElementById("cupomLimite").value) : null,
+        limite_usos: limiteUsosTexto ? Number(limiteUsosTexto) : null,
         limite_por_usuario: Number(document.getElementById("cupomPorUsuario").value || 1),
         primeiro_pedido: document.getElementById("cupomPrimeiro").checked,
         fim: fimTexto ? new Date(fimTexto).toISOString() : null,
+        relampago,
+        titulo_relampago: relampago ? tituloRelampago : null,
+        descricao_relampago: relampago ? (descricaoRelampago || null) : null,
         ativo: true
     };
     App.definirCarregando(botao, true, "Criando...");
@@ -1159,8 +1182,8 @@ document.getElementById("cupomForm").addEventListener("submit", async (event) =>
         return alert(`Não foi possível criar o cupom: ${App.mensagemErro(error)}`);
     }
     App.definirCarregando(botao, false);
-    cuponsEmpresa.unshift(data); renderizarCuponsEmpresa(); form.reset(); document.getElementById("cupomValor").value = "10"; document.getElementById("cupomMinimo").value = "0"; document.getElementById("cupomPorUsuario").value = "1";
-    window.AppToast?.("Promoção criada", `O cupom ${codigo} já pode ser utilizado.`, "success");
+    cuponsEmpresa.unshift(data); renderizarCuponsEmpresa(); form.reset(); sincronizarCamposCupomRelampago(); document.getElementById("cupomValor").value = "10"; document.getElementById("cupomMinimo").value = "0"; document.getElementById("cupomPorUsuario").value = "1";
+    window.AppToast?.(relampago ? "Oferta relâmpago criada" : "Promoção criada", relampago ? `A oferta "${tituloRelampago}" está pronta para aparecer na Home durante a validade.` : `O cupom ${codigo} já pode ser utilizado.`, "success");
 });
 
 document.getElementById("lojaForm").addEventListener("submit", async (event) => {

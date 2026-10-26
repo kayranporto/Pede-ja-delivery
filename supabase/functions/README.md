@@ -4,6 +4,29 @@
 
 Cada função possui `deno.json` próprio e usa versão exata das dependências. Não substitua por tags abertas como `@2`.
 
+
+## Ofertas Relâmpago
+
+A vitrine pública da Home usa a Edge Function `ofertas-relampago`. Ela mostra apenas cupons marcados como relâmpago que estejam ativos, dentro do período de validade, com usos restantes e associados a restaurantes publicados. O card informa o benefício, código, limite restante e horário final; o visitante pode copiar o cupom e abrir o restaurante.
+
+No painel do restaurante, a seção **Promoções e cupons** permite marcar um cupom para destaque, informar um título, uma descrição curta, o limite total de usos e uma data final futura. A funcionalidade reutiliza `public.cupons` em vez de criar um sistema promocional paralelo.
+
+### Implantação
+
+Após revisar e integrar as alterações, aplique as migrations e publique as Edge Functions na ordem abaixo:
+
+```bash
+supabase db push
+supabase functions deploy api-completa
+supabase functions deploy ofertas-relampago
+```
+
+A migration `20261026232104_validar_limites_cupom_flash.sql` atualiza o trigger existente `zz_validar_promocao_avancada`: valida situação/validade, limite total, limite por cliente, primeiro pedido e valor mínimo; aplica o desconto no servidor e incrementa o contador de usos dentro da mesma transação. O bloqueio por linha do cupom impede que duas compras simultâneas consumam a última utilização.
+
+Não publique ofertas com código conhecido publicamente se não quiser que ele seja usado fora do card. O checkout sempre revalida validade e limites; a Home é apenas uma vitrine e pode ter cache de até 30 segundos. A função pública de ofertas é somente leitura e não retorna e-mail, telefone ou dados de pedidos.
+
+Antes de ativar em produção, teste em staging: oferta válida, código expirado, cupom pausado, limite total esgotado, limite por usuário, primeiro pedido e dois checkouts simultâneos disputando a última utilização. Se já houver cupons antigos, confira o campo `usos` antes de ativar limites estritos.
+
 ## Segredos
 
 A criação de novas cobranças online fica **bloqueada por padrão no servidor**. A variável `PAYMENT_ONLINE_ENABLED` precisa ser exatamente `true` para liberar a Edge Function `criar-pagamento`; se estiver ausente ou diferente, a função responde HTTP 503. Essa trava é independente de `pagamentoOnlineAtivo` no frontend.

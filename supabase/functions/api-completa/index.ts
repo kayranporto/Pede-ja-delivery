@@ -432,10 +432,21 @@ async function companyPanelAction(ctx: RouteContext, body: Json) {
     return e ? error(ctx.request,400,"mensagem_recusada",e.message) : response(ctx.request,{data});
   }
   if (acao === "cupom_criar") {
-    const payload={empresa_id:empresaId,codigo:str(body.codigo,100),tipo:str(body.tipo,30),valor:Number(body.valor||0),pedido_minimo:Number(body.pedido_minimo||0),max_desconto:body.max_desconto==null?null:Number(body.max_desconto),limite_usos:body.limite_usos==null?null:Number(body.limite_usos),limite_por_usuario:Number(body.limite_por_usuario||1),primeiro_pedido:body.primeiro_pedido===true,fim:body.fim?new Date(String(body.fim)).toISOString():null,ativo:true};
+    const relampago = body.relampago === true;
+    const tituloRelampago = str(body.titulo_relampago, 70);
+    const descricaoRelampago = str(body.descricao_relampago, 180);
+    const limiteUsos = body.limite_usos == null || body.limite_usos === "" ? null : Number(body.limite_usos);
+    const fimDate = body.fim ? new Date(String(body.fim)) : null;
+    if (relampago && (
+      !tituloRelampago || tituloRelampago.length < 4
+      || (body.descricao_relampago != null && descricaoRelampago === null)
+      || !Number.isInteger(limiteUsos) || Number(limiteUsos) < 1
+      || !fimDate || !Number.isFinite(fimDate.getTime()) || fimDate.getTime() <= Date.now()
+    )) return error(ctx.request,400,"oferta_relampago_invalida","Para destacar uma oferta, informe um título, um limite de usos positivo e uma data final futura.");
+    const payload={empresa_id:empresaId,codigo:str(body.codigo,100),tipo:str(body.tipo,30),valor:Number(body.valor||0),pedido_minimo:Number(body.pedido_minimo||0),max_desconto:body.max_desconto==null?null:Number(body.max_desconto),limite_usos:limiteUsos,limite_por_usuario:Number(body.limite_por_usuario||1),primeiro_pedido:body.primeiro_pedido===true,fim:fimDate?fimDate.toISOString():null,relampago,titulo_relampago:relampago?tituloRelampago:null,descricao_relampago:relampago?(descricaoRelampago||null):null,ativo:true};
     if(!payload.codigo || !payload.tipo || !Number.isFinite(payload.valor)||payload.valor<0||!Number.isFinite(payload.pedido_minimo)||payload.pedido_minimo<0) return error(ctx.request,400,"cupom_invalido","Dados do cupom inválidos.");
     const {data,error:e}=await ctx.db.from("cupons").insert(payload).select("*").single();
-    return e ? error(ctx.request,e.code==="23505"?409:400,e.code==="23505"?"cupom_duplicado":"cupom_recusado",e.message) : response(ctx.request,{data});
+    return e ? error(ctx.request,e.code==="23505"?409:400,e.code==="23505"?"cupom_duplicado":"cupom_recusado",relampago&&e.code==="23514"?"Os dados da oferta relâmpago são inválidos.":e.message) : response(ctx.request,{data});
   }
   if (acao === "cupom_toggle") {
     const id=str(body.id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","id do cupom inválido.");
