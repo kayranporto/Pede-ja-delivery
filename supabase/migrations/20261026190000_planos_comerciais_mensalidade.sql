@@ -8,7 +8,7 @@ begin;
 -- para novos restaurantes quando os planos comerciais estiverem cadastrados.
 update public.planos_plataforma
 set padrao_novos = false, updated_at = now()
-where slug = 'legado' and padrao_novos = true;
+where padrao_novos = true;
 
 insert into public.planos_plataforma (
   slug, nome, descricao, ativo, interno, padrao_novos, preco_mensal, moeda,
