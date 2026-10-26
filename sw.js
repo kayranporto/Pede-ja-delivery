@@ -1,6 +1,6 @@
 "use strict";
 
-const VERSION = "4.4.9";
+const VERSION = "4.5.0";
 const CACHE = `multi-delivery-v${VERSION}`;
 const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}`;
 const SHELL = [
@@ -17,6 +17,7 @@ const SHELL = [
   "./css/core/style.css?v=4.2.0",
   "./css/pages/home-4.2.1.css?v=4.2.1.4",
   "./css/pages/home-marketplace.css?v=4.4.17",
+  "./css/pages/pedeja-inteligente.css?v=1.0.0",
   "./css/pages/home-polish-4.5.1.css?v=4.5.1",
   "./css/pages/home-final-reference.css?v=3.4.3",
   "./css/pages/home-responsive-reference.css?v=1.0.1",
@@ -39,6 +40,7 @@ const SHELL = [
   "./js/core/supabase.js?v=4.4.9",
   "./js/core/categorias-filtros.js?v=1.0.0",
   "./js/pages/home.js?v=4.5.5",
+  "./js/modules/pedeja-inteligente.js?v=1.0.0",
   "./js/core/cart-store.js?v=4.2.0",
   "./js/modules/carrinho-4.2.5.js?v=4.2.6",
   "./js/modules/checkout-4.2.3.js?v=4.2.4",
