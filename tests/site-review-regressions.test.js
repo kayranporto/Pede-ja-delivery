@@ -67,9 +67,11 @@ test("Home exibe o banner cadastrado de cada restaurante no cartão", () => {
     const api = read("supabase/functions/api-publica/index.ts");
     const sw = read("sw.js");
     assert.match(home, /empresa\.banner/);
-    assert.match(home, /criarImagemOpcional\(/);\n    assert.doesNotMatch(home, /fotoRealPorTexto|FOTOS_REAIS_HOME|fotoGenerica/);\n    assert.match(home, /produto\.imagem/);
+    assert.match(home, /criarImagemOpcional\(/);
+    assert.doesNotMatch(home, /fotoRealPorTexto|FOTOS_REAIS_HOME|fotoGenerica/);
+    assert.match(home, /produto\.imagem/);
     assert.match(api, /"banner"/);
-    assert.match(sw, /home-responsive-reference\.css\?v=1\.0\.0/);
+    assert.match(sw, /home-responsive-reference\.css\?v=1\.0\.1/);
 });
 
 test("robots bloqueia as rotas privadas reais em html", () => {
