@@ -196,20 +196,27 @@ function criarTexto(tag, classe, texto) {
     return elemento;
 }
 
-const FOTOS_REAIS_HOME = {
-    hamburguer: "https://images.unsplash.com/photo-1524817935500-bb9d3a1dd6c5?auto=format&fit=crop&q=82&w=1000",
-    pizza: "https://images.unsplash.com/photo-1566843972142-a7fcb70de55a?auto=format&fit=crop&q=82&w=1000",
-    sushi: "https://images.unsplash.com/photo-1567620815168-8afeeb18de17?auto=format&fit=crop&q=82&w=1000",
-    acai: "https://images.unsplash.com/photo-1627308594190-a057cd4bfac8?auto=format&fit=crop&q=82&w=1000"
-};
+function criarCapaVazia(classe) {
+    const placeholder = document.createElement("div");
+    placeholder.className = classe;
+    placeholder.setAttribute("aria-hidden", "true");
+    return placeholder;
+}
 
-function fotoRealPorTexto(texto = "") {
-    const valor = normalizar(texto);
-    if (/sushi|japones|japonesa/.test(valor)) return FOTOS_REAIS_HOME.sushi;
-    if (/pizza|pizzaria/.test(valor)) return FOTOS_REAIS_HOME.pizza;
-    if (/acai|sobremesa|doce/.test(valor)) return FOTOS_REAIS_HOME.acai;
-    if (/hamburg|lanche|burger|fast food/.test(valor)) return FOTOS_REAIS_HOME.hamburguer;
-    return FOTOS_REAIS_HOME.hamburguer;
+function criarImagemOpcional(src, alt, classeImagem, classePlaceholder) {
+    const url = typeof src === "string" ? src.trim() : "";
+    if (!url) return criarCapaVazia(classePlaceholder);
+
+    const imagem = document.createElement("img");
+    imagem.src = url;
+    imagem.alt = alt || "";
+    imagem.className = classeImagem;
+    imagem.loading = "lazy";
+    imagem.decoding = "async";
+    imagem.addEventListener("error", () => {
+        imagem.replaceWith(criarCapaVazia(classePlaceholder));
+    }, { once: true });
+    return imagem;
 }
 
 function imagemComFallback(src, alt, fallback = "assets/logo-restaurante.svg") {
@@ -273,16 +280,13 @@ function renderizarEmpresas(lista) {
         link.href = `html/restaurante.html?id=${encodeURIComponent(empresa.id)}`;
         link.setAttribute("aria-label", `Abrir cardápio de ${empresa.nome}`);
 
-        const fotoGenerica = fotoRealPorTexto([empresa.nome, empresa.categoria, empresa.tipo].join(" "));
         const bannerRestaurante = typeof empresa.banner === "string" ? empresa.banner.trim() : "";
-        const foto = imagemComFallback(
-            bannerRestaurante || fotoGenerica,
-            bannerRestaurante
-                ? `Banner de ${empresa.nome || "restaurante"}`
-                : `Foto de ${empresa.nome || "restaurante"}`,
-            bannerRestaurante ? fotoGenerica : "assets/logo-restaurante.svg"
+        const foto = criarImagemOpcional(
+            bannerRestaurante,
+            bannerRestaurante ? `Banner de ${empresa.nome || "restaurante"}` : "",
+            "restaurant-cover",
+            "restaurant-cover-placeholder"
         );
-        foto.className = "restaurant-cover";
         link.append(foto);
 
         const body = document.createElement("div");
@@ -607,7 +611,12 @@ async function carregarDestaques() {
         card.className = "produto-destaque";
         card.href = `html/restaurante.html?id=${encodeURIComponent(produto.empresa_id)}`;
         card.setAttribute("aria-label", `Ver ${produto.nome} no cardápio`);
-        card.append(imagemComFallback(produto.imagem || fotoRealPorTexto([produto.nome, produto.descricao].join(" ")), produto.nome, "assets/produto-padrao.svg"));
+        card.append(criarImagemOpcional(
+            produto.imagem,
+            produto.imagem ? `Foto de ${produto.nome || "produto"}` : "",
+            "product-cover",
+            "product-cover-placeholder"
+        ));
         const corpo = document.createElement("div");
         const titulo = criarTexto("h3", "", produto.nome || "Produto");
         const descricao = criarTexto("p", "", produto.descricao || "");
