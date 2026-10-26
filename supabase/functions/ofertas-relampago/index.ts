@@ -6,13 +6,18 @@ function cors(request: Request) {
     .map((value) => value.trim().replace(/\/$/, ""))
     .filter(Boolean);
   const origin = request.headers.get("origin")?.replace(/\/$/, "") || "";
+  const allowed = new Set([
+    ...configured,
+    "https://kayranporto.github.io",
+    "https://site-delivery-42.vercel.app",
+  ]);
   const headers: Record<string, string> = {
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Vary": "Origin",
   };
-  if (configured.length === 0) headers["Access-Control-Allow-Origin"] = "*";
-  else if (origin && configured.includes(origin)) headers["Access-Control-Allow-Origin"] = origin;
+  if (origin && allowed.has(origin)) headers["Access-Control-Allow-Origin"] = origin;
+  else if (configured.length === 0) headers["Access-Control-Allow-Origin"] = "*";
   return headers;
 }
 
