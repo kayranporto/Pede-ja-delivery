@@ -1062,7 +1062,7 @@ function dinheiroPlanoRestaurante(valor) {
 }
 
 function limitePlanoRestaurante(valor, singular, plural) {
-    if (valor === null || valor === undefined) return plural + " ilimitados";
+    if (valor === null || valor === undefined) return "Sem limite de " + plural;
     const quantidade = Number(valor);
     return "Até " + quantidade + " " + (quantidade === 1 ? singular : plural);
 }
@@ -1113,6 +1113,7 @@ function renderizarPlanoAtualRestaurante(data, dadosUso) {
     const plano = assinatura.plano || {};
     const status = String(assinatura.status || "");
     const onlineAtivo = assinatura.possui_assinatura_online === true && status === "ativa";
+    const checkoutPendente = assinatura.checkout_pendente === true;
     const info = criarElemento("div", "current-plan-copy");
     info.append(criarElemento("span", "current-plan-kicker", "SEU PLANO ATUAL"));
     info.append(criarElemento("h3", "", plano.nome || "Plano não configurado"));
@@ -1120,7 +1121,9 @@ function renderizarPlanoAtualRestaurante(data, dadosUso) {
     const descricao = plano.interno === true
         ? "Plano técnico de compatibilidade. Escolha um plano comercial abaixo para contratar a mensalidade."
         : (plano.descricao || "Plano comercial do PedeJá Delivery.");
-    info.append(criarElemento("p", "", descricao));
+    info.append(criarElemento("p", "", checkoutPendente
+        ? "Você iniciou a contratação do plano " + (assinatura.checkout_pendente_plano_slug || "comercial") + ", mas ainda não concluiu o checkout. Retome a contratação no cartão correspondente abaixo."
+        : descricao));
 
     const priceBox = criarElemento("div", "current-plan-price");
     if (plano.interno === true || plano.preco_mensal === null || plano.preco_mensal === undefined) {
@@ -1132,7 +1135,7 @@ function renderizarPlanoAtualRestaurante(data, dadosUso) {
     priceBox.append(criarElemento("span", "current-plan-status", statusAssinaturaTexto(status)));
 
     const actions = criarElemento("div", "current-plan-actions");
-    if (assinatura.possui_assinatura_online === true && !["cancelada", "expirada"].includes(status)) {
+    if (!checkoutPendente && assinatura.possui_assinatura_online === true && !["cancelada", "expirada"].includes(status)) {
         const cancel = criarElemento("button", "current-plan-cancel", "Cancelar assinatura");
         cancel.type = "button";
         cancel.addEventListener("click", () => cancelarAssinaturaRestaurante(cancel));
@@ -1162,10 +1165,12 @@ function renderizarPlanosComerciaisRestaurante(data) {
     const planoAtual = assinatura.plano || {};
     const statusAtual = String(assinatura.status || "");
     const assinaturaOnlineAtiva = assinatura.possui_assinatura_online === true && statusAtual === "ativa";
+    const checkoutPendente = assinatura.checkout_pendente === true;
+    const planoPendenteId = String(assinatura.checkout_pendente_plano_id || "");
     const cobrancaAtiva = data.cobranca_online_ativada === true;
 
     planos.forEach((plano) => {
-        const atual = String(plano.slug) === String(planoAtual.slug) && statusAtual === "ativa";
+        const atual = !checkoutPendente && String(plano.slug) === String(planoAtual.slug) && statusAtual === "ativa";
         const card = criarElemento("article", "restaurant-plan-card" + (atual ? " is-current" : ""));
         if (atual) card.append(criarElemento("span", "restaurant-plan-badge", "Plano atual"));
 
@@ -1192,6 +1197,13 @@ function renderizarPlanosComerciaisRestaurante(data) {
         button.type = "button";
         if (atual) {
             button.textContent = "Plano atual";
+            button.disabled = true;
+        } else if (checkoutPendente && String(plano.id) === planoPendenteId) {
+            button.textContent = cobrancaAtiva ? "Retomar checkout" : "Assinatura em configuração";
+            button.disabled = !cobrancaAtiva;
+            button.addEventListener("click", () => contratarPlanoRestaurante(plano, button));
+        } else if (checkoutPendente) {
+            button.textContent = "Finalize o checkout pendente";
             button.disabled = true;
         } else if (!cobrancaAtiva) {
             button.textContent = "Assinatura em configuração";
