@@ -411,3 +411,29 @@
     background: transparent !important;
   }
 }
+
+
+/* Sem fotos sintéticas: fundo neutro quando o restaurante/produto não cadastrou imagem. */
+.home-page .restaurant-cover-placeholder {
+  display: block !important;
+  width: 100% !important;
+  height: clamp(76px, 6.2vw, 112px) !important;
+  background: #f0f1f3 !important;
+}
+.home-page .product-cover-placeholder {
+  display: block !important;
+  width: 100% !important;
+  height: 104px !important;
+  background: #f0f1f3 !important;
+}
+@media (min-width: 681px) and (max-width: 1100px) {
+  .home-page .restaurant-cover-placeholder { height: 100px !important; }
+}
+@media (max-width: 680px) {
+  .home-page .restaurant-cover-placeholder { height: 120px !important; }
+  .home-page .product-cover-placeholder { height: 90px !important; }
+}
+@media (max-width: 380px) {
+  .home-page .restaurant-cover-placeholder { height: 150px !important; }
+  .home-page .product-cover-placeholder { height: 104px !important; }
+}
