@@ -23,6 +23,7 @@ test("ofertas relâmpago reutilizam cupons e exigem validade e quantidade", () =
   assert.ok(migration.includes("add column if not exists relampago"));
   assert.ok(migration.includes("add column if not exists titulo_relampago"));
   assert.ok(migration.includes("limite_usos is not null"));
+  assert.ok(migration.includes("inicio is not null"));
   assert.ok(migration.includes("fim is not null"));
   assert.ok(migration.includes("fim > inicio"));
   assert.ok(migration.includes("cupons_relampago_vitrine_idx"));
