@@ -1132,7 +1132,7 @@ function renderizarPlanoAtualRestaurante(data, dadosUso) {
     priceBox.append(criarElemento("span", "current-plan-status", statusAssinaturaTexto(status)));
 
     const actions = criarElemento("div", "current-plan-actions");
-    if (onlineAtivo) {
+    if (assinatura.possui_assinatura_online === true && !["cancelada", "expirada"].includes(status)) {
         const cancel = criarElemento("button", "current-plan-cancel", "Cancelar assinatura");
         cancel.type = "button";
         cancel.addEventListener("click", () => cancelarAssinaturaRestaurante(cancel));
