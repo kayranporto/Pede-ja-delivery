@@ -1,0 +1,17 @@
+.pedeja-inteligente{padding-block:28px}
+.pedeja-inteligente .inteligente-controles{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0 20px}
+.pedeja-inteligente .inteligente-controle{display:grid;gap:6px;min-width:170px;color:var(--pj-muted);font-size:.82rem;font-weight:600}
+.pedeja-inteligente select{min-height:42px;border:1px solid var(--pj-line);border-radius:12px;padding:8px 12px;background:#fff;color:var(--pj-ink);font:inherit}
+.pedeja-inteligente .inteligente-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.pedeja-inteligente .inteligente-card{overflow:hidden;min-width:0;border:1px solid var(--pj-line);border-radius:16px;background:#fff;box-shadow:0 5px 18px rgba(32,36,43,.04)}
+.pedeja-inteligente .inteligente-imagem{display:block;width:100%;height:130px;object-fit:cover;background:#f2f3f5}
+.pedeja-inteligente .inteligente-corpo{padding:14px;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.pedeja-inteligente .inteligente-corpo h3{margin:0;font-size:1rem;line-height:1.35}
+.pedeja-inteligente .inteligente-corpo p{margin:0;font-size:.8rem;line-height:1.45}
+.pedeja-inteligente .inteligente-categoria,.pedeja-inteligente .inteligente-detalhes{color:var(--pj-muted)}
+.pedeja-inteligente .inteligente-motivo{color:var(--pj-red);font-weight:600}
+.pedeja-inteligente .inteligente-link{margin-top:4px;color:var(--pj-red);font-weight:700;text-decoration:none}
+.pedeja-inteligente .inteligente-link:hover{text-decoration:underline}
+.pedeja-inteligente .inteligente-carregando,.pedeja-inteligente .inteligente-vazio{grid-column:1/-1;color:var(--pj-muted)}
+@media(max-width:900px){.pedeja-inteligente .inteligente-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.pedeja-inteligente{padding-block:20px}.pedeja-inteligente .inteligente-controles{display:grid;grid-template-columns:1fr 1fr}.pedeja-inteligente .inteligente-controle{min-width:0}.pedeja-inteligente .inteligente-grid{gap:10px}.pedeja-inteligente .inteligente-imagem{height:100px}.pedeja-inteligente .inteligente-corpo{padding:10px}.pedeja-inteligente .inteligente-corpo h3{font-size:.9rem}.pedeja-inteligente .inteligente-detalhes{font-size:.72rem!important}}
