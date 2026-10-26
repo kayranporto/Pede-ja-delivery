@@ -23,6 +23,8 @@ test("painel do restaurante disponibiliza planos e informa mensalidade sem comis
   assert.match(pageScript, /0% de comissão/);
   assert.match(pageScript, /functions\.invoke\("iniciar-assinatura"/);
   assert.match(pageScript, /cancelarAssinaturaRestaurante/);
+  assert.match(pageScript, /checkoutPendente/);
+  assert.match(startSubscription, /checkout_pendente_plano_id/);
   assert.match(pageCss, /\.restaurant-plans-grid/);
   assert.doesNotMatch(pageScript, /MERCADO_PAGO_ACCESS_TOKEN|SUPABASE_SERVICE_ROLE_KEY/);
 });
