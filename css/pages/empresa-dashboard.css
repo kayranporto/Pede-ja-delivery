@@ -261,3 +261,10 @@
 .restaurant-plan-terms{margin:18px 0 0;color:var(--muted);font-size:10px;line-height:1.7}
 @media(max-width:1050px){.restaurant-plans-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.restaurant-current-plan{grid-template-columns:minmax(0,1fr) auto}.restaurant-current-plan .current-plan-price{grid-column:1;grid-row:2}.restaurant-current-plan .current-plan-actions{grid-column:2;grid-row:1/3}}
 @media(max-width:700px){.restaurant-plans-grid{grid-template-columns:1fr}.restaurant-plan-card .plan-description{min-height:0}.restaurant-current-plan{grid-template-columns:1fr;gap:12px;padding:19px}.restaurant-current-plan .current-plan-price{grid-column:auto;grid-row:auto}.restaurant-current-plan .current-plan-actions{grid-column:auto;grid-row:auto}.restaurant-current-plan .current-plan-cancel{width:100%}.restaurant-plan-card{padding:19px}}
+
+.restaurant-current-plan .current-plan-usage{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;padding-top:15px;border-top:1px solid rgba(255,255,255,.15)}
+.restaurant-current-plan .current-plan-usage-item{display:grid;gap:5px;padding:10px 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:11px}
+.restaurant-current-plan .current-plan-usage-item span{color:#c9ced8;font-size:9px}
+.restaurant-current-plan .current-plan-usage-item strong{color:#fff;font-size:12px}
+.restaurant-current-plan .current-plan-period{grid-column:1/-1;margin:0;color:#c9ced8;font-size:10px}
+@media(max-width:700px){.restaurant-current-plan .current-plan-usage{grid-template-columns:repeat(2,minmax(0,1fr))}}
