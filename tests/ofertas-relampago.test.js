@@ -7,8 +7,8 @@ const path = require("node:path");
 
 const root = path.resolve(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
-const migration = read("supabase/migrations/20261026235000_ofertas_relampago.sql");
-const checkoutMigration = read("supabase/migrations/20261026235500_validar_limites_cupom_flash.sql");
+const migration = read("supabase/migrations/20261026232058_ofertas_relampago.sql");
+const checkoutMigration = read("supabase/migrations/20261026232104_validar_limites_cupom_flash.sql");
 const edge = read("supabase/functions/ofertas-relampago/index.ts");
 const api = read("supabase/functions/api-completa/index.ts");
 const home = read("index.html");
