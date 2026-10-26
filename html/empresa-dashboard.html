@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="../css/pages/empresa-dashboard.css?v=4.5.2"/>
+  <link rel="stylesheet" href="../css/pages/empresa-dashboard.css?v=4.6.0"/>
   <link rel="stylesheet" href="../css/core/accessibility.css?v=4.2.0"/>
   <link rel="stylesheet" href="../css/core/enhancements.css?v=4.4.9"/>
 </head>
@@ -35,6 +35,7 @@
       <a href="#avaliacoes"><span>★</span> Avaliações</a>
       <a href="#operacao"><span>◷</span> Operação</a>
       <a href="#financeiro"><span>R$</span> Financeiro</a>
+      <a href="#plano"><span>▤</span> Meu plano</a>
       <a href="#configuracoes"><span>⚙</span> Configurações</a>
     </nav>
     <div class="sidebar-footer">
@@ -299,6 +300,18 @@
         <p class="finance-note" id="financeNota">Valores estimados; a conciliação final depende do provedor de pagamento.</p>
       </section>
 
+      <section class="management-section dashboard-view" id="plano" data-dashboard-view tabindex="-1" aria-label="Meu plano" hidden>
+        <div class="section-heading">
+          <div><span class="section-kicker">ASSINATURA</span><h2>Meu plano e mensalidade</h2><p>Escolha o plano do seu restaurante. Todos funcionam com mensalidade fixa e sem comissão sobre os pedidos.</p></div>
+          <button class="btn-mini secundario" id="atualizarPlanosRestaurante" type="button">Atualizar</button>
+        </div>
+        <div class="restaurant-plan-notice" id="mensagemPlanosRestaurante" role="status" aria-live="polite">Carregando planos...</div>
+        <article class="restaurant-current-plan" id="planoAtualRestaurante" aria-label="Plano atual"></article>
+        <div class="restaurant-plan-heading"><div><span class="section-kicker">PLANOS DISPONÍVEIS</span><h3>Encontre o plano ideal</h3><p>Os limites são aplicados pelo sistema. A contratação só fica disponível depois da ativação segura do pagamento recorrente.</p></div></div>
+        <div class="restaurant-plans-grid" id="planosRestauranteGrid" aria-live="polite"><p class="empty">Carregando opções...</p></div>
+        <p class="restaurant-plan-terms">A assinatura é mensal. O Mercado Pago processará a cobrança recorrente após a autorização do titular. O plano só é alterado após confirmação do provedor. Nenhuma comissão percentual é cobrada por pedido.</p>
+      </section>
+
       <section class="management-section dashboard-view" id="configuracoes" data-dashboard-view tabindex="-1" aria-label="Configurações" hidden>
         <div class="section-heading"><div><span class="section-kicker">SUA LOJA</span><h2>Configurações</h2><p>Defina atendimento, entrega e identidade visual.</p></div></div>
         <article class="dashboard-card settings-card">
@@ -348,7 +361,7 @@
   <script defer src="../js/core/config.js?v=4.4.9"></script>
   <script defer src="../js/core/monitoring.js?v=4.2.0"></script>
   <script defer src="../js/core/notifications.js?v=4.2.0"></script>
-  <script defer src="../js/pages/empresa-dashboard.js?v=4.4.10"></script>
+  <script defer src="../js/pages/empresa-dashboard.js?v=4.6.0"></script>
   <script defer src="../js/modules/operacao-empresa.js?v=4.4.7"></script>
   <script defer src="../js/core/product-import.js?v=4.4.7"></script>
   <script defer src="../js/modules/empresa-importacao.js?v=4.4.7"></script>
