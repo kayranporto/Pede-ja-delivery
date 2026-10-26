@@ -20,7 +20,7 @@ const migration = read("supabase/migrations/20261026223732_planos_comerciais_men
 test("painel do restaurante disponibiliza planos e informa mensalidade sem comissão", () => {
   assert.match(page, /href="#plano"/);
   assert.match(page, /id="planosRestauranteGrid"/);
-  assert.match(page, /0% de comissão/);
+  assert.match(pageScript, /0% de comissão/);
   assert.match(pageScript, /functions\.invoke\("iniciar-assinatura"/);
   assert.match(pageScript, /cancelarAssinaturaRestaurante/);
   assert.match(pageCss, /\.restaurant-plans-grid/);
