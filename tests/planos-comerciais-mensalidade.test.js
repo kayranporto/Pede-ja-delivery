@@ -14,8 +14,8 @@ test("planos comerciais cobram mensalidade fixa sem comissão", () => {
   assert.match(sql, /'basico'[\s\S]*?49\.90/);
   assert.match(sql, /'profissional'[\s\S]*?99\.90/);
   assert.match(sql, /'premium'[\s\S]*?199\.90/);
-  assert.equal((sql.match(/'comissao_pedidos_percentual":0/g) || []).length, 3);
-  assert.match(sql, /'modelo_cobranca":"mensalidade_fixa'/);
+  assert.equal((sql.match(/"comissao_pedidos_percentual":0/g) || []).length, 3);
+  assert.match(sql, /"modelo_cobranca":"mensalidade_fixa"/);
 });
 
 test("plano Básico é padrão apenas para novos restaurantes e Legado é preservado", () => {
