@@ -1,5 +1,23 @@
 import { createClient } from "supabase";
-import { corsHeaders, json } from "../_shared/cors.ts";
+function corsHeaders(request: Request) {
+  const configured = (Deno.env.get("ALLOWED_ORIGINS") || Deno.env.get("SITE_URL") || "")
+    .split(",").map((value) => value.trim().replace(/\/$/, "")).filter(Boolean);
+  const origin = request.headers.get("origin")?.replace(/\/$/, "") || "";
+  const headers: Record<string, string> = {
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Vary": "Origin",
+  };
+  if (configured.length === 0) headers["Access-Control-Allow-Origin"] = "*";
+  else if (origin && configured.includes(origin)) headers["Access-Control-Allow-Origin"] = origin;
+  return headers;
+}
+function json(request: Request, data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...corsHeaders(request), "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" },
+  });
+}
 
 type PlainObject = Record<string, unknown>;
 
@@ -63,7 +81,7 @@ Deno.serve(async (request: Request) => {
 
     const body = await request.json().catch(() => ({})) as PlainObject;
     const action = String(body.action || "listar");
-    if (action !== "listar" && action !== "iniciar") {
+    if (action !== "listar" && action !== "iniciar" && action !== "cancelar") {
       return json(request, { error: "Ação de assinatura inválida." }, 400);
     }
 
@@ -119,6 +137,45 @@ Deno.serve(async (request: Request) => {
       });
     }
 
+    if (action === "cancelar") {
+      const accessToken = Deno.env.get("MERCADO_PAGO_ACCESS_TOKEN") || "";
+      const expectedCollectorId = Deno.env.get("MERCADO_PAGO_COLLECTOR_ID") || "";
+      const mode = String(Deno.env.get("MERCADO_PAGO_ENVIRONMENT") || "sandbox").toLowerCase() === "production"
+        ? "production" : "sandbox";
+      if (!accessToken || !expectedCollectorId) return json(request, { error: "A configuração do Mercado Pago está incompleta." }, 503);
+      const tokenIsTest = accessToken.startsWith("TEST-");
+      if ((mode === "sandbox" && !tokenIsTest) || (mode === "production" && tokenIsTest)) {
+        return json(request, { error: "A credencial do Mercado Pago não corresponde ao ambiente configurado." }, 503);
+      }
+      if (assinatura.provider !== "mercado_pago" || !assinatura.provider_subscription_id || assinatura.status !== "ativa") {
+        return json(request, { error: "Não foi encontrada uma assinatura recorrente ativa para cancelar." }, 409);
+      }
+      const id = String(assinatura.provider_subscription_id);
+      const subscriptionResponse = await fetch("https://api.mercadopago.com/preapproval/" + encodeURIComponent(id), {
+        headers: { Authorization: "Bearer " + accessToken },
+      });
+      const subscriptionResource = await subscriptionResponse.json().catch(() => ({})) as Record<string, unknown>;
+      if (!subscriptionResponse.ok || String(subscriptionResource.id || "") !== id) {
+        return json(request, { error: "Não foi possível confirmar a assinatura no Mercado Pago." }, 502);
+      }
+      if (String(subscriptionResource.external_reference || "") !== String(empresa.id)
+        || String(subscriptionResource.collector_id || "") !== expectedCollectorId
+        || (typeof subscriptionResource.live_mode === "boolean" && subscriptionResource.live_mode !== (mode === "production"))) {
+        return json(request, { error: "A assinatura do provedor não corresponde a este restaurante ou ambiente." }, 409);
+      }
+      const cancelResponse = await fetch("https://api.mercadopago.com/preapproval/" + encodeURIComponent(id), {
+        method: "PUT",
+        headers: { Authorization: "Bearer " + accessToken, "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "cancelled" }),
+      });
+      const result = await cancelResponse.json().catch(() => ({})) as Record<string, unknown>;
+      if (!cancelResponse.ok || String(result.id || "") !== id) {
+        console.error("Falha ao solicitar cancelamento Mercado Pago", { status: cancelResponse.status });
+        return json(request, { error: "O Mercado Pago não confirmou o pedido de cancelamento." }, 502);
+      }
+      return json(request, { ok: true, message: "Cancelamento solicitado. O status será atualizado após a confirmação do provedor." });
+    }
+
     const subscriptionsEnabled = Deno.env.get("MERCADO_PAGO_SUBSCRIPTIONS_ENABLED") === "true";
     if (!subscriptionsEnabled) {
       return json(request, {
@@ -156,8 +213,8 @@ Deno.serve(async (request: Request) => {
     if (pending?.provider_subscription_id) {
       return json(request, { error: "Já existe uma solicitação de assinatura em andamento. Finalize o checkout aberto antes de escolher outro plano." }, 409);
     }
-    if (assinatura.provider_subscription_id && assinatura.status === "ativa") {
-      return json(request, { error: "Este restaurante já possui uma assinatura online ativa. Para trocar de plano, cancele ou altere a assinatura atual no provedor primeiro." }, 409);
+    if (assinatura.provider_subscription_id && !["cancelada", "expirada"].includes(String(assinatura.status))) {
+      return json(request, { error: "Já existe uma assinatura recorrente associada a este restaurante. Regularize ou cancele a assinatura atual no provedor antes de iniciar outra." }, 409);
     }
 
     const accessToken = Deno.env.get("MERCADO_PAGO_ACCESS_TOKEN") || "";
