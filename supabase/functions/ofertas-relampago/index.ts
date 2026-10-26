@@ -92,7 +92,8 @@ Deno.serve(async (request: Request) => {
       return respond(request, { error: "Não foi possível carregar as ofertas agora." }, 502);
     }
 
-    const businessMap = new Map((businesses || []).map((business: Record<string, any>) => [String(business.id), business]));
+    const businessMap = new Map<string, Record<string, any>>();
+    (businesses || []).forEach((business: Record<string, any>) => businessMap.set(String(business.id), business));
     const data = validCoupons
       .map((coupon: Record<string, any>) => {
         const business = businessMap.get(String(coupon.empresa_id));
