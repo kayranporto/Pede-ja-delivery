@@ -9,7 +9,6 @@ function cors(request: Request) {
   const allowed = new Set([
     ...configured,
     "https://kayranporto.github.io",
-    "https://site-delivery-42.vercel.app",
   ]);
   const headers: Record<string, string> = {
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
