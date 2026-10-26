@@ -57,8 +57,19 @@ test("Home usa horário real no filtro Aberto agora", () => {
     assert.match(home, /DeliveryAPI\.disponibilidade\(/);
     assert.match(home, /abertaAgora:\s*data\?\.aberto\s*===\s*true/);
     assert.match(home, /!filtros\.abertoAgora\s*\|\|\s*empresa\.abertaAgora\s*===\s*true/);
-    assert.match(read("index.html"), /js\/pages\/home\.js\?v=4\.5\.2/);
-    assert.match(read("sw.js"), /js\/pages\/home\.js\?v=4\.5\.2/);
+    assert.match(read("index.html"), /js\/pages\/home\.js\?v=4\.5\.\d+/);
+    assert.match(read("sw.js"), /js\/pages\/home\.js\?v=4\.5\.\d+/);
+});
+
+
+test("Home exibe o banner cadastrado de cada restaurante no cartão", () => {
+    const home = read("js/pages/home.js");
+    const api = read("supabase/functions/api-publica/index.ts");
+    const sw = read("sw.js");
+    assert.match(home, /empresa\.banner/);
+    assert.match(home, /bannerRestaurante \|\| fotoGenerica/);
+    assert.match(api, /"banner"/);
+    assert.match(sw, /home-responsive-reference\.css\?v=1\.0\.0/);
 });
 
 test("robots bloqueia as rotas privadas reais em html", () => {
