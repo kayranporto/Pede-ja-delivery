@@ -61,8 +61,8 @@ test("Home mostra as ofertas, validade, usos restantes e permite copiar o cupom"
   assert.ok(homeScript.includes("html/restaurante.html?id="));
   assert.ok(homeCss.includes(".flash-offer-card"));
   assert.ok(homeCss.includes("@media(max-width:620px)"));
-  assert.ok(sw.includes("./css/pages/home-marketplace.css?v=4.4.17"));
-  assert.ok(sw.includes("./js/pages/home.js?v=4.5.5"));
+  assert.ok(sw.includes("./css/pages/home-marketplace.css?v=4.4.18"));
+  assert.ok(sw.includes("./js/pages/home.js?v=4.5.7"));
 });
 
 test("restaurante publica a oferta usando o endpoint de cupons existente", () => {
