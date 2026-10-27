@@ -202,13 +202,11 @@
     text-align: center !important;
     overflow-wrap: anywhere !important;
   }
-  .home-page .categoria:first-child,
-  .home-page .categoria[aria-pressed="true"] {
+    .home-page .categoria[aria-pressed="true"] {
     background: var(--pj-red) !important;
     box-shadow: 0 10px 24px rgba(243, 24, 43, .2) !important;
   }
-  .home-page .categoria:first-child span,
-  .home-page .categoria[aria-pressed="true"] span { color: #fff !important; }
+    .home-page .categoria[aria-pressed="true"] span { color: #fff !important; }
 
   /* Listagem ocupa a largura útil; quatro colunas em monitores largos. */
   .home-page .restaurantes,
