@@ -199,7 +199,9 @@ function criarTexto(tag, classe, texto) {
 function criarCapaVazia(classe) {
     const placeholder = document.createElement("div");
     placeholder.className = classe;
-    placeholder.setAttribute("aria-hidden", "true");
+    placeholder.textContent = "sem foto";
+    placeholder.setAttribute("role", "img");
+    placeholder.setAttribute("aria-label", "sem foto");
     return placeholder;
 }
 
@@ -635,6 +637,16 @@ function formatarFimOferta(fim) {
 function imagemOfertaRelampago(oferta) {
     const figure = document.createElement("div");
     figure.className = "flash-offer-media";
+    const mostrarSemFoto = () => {
+        figure.classList.add("flash-offer-media-placeholder");
+        const texto = document.createElement("span");
+        texto.textContent = "sem foto";
+        texto.setAttribute("role", "img");
+        texto.setAttribute("aria-label", "sem foto");
+        const image = figure.querySelector("img");
+        if (image) image.replaceWith(texto);
+        else if (!figure.querySelector(".flash-offer-media-placeholder > span")) figure.append(texto);
+    };
     const src = oferta?.restaurante?.banner || oferta?.restaurante?.logo || "";
     if (src) {
         try {
@@ -645,17 +657,12 @@ function imagemOfertaRelampago(oferta) {
                 image.alt = "";
                 image.loading = "lazy";
                 image.decoding = "async";
+                image.addEventListener("error", mostrarSemFoto, { once: true });
                 figure.append(image);
             }
         } catch (_) {}
     }
-    if (!figure.querySelector("img")) {
-        figure.classList.add("flash-offer-media-placeholder");
-        const emoji = document.createElement("span");
-        emoji.setAttribute("aria-hidden", "true");
-        emoji.textContent = "⚡";
-        figure.append(emoji);
-    }
+    if (!figure.querySelector("img")) mostrarSemFoto();
     const seal = document.createElement("span");
     seal.className = "flash-offer-seal";
     seal.textContent = "OFERTA RELÂMPAGO";
