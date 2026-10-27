@@ -270,7 +270,7 @@ function renderizarEmpresas(lista) {
 
     const fragmento = document.createDocumentFragment();
 
-    lista.forEach((empresa, indice) => {
+    lista.forEach((empresa) => {
         const card = document.createElement("article");
         card.className = "card";
         card.dataset.id = empresa.id;
@@ -295,13 +295,6 @@ function renderizarEmpresas(lista) {
         const header = document.createElement("div");
         header.className = "card-header";
         header.append(criarTexto("h3", "", empresa.nome || "Restaurante"));
-
-        const badgeTexto = indice === 0 ? "Mais pedido" : (indice === 2 ? "Promoção" : "");
-        if (badgeTexto) {
-            const badge = criarTexto("span", `restaurant-badge ${badgeTexto === "Promoção" ? "promo" : ""}`, badgeTexto);
-            badge.setAttribute("aria-hidden", "true");
-            card.append(badge);
-        }
 
         const favorite = document.createElement("button");
         favorite.type = "button";
