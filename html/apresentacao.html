@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111114">
+  <meta name="description" content="Apresentação oficial do projeto PedeJá Delivery.">
+  <title>PedeJá Delivery — Apresentação</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/pages/apresentacao.css">
+  <script src="../js/pages/apresentacao.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#slides">Pular para a apresentação</a>
+  <header class="topbar">
+    <a class="brand" href="../index.html" aria-label="PedeJá — voltar ao site"><span class="brand-mark">P</span><span>PedeJá <small>DELIVERY</small></span></a>
+    <div class="topbar-actions">
+      <span class="live-label"><span></span> APRESENTAÇÃO DO PROJETO</span>
+      <button class="icon-button" id="notesToggle" type="button" aria-pressed="false" title="Mostrar notas do apresentador">Notas</button>
+      <button class="icon-button" id="fullscreenToggle" type="button" title="Ativar tela cheia">⛶ Tela cheia</button>
+    </div>
+  </header>
+
+  <main id="slides" class="presentation" aria-live="polite">
+    <section class="slide slide-cover is-active" data-title="Abertura" aria-label="Slide 1: Abertura">
+      <div class="cover-copy">
+        <p class="eyebrow"><span class="eyebrow-line"></span> PROJETO DE DESENVOLVIMENTO WEB</p>
+        <h1>Comida boa.<br><span>Pedido simples.</span></h1>
+        <p class="lead">Uma experiência digital para aproximar clientes, restaurantes e entregas.</p>
+        <div class="cover-actions">
+          <button class="primary-button" data-next type="button">Começar apresentação <span aria-hidden="true">→</span></button>
+          <a class="text-link" href="../index.html" target="_blank" rel="noopener">Abrir o site ao vivo ↗</a>
+        </div>
+      </div>
+      <div class="cover-art" aria-hidden="true">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="food-card food-card-main"><span class="food-emoji">🍔</span><span class="food-card-line"></span><span class="food-card-line short"></span><span class="food-card-price">Seu próximo pedido começa aqui.</span></div>
+        <div class="float-chip chip-top">⚡ Fácil de encontrar</div><div class="float-chip chip-bottom">⌂ Mais perto de você</div>
+        <div class="red-orb"></div>
+      </div>
+      <aside class="presenter-notes"><strong>Fala sugerida</strong><p>“Boa tarde! Hoje vamos apresentar o PedeJá Delivery, uma plataforma que desenvolvemos para conectar quem quer pedir comida aos restaurantes e às operações que tornam esse pedido possível.”</p></aside>
+    </section>
+
+    <section class="slide" data-title="O desafio" aria-label="Slide 2: O desafio">
+      <div class="slide-heading"><p class="eyebrow">01 / O DESAFIO</p><h2>Comprar comida online deveria ser <span>simples.</span></h2><p class="lead">Uma boa experiência precisa funcionar para todos os lados da operação.</p></div>
+      <div class="challenge-grid">
+        <article class="info-card"><span class="card-icon">⌕</span><h3>Para o cliente</h3><p>Encontrar opções, comparar restaurantes e acompanhar o próprio pedido sem se perder.</p></article>
+        <article class="info-card"><span class="card-icon">▤</span><h3>Para o restaurante</h3><p>Organizar catálogo, pedidos e informações em um só ambiente de trabalho.</p></article>
+        <article class="info-card"><span class="card-icon">⇢</span><h3>Para a operação</h3><p>Dar visibilidade às etapas do pedido, do preparo até a entrega.</p></article>
+      </div>
+      <aside class="presenter-notes"><strong>Fala sugerida</strong><p>“O desafio não é só mostrar pratos. A solução precisa considerar a jornada do cliente e também o trabalho de quem recebe, prepara e entrega cada pedido.”</p></aside>
+    </section>
+
+    <section class="slide" data-title="A solução" aria-label="Slide 3: A solução">
+      <div class="slide-heading"><p class="eyebrow">02 / A SOLUÇÃO</p><h2>Um só ecossistema.<br><span>Experiências diferentes.</span></h2><p class="lead">O PedeJá organiza as principais etapas em uma plataforma web.</p></div>
+      <div class="ecosystem">
+        <div class="ecosystem-node"><span>01</span><div class="node-icon">🛍️</div><h3>Cliente</h3><p>Descobre, escolhe e acompanha</p></div>
+        <div class="ecosystem-link" aria-hidden="true">⟷</div>
+        <div class="ecosystem-node featured"><span>02</span><div class="node-icon">🍽️</div><h3>Restaurante</h3><p>Administra o catálogo e os pedidos</p></div>
+        <div class="ecosystem-link" aria-hidden="true">⟷</div>
+        <div class="ecosystem-node"><span>03</span><div class="node-icon">🛵</div><h3>Entrega</h3><p>Atende pedidos prontos para sair</p></div>
+      </div>
+      <div class="callout"><span>✦</span> Uma interface web conectada a serviços de backend e banco de dados.</div>
+      <aside class="presenter-notes"><strong>Fala sugerida</strong><p>“Pensamos no sistema como um ecossistema. Cada perfil tem uma função e acessa os recursos de acordo com suas permissões.”</p></aside>
+    </section>
+
+    <section class="slide" data-title="Experiência do cliente" aria-label="Slide 4: Experiência do cliente">
+      <div class="split-layout">
+        <div class="split-copy"><p class="eyebrow">03 / NA PRÁTICA</p><h2>Encontrar. Escolher. <span>Pedir.</span></h2><p class="lead">A experiência começa na descoberta dos restaurantes e continua até o acompanhamento dos pedidos.</p>
+          <ol class="step-list"><li><span>1</span><div><strong>Descoberta</strong><small>Busca, categorias e filtros</small></div></li><li><span>2</span><div><strong>Escolha</strong><small>Cardápio e opções disponíveis</small></div></li><li><span>3</span><div><strong>Pedido</strong><small>Carrinho, endereço e acompanhamento</small></div></li></ol>
+          <a class="primary-button link-button" href="../index.html" target="_blank" rel="noopener">Demonstrar site ao vivo ↗</a>
+        </div>
+        <div class="mock-browser" aria-label="Ilustração da interface do marketplace">
+          <div class="browser-bar"><i></i><i></i><i></i><span>pedeja / restaurantes</span></div>
+          <div class="mock-content"><div class="mock-welcome"><small>SEU PRÓXIMO PEDIDO</small><strong>O que vamos<br>pedir hoje?</strong><div class="mock-search">⌕ Buscar comida ou restaurante</div></div><div class="mock-categories"><span>🍔<small>Hambúrguer</small></span><span>🍕<small>Pizza</small></span><span>🍣<small>Sushi</small></span><span>🍰<small>Doces</small></span></div><p class="mock-section-title">Restaurantes em destaque</p><div class="mock-restaurants"><div><b>🍔</b><span><strong>Hamburgueria</strong><small>Pedidos e cardápio</small></span></div><div><b>🍕</b><span><strong>Pizzaria</strong><small>Opções para compartilhar</small></span></div></div></div>
+        </div>
+      </div>
+      <aside class="presenter-notes"><strong>Fala sugerida</strong><p>Abra o site real em outra aba. Mostre busca, categorias, filtros e um restaurante disponível. Use dados reais de demonstração; não prometa finalizar um pagamento real.</p></aside>
+    </section>
+
+    <section class="slide" data-title="Operação e gestão" aria-label="Slide 5: Operação e gestão">
+      <div class="slide-heading"><p class="eyebrow">04 / POR TRÁS DO PEDIDO</p><h2>O trabalho continua <span>depois do clique.</span></h2><p class="lead">A plataforma contempla diferentes áreas para administrar e acompanhar a operação.</p></div>
+      <div class="ops-grid"><article class="ops-card"><div class="ops-symbol">▦</div><h3>Painel do restaurante</h3><p>Área dedicada à gestão do estabelecimento e dos pedidos.</p><a href="../html/empresa-login.html" target="_blank" rel="noopener">Abrir acesso do restaurante ↗</a></article><article class="ops-card"><div class="ops-symbol">◷</div><h3>Fluxo de cozinha</h3><p>Organização de pedidos por etapas, incluindo recebidos, em preparo e prontos.</p><span class="status-tag">Fluxo operacional</span></article><article class="ops-card"><div class="ops-symbol">⌁</div><h3>Entrega e acompanhamento</h3><p>Áreas próprias para acompanhar pedidos e apoiar a operação de entrega.</p><a href="../html/entregador.html" target="_blank" rel="noopener">Ver área de entregador ↗</a></article></div>
+      <aside class="presenter-notes"><strong>Fala sugerida</strong><p>“Além da vitrine, existe uma parte operacional. Vou mostrar o acesso do restaurante e explicar como o sistema separa as funções por perfil. Não exponha senhas nem dados pessoais na apresentação.”</p></aside>
+    </section>
+
+    <section class="slide" data-title="Tecnologia e cuidado" aria-label="Slide 6: Tecnologia e cuidado">
+      <div class="slide-heading"><p class="eyebrow">05 / COMO FOI CONSTRUÍDO</p><h2>Interface bonita é importante.<br><span>Confiabilidade também.</span></h2><p class="lead">O projeto reúne interface web, serviços de backend, banco de dados e verificações automatizadas.</p></div>
+      <div class="tech-layout"><div class="tech-stack"><div class="tech-item"><span class="tech-icon">HTML</span><div><strong>HTML, CSS e JavaScript</strong><small>Estrutura, identidade visual e interações</small></div></div><div class="tech-item"><span class="tech-icon supa">S</span><div><strong>Supabase</strong><small>Autenticação, banco de dados e funções backend</small></div></div><div class="tech-item"><span class="tech-icon git">✓</span><div><strong>GitHub e automação</strong><small>Versionamento e verificações do projeto</small></div></div></div><div class="quality-panel"><span class="quality-label">FOCO TÉCNICO</span><div class="quality-row"><span>Permissões e acesso aos dados</span><b>RLS</b></div><div class="quality-row"><span>Validações e regras de negócio</span><b>Backend</b></div><div class="quality-row"><span>Verificações automatizadas</span><b>Testes</b></div><p>Pagamentos online permanecem desativados por padrão até a validação completa da configuração de produção.</p></div></div>
+      <aside class="presenter-notes"><strong>Fala sugerida</strong><p>“Usamos tecnologias web e Supabase. Também existe uma rotina de verificação automatizada. Um cuidado importante: pagamento online não deve ser apresentado como disponível para transações reais sem concluir a validação de produção.”</p></aside>
+    </section>
+
+    <section class="slide" data-title="Próximos passos" aria-label="Slide 7: Próximos passos">
+      <div class="slide-heading"><p class="eyebrow">06 / EVOLUÇÃO CONTÍNUA</p><h2>Um projeto que pode <span>crescer.</span></h2><p class="lead">A base permite evoluir a experiência sem perder de vista segurança, operação e facilidade de uso.</p></div>
+      <div class="roadmap-grid"><article><span class="roadmap-number">01</span><h3>Experiência</h3><p>Aprimorar a navegação e a experiência em diferentes telas.</p></article><article><span class="roadmap-number">02</span><h3>Autonomia</h3><p>Continuar evoluindo ferramentas de gestão para restaurantes.</p></article><article><span class="roadmap-number">03</span><h3>Confiabilidade</h3><p>Validar fluxos reais, monitoramento e configuração de produção.</p></article></div>
+      <aside class="presenter-notes"><strong>Fala sugerida</strong><p>“O desenvolvimento é contínuo. Os próximos passos devem priorizar o que traz valor ao usuário e o que precisa ser validado antes de ampliar o uso em produção.”</p></aside>
+    </section>
+
+    <section class="slide slide-ending" data-title="Encerramento" aria-label="Slide 8: Encerramento">
+      <div class="ending-mark">P</div><p class="eyebrow">PEDEJÁ DELIVERY</p><h2>Mais perto do que<br><span>você quer comer.</span></h2><p class="lead">Obrigado pela atenção.</p>
+      <div class="ending-actions"><a class="primary-button link-button" href="../index.html" target="_blank" rel="noopener">Conhecer o projeto ↗</a><a class="secondary-button" href="https://github.com/kayranporto/Pede-ja-delivery" target="_blank" rel="noopener">Ver código no GitHub ↗</a></div>
+      <p class="ending-footnote">Projeto desenvolvido com foco em experiência, organização e evolução contínua.</p>
+      <aside class="presenter-notes"><strong>Fala sugerida</strong><p>“Esse foi o PedeJá Delivery. Obrigado pela atenção — agora podemos responder às perguntas e mostrar algum fluxo específico do sistema.”</p></aside>
+    </section>
+  </main>
+
+  <footer class="controls">
+    <div class="progress-wrap"><div class="progress-track"><span id="progressBar"></span></div><span id="slideCounter">01 / 08</span></div>
+    <div class="control-buttons"><button id="prevSlide" type="button" disabled>← Anterior</button><div id="dotNav" class="dot-nav" aria-label="Selecionar slide"></div><button class="next-button" id="nextSlide" type="button">Próximo →</button></div>
+    <div class="keyboard-hint">Use <kbd>←</kbd> <kbd>→</kbd> para navegar <span>·</span> <kbd>F</kbd> tela cheia <span>·</span> <kbd>N</kbd> notas</div>
+  </footer>
+</body>
+</html>
