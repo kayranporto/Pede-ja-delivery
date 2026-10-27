@@ -168,14 +168,11 @@
   font-size:12px!important;
   font-weight:800!important;
 }
-.home-page .categoria:first-child,
 .home-page .categoria[aria-pressed="true"]{
   background:var(--pj-red)!important;
   box-shadow:0 11px 27px rgba(239,28,43,.22)!important;
 }
-.home-page .categoria:first-child span,
 .home-page .categoria[aria-pressed="true"] span{color:#fff!important}
-.home-page .categoria:first-child div,
 .home-page .categoria[aria-pressed="true"] div{background:transparent!important}
 
 /* RESTAURANTS */
