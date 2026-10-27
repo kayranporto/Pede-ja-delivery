@@ -34,7 +34,8 @@ const SHELL = [
   "./css/modules/operacao-restaurante-4.2.7.css?v=4.2.7.1",
   "./js/core/app-utils.js?v=4.4.7",
   "./js/core/monitoring.js?v=4.2.0",
-  "./js/core/notifications.js?v=4.4.3",
+  "./js/core/notifications.js?v=4.4.9",
+  "./js/core/config.js?v=4.4.9",
   "./js/core/favorites-sync.js?v=4.2.1",
   "./js/core/supabase.js?v=4.4.9",
   "./js/core/categorias-filtros.js?v=1.0.0",
@@ -44,7 +45,8 @@ const SHELL = [
   "./js/modules/checkout-4.2.3.js?v=4.2.4",
   "./js/modules/operacao-restaurante-4.2.7.js?v=4.2.7",
   "./js/pages/suporte.js?v=4.2.0",
-  "./js/core/site-enhancements.js?v=4.4.9"
+  "./js/core/site-enhancements.js?v=4.4.9",
+  "./js/modules/aviso-abertura-restaurante.js?v=1.0.0"
 ];
 
 self.addEventListener("install", (event) => {
