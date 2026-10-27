@@ -59,13 +59,17 @@ const ADMIN_PERMISSION_KEYS = [
 ] as const;
 
 function normalizeAdminPermissions(value: unknown): Set<string> {
-  // Fail closed: metadados ausentes, vazios ou inválidos não concedem acesso administrativo.
-  if (!Array.isArray(value) || value.length === 0) return new Set();
-  return new Set(
+  // Mantém o mesmo comportamento do painel e de private.admin_permissoes():
+  // admins antigos sem uma lista válida continuam com acesso total por compatibilidade.
+  const todas = new Set<string>(ADMIN_PERMISSION_KEYS);
+  if (!Array.isArray(value) || value.length === 0) return todas;
+
+  const permissões = new Set(
     value.filter((item): item is string =>
       typeof item === "string" && (ADMIN_PERMISSION_KEYS as readonly string[]).includes(item)
     )
   );
+  return permissões.size ? permissões : todas;
 }
 
 async function getAdminAccess(ctx: RouteContext) {
