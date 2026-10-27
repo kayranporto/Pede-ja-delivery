@@ -396,11 +396,12 @@ test("criar-pagamento exige ativação explícita no servidor", () => {
     assert.match(read("js/core/config.js"), /pagamentoOnlineAtivo:\s*false/);
 });
 
-test("permissões administrativas ausentes ou inválidas falham de forma segura", () => {
+test("administradores legados sem permissões mantêm acesso total por compatibilidade", () => {
     const api = read("supabase/functions/api-completa/index.ts");
     assert.match(api, /function normalizeAdminPermissions\(value: unknown\): Set<string>/);
-    assert.match(api, /if \(!Array\.isArray\(value\) \|\| value\.length === 0\) return new Set\(\)/);
-    assert.doesNotMatch(api, /return normalized\.size \? normalized : new Set\(ADMIN_PERMISSION_KEYS\)/);
+    assert.match(api, /const todas = new Set<string>\(ADMIN_PERMISSION_KEYS\)/);
+    assert.match(api, /if \(!Array\.isArray\(value\) \|\| value\.length === 0\) return todas/);
+    assert.match(api, /return permissões\.size \? permissões : todas/);
 });
 
 test("catálogo autenticado não expõe variantes de produtos indisponíveis", () => {
