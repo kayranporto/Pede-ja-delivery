@@ -909,37 +909,62 @@ pesquisaMobile?.addEventListener("input", () => {
 function renderizarCategoriasHome(lista) {
     if (!listaCategoriasHome || !Array.isArray(lista) || !lista.length) return;
     const fragmento = document.createDocumentFragment();
-    lista.forEach((categoria) => {
-        const botao = document.createElement("button");
-        botao.type = "button";
-        botao.className = "categoria";
-        botao.dataset.categoria = String(categoria.nome || "");
-        botao.dataset.aliases = JSON.stringify(Array.isArray(categoria.aliases) ? categoria.aliases : []);
-        botao.setAttribute("aria-pressed", "false");
-        const icone = document.createElement("div");
-        icone.setAttribute("aria-hidden", "true");
-        icone.textContent = categoria.icone || "🍽️";
-        const nome = document.createElement("span");
-        nome.textContent = categoria.nome || "Categoria";
-        botao.append(icone, nome);
-        fragmento.append(botao);
-    });
+
+    // "Todos" é um filtro fixo: não pertence às categorias dos restaurantes e
+    // não deve depender da lista configurável pelo administrador.
+    const botaoTodos = document.createElement("button");
+    botaoTodos.type = "button";
+    botaoTodos.className = "categoria";
+    botaoTodos.dataset.categoria = "";
+    botaoTodos.dataset.aliases = "[]";
+    botaoTodos.setAttribute("aria-pressed", "false");
+    const iconeTodos = document.createElement("div");
+    iconeTodos.setAttribute("aria-hidden", "true");
+    iconeTodos.textContent = "🍽️";
+    const nomeTodos = document.createElement("span");
+    nomeTodos.textContent = "Todos";
+    botaoTodos.append(iconeTodos, nomeTodos);
+    fragmento.append(botaoTodos);
+
+    // Evita duplicar "Todos" caso alguém o tenha cadastrado como categoria no painel.
+    lista
+        .filter((categoria) => !["todos", "todas"].includes(normalizar(categoria?.nome).trim()))
+        .forEach((categoria) => {
+            const botao = document.createElement("button");
+            botao.type = "button";
+            botao.className = "categoria";
+            botao.dataset.categoria = String(categoria.nome || "");
+            botao.dataset.aliases = JSON.stringify(Array.isArray(categoria.aliases) ? categoria.aliases : []);
+            botao.setAttribute("aria-pressed", "false");
+            const icone = document.createElement("div");
+            icone.setAttribute("aria-hidden", "true");
+            icone.textContent = categoria.icone || "🍽️";
+            const nome = document.createElement("span");
+            nome.textContent = categoria.nome || "Categoria";
+            botao.append(icone, nome);
+            fragmento.append(botao);
+        });
     listaCategoriasHome.replaceChildren(fragmento);
     categorias = Array.from(listaCategoriasHome.querySelectorAll(".categoria"));
     const selecionada = categorias.find((botao) => {
         const valores = [botao.dataset.categoria];
         try { valores.push(...JSON.parse(botao.dataset.aliases || "[]")); } catch { /* Sem aliases antigos. */ }
-        return valores.some((valor) => normalizar(valor) === normalizar(categoriaSelecionada));
+        return valores.some((valor) => normalizar(valor).trim() === normalizar(categoriaSelecionada).trim());
     });
     if (selecionada) {
         categoriaSelecionada = selecionada.dataset.categoria || "";
         try { aliasesCategoriaSelecionada = JSON.parse(selecionada.dataset.aliases || "[]"); } catch { aliasesCategoriaSelecionada = []; }
-        selecionada.classList.add("ativa");
-        selecionada.setAttribute("aria-pressed", "true");
+        categorias.forEach((botao) => {
+            botao.classList.toggle("ativa", botao === selecionada);
+            botao.setAttribute("aria-pressed", String(botao === selecionada));
+        });
     } else {
         categoriaSelecionada = "";
         aliasesCategoriaSelecionada = [];
-        categorias[0]?.classList.add("ativa");
+        categorias.forEach((botao, indice) => {
+            botao.classList.toggle("ativa", indice === 0);
+            botao.setAttribute("aria-pressed", String(indice === 0));
+        });
     }
 }
 async function carregarCategoriasFiltrosHome() {

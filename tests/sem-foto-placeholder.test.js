@@ -39,7 +39,7 @@ test("a Home e o service worker usam as versões atualizadas dos arquivos", () =
   for (const reference of [
     "home-marketplace.css?v=4.4.18",
     "home-responsive-reference.css?v=1.0.2",
-    "home.js?v=4.5.6"
+    "home.js?v=4.5.7"
   ]) {
     assert.ok(homeHtml.includes(reference), "index.html sem " + reference);
     assert.ok(worker.includes(reference), "sw.js sem " + reference);
