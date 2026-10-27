@@ -437,3 +437,59 @@
   .home-page .restaurant-cover-placeholder { height: 150px !important; }
   .home-page .product-cover-placeholder { height: 104px !important; }
 }
+
+
+/* Corrige detalhes visuais dos cards de restaurantes. */
+/* O status exibido vem do estado real calculado pela página, não de um selo fixo. */
+.home-page .card::before {
+  content: none !important;
+  display: none !important;
+}
+.home-page .card .status {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: absolute !important;
+  top: 12px !important;
+  left: 12px !important;
+  z-index: 9 !important;
+  width: max-content !important;
+  max-width: calc(100% - 76px) !important;
+  padding: 6px 10px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .12) !important;
+}
+.home-page .card .status.aberto {
+  background: #12b76a !important;
+  color: #fff !important;
+}
+.home-page .card .status.fechado {
+  background: #f2f2f3 !important;
+  color: #606775 !important;
+}
+.home-page .card .status.indisponivel {
+  background: #fff4e5 !important;
+  color: #8a4b08 !important;
+}
+/* Mantém o banner inteiro visível em vez de cortar letras/logos nas bordas. */
+.home-page .card-link > img.restaurant-cover {
+  object-fit: contain !important;
+  object-position: center !important;
+  background: #f4f5f7 !important;
+}
+@media (max-width: 680px) {
+  .home-page .card .status {
+    top: 9px !important;
+    left: 9px !important;
+    max-width: calc(100% - 60px) !important;
+    padding: 5px 8px !important;
+    font-size: 10px !important;
+  }
+  .home-page .card-link > img.restaurant-cover {
+    object-fit: contain !important;
+  }
+}
