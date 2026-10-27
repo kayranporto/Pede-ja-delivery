@@ -51,6 +51,22 @@ test("busca por comida combina categoria, status aberto e ordenação por taxa",
     await expect(campoBusca).toBeVisible();
     await expect(page.locator("#listaRestaurantes .card")).toHaveCount(2);
 
+    const todos = page.locator('.categoria[data-categoria=""]');
+    await expect(todos).toContainText("Todos");
+    await expect(todos).toHaveAttribute("aria-pressed", "true");
+
+    const categoriaSushi = page.locator('.categoria[data-categoria="Sushi"]');
+    await categoriaSushi.click();
+    await expect(categoriaSushi).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator("#listaRestaurantes .card")).toHaveCount(1);
+    await expect(page.locator("#listaRestaurantes")).toContainText("Sushi da Serra");
+
+    await todos.click();
+    await expect(todos).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator("#listaRestaurantes .card")).toHaveCount(2);
+    await expect(page.locator("#listaRestaurantes")).toContainText("Burger do Vale");
+    await expect(page.locator("#listaRestaurantes")).toContainText("Sushi da Serra");
+
     await campoBusca.fill("pizza");
     await expect(page.locator("#listaRestaurantes .card")).toHaveCount(2);
     await expect(page.locator("#listaRestaurantes")).toContainText("Pizzaria Central");
