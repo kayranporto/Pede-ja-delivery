@@ -380,18 +380,18 @@ function atualizarResumo(total) {
 
     const plural = total === 1 ? "restaurante" : "restaurantes";
     if (filtros.abertoAgora && filtros.ordenarPorTaxa) {
-        resumoResultado.textContent = `Mostrando ${total} ${plural} abertos agora, ordenados pela menor taxa.`;
+        resumoResultado.textContent = `Mostrando ${total} ${plural} ${total === 1 ? "aberto" : "abertos"} agora, com a menor taxa primeiro.`;
         return;
     }
     if (filtros.abertoAgora) {
-        resumoResultado.textContent = `Mostrando ${total} ${plural} abertos agora.`;
+        resumoResultado.textContent = `Mostrando ${total} ${plural} ${total === 1 ? "aberto" : "abertos"} agora.`;
         return;
     }
     if (filtros.ordenarPorTaxa) {
-        resumoResultado.textContent = `Mostrando ${total} ${plural}, ordenados pela menor taxa de entrega.`;
+        resumoResultado.textContent = `Mostrando ${total} ${plural} por ordem da menor taxa de entrega.`;
         return;
     }
-    resumoResultado.textContent = `Mostrando ${total} ${plural} disponíveis para você.`;
+    resumoResultado.textContent = `Mostrando ${total} ${plural} ${total === 1 ? "disponível" : "disponíveis"} para você.`;
 }
 
 function aplicarFiltros() {
