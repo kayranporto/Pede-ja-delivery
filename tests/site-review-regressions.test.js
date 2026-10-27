@@ -27,7 +27,7 @@ test("Destaque da home mantém conteúdo e CTA utilizáveis em telas pequenas", 
     const reference = read("css/pages/home-final-reference.css");
     assert.match(home, /<main id="conteudoPrincipal">/);
     assert.match(home, /id="heroTitulo">Sua comida favorita, <span>sem sair de casa!<\/span><\/h1>/);
-    assert.match(home, /home-final-reference\.css\?v=3\.4\.3/);
+    assert.match(home, //home-final-reference\.css\?v=3\.4\.4//);
     assert.match(home, /href="assets\/home-banner-reference\.png" as="image" fetchpriority="high"\/>/);
     assert.match(home, /class="hero-reference-art" aria-hidden="true"><img src="assets\/home-banner-reference\.png"/);
     assert.match(polish, /@media\s*\(max-width:\s*680px\)/);
