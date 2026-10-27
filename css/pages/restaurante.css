@@ -540,3 +540,51 @@ body > header{
     .btn-add{width:100%;margin-top:8px}
     .rodape-produto{display:block}
 }
+
+
+/* Avise-me quando abrir */
+.btn-aviso-abertura {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 11px 16px;
+    border: 1px solid #c62828;
+    border-radius: 12px;
+    background: #fff;
+    color: #a61e1e;
+    font: inherit;
+    font-weight: 700;
+    line-height: 1.25;
+    cursor: pointer;
+    transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+.btn-aviso-abertura:hover,
+.btn-aviso-abertura:focus-visible {
+    background: #fff2f2;
+    outline: 2px solid transparent;
+    border-color: #a61e1e;
+}
+.btn-aviso-abertura.is-active {
+    border-color: #287a43;
+    color: #216b39;
+    background: #effaf2;
+}
+.btn-aviso-abertura:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+.btn-aviso-abertura[hidden] {
+    display: none !important;
+}
+@media (max-width: 760px) {
+    .restaurant-actions {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .btn-aviso-abertura,
+    .restaurant-actions .btn-primary {
+        width: 100%;
+    }
+}
