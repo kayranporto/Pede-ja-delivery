@@ -273,8 +273,8 @@
     });
 
     carregar().catch((error) => {
-        console.warn("Operação 4.0 aguardando migração:", error);
-        $("saudeOperacaoTexto").textContent = "Execute a migração 014";
+        console.warn("Falha ao carregar a operação administrativa:", error);
+        $("saudeOperacaoTexto").textContent = "Falha ao carregar a operação";
         $("saudeOperacao").classList.add("warning");
     });
 })();
