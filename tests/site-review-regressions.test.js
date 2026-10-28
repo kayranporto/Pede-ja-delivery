@@ -71,7 +71,7 @@ test("Home exibe o banner cadastrado de cada restaurante no cartão", () => {
     assert.doesNotMatch(home, /fotoRealPorTexto|FOTOS_REAIS_HOME|fotoGenerica/);
     assert.match(home, /produto\.imagem/);
     assert.match(api, /"banner"/);
-    assert.match(sw, /home-responsive-reference\.css\?v=1\.0\.3/);
+    assert.match(sw, /home-responsive-reference\.css\?v=1\.0\.4/);
 });
 
 test("robots bloqueia as rotas privadas reais em html", () => {
