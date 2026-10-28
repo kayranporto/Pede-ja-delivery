@@ -500,3 +500,34 @@
     object-fit: contain !important;
   }
 }
+
+
+/* Capa dos restaurantes: proporção e cantos consistentes em todos os breakpoints. */
+.home-page .card-link > img.restaurant-cover,
+.home-page .card-link > .restaurant-cover-placeholder {
+  display: block !important;
+  box-sizing: border-box !important;
+  width: calc(100% - 16px) !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9 !important;
+  margin: 8px 8px 0 !important;
+  padding: 0 !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+}
+.home-page .card-link > img.restaurant-cover {
+  object-fit: contain !important;
+  object-position: center !important;
+  background: #f4f5f7 !important;
+}
+.home-page .card-link > .restaurant-cover-placeholder {
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px !important;
+  background: #f0f1f3 !important;
+  color: #707783 !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  line-height: 1.2 !important;
+  text-align: center !important;
+}
