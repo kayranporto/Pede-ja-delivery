@@ -672,3 +672,15 @@
   .home-page .mobile-bottom-nav{left:8px!important;right:8px!important}
   .home-page .mobile-bottom-nav .bottom-nav-icon{width:38px!important}
 }
+
+
+/* Fotos dos restaurantes no mobile: cantos arredondados como na versão desktop. */
+@media(max-width:680px){
+  .home-page .card-link>img{
+    width:calc(100% - 16px)!important;
+    height:142px!important;
+    margin:8px 8px 0!important;
+    border-radius:16px!important;
+    overflow:hidden!important;
+  }
+}
