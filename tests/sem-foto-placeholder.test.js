@@ -38,10 +38,18 @@ test("a Home e o service worker usam as versões atualizadas dos arquivos", () =
   const worker = read("sw.js");
   for (const reference of [
     "home-marketplace.css?v=4.4.18",
-    "home-responsive-reference.css?v=1.0.4",
+    "home-responsive-reference.css?v=1.0.5",
     "home.js?v=4.5.7"
   ]) {
     assert.ok(homeHtml.includes(reference), "index.html sem " + reference);
     assert.ok(worker.includes(reference), "sw.js sem " + reference);
   }
+});
+
+
+test("Home em janela intermediária mantém logos limitados e cartões bem distribuídos", () => {
+  const css = read("css/pages/home-responsive-reference.css");
+  assert.match(css, /@media \(min-width: 681px\) and \(max-width: 1100px\)/);
+  assert.match(css, /\.home-page \.card \.restaurant-logo \{[\s\S]*?position: static !important;[\s\S]*?width: 56px !important;[\s\S]*?height: 56px !important;/);
+  assert.match(css, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\) !important;/);
 });
