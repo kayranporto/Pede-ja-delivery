@@ -19,5 +19,5 @@ test("perfil mantem editar conta e alvos confortaveis no celular", () => {
     const css = read("css/pages/perfil.css");
     assert.match(css, /\.editar-perfil\s*\{[\s\S]*?display:\s*inline-flex/);
     assert.match(css, /\.menu-item\s*\{\s*min-height:\s*68px/);
-    assert.match(read("html/perfil.html"), /perfil\.css\?v=4\.2\.0\.1/);
+    assert.match(read("html/perfil.html"), /perfil\.css\?v=4\.3\.0/);
 });
