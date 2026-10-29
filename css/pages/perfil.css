@@ -436,3 +436,5 @@ body {
     .loyalty-row,
     .loyalty-redeem { transition: none; }
 }
+
+.avatar img[src*="#fit=contain"]{object-fit:contain!important}
