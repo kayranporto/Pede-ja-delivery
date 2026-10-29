@@ -1,6 +1,6 @@
 "use strict";
 
-const VERSION = "4.4.10";
+const VERSION = "4.4.11";
 const CACHE = `multi-delivery-v${VERSION}`;
 const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}`;
 const SHELL = [
@@ -20,7 +20,7 @@ const SHELL = [
   "./css/pages/home-polish-4.5.1.css?v=4.5.1",
   "./css/pages/home-final-reference.css?v=3.4.4",
   "./css/pages/home-responsive-reference.css?v=1.0.5",
-  "./css/core/paginas.css?v=4.2.0",
+  "./css/core/paginas.css?v=4.3.0",
   "./css/core/accessibility.css?v=4.2.0",
   "./css/core/enhancements.css?v=4.4.7",
   "./css/pages/customer-experience.css?v=1.0.5",
@@ -28,6 +28,8 @@ const SHELL = [
   "./css/pages/restaurant-experience.css?v=1.0.0",
   "./css/modules/media-uploader.css?v=4.3.0",
   "./css/pages/dados.css?v=4.3.0",
+  "./css/pages/perfil.css?v=4.3.0",
+  "./css/pages/restaurante.css?v=4.3.0",
   "./css/modules/mobile-pwa-4.2.6.css?v=4.2.6",
   "./css/pages/suporte.css?v=4.2.0",
   "./css/modules/restaurante-4.2.2.css?v=4.2.4",
