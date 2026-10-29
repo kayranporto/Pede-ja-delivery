@@ -132,12 +132,27 @@
         definirStatus("Preparando foto...");
         try {
             fotoModoAjuste = document.getElementById("fotoEnquadramento")?.value || "contain";
-            fotoProcessada = await otimizarFoto(arquivo, fotoModoAjuste);
+            let arquivoAjustado = arquivo;
+            if (fotoModoAjuste === "crop") {
+                if (!window.ImageCropper?.open) throw new Error("O editor de recorte ainda não está disponível. Atualize a página e tente novamente.");
+                arquivoAjustado = await window.ImageCropper.open(arquivo, {
+                    aspectRatio: 1,
+                    width: 512,
+                    height: 512,
+                    maxBytes: 8 * 1024 * 1024
+                });
+                if (!arquivoAjustado) {
+                    fotoInput.value = "";
+                    definirStatus("Recorte cancelado. Escolha a foto novamente quando quiser.");
+                    return;
+                }
+            }
+            fotoProcessada = await otimizarFoto(arquivoAjustado, fotoModoAjuste === "contain" ? "contain" : "cover");
             if (previewTemporario) URL.revokeObjectURL(previewTemporario);
             previewTemporario = URL.createObjectURL(fotoProcessada);
             exibirAvatar(previewTemporario);
             salvarFoto.disabled = false;
-            definirStatus(fotoModoAjuste === "contain" ? "Foto inteira pronta para salvar" : "Foto enquadrada pronta para salvar", "sucesso");
+            definirStatus(fotoModoAjuste === "contain" ? "Foto inteira pronta para salvar" : fotoModoAjuste === "crop" ? "Foto recortada pronta para salvar" : "Foto enquadrada pronta para salvar", "sucesso");
         } catch (erro) {
             fotoProcessada = null;
             fotoInput.value = "";
