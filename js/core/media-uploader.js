@@ -28,26 +28,56 @@
         ));
     }
 
-    async function otimizar(arquivo, proporcao, larguraMaxima) {
+    async function otimizar(arquivo, proporcao, larguraMaxima, modoAjuste = "contain") {
         if (!MIME.has(arquivo.type)) throw new Error("Escolha uma imagem JPG, PNG ou WEBP.");
         if (arquivo.size > LIMITE_ORIGINAL) throw new Error("A imagem original deve ter no máximo 10 MB.");
         const imagem = await lerImagem(arquivo);
         const proporcaoAlvo = proporcao === "banner" ? 16 / 5 : 1;
         let origemLargura = imagem.naturalWidth;
         let origemAltura = imagem.naturalHeight;
-        let sx = 0; let sy = 0;
-        if (origemLargura / origemAltura > proporcaoAlvo) {
-            const nova = origemAltura * proporcaoAlvo;
-            sx = (origemLargura - nova) / 2; origemLargura = nova;
-        } else {
-            const nova = origemLargura / proporcaoAlvo;
-            sy = (origemAltura - nova) / 2; origemAltura = nova;
+        let sx = 0;
+        let sy = 0;
+
+        if (modoAjuste !== "contain") {
+            if (origemLargura / origemAltura > proporcaoAlvo) {
+                const nova = origemAltura * proporcaoAlvo;
+                sx = (origemLargura - nova) / 2;
+                origemLargura = nova;
+            } else {
+                const nova = origemLargura / proporcaoAlvo;
+                sy = (origemAltura - nova) / 2;
+                origemAltura = nova;
+            }
         }
-        const largura = Math.min(larguraMaxima, Math.max(320, Math.round(origemLargura)));
+
+        const largura = proporcao === "banner"
+            ? larguraMaxima
+            : Math.min(larguraMaxima, Math.max(320, Math.round(modoAjuste === "contain"
+                ? Math.min(imagem.naturalWidth, imagem.naturalHeight * proporcaoAlvo)
+                : origemLargura)));
         const altura = Math.round(largura / proporcaoAlvo);
         const canvas = document.createElement("canvas");
-        canvas.width = largura; canvas.height = altura;
-        canvas.getContext("2d", { alpha: false }).drawImage(imagem, sx, sy, origemLargura, origemAltura, 0, 0, largura, altura);
+        canvas.width = largura;
+        canvas.height = altura;
+        const contexto = canvas.getContext("2d", { alpha: modoAjuste === "contain" });
+
+        if (modoAjuste === "contain") {
+            // Preserva a imagem inteira e usa transparência no espaço restante.
+            const escala = Math.min(largura / imagem.naturalWidth, altura / imagem.naturalHeight);
+            const larguraDesenho = imagem.naturalWidth * escala;
+            const alturaDesenho = imagem.naturalHeight * escala;
+            contexto.clearRect(0, 0, largura, altura);
+            contexto.drawImage(
+                imagem,
+                (largura - larguraDesenho) / 2,
+                (altura - alturaDesenho) / 2,
+                larguraDesenho,
+                alturaDesenho
+            );
+        } else {
+            contexto.drawImage(imagem, sx, sy, origemLargura, origemAltura, 0, 0, largura, altura);
+        }
+
         let blob = await canvasParaBlob(canvas, .84);
         if (blob.size > LIMITE_FINAL) blob = await canvasParaBlob(canvas, .68);
         if (blob.size > LIMITE_FINAL) throw new Error("A imagem continua muito grande após a otimização.");
@@ -65,6 +95,8 @@
         const preview = box.querySelector("img");
         const remover = box.querySelector("[data-media-remove]");
         const url = alvo?.value.trim() || "";
+        const modoAjuste = box.querySelector("[data-media-fit]")?.value || "contain";
+        preview.style.objectFit = modoAjuste === "contain" ? "contain" : "cover";
         preview.hidden = !url; remover.hidden = !url;
         if (url) preview.src = url;
     }
@@ -74,10 +106,11 @@
         const preview = box.querySelector("img");
         const status = box.querySelector("[data-media-status]");
         const proporcao = box.dataset.mediaRatio || "square";
+        const modoAjuste = box.querySelector("[data-media-fit]")?.value || "contain";
         const { data: { user } } = await window.db.auth.getUser();
         if (!user) throw new Error("Entre novamente para enviar imagens.");
-        status.textContent = "Otimizando imagem...";
-        const blob = await otimizar(arquivo, proporcao, proporcao === "banner" ? 1600 : 900);
+        status.textContent = modoAjuste === "contain" ? "Preparando a imagem sem cortes..." : "Ajustando a imagem ao espaço...";
+        const blob = await otimizar(arquivo, proporcao, proporcao === "banner" ? 1600 : 900, modoAjuste);
         const anterior = caminhoPublico(alvo.value);
         const chave = box.dataset.mediaKey || crypto.randomUUID();
         const caminho = anterior && anterior.startsWith(`${user.id}/`) ? anterior : `${user.id}/${chave}-${crypto.randomUUID()}`;
@@ -90,7 +123,7 @@
         alvo.value = `${data.publicUrl}?v=${Date.now()}`;
         alvo.dispatchEvent(new Event("change", { bubbles: true }));
         preview.src = URL.createObjectURL(blob);
-        status.textContent = `${Math.round(blob.size / 1024)} KB • pronta para salvar`;
+        status.textContent = `${Math.round(blob.size / 1024)} KB • ${modoAjuste === "contain" ? "imagem inteira, sem cortes" : "imagem ajustada"} • pronta para salvar`;
         refresh(box);
         aviso("Imagem pronta", "A imagem foi otimizada. Salve o formulário para concluir.", "success");
     }
@@ -110,6 +143,12 @@
 
     function iniciarBox(box) {
         const arquivo = box.querySelector("input[type=file]");
+        const ajuste = box.querySelector("[data-media-fit]");
+        ajuste?.addEventListener("change", () => {
+            refresh(box);
+            const status = box.querySelector("[data-media-status]");
+            if (status) status.textContent = "Ajuste aplicado à próxima imagem enviada.";
+        });
         arquivo.addEventListener("change", async () => {
             if (!arquivo.files?.[0]) return;
             arquivo.disabled = true;
