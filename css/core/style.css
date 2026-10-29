@@ -1666,3 +1666,6 @@ footer {
     .card,
     .produto-destaque { animation: none; transition: none; }
 }
+
+/* Imagens enviadas com a opção "sem cortes" preservam o enquadramento em qualquer componente. */
+img[src*="#fit=contain"]{object-fit:contain!important}
