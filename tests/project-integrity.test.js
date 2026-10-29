@@ -128,11 +128,20 @@ test("versão 3.4 integra mídia, favoritos, segurança e inteligência", () => 
     assert.match(painel, /lojaBannerArquivo/);
     assert.match(painel, /data-media-fit/);
     assert.match(painel, /Mostrar imagem inteira \(sem cortar\)/);
+    assert.match(painel, /value="crop">Recortar imagem/);
+    assert.match(painel, /image-cropper\.js/);
+    assert.match(painel, /image-cropper\.css/);
     const uploader = fs.readFileSync(path.join(root, "js/core/media-uploader.js"), "utf8");
-    for (const trecho of ['[data-media-fit]', 'modoAjuste === "contain"', '#fit=${modoAjuste}']) {
+    for (const trecho of ['[data-media-fit]', 'modoAjuste === "contain"', '#fit=${modoAjuste}', 'window.ImageCropper.open']) {
         assert.ok(uploader.includes(trecho), `uploader sem suporte a enquadramento: ${trecho}`);
     }
+    const recortador = fs.readFileSync(path.join(root, "js/core/image-cropper.js"), "utf8");
+    assert.match(recortador, /pointerdown/);
+    assert.match(recortador, /imageCropperZoom/);
+    assert.match(recortador, /Usar este recorte/);
     const dadosHtml = fs.readFileSync(path.join(root, "html/dados.html"), "utf8");
+    assert.match(dadosHtml, /value="crop">Recortar imagem/);
+    assert.match(dadosHtml, /image-cropper\.js/);
     const dadosJs = fs.readFileSync(path.join(root, "js/pages/dados.js"), "utf8");
     assert.match(dadosHtml, /fotoEnquadramento/);
     assert.match(dadosJs, /otimizarFoto\(arquivo, fotoModoAjuste\)/);
