@@ -1,6 +1,6 @@
 "use strict";
 
-const VERSION = "4.4.9";
+const VERSION = "4.4.10";
 const CACHE = `multi-delivery-v${VERSION}`;
 const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}`;
 const SHELL = [
@@ -26,6 +26,8 @@ const SHELL = [
   "./css/pages/customer-experience.css?v=1.0.5",
   "./css/pages/partner-experience.css?v=1.0.0",
   "./css/pages/restaurant-experience.css?v=1.0.0",
+  "./css/modules/media-uploader.css?v=4.3.0",
+  "./css/pages/dados.css?v=4.3.0",
   "./css/modules/mobile-pwa-4.2.6.css?v=4.2.6",
   "./css/pages/suporte.css?v=4.2.0",
   "./css/modules/restaurante-4.2.2.css?v=4.2.4",
@@ -39,6 +41,8 @@ const SHELL = [
   "./js/core/favorites-sync.js?v=4.2.1",
   "./js/core/supabase.js?v=4.4.9",
   "./js/core/categorias-filtros.js?v=1.0.0",
+  "./js/core/media-uploader.js?v=4.3.0",
+  "./js/pages/dados.js?v=4.3.0",
   "./js/pages/home.js?v=4.5.7",
   "./js/core/cart-store.js?v=4.2.0",
   "./js/modules/carrinho-4.2.5.js?v=4.2.6",
