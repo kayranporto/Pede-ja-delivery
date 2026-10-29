@@ -113,7 +113,8 @@
             document.body.classList.add("image-cropper-open");
 
             function dimensoesPalco() {
-                const larguraMaxima = Math.max(180, Math.min(dialogo.clientWidth - 36, 680));
+                const larguraDisponivel = dialogo.clientWidth - (window.innerWidth <= 560 ? 32 : 44);
+                const larguraMaxima = Math.max(180, Math.min(larguraDisponivel, 680));
                 const alturaMaxima = Math.max(160, Math.min(window.innerHeight * 0.45, 480));
                 const largura = Math.max(1, Math.min(larguraMaxima, alturaMaxima * proporcao));
                 const altura = largura / proporcao;
@@ -195,14 +196,18 @@
                 }
             }
 
+            const urlImagem = URL.createObjectURL(arquivo);
             foto.onload = () => {
+                URL.revokeObjectURL(urlImagem);
                 imagem = foto;
                 centralizar();
+                confirmar.disabled = false;
             };
             foto.onerror = () => {
+                URL.revokeObjectURL(urlImagem);
                 encerrar(null);
             };
-            foto.src = URL.createObjectURL(arquivo);
+            foto.src = urlImagem;
 
             palco.addEventListener("pointerdown", (evento) => {
                 if (!imagem || evento.button !== 0) return;
