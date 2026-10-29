@@ -372,3 +372,5 @@ body.pj-restaurant-page {
     padding: 18px !important;
   }
 }
+
+.pj-restaurant-page .banner-restaurante img[src*="#fit=contain"],.pj-restaurant-page .logo-restaurante[src*="#fit=contain"],.pj-restaurant-page .produto-card>img[src*="#fit=contain"]{object-fit:contain!important}
