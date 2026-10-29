@@ -1,0 +1,48 @@
+.media-upload .media-fit-control {
+  display: grid;
+  gap: 6px;
+  max-width: 420px;
+  margin: 10px 0 6px;
+}
+
+.media-upload .media-fit-control label {
+  color: #303644;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.media-upload .media-fit-control select {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #d8dce4;
+  border-radius: 10px;
+  background: #fff;
+  color: #303644;
+  font: inherit;
+  font-size: 12px;
+}
+
+.media-upload .media-fit-control select:focus-visible {
+  outline: 3px solid rgba(229, 27, 42, .18);
+  outline-offset: 2px;
+}
+
+.media-upload .media-fit-help {
+  display: block;
+  margin: 4px 0 7px;
+  color: #697180;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.media-upload .media-upload-row > img {
+  object-fit: contain;
+  background: #f8fafc;
+}
+
+@media (max-width: 600px) {
+  .media-upload .media-fit-control {
+    max-width: 100%;
+  }
+}
