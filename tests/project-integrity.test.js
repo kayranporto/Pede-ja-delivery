@@ -144,7 +144,7 @@ test("versão 3.4 integra mídia, favoritos, segurança e inteligência", () => 
     assert.match(dadosHtml, /image-cropper\.js/);
     const dadosJs = fs.readFileSync(path.join(root, "js/pages/dados.js"), "utf8");
     assert.match(dadosHtml, /fotoEnquadramento/);
-    assert.match(dadosJs, /otimizarFoto\(arquivo, fotoModoAjuste\)/);
+    assert.match(dadosJs, /otimizarFoto\(arquivoAjustado, fotoModoAjuste === "contain" \? "contain" : "cover"\)/);
     assert.match(dadosJs, /#fit=\$\{fotoModoAjuste\}/);
     const checkout = fs.readFileSync(path.join(root, "html/checkout.html"), "utf8");
     for (const trecho of ["cart-store.js", "dialogs.js", "checkoutResumo", "abrirMapaEndereco"]) assert.ok(checkout.includes(trecho));
