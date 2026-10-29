@@ -12,6 +12,7 @@
     let perfilAtual = null;
     let fotoProcessada = null;
     let previewTemporario = null;
+    let fotoModoAjuste = "contain";
 
     function iniciais(nome) {
         const partes = String(nome || "Usuário").trim().split(/\s+/).filter(Boolean);
@@ -130,13 +131,13 @@
         salvarFoto.disabled = true;
         definirStatus("Preparando foto...");
         try {
-            const modoAjuste = document.getElementById("fotoEnquadramento")?.value || "contain";
-            fotoProcessada = await otimizarFoto(arquivo, modoAjuste);
+            fotoModoAjuste = document.getElementById("fotoEnquadramento")?.value || "contain";
+            fotoProcessada = await otimizarFoto(arquivo, fotoModoAjuste);
             if (previewTemporario) URL.revokeObjectURL(previewTemporario);
             previewTemporario = URL.createObjectURL(fotoProcessada);
             exibirAvatar(previewTemporario);
             salvarFoto.disabled = false;
-            definirStatus(modoAjuste === "contain" ? "Foto inteira pronta para salvar" : "Foto enquadrada pronta para salvar", "sucesso");
+            definirStatus(fotoModoAjuste === "contain" ? "Foto inteira pronta para salvar" : "Foto enquadrada pronta para salvar", "sucesso");
         } catch (erro) {
             fotoProcessada = null;
             fotoInput.value = "";
@@ -144,6 +145,19 @@
             definirStatus("Imagem inválida", "erro");
             notificar("Não foi possível usar a foto", erro.message, "error");
         }
+    });
+
+    document.getElementById("fotoEnquadramento")?.addEventListener("change", () => {
+        if (!fotoProcessada) return;
+        fotoProcessada = null;
+        fotoInput.value = "";
+        salvarFoto.disabled = true;
+        if (previewTemporario) {
+            URL.revokeObjectURL(previewTemporario);
+            previewTemporario = null;
+        }
+        exibirAvatar(perfilAtual?.avatar_url || null);
+        definirStatus("Escolha a foto novamente para aplicar o novo enquadramento.");
     });
 
     salvarFoto.addEventListener("click", async () => {
@@ -160,7 +174,7 @@
             if (erroUpload) throw erroUpload;
             const { data: urlData } = window.db.storage.from("avatars").getPublicUrl(caminho);
             if (!urlData?.publicUrl) throw new Error("Não foi possível gerar o endereço da foto.");
-            const avatarUrl = `${urlData.publicUrl}?v=${Date.now()}`;
+            const avatarUrl = `${urlData.publicUrl}?v=${Date.now()}#fit=${fotoModoAjuste}`;
             const salvo = await window.DeliveryAPI.atualizarMe({ avatar_url: avatarUrl });
             perfilAtual = { ...perfilAtual, ...(salvo || { avatar_url: avatarUrl }) };
             fotoProcessada = null; fotoInput.value = ""; salvarFoto.disabled = true; removerFoto.hidden = false;
