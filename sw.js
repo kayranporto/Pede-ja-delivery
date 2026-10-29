@@ -1,6 +1,6 @@
 "use strict";
 
-const VERSION = "4.4.11";
+const VERSION = "4.4.9";
 const CACHE = `multi-delivery-v${VERSION}`;
 const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}`;
 const SHELL = [
