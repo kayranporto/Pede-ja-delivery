@@ -1,8 +1,8 @@
 "use strict";
 
 const VERSION = "4.4.9";
-const CACHE = `multi-delivery-v${VERSION}-image-fit`;
-const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}-image-fit`;
+const CACHE = `multi-delivery-v${VERSION}-image-crop`;
+const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}-image-crop`;
 const SHELL = [
   "./",
   "./index.html",
@@ -26,8 +26,9 @@ const SHELL = [
   "./css/pages/customer-experience.css?v=1.0.5",
   "./css/pages/partner-experience.css?v=1.0.0",
   "./css/pages/restaurant-experience.css?v=1.0.0",
-  "./css/modules/media-uploader.css?v=4.3.0",
-  "./css/pages/dados.css?v=4.3.0",
+  "./css/modules/media-uploader.css?v=4.4.0",
+  "./css/modules/image-cropper.css?v=4.4.0",
+  "./css/pages/dados.css?v=4.4.0",
   "./css/pages/perfil.css?v=4.3.0",
   "./css/pages/restaurante.css?v=4.3.0",
   "./css/modules/mobile-pwa-4.2.6.css?v=4.2.6",
@@ -43,8 +44,9 @@ const SHELL = [
   "./js/core/favorites-sync.js?v=4.2.1",
   "./js/core/supabase.js?v=4.4.9",
   "./js/core/categorias-filtros.js?v=1.0.0",
-  "./js/core/media-uploader.js?v=4.3.0",
-  "./js/pages/dados.js?v=4.3.0",
+  "./js/core/image-cropper.js?v=4.4.0",
+  "./js/core/media-uploader.js?v=4.4.0",
+  "./js/pages/dados.js?v=4.4.0",
   "./js/pages/home.js?v=4.5.7",
   "./js/core/cart-store.js?v=4.2.0",
   "./js/modules/carrinho-4.2.5.js?v=4.2.6",
