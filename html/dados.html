@@ -13,7 +13,8 @@
   <link crossorigin href="https://fonts.gstatic.com" rel="preconnect"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link href="../css/core/paginas.css?v=4.3.0" rel="stylesheet"/>
-  <link href="../css/pages/dados.css?v=4.3.0" rel="stylesheet"/>
+  <link href="../css/pages/dados.css?v=4.4.0" rel="stylesheet"/>
+  <link href="../css/modules/image-cropper.css?v=4.4.0" rel="stylesheet"/>
   <link href="../css/core/accessibility.css?v=4.2.0" rel="stylesheet"/>
   <link href="../css/core/enhancements.css?v=4.4.7" rel="stylesheet"/>
   <link rel="manifest" href="../manifest.webmanifest"/>
@@ -33,7 +34,7 @@
         <div class="foto-controles">
           <strong>Use uma foto clara e centralizada</strong>
           <p>JPG, PNG ou WEBP de até 8 MB. Tamanho recomendado: 512 × 512 px. Escolha o enquadramento antes de enviar.</p>
-          <div class="foto-ajuste"><label for="fotoEnquadramento">Enquadramento da foto</label><select id="fotoEnquadramento"><option value="contain" selected>Mostrar foto inteira (sem cortar)</option><option value="cover">Preencher círculo (pode cortar bordas)</option></select><small>Se mudar esta opção depois de escolher a foto, selecione a foto novamente.</small></div>
+          <div class="foto-ajuste"><label for="fotoEnquadramento">Enquadramento da foto</label><select id="fotoEnquadramento"><option value="contain" selected>Mostrar foto inteira (sem cortar)</option><option value="cover">Preencher círculo (pode cortar bordas)</option><option value="crop">Recortar imagem (arrastar e ajustar)</option></select><small>Se mudar esta opção depois de escolher a foto, selecione a foto novamente.</small></div>
           <div class="foto-acoes">
             <label class="btn foto-escolher">
               Escolher foto
@@ -86,7 +87,8 @@
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
   <script defer src="../js/core/app-utils.js?v=4.4.7"></script>
   <script defer src="../js/core/supabase.js?v=4.4.7"></script>
-  <script defer src="../js/pages/dados.js?v=4.3.0"></script>
+  <script defer src="../js/core/image-cropper.js?v=4.4.0"></script>
+  <script defer src="../js/pages/dados.js?v=4.4.0"></script>
   <script defer src="../js/core/site-enhancements.js?v=4.4.8"></script>
 </body>
 </html>
