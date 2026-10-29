@@ -126,6 +126,17 @@ test("versão 3.4 integra mídia, favoritos, segurança e inteligência", () => 
     assert.match(painel, /media-uploader\.js/);
     assert.match(painel, /produtoImagemArquivo/);
     assert.match(painel, /lojaBannerArquivo/);
+    assert.match(painel, /data-media-fit/);
+    assert.match(painel, /Mostrar imagem inteira \(sem cortar\)/);
+    const uploader = fs.readFileSync(path.join(root, "js/core/media-uploader.js"), "utf8");
+    for (const trecho of ['[data-media-fit]', 'modoAjuste === "contain"', '#fit=${modoAjuste}']) {
+        assert.ok(uploader.includes(trecho), `uploader sem suporte a enquadramento: ${trecho}`);
+    }
+    const dadosHtml = fs.readFileSync(path.join(root, "html/dados.html"), "utf8");
+    const dadosJs = fs.readFileSync(path.join(root, "js/pages/dados.js"), "utf8");
+    assert.match(dadosHtml, /fotoEnquadramento/);
+    assert.match(dadosJs, /otimizarFoto\(arquivo, fotoModoAjuste\)/);
+    assert.match(dadosJs, /#fit=\$\{fotoModoAjuste\}/);
     const checkout = fs.readFileSync(path.join(root, "html/checkout.html"), "utf8");
     for (const trecho of ["cart-store.js", "dialogs.js", "checkoutResumo", "abrirMapaEndereco"]) assert.ok(checkout.includes(trecho));
     const admin = fs.readFileSync(path.join(root, "html/admin.html"), "utf8");
