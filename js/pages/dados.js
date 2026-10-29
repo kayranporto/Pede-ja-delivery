@@ -64,21 +64,34 @@
         return new Promise((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Não foi possível preparar a imagem.")), tipo, qualidade));
     }
 
-    async function otimizarFoto(arquivo) {
+    async function otimizarFoto(arquivo, modoAjuste = "contain") {
         const permitidos = new Set(["image/jpeg", "image/png", "image/webp"]);
         if (!permitidos.has(arquivo.type)) throw new Error("Escolha uma imagem JPG, PNG ou WEBP.");
         if (arquivo.size > 8 * 1024 * 1024) throw new Error("A imagem original deve ter no máximo 8 MB.");
         const imagem = await carregarImagem(arquivo);
-        const ladoOriginal = Math.min(imagem.naturalWidth, imagem.naturalHeight);
-        if (!ladoOriginal) throw new Error("Esta imagem não possui dimensões válidas.");
+        if (!imagem.naturalWidth || !imagem.naturalHeight) throw new Error("Esta imagem não possui dimensões válidas.");
         const tamanho = 512;
-        const origemX = (imagem.naturalWidth - ladoOriginal) / 2;
-        const origemY = (imagem.naturalHeight - ladoOriginal) / 2;
         const canvas = document.createElement("canvas");
-        canvas.width = tamanho; canvas.height = tamanho;
-        const contexto = canvas.getContext("2d", { alpha: false });
-        contexto.fillStyle = "#ffffff"; contexto.fillRect(0, 0, tamanho, tamanho);
-        contexto.drawImage(imagem, origemX, origemY, ladoOriginal, ladoOriginal, 0, 0, tamanho, tamanho);
+        canvas.width = tamanho;
+        canvas.height = tamanho;
+        const contexto = canvas.getContext("2d", { alpha: modoAjuste === "contain" });
+
+        if (modoAjuste === "contain") {
+            // Mantém toda a foto visível dentro do formato quadrado do avatar.
+            const escala = Math.min(tamanho / imagem.naturalWidth, tamanho / imagem.naturalHeight);
+            const largura = imagem.naturalWidth * escala;
+            const altura = imagem.naturalHeight * escala;
+            contexto.clearRect(0, 0, tamanho, tamanho);
+            contexto.drawImage(imagem, (tamanho - largura) / 2, (tamanho - altura) / 2, largura, altura);
+        } else {
+            const ladoOriginal = Math.min(imagem.naturalWidth, imagem.naturalHeight);
+            const origemX = (imagem.naturalWidth - ladoOriginal) / 2;
+            const origemY = (imagem.naturalHeight - ladoOriginal) / 2;
+            contexto.fillStyle = "#ffffff";
+            contexto.fillRect(0, 0, tamanho, tamanho);
+            contexto.drawImage(imagem, origemX, origemY, ladoOriginal, ladoOriginal, 0, 0, tamanho, tamanho);
+        }
+
         let blob = await canvasParaBlob(canvas, "image/webp", .86);
         if (blob.size > 2 * 1024 * 1024) blob = await canvasParaBlob(canvas, "image/webp", .7);
         if (blob.size > 2 * 1024 * 1024) throw new Error("A foto continua muito grande após a otimização.");
@@ -117,12 +130,13 @@
         salvarFoto.disabled = true;
         definirStatus("Preparando foto...");
         try {
-            fotoProcessada = await otimizarFoto(arquivo);
+            const modoAjuste = document.getElementById("fotoEnquadramento")?.value || "contain";
+            fotoProcessada = await otimizarFoto(arquivo, modoAjuste);
             if (previewTemporario) URL.revokeObjectURL(previewTemporario);
             previewTemporario = URL.createObjectURL(fotoProcessada);
             exibirAvatar(previewTemporario);
             salvarFoto.disabled = false;
-            definirStatus("Pronta para salvar", "sucesso");
+            definirStatus(modoAjuste === "contain" ? "Foto inteira pronta para salvar" : "Foto enquadrada pronta para salvar", "sucesso");
         } catch (erro) {
             fotoProcessada = null;
             fotoInput.value = "";
