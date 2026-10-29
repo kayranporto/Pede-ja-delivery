@@ -27,11 +27,12 @@ test("home inicia conteúdo em paralelo e evita consultas de sessão duplicadas"
     assert.match(read("js/core/favorites-sync.js"), /ready: async \(usuarioInicial = undefined\)/);
 });
 
-test("imagens e seções fora da primeira tela usam carregamento econômico", () => {
+test("hero mantém prioridade, faixa promocional removida não volta e imagens usam carregamento econômico", () => {
     const index = read("index.html");
     const css = read("css/pages/home-4.2.1.css");
     assert.match(index, /href="assets\/home-banner-reference\.png"[^>]+as="image" fetchpriority="high"/);
-    assert.match(index, /src="https:\/\/images\.unsplash\.com\/photo-1643405509029-e5bc9f66d54d[^>]+loading="lazy"/);
+    assert.doesNotMatch(index, /class="offer-strip cupom"/, "a faixa promocional removida não deve reaparecer");
+    assert.doesNotMatch(index, /photo-1643405509029-e5bc9f66d54d/, "a imagem exclusiva da faixa promocional removida não deve reaparecer");
     assert.match(read("js/pages/home.js"), /img\.decoding = "async"/);
     assert.match(read("js/pages/restaurante.js"), /imagem\.decoding = "async"/);
     assert.match(css, /content-visibility:auto/);
