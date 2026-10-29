@@ -8,3 +8,5 @@
 .foto-ajuste select:focus-visible{outline:3px solid rgba(234,29,44,.18);outline-offset:2px}
 .foto-ajuste small{color:var(--page-muted);font-size:11px;line-height:1.45}
 @media(max-width:640px){.foto-ajuste{width:100%;max-width:none}}
+
+#avatarImagem[src*="#fit=contain"]{object-fit:contain!important}
