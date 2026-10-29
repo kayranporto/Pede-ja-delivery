@@ -653,3 +653,34 @@
     gap: 14px !important;
   }
 }
+
+
+/* Cards de restaurantes mais compactos em telas grandes.
+   Mantém a grade alinhada à esquerda e evita que poucos restaurantes
+   sejam esticados para ocupar metade da página. */
+@media (min-width: 681px) {
+  .home-page .restaurantes.market-section {
+    width: min(1500px, calc(100% - 72px)) !important;
+    max-width: 1500px !important;
+    margin-inline: auto !important;
+  }
+
+  .home-page #listaRestaurantes.cards {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 300px)) !important;
+    justify-content: start !important;
+    align-items: start !important;
+    gap: 14px !important;
+  }
+
+  .home-page #listaRestaurantes .card-link > img {
+    height: 112px !important;
+    min-height: 112px !important;
+  }
+
+  .home-page #listaRestaurantes .card .card-body {
+    min-height: 72px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+}
