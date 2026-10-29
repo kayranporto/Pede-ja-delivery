@@ -590,3 +590,5 @@ body > header{
 }
 
 .banner-restaurante img[src*="#fit=contain"],.logo-restaurante[src*="#fit=contain"],.produto-card>img[src*="#fit=contain"]{object-fit:contain!important}
+
+.avaliacao-autor img[src*="#fit=contain"]{object-fit:contain!important}
