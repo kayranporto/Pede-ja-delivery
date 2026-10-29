@@ -588,3 +588,5 @@ body > header{
         width: 100%;
     }
 }
+
+.banner-restaurante img[src*="#fit=contain"],.logo-restaurante[src*="#fit=contain"],.produto-card>img[src*="#fit=contain"]{object-fit:contain!important}
