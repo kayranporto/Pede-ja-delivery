@@ -109,8 +109,28 @@
         const modoAjuste = box.querySelector("[data-media-fit]")?.value || "contain";
         const { data: { user } } = await window.db.auth.getUser();
         if (!user) throw new Error("Entre novamente para enviar imagens.");
-        status.textContent = modoAjuste === "contain" ? "Preparando a imagem sem cortes..." : "Ajustando a imagem ao espaço...";
-        const blob = await otimizar(arquivo, proporcao, proporcao === "banner" ? 1600 : 900, modoAjuste);
+        let arquivoAjustado = arquivo;
+        const larguraSaida = proporcao === "banner" ? 1600 : 900;
+        const alturaSaida = proporcao === "banner" ? 500 : 900;
+        if (modoAjuste === "crop") {
+            if (!window.ImageCropper?.open) throw new Error("O editor de recorte ainda não está disponível. Atualize a página e tente novamente.");
+            status.textContent = "Abra o recorte para ajustar a imagem...";
+            arquivoAjustado = await window.ImageCropper.open(arquivo, {
+                aspectRatio: proporcao === "banner" ? 16 / 5 : 1,
+                width: larguraSaida,
+                height: alturaSaida,
+                maxBytes: LIMITE_ORIGINAL
+            });
+            if (!arquivoAjustado) {
+                status.textContent = "Recorte cancelado. A imagem anterior foi mantida.";
+                return;
+            }
+        }
+        status.textContent = modoAjuste === "contain"
+            ? "Preparando a imagem sem cortes..."
+            : modoAjuste === "crop" ? "Preparando o recorte..." : "Ajustando a imagem ao espaço...";
+        const modoProcessamento = modoAjuste === "contain" ? "contain" : "cover";
+        const blob = await otimizar(arquivoAjustado, proporcao, larguraSaida, modoProcessamento);
         const anterior = caminhoPublico(alvo.value);
         const chave = box.dataset.mediaKey || crypto.randomUUID();
         const caminho = anterior && anterior.startsWith(`${user.id}/`) ? anterior : `${user.id}/${chave}-${crypto.randomUUID()}`;
@@ -123,7 +143,7 @@
         alvo.value = `${data.publicUrl}?v=${Date.now()}#fit=${modoAjuste}`;
         alvo.dispatchEvent(new Event("change", { bubbles: true }));
         preview.src = URL.createObjectURL(blob);
-        status.textContent = `${Math.round(blob.size / 1024)} KB • ${modoAjuste === "contain" ? "imagem inteira, sem cortes" : "imagem ajustada"} • pronta para salvar`;
+        status.textContent = `${Math.round(blob.size / 1024)} KB • ${modoAjuste === "contain" ? "imagem inteira, sem cortes" : modoAjuste === "crop" ? "imagem recortada" : "imagem ajustada"} • pronta para salvar`;
         refresh(box);
         aviso("Imagem pronta", "A imagem foi otimizada. Salve o formulário para concluir.", "success");
     }
