@@ -120,7 +120,7 @@
         });
         if (error) throw error;
         const { data } = window.db.storage.from("catalogo").getPublicUrl(caminho);
-        alvo.value = `${data.publicUrl}?v=${Date.now()}`;
+        alvo.value = `${data.publicUrl}?v=${Date.now()}#fit=${modoAjuste}`;
         alvo.dispatchEvent(new Event("change", { bubbles: true }));
         preview.src = URL.createObjectURL(blob);
         status.textContent = `${Math.round(blob.size / 1024)} KB • ${modoAjuste === "contain" ? "imagem inteira, sem cortes" : "imagem ajustada"} • pronta para salvar`;
