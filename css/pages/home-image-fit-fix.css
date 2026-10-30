@@ -1,0 +1,56 @@
+/* Ajustes finais das imagens dos cards de restaurantes no catálogo. */
+.home-page .card {
+  position: relative !important;
+  overflow: hidden !important;
+}
+.home-page .card-link > img.restaurant-cover {
+  display: block !important;
+  box-sizing: border-box !important;
+  width: calc(100% - 16px) !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  aspect-ratio: 16 / 9 !important;
+  margin: 8px 8px 0 !important;
+  padding: 0 !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  background: #f1f2f4 !important;
+  border-radius: 16px !important;
+}
+/* O logotipo é uma identificação circular sobre a capa, não uma segunda foto quadrada. */
+.home-page .card .restaurant-logo {
+  position: absolute !important;
+  z-index: 8 !important;
+  top: clamp(92px, 34vw, 142px) !important;
+  left: 16px !important;
+  display: block !important;
+  box-sizing: border-box !important;
+  width: 54px !important;
+  min-width: 54px !important;
+  max-width: 54px !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  max-height: 54px !important;
+  margin: 0 !important;
+  padding: 3px !important;
+  border: 2px solid #fff !important;
+  border-radius: 50% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  background: #fff !important;
+  box-shadow: 0 3px 12px rgba(0,0,0,.16) !important;
+}
+.home-page .card .card-body {
+  position: relative !important;
+  min-width: 0 !important;
+  padding: 38px 14px 14px 82px !important;
+}
+@media (min-width: 681px) {
+  .home-page .card .restaurant-logo {
+    top: 142px !important;
+  }
+  .home-page .card .card-body {
+    padding-top: 36px !important;
+  }
+}
