@@ -1,8 +1,8 @@
 "use strict";
 
 const VERSION = "4.4.9";
-const CACHE = `multi-delivery-v${VERSION}-image-crop`;
-const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}-image-crop`;
+const CACHE = `multi-delivery-v${VERSION}-image-fit-1`;
+const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}-image-fit-1`;
 const SHELL = [
   "./",
   "./index.html",
@@ -20,6 +20,7 @@ const SHELL = [
   "./css/pages/home-polish-4.5.1.css?v=4.5.1",
   "./css/pages/home-final-reference.css?v=3.4.4",
   "./css/pages/home-responsive-reference.css?v=1.0.5",
+  "./css/pages/home-image-fit-fix.css?v=1.0.0",
   "./css/core/paginas.css?v=4.3.0",
   "./css/core/accessibility.css?v=4.2.0",
   "./css/core/enhancements.css?v=4.4.7",
