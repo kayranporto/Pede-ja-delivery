@@ -1,8 +1,8 @@
 "use strict";
 
 const VERSION = "4.4.9";
-const CACHE = `multi-delivery-v${VERSION}-image-fit-1`;
-const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}-image-fit-1`;
+const CACHE = `multi-delivery-v${VERSION}-image-fit-2`;
+const DYNAMIC_CACHE = `multi-delivery-dynamic-v${VERSION}-image-fit-2`;
 const SHELL = [
   "./",
   "./index.html",
