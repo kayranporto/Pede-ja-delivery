@@ -14,7 +14,6 @@
   <meta property="og:locale" content="pt_BR"/>
   <meta name="twitter:card" content="summary_large_image"/>
   <link rel="canonical" href="https://kayranporto.github.io/site-delivery-4.2/"/>
-  <link rel="preload" href="assets/home-banner-reference.png" as="image" fetchpriority="high"/>
   <link href="https://fonts.googleapis.com" rel="preconnect"/>
   <link crossorigin href="https://fonts.gstatic.com" rel="preconnect"/>
   <link crossorigin href="https://cdn.jsdelivr.net" rel="preconnect"/>
@@ -31,6 +30,7 @@
   <link href="css/pages/home-final-reference.css?v=3.4.4" rel="stylesheet"/>
   <link href="css/pages/home-responsive-reference.css?v=1.0.5" rel="stylesheet"/>
   <link href="css/pages/home-image-fit-fix.css?v=1.0.1" rel="stylesheet"/>
+  <link href="css/pages/home-visual-refresh.css?v=1.0.0" rel="stylesheet"/>
   <link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/>
   <link rel="manifest" href="manifest.webmanifest"/>
   <meta name="theme-color" content="#e51b2a"/>
@@ -50,25 +50,6 @@
     </div>
   </header>
   <main id="conteudoPrincipal">
-    <section class="market-hero" aria-labelledby="heroTitulo">
-      <div class="hero-reference-frame">
-        <div class="hero-reference-copy">
-          <span class="hero-reference-kicker">⚡ Entrega rápida e segura</span>
-          <h1 id="heroTitulo">Sua comida favorita, <span>sem sair de casa!</span></h1>
-          <p>Encontre os melhores restaurantes da sua região e peça agora mesmo.</p>
-          <div class="hero-reference-searchbar">
-            <a href="html/enderecos.html?redirect=../index.html" aria-label="Digitar seu endereço de entrega">Digite seu endereço</a>
-            <button id="heroBuscarRestaurantes" type="button" aria-label="Explorar restaurantes">⌕</button>
-          </div>
-          <div class="hero-reference-benefits" aria-label="Benefícios do Pede Já">
-            <span><b aria-hidden="true">✓</b> Pagamento seguro</span>
-            <span><b aria-hidden="true">▣</b> Entrega rápida</span>
-            <span><b aria-hidden="true">★</b> Vários restaurantes</span>
-          </div>
-        </div>
-        <div class="hero-reference-art" aria-hidden="true"><img src="assets/home-banner-reference.png" alt="" decoding="async"/></div>
-      </div>
-    </section>
     <section class="categorias market-section" aria-labelledby="categoriasTitulo"><div class="category-row" id="categoriasTitulo"><div class="categoria-lista" aria-label="Categorias de comida"><button type="button" class="categoria ativa" data-categoria="" aria-pressed="true"><div aria-hidden="true">🍽️</div><span>Todos</span></button><button type="button" class="categoria" data-categoria="Hambúrguer" aria-pressed="false"><div aria-hidden="true">🍔</div><span>Hambúrguer</span></button><button type="button" class="categoria" data-categoria="Pizza" aria-pressed="false"><div aria-hidden="true">🍕</div><span>Pizza</span></button><button type="button" class="categoria" data-categoria="Sushi" aria-pressed="false"><div aria-hidden="true">🍣</div><span>Sushi</span></button><button type="button" class="categoria" data-categoria="Brasileira" aria-pressed="false"><div aria-hidden="true">🍛</div><span>Brasileira</span></button><button type="button" class="categoria" data-categoria="Frango" aria-pressed="false"><div aria-hidden="true">🍗</div><span>Frango</span></button><button type="button" class="categoria" data-categoria="Lanches" aria-pressed="false"><div aria-hidden="true">🥪</div><span>Lanches</span></button><button type="button" class="categoria" data-categoria="Doces" aria-pressed="false"><div aria-hidden="true">🍰</div><span>Sobremesas</span></button><button type="button" class="categoria" data-categoria="Bebidas" aria-pressed="false"><div aria-hidden="true">🥤</div><span>Bebidas</span></button></div></div></section>
     <section class="restaurantes market-section" id="restaurantes" aria-labelledby="restaurantesTitulo"><div class="market-section-header"><div><span class="market-eyebrow">Perto de você</span><h2 id="restaurantesTitulo">Restaurantes em destaque</h2></div><a href="#restaurantes" id="verTodosRestaurantes">Ver todos <span aria-hidden="true">→</span></a></div><label class="search mobile-search" aria-label="Buscar restaurante ou comida"><span class="search-icon" aria-hidden="true">⌕</span><input aria-label="Buscar restaurante ou comida" autocomplete="off" id="campoBuscaMobile" maxlength="120" placeholder="Buscar por restaurante, comida ou categoria..." type="search"/></label><div class="restaurant-tools" aria-label="Filtros de restaurantes"><button type="button" id="toggleAberto" class="filter-pill" aria-pressed="false">Aberto agora</button><button type="button" id="ordenarTaxa" class="filter-pill" aria-pressed="false">Menor taxa</button><div class="resultado-info" id="resultadoResumo" aria-live="polite">Carregando restaurantes...</div></div><div class="cards" id="listaRestaurantes"><div class="loading">Carregando restaurantes...</div></div></section>
     <section class="flash-offers market-section" id="ofertasRelampagoSection" aria-labelledby="ofertasRelampagoTitulo" hidden>
