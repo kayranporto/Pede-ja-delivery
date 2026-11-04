@@ -13,7 +13,9 @@
   "theme_color": "#ea1d2c",
   "categories": ["food", "shopping", "lifestyle"],
   "icons": [
-    {"src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+    {"src": "assets/pedeja-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "assets/pedeja-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}
   ],
   "shortcuts": [
     {"name": "Meus pedidos", "short_name": "Pedidos", "url": "./html/meus-pedidos.html", "icons": [{"src":"assets/favicon.svg","sizes":"any","type":"image/svg+xml"}]},
