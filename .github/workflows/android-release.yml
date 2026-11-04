@@ -1,0 +1,71 @@
+name: Gerar aplicativo Android (AAB)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    name: Compilar PedeJá para Android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: "8.13"
+
+      - name: Validar os segredos de assinatura
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          test -n "$ANDROID_KEYSTORE_BASE64" || { echo "::error::Configure ANDROID_KEYSTORE_BASE64 nos secrets do repositório."; exit 1; }
+          test -n "$ANDROID_KEYSTORE_PASSWORD" || { echo "::error::Configure ANDROID_KEYSTORE_PASSWORD nos secrets do repositório."; exit 1; }
+          test -n "$ANDROID_KEY_ALIAS" || { echo "::error::Configure ANDROID_KEY_ALIAS nos secrets do repositório."; exit 1; }
+          test -n "$ANDROID_KEY_PASSWORD" || { echo "::error::Configure ANDROID_KEY_PASSWORD nos secrets do repositório."; exit 1; }
+
+      - name: Instalar plataforma Android 36
+        run: |
+          yes | sdkmanager --licenses >/dev/null
+          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Restaurar chave de upload
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/pedeja-upload-key.jks"
+          test -s "$RUNNER_TEMP/pedeja-upload-key.jks"
+
+      - name: Gerar Android App Bundle assinado
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/pedeja-upload-key.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: gradle --no-daemon -p android :app:bundleRelease
+
+      - name: Disponibilizar AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: pedeja-android-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 14
