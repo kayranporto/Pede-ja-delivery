@@ -10,5 +10,9 @@ supabase/.temp/
 backups/
 *.dump
 *.backup
+*.jks
+*.keystore
+*.pem
+*.base64
 playwright-report/
 test-results/
