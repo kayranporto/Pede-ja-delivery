@@ -447,6 +447,15 @@ a {
     box-shadow: 0 4px 14px rgba(17, 24, 39, .08);
 }
 
+.auth-role-switch--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.auth-role-switch--three a {
+    gap: 4px;
+    font-size: 11px;
+}
+
 .auth-form {
     display: grid;
     gap: 18px;
