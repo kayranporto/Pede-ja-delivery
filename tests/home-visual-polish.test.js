@@ -17,11 +17,14 @@ test("home oferece feedback visual para busca, filtros e cards", () => {
     assert.doesNotMatch(read("index.html"), /�/);
 });
 
-test("home mantém a composição do Hero sem faixa informativa antiga", () => {
+test("home mantém o catálogo no topo sem banner promocional", () => {
     const html = read("index.html");
-    assert.match(html, /class="market-hero"/);
-    assert.match(html, /class="hero-reference-frame"/);
-    assert.match(html, /id="heroTitulo"/);
+    const visual = read("css/pages/home-visual-refresh.css");
+    assert.doesNotMatch(html, /class="market-hero"|class="hero-reference-frame"|id="heroTitulo"/);
+    assert.match(html, /class="categorias market-section"/);
+    assert.match(html, /id="restaurantesTitulo"/);
+    assert.match(html, /id="campoBusca"/);
+    assert.match(visual, /\.home-page \.market-hero \{ display: none !important; \}/);
     assert.doesNotMatch(html, /id="fecharTopbar"/);
 });
 
