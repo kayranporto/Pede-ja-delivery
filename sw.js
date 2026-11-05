@@ -10,6 +10,8 @@ const SHELL = [
   "./html/suporte.html",
   "./manifest.webmanifest",
   "./assets/favicon.svg",
+  "./assets/pedeja-192.png",
+  "./assets/pedeja-512.png",
   "./assets/produto-padrao.svg",
   "./assets/logo-restaurante.svg",
   "./assets/banner-padrao.svg",
