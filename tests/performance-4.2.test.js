@@ -27,11 +27,13 @@ test("home inicia conteúdo em paralelo e evita consultas de sessão duplicadas"
     assert.match(read("js/core/favorites-sync.js"), /ready: async \(usuarioInicial = undefined\)/);
 });
 
-test("banner da Home permanece removido e imagens usam carregamento econômico", () => {
+test("banner principal da Home mantém preload prioritário e imagens usam carregamento econômico", () => {
     const index = read("index.html");
     const css = read("css/pages/home-4.2.1.css");
-    assert.doesNotMatch(index, /class="market-hero"|class="hero-reference-frame"|id="heroTitulo"/);
-    assert.doesNotMatch(index, /href="assets\/home-banner-reference\.png"[^>]+as="image" fetchpriority="high"/);
+    assert.match(index, /class="market-hero"/);
+    assert.match(index, /class="hero-reference-frame"/);
+    assert.match(index, /id="heroTitulo"/);
+    assert.match(index, /href="assets\/home-banner-reference\.png"[^>]+as="image" fetchpriority="high"/);
     assert.doesNotMatch(index, /class="offer-strip cupom"/, "a faixa promocional removida não deve reaparecer");
     assert.doesNotMatch(index, /photo-1643405509029-e5bc9f66d54d/, "a imagem exclusiva da faixa promocional removida não deve reaparecer");
     assert.match(read("js/pages/home.js"), /img\.decoding = "async"/);

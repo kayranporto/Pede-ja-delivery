@@ -17,14 +17,18 @@ test("home oferece feedback visual para busca, filtros e cards", () => {
     assert.doesNotMatch(read("index.html"), /�/);
 });
 
-test("home mantém o catálogo no topo sem banner promocional", () => {
+test("home exibe o banner principal e mantém o catálogo acessível", () => {
     const html = read("index.html");
     const visual = read("css/pages/home-visual-refresh.css");
-    assert.doesNotMatch(html, /class="market-hero"|class="hero-reference-frame"|id="heroTitulo"/);
+    assert.match(html, /class="market-hero"/);
+    assert.match(html, /class="hero-reference-frame"/);
+    assert.match(html, /id="heroTitulo"/);
+    assert.match(html, /id="heroBuscarRestaurantes"/);
+    assert.match(html, /href="assets\/home-banner-reference\.png" as="image" fetchpriority="high"/);
     assert.match(html, /class="categorias market-section"/);
     assert.match(html, /id="restaurantesTitulo"/);
     assert.match(html, /id="campoBusca"/);
-    assert.match(visual, /\.home-page \.market-hero \{ display: none !important; \}/);
+    assert.doesNotMatch(visual, /\.home-page \.market-hero\s*\{\s*display:\s*none\s*!important;\s*\}/);
     assert.doesNotMatch(html, /id="fecharTopbar"/);
 });
 

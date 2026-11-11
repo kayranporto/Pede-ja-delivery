@@ -25,7 +25,8 @@ test("Home carrega, oferece busca e categorias acessíveis", async ({ page }) =>
 
     await expect(page).toHaveTitle(/Pede Já/i);
     await expect(page.locator("#restaurantesTitulo")).toBeVisible();
-    await expect(page.locator(".market-hero, #heroTitulo")).toHaveCount(0);
+    await expect(page.locator(".market-hero")).toBeVisible();
+    await expect(page.locator("#heroTitulo")).toHaveText(/Sua comida favorita, sem sair de casa!/);
     const busca = page.getByRole("textbox", { name: /Buscar restaurante ou comida/i });
     if ((page.viewportSize()?.width || 1280) <= 700) {
         await expect(page.getByRole("link", { name: "Busca" })).toBeVisible();
@@ -101,7 +102,8 @@ test("Página de restaurante sem id volta para a Home", async ({ page }) => {
     await abrir(page, "/html/restaurante.html");
     await expect(page).toHaveURL(/\/(?:index\.html)?$/, { timeout: 12000 });
     await expect(page.locator("#restaurantesTitulo")).toBeVisible();
-    await expect(page.locator(".market-hero, #heroTitulo")).toHaveCount(0);
+    await expect(page.locator(".market-hero")).toBeVisible();
+    await expect(page.locator("#heroTitulo")).toHaveText(/Sua comida favorita, sem sair de casa!/);
     semErroFatal();
 });
 

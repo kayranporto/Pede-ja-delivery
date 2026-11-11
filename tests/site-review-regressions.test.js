@@ -20,19 +20,22 @@ test("Endereço é cadastrado pela página Meus endereços e apenas selecionado 
     assert.match(read("html/enderecos.html"), /id="enderecoForm"/);
 });
 
-test("Home mantém o catálogo sem banner e preserva os controles responsivos", () => {
+test("Home exibe o banner principal e preserva os controles responsivos", () => {
     const home = read("index.html");
     const visual = read("css/pages/home-visual-refresh.css");
 
     assert.match(home, /class="home-page"/);
-    assert.doesNotMatch(home, /class="market-hero"|class="hero-reference-frame"|id="heroTitulo"|id="heroBuscarRestaurantes"/);
+    assert.match(home, /class="market-hero"/);
+    assert.match(home, /class="hero-reference-frame"/);
+    assert.match(home, /id="heroTitulo"/);
+    assert.match(home, /id="heroBuscarRestaurantes"/);
     assert.match(home, /class="categorias market-section"/);
     assert.match(home, /id="campoBusca"/);
     assert.match(home, /id="restaurantesTitulo"/);
     assert.match(home, /id="listaRestaurantes"/);
     assert.match(home, /id="listaProdutos"/);
     assert.match(home, /home-visual-refresh\.css\?v=1\.0\.0/);
-    assert.match(visual, /\.home-page \.market-hero \{ display: none !important; \}/);
+    assert.doesNotMatch(visual, /\.home-page \.market-hero\s*\{\s*display:\s*none\s*!important;\s*\}/);
     assert.match(visual, /@media \(max-width: 680px\)/);
     assert.match(visual, /grid-template-columns: repeat\(2, minmax\(0,1fr\)\) !important/);
 });
