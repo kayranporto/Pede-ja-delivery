@@ -225,6 +225,36 @@
             "description": "Avaliação"
           }
         }
+      },
+      "get": {
+        "summary": "Consulta a avaliação associada a um pedido",
+        "operationId": "consultarAvaliacaoPedido",
+        "tags": [
+          "Avaliações"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "UUID do pedido",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Avaliação do pedido ou ausência de avaliação"
+          },
+          "400": {
+            "description": "Identificador inválido"
+          },
+          "404": {
+            "description": "Pedido ou avaliação não encontrada"
+          }
+        }
       }
     },
     "/v1/entrega/calcular": {
@@ -589,9 +619,45 @@
       "delete": {
         "responses": {
           "200": {
-            "description": "Vínculo removido"
+            "description": "Vínculo removido ou já inativo"
+          },
+          "400": {
+            "description": "Identificadores inválidos"
+          },
+          "401": {
+            "description": "Autenticação obrigatória"
+          },
+          "403": {
+            "description": "Somente o proprietário pode gerenciar entregadores próprios"
           }
-        }
+        },
+        "summary": "Remove o vínculo de um entregador próprio com a unidade da empresa",
+        "operationId": "removerEntregadorProprioEmpresa",
+        "tags": [
+          "Empresa"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "UUID do entregador",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "unidade_id",
+            "in": "query",
+            "required": true,
+            "description": "UUID da unidade da empresa",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
       }
     },
     "/v1/enderecos/principal": {
@@ -1249,6 +1315,867 @@
         "responses": {
           "200": {
             "description": "Resumos públicos das avaliações"
+          }
+        }
+      }
+    },
+    "/v1/categorias-filtros": {
+      "get": {
+        "summary": "Lista categorias públicas utilizadas nos filtros da Home",
+        "operationId": "listarCategoriasFiltrosHome",
+        "tags": [
+          "Catálogo"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Lista de categorias públicas"
+          },
+          "502": {
+            "description": "Categorias indisponíveis"
+          }
+        }
+      }
+    },
+    "/v1/me/avisos-abertura": {
+      "get": {
+        "summary": "Consulta se o usuário será avisado quando o restaurante abrir",
+        "operationId": "consultarAvisoAbertura",
+        "tags": [
+          "Cliente"
+        ],
+        "parameters": [
+          {
+            "name": "empresa_id",
+            "in": "query",
+            "required": true,
+            "description": "UUID do restaurante",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Situação do aviso"
+          },
+          "400": {
+            "description": "Identificador inválido"
+          },
+          "502": {
+            "description": "Consulta indisponível"
+          }
+        }
+      },
+      "post": {
+        "summary": "Ativa aviso para quando um restaurante fechado abrir",
+        "operationId": "criarAvisoAbertura",
+        "tags": [
+          "Cliente"
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Restaurante para monitorar",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "empresa_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "empresa_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Aviso ativado ou já existente"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "404": {
+            "description": "Restaurante não encontrado"
+          },
+          "409": {
+            "description": "Restaurante já está aberto"
+          },
+          "502": {
+            "description": "Disponibilidade indisponível"
+          }
+        }
+      }
+    },
+    "/v1/me/avisos-abertura/{empresaId}": {
+      "delete": {
+        "summary": "Cancela o aviso de abertura de um restaurante",
+        "operationId": "cancelarAvisoAbertura",
+        "tags": [
+          "Cliente"
+        ],
+        "parameters": [
+          {
+            "name": "empresaId",
+            "in": "path",
+            "required": true,
+            "description": "UUID do restaurante",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aviso removido"
+          },
+          "400": {
+            "description": "Identificador inválido"
+          },
+          "502": {
+            "description": "Não foi possível remover o aviso"
+          }
+        }
+      }
+    },
+    "/v1/empresa/relatorios/financeiro": {
+      "get": {
+        "summary": "Consulta o relatório financeiro da empresa",
+        "operationId": "consultarRelatorioFinanceiroEmpresa",
+        "tags": [
+          "Empresa"
+        ],
+        "parameters": [
+          {
+            "name": "dias",
+            "in": "query",
+            "required": false,
+            "description": "Período do relatório em dias",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3650,
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Relatório financeiro"
+          },
+          "400": {
+            "description": "Parâmetros inválidos"
+          },
+          "502": {
+            "description": "Relatório indisponível"
+          }
+        }
+      }
+    },
+    "/v1/empresa/relatorios/financeiro-acesso": {
+      "get": {
+        "summary": "Consulta o relatório financeiro de uma empresa com validação de acesso",
+        "operationId": "consultarRelatorioFinanceiroEmpresaAcesso",
+        "tags": [
+          "Empresa"
+        ],
+        "parameters": [
+          {
+            "name": "empresa_id",
+            "in": "query",
+            "required": true,
+            "description": "UUID ou identificador da empresa",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dias",
+            "in": "query",
+            "required": false,
+            "description": "Período do relatório em dias",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3650,
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Relatório financeiro"
+          },
+          "400": {
+            "description": "Parâmetros inválidos"
+          },
+          "403": {
+            "description": "Acesso financeiro negado"
+          },
+          "502": {
+            "description": "Relatório indisponível"
+          }
+        }
+      }
+    },
+    "/v1/empresa/relatorios/operacional": {
+      "get": {
+        "summary": "Consulta o relatório operacional da empresa",
+        "operationId": "consultarRelatorioOperacionalEmpresa",
+        "tags": [
+          "Empresa"
+        ],
+        "parameters": [
+          {
+            "name": "dias",
+            "in": "query",
+            "required": false,
+            "description": "Período do relatório em dias",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3650,
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Relatório operacional"
+          },
+          "400": {
+            "description": "Parâmetros inválidos"
+          },
+          "502": {
+            "description": "Relatório indisponível"
+          }
+        }
+      }
+    },
+    "/v1/admin/categorias-filtros": {
+      "post": {
+        "summary": "Cria uma categoria dos filtros da Home",
+        "operationId": "criarCategoriaFiltroHome",
+        "tags": [
+          "Administração"
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Dados da categoria",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60
+                  },
+                  "icone": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12,
+                    "default": "🍽️"
+                  },
+                  "ordem": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
+                  "aliases": {
+                    "type": "array",
+                    "maxItems": 25,
+                    "items": {
+                      "type": "string",
+                      "maxLength": 60
+                    }
+                  }
+                },
+                "required": [
+                  "nome",
+                  "ordem"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Categoria criada"
+          },
+          "400": {
+            "description": "Categoria inválida"
+          },
+          "403": {
+            "description": "Permissão administrativa insuficiente"
+          },
+          "409": {
+            "description": "Categoria duplicada"
+          }
+        }
+      }
+    },
+    "/v1/admin/categorias-filtros/{id}": {
+      "patch": {
+        "summary": "Atualiza uma categoria dos filtros da Home",
+        "operationId": "atualizarCategoriaFiltroHome",
+        "tags": [
+          "Administração"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "UUID da categoria",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Dados atualizados da categoria",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60
+                  },
+                  "icone": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12,
+                    "default": "🍽️"
+                  },
+                  "ordem": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
+                  "aliases": {
+                    "type": "array",
+                    "maxItems": 25,
+                    "items": {
+                      "type": "string",
+                      "maxLength": 60
+                    }
+                  }
+                },
+                "required": [
+                  "nome",
+                  "ordem"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Categoria atualizada"
+          },
+          "400": {
+            "description": "Categoria inválida"
+          },
+          "403": {
+            "description": "Permissão administrativa insuficiente"
+          },
+          "404": {
+            "description": "Categoria não encontrada"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove uma categoria dos filtros da Home",
+        "operationId": "excluirCategoriaFiltroHome",
+        "tags": [
+          "Administração"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "UUID da categoria",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Categoria removida"
+          },
+          "400": {
+            "description": "Identificador inválido"
+          },
+          "403": {
+            "description": "Permissão administrativa insuficiente"
+          },
+          "404": {
+            "description": "Categoria não encontrada"
+          }
+        }
+      }
+    },
+    "/v1/me/push-subscription": {
+      "post": {
+        "summary": "Registra ou atualiza a inscrição de notificações push do usuário",
+        "operationId": "salvarInscricaoPush",
+        "tags": [
+          "Cliente"
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Inscrição Push API",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "endpoint": {
+                    "type": "string",
+                    "format": "uri",
+                    "maxLength": 2000
+                  },
+                  "subscription": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "required": [
+                  "endpoint",
+                  "subscription"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inscrição registrada"
+          },
+          "400": {
+            "description": "Inscrição inválida"
+          }
+        }
+      }
+    },
+    "/v1/empresa/inicializar": {
+      "post": {
+        "summary": "Cria o cadastro inicial de uma empresa para o usuário autenticado",
+        "operationId": "inicializarEmpresa",
+        "tags": [
+          "Empresa"
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Dados iniciais da empresa",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "maxLength": 160
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 320
+                  },
+                  "telefone": {
+                    "type": "string",
+                    "maxLength": 40
+                  },
+                  "cnpj": {
+                    "type": "string",
+                    "maxLength": 30
+                  }
+                },
+                "required": [
+                  "nome",
+                  "email",
+                  "cnpj"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Empresa já existente retornada"
+          },
+          "201": {
+            "description": "Empresa cadastrada"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "409": {
+            "description": "Conflito no cadastro"
+          },
+          "502": {
+            "description": "Consulta indisponível"
+          }
+        }
+      }
+    },
+    "/v1/enderecos": {
+      "post": {
+        "summary": "Salva um endereço do usuário autenticado",
+        "operationId": "salvarEndereco",
+        "tags": [
+          "Endereços"
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Dados do endereço",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Campos do endereço aceitos pela RPC endereco_salvar.",
+                "additionalProperties": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Endereço salvo"
+          },
+          "400": {
+            "description": "Endereço inválido"
+          },
+          "401": {
+            "description": "Autenticação obrigatória"
+          }
+        }
+      }
+    },
+    "/v1/enderecos/{id}": {
+      "delete": {
+        "summary": "Remove um endereço do usuário autenticado",
+        "operationId": "removerEndereco",
+        "tags": [
+          "Endereços"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "UUID do endereço",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Endereço removido"
+          },
+          "400": {
+            "description": "Identificador inválido"
+          },
+          "401": {
+            "description": "Autenticação obrigatória"
+          }
+        }
+      }
+    },
+    "/v1/enderecos/{id}/localizacao": {
+      "patch": {
+        "summary": "Atualiza as coordenadas de um endereço",
+        "operationId": "atualizarLocalizacaoEndereco",
+        "tags": [
+          "Endereços"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "UUID do endereço",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Coordenadas geográficas",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Localização atualizada"
+          },
+          "400": {
+            "description": "Coordenadas inválidas"
+          },
+          "401": {
+            "description": "Autenticação obrigatória"
+          }
+        }
+      }
+    },
+    "/v1/empresa/pedido/cancelar": {
+      "post": {
+        "summary": "Cancela um pedido empresarial não pago",
+        "operationId": "cancelarPedidoEmpresa",
+        "tags": [
+          "Empresa"
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Pedido e motivo do cancelamento",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pedido_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "motivo": {
+                    "type": "string",
+                    "maxLength": 1000
+                  }
+                },
+                "required": [
+                  "pedido_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pedido cancelado"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "403": {
+            "description": "Acesso negado"
+          },
+          "409": {
+            "description": "Pedido não pode ser cancelado"
+          }
+        }
+      }
+    },
+    "/v1/empresa/pedido/cancelamento": {
+      "post": {
+        "summary": "Aprova ou rejeita uma solicitação de cancelamento",
+        "operationId": "decidirCancelamentoPedidoEmpresa",
+        "tags": [
+          "Empresa"
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Decisão de cancelamento",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pedido_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "aprovar": {
+                    "type": "boolean"
+                  },
+                  "observacao": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "pedido_id",
+                  "aprovar"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Solicitação processada"
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "403": {
+            "description": "Acesso negado"
+          }
+        }
+      }
+    },
+    "/v1/empresa/pagamento-offline": {
+      "post": {
+        "summary": "Registra o pagamento offline de um pedido",
+        "operationId": "registrarPagamentoOfflineEmpresa",
+        "tags": [
+          "Empresa"
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Pedido pago offline",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pedido_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "pedido_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pagamento offline registrado"
+          },
+          "400": {
+            "description": "Pedido inválido"
+          },
+          "403": {
+            "description": "Acesso negado"
+          }
+        }
+      }
+    },
+    "/v1/favoritos": {
+      "post": {
+        "summary": "Adiciona um restaurante aos favoritos do usuário",
+        "operationId": "adicionarFavorito",
+        "tags": [
+          "Cliente"
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Restaurante a favoritar",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "empresa_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "empresa_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Favorito salvo"
+          },
+          "400": {
+            "description": "Restaurante inválido"
+          },
+          "401": {
+            "description": "Autenticação obrigatória"
+          }
+        }
+      }
+    },
+    "/v1/favoritos/{id}": {
+      "delete": {
+        "summary": "Remove um restaurante dos favoritos do usuário",
+        "operationId": "removerFavorito",
+        "tags": [
+          "Cliente"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "UUID do restaurante",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Favorito removido"
+          },
+          "400": {
+            "description": "Identificador inválido"
+          },
+          "401": {
+            "description": "Autenticação obrigatória"
           }
         }
       }
