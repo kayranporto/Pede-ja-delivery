@@ -45,7 +45,7 @@ test("OpenAPI documenta as operações adicionais encontradas no roteador", () =
 
 test("rota de exclusão de entregador próprio chama RPC proprietária com IDs validados", () => {
   const deleteHandler = implementation.slice(implementation.indexOf("async function handleDelete"));
-  assert.match(deleteHandler, /empresa\/entregadores\/\(\[\^\/\]\+\)/);
+  assert.match(deleteHandler, /const ownDriver = ctx\.path\.match/);
   assert.match(deleteHandler, /empresa_remover_entregador_proprio/);
   assert.match(deleteHandler, /p_unidade_id:unidadeId,p_entregador_id:ownDriver\[1\]/);
   assert.match(deleteHandler, /uuid\(ownDriver\[1\]\)/);
