@@ -10,8 +10,7 @@
   color: var(--pj-ink);
 }
 
-/* O banner promocional foi retirado da apresentação principal. */
-.home-page .market-hero { display: none !important; }
+/* Banner principal restaurado na página inicial. */
 
 .home-page .header {
   background: rgba(255,255,255,.97) !important;
