@@ -50,3 +50,7 @@ npm run test:e2e -- e2e/api.spec.js
 ```
 
 A ausência de `API_PUBLICA_URL` ou `API_PUBLICA_KEY` faz o smoke remoto ser ignorado no desenvolvimento local; o gate unitário continua validando contrato, segurança e OpenAPI.
+
+## Administração do histórico de migrations
+
+- [Reconciliação GitHub x Supabase](MIGRATIONS-RECONCILIATION.md) — versões divergentes, riscos de segurança observados e procedimento antes de qualquer `db push`.
