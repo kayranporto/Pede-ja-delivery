@@ -6,7 +6,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const root = path.resolve(__dirname, "..");
-const api = fs.readFileSync(path.join(root, "supabase/functions/api-completa/index.ts"), "utf8");
+const api = fs.readFileSync(path.join(root, "supabase/functions/api-completa/modules/admin.ts"), "utf8");
 const adminPage = fs.readFileSync(path.join(root, "js/pages/admin.js"), "utf8");
 const operationModule = fs.readFileSync(path.join(root, "js/modules/operacao-admin.js"), "utf8");
 

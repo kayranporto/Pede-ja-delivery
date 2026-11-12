@@ -397,7 +397,7 @@ test("criar-pagamento exige ativação explícita no servidor", () => {
 });
 
 test("administradores legados sem permissões mantêm acesso total por compatibilidade", () => {
-    const api = read("supabase/functions/api-completa/index.ts");
+    const api = read("supabase/functions/api-completa/modules/admin.ts");
     assert.match(api, /function normalizeAdminPermissions\(value: unknown\): Set<string>/);
     assert.match(api, /const todas = new Set<string>\(ADMIN_PERMISSION_KEYS\)/);
     assert.match(api, /if \(!Array\.isArray\(value\) \|\| value\.length === 0\) return todas/);
