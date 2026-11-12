@@ -1,6 +1,6 @@
 import type { Json } from "./types.ts";
 
-export function uuid(value: string | undefined) { return !!value && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value); }
+export function uuid(value: string | null | undefined) { return !!value && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value); }
 
 export function bodyJson(request: Request) { return request.json().catch(() => null) as Promise<Json | null>; }
 
