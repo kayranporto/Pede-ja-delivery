@@ -1,0 +1,11 @@
+import type { RouteContext } from "../../_shared/api/types.ts";
+import { error, response } from "../../_shared/api/http.ts";
+import { uuid } from "../../_shared/api/validation.ts";
+
+export async function driverOrders(ctx: RouteContext) { const { data, error: e } = await ctx.db.from("pedidos").select("*,pedido_itens(*)").eq("entregador_id",ctx.userId).order("created_at",{ascending:false}).limit(100); if(e) return error(ctx.request,502,"entregas_indisponiveis","Não foi possível carregar suas entregas."); return response(ctx.request,{data:data||[]}); }
+
+export async function orderReview(ctx: RouteContext, id: string) { if (!uuid(id)) return error(ctx.request,400,"id_invalido","Identificador do pedido inválido."); const { data, error: e } = await ctx.db.from("avaliacoes").select("id,pedido_id,nota,comentario,resposta,created_at,updated_at").eq("pedido_id",id).eq("usuario_id",ctx.userId).maybeSingle(); if(e) return error(ctx.request,502,"avaliacao_indisponivel","Não foi possível consultar a avaliação."); return response(ctx.request,{data:data||null}); }
+
+export async function orderLocation(ctx: RouteContext, id: string) { if (!uuid(id)) return error(ctx.request,400,"id_invalido","Identificador do pedido inválido."); const { data, error: e } = await ctx.db.from("entrega_localizacoes").select("*").eq("pedido_id",id).maybeSingle(); if(e) return error(ctx.request,502,"localizacao_indisponivel","Não foi possível consultar a localização."); return response(ctx.request,{data:data||null},200,"private, max-age=5, stale-while-revalidate=10"); }
+
+export async function driverMe(ctx: RouteContext) { const [driver, links] = await Promise.all([ctx.db.from("entregadores").select("id,nome,telefone,veiculo,placa,aprovado,online,latitude,longitude,localizacao_atualizada_em,valor_por_entrega").eq("id",ctx.userId).maybeSingle(), ctx.db.from("empresa_entregadores").select("empresa_id,unidade_id,ativo,created_at,updated_at").eq("entregador_id",ctx.userId).eq("ativo",true)]); if (driver.error || links.error) return error(ctx.request,502,"entregador_indisponivel","Não foi possível carregar o cadastro do entregador."); return response(ctx.request,{data:{entregador:driver.data,vinculos:links.data||[]}}); }

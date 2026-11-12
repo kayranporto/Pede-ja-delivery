@@ -27,6 +27,8 @@
     "supabase/functions/_shared/api/validation.ts",
     "supabase/functions/_shared/api/supabase.ts",
     "supabase/functions/geocodificar-endereco/index.ts",
-    "supabase/functions/api-completa/modules/catalogo.ts"
+    "supabase/functions/api-completa/modules/catalogo.ts",
+    "supabase/functions/api-completa/modules/cliente.ts",
+    "supabase/functions/api-completa/modules/entregador.ts"
   ]
 }
