@@ -11,6 +11,7 @@ const migration = read("supabase/migrations/20261026232058_ofertas_relampago.sql
 const checkoutMigration = read("supabase/migrations/20261026232104_validar_limites_cupom_flash.sql");
 const edge = read("supabase/functions/ofertas-relampago/index.ts");
 const api = read("supabase/functions/api-completa/index.ts");
+const companyApi = read("supabase/functions/api-completa/modules/empresa.ts");
 const home = read("index.html");
 const homeScript = read("js/pages/home.js");
 const homeCss = read("css/pages/home-marketplace.css");
@@ -27,9 +28,9 @@ test("ofertas relâmpago reutilizam cupons e exigem validade e quantidade", () =
   assert.ok(migration.includes("fim is not null"));
   assert.ok(migration.includes("fim > inicio"));
   assert.ok(migration.includes("cupons_relampago_vitrine_idx"));
-  assert.ok(api.includes("titulo_relampago"));
-  assert.ok(api.includes("Number.isInteger(limiteUsos)"));
-  assert.ok(api.includes("fimDate.getTime() <= Date.now()"));
+  assert.ok(companyApi.includes("titulo_relampago"));
+  assert.ok(companyApi.includes("Number.isInteger(limiteUsos)"));
+  assert.ok(companyApi.includes("fimDate.getTime() <= Date.now()"));
   assert.ok(checkoutMigration.includes("limit 1"));
   assert.match(checkoutMigration, /for update/i);
   assert.ok(checkoutMigration.includes("v_cupom.limite_usos"));
