@@ -21,6 +21,9 @@ verify_jwt = false
 [functions.ofertas-relampago]
 verify_jwt = false
 
+[functions.geocodificar-endereco]
+verify_jwt = true
+
 [auth]
 enable_signup = true
 site_url = "https://kayranporto.github.io/Pede-ja-delivery/"
