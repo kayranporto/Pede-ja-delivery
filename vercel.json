@@ -1,4 +1,10 @@
 {
+  "rewrites": [
+    {
+      "source": "/api/v1/:path*",
+      "destination": "/api/index?__api_path=/api/v1/:path*"
+    }
+  ],
   "headers": [
     {
       "source": "/assets/(.*)",

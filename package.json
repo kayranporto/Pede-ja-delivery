@@ -6,6 +6,8 @@
     "node": ">=20"
   },
   "scripts": {
+    "api:start": "node backend/server.js",
+    "api:dev": "node --watch backend/server.js",
     "test": "node --test",
     "test:e2e": "playwright test",
     "test:e2e:report": "playwright show-report",
@@ -19,6 +21,13 @@
     "backup:supabase": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/backup-supabase.ps1",
     "restore:supabase": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/restore-supabase.ps1",
     "configure:auth:github-pages": "node scripts/configurar-auth-github-pages.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.109.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",

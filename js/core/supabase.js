@@ -53,6 +53,8 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
         });
 
         const API_BASE = `${SUPABASE_URL}/functions/v1/api-completa`;
+        const vercelProductionHost = window.location.hostname === "site-delivery-42.vercel.app";
+        const CATALOG_API_BASE = vercelProductionHost ? `${window.location.origin}/api/v1` : null;
 
         async function apiRequest(path, options = {}) {
             const headers = new Headers(options.headers || {});
@@ -94,6 +96,20 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
                 if (Array.isArray(ids) && ids.length) params.set("ids", ids.map(String).join(","));
                 if (categoria) params.set("categoria", String(categoria));
                 if (cidade) params.set("cidade", String(cidade));
+                if (CATALOG_API_BASE) {
+                    const resposta = await fetch(`${CATALOG_API_BASE}/restaurantes?${params}`, {
+                        headers: { Accept: "application/json" },
+                        credentials: "same-origin"
+                    });
+                    const payload = await resposta.json().catch(() => null);
+                    if (!resposta.ok) {
+                        const erro = new Error(payload?.error?.message || `Falha HTTP ${resposta.status}`);
+                        erro.code = payload?.error?.code || "api_error";
+                        erro.status = resposta.status;
+                        throw erro;
+                    }
+                    return Array.isArray(payload?.data) ? payload.data : [];
+                }
                 const data = await apiRequest(`/v1/restaurantes?${params}`);
                 return Array.isArray(data) ? data : [];
             },

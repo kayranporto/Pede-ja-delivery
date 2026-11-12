@@ -2,6 +2,8 @@
 
 Esta é a API HTTP versionada e somente de leitura para integrações externas de catálogo. A especificação completa está em [`../../supabase/functions/api-publica/openapi.json`](../../supabase/functions/api-publica/openapi.json) e é servida em `/openapi.json`.
 
+O projeto também tem uma API Node.js/Express em camadas, publicada no mesmo domínio Vercel do site em `/api/v1/*`. No Vercel, a listagem de restaurantes usa essa API; os outros fluxos continuam temporariamente em `api-completa` para manter compatibilidade. Instruções e configuração em [`../../api/README.md`](../../api/README.md).
+
 **Estado:** versão 1 publicada e validada no Supabase em 01/09/2026.
 
 ## Base URL
