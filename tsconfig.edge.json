@@ -32,6 +32,7 @@
     "supabase/functions/api-completa/modules/entregador.ts",
     "supabase/functions/_shared/api/rpc.ts",
     "supabase/functions/api-completa/modules/empresa.ts",
-    "supabase/functions/api-completa/modules/admin.ts"
+    "supabase/functions/api-completa/modules/admin.ts",
+    "supabase/functions/api-completa/index.ts"
   ]
 }
