@@ -18,6 +18,7 @@ Após revisar e integrar as alterações, aplique as migrations e publique as Ed
 ```bash
 supabase db push
 supabase functions deploy api-completa
+supabase functions deploy geocodificar-endereco
 supabase functions deploy ofertas-relampago
 ```
 
@@ -75,6 +76,12 @@ supabase functions deploy api-publica
 ```
 
 A configuração JWT também está declarada em `supabase/config.toml`.
+
+## Geocodificação de endereço
+
+A Edge Function `geocodificar-endereco` converte um endereço brasileiro em coordenadas usando OpenStreetMap Nominatim. O gateway exige JWT válido (`verify_jwt = true`). Envie uma requisição `POST` com `cep`, `logradouro`, `numero`, `bairro`, `cidade` e `uf`, diretamente ou dentro de `endereco`. A resposta bem-sucedida contém latitude, longitude, nome de exibição, provedor e atribuição do OpenStreetMap.
+
+A função usa `GEOCODING_BASE_URL` e `GEOCODING_USER_AGENT` opcionais; sem elas, usa os padrões definidos no código. A consulta ao Nominatim é limitada no runtime para respeitar o intervalo mínimo entre chamadas. Mantenha a atribuição `© OpenStreetMap contributors` quando exibir o resultado.
 
 ## API pública
 
