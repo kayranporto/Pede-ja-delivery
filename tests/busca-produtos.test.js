@@ -10,15 +10,16 @@ const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 test("busca pública de produtos pesquisa nomes, descrições e variantes sem autenticação", () => {
     const source = read("supabase/functions/api-completa/index.ts");
+    const catalog = read("supabase/functions/api-completa/modules/catalogo.ts");
     const api = read("js/core/supabase.js");
 
     assert.ok(source.includes(String.raw`/^\/v1\/produtos\/buscar\/?$/`));
     assert.match(source, /if \(p === "\/v1\/produtos\/buscar"\) return searchPublicProducts\(ctx\)/);
-    assert.match(source, /\.ilike\("nome", pattern\)/);
-    assert.match(source, /\.ilike\("descricao", pattern\)/);
-    assert.match(source, /\.from\("produto_variantes"\)/);
-    assert.match(source, /\.eq\("disponivel", true\)/);
-    assert.match(source, /\.eq\("status", true\)/);
+    assert.match(catalog, /\.ilike\("nome", pattern\)/);
+    assert.match(catalog, /\.ilike\("descricao", pattern\)/);
+    assert.match(catalog, /\.from\("produto_variantes"\)/);
+    assert.match(catalog, /\.eq\("disponivel", true\)/);
+    assert.match(catalog, /\.eq\("status", true\)/);
     assert.match(api, /async buscarProdutos\(busca, limite = 20\)/);
 });
 
