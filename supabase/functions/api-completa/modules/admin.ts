@@ -119,7 +119,7 @@ export async function adminAction(ctx: RouteContext, body: Json) {
     entregador:"entregas", usuario_bloqueio:"usuarios", cupom_status:"cupons", cupom_salvar:"cupons", cupom_excluir:"cupons",
     restaurante_status:"restaurantes", restaurante_atualizar:"restaurantes", restaurante_excluir:"restaurantes",
     regiao_salvar:"areas", regiao_status:"areas", regiao_excluir:"areas", pedido_detalhe:"pedidos", relatorios:"relatorios"
-  } as Record<string,string>)[action];
+  } as Record<string,string>)[action || ""];
   if (!required) return error(ctx.request,400,"acao_invalida","Ação administrativa inválida.");
   if (!access.permissions.has(required)) return error(ctx.request,403,"permissao_negada","Esta conta não possui permissão para esta ação administrativa.");
   const args: Json = {};
@@ -150,7 +150,6 @@ export async function checkFilterCategoryPermission(ctx: RouteContext) {
   }
   return null;
 }
-const FILTER_CATEGORY_FIELDS = "id,nome,icone,ordem,aliases";
 
 function normalizedFilterCategoryName(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
