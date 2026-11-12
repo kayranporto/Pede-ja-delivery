@@ -20,7 +20,6 @@ const PUBLIC_PREFIXES = [
 ];
 const RESTAURANT_FIELDS = "id,nome,descricao,categoria,tipo,logo,banner,taxa_entrega,pedido_minimo,status,cidade_atendimento,uf_atendimento,bairros_atendidos,tempo_estimado_min,tempo_estimado_max";
 
-type Json = Record<string, unknown>;
 type RouteContext = { request: Request; url: URL; path: string; db: SupabaseClient; userId: string | null };
 
 const ADMIN_PERMISSION_KEYS = [

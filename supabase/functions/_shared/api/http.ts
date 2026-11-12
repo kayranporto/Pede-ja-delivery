@@ -1,7 +1,7 @@
 import type { Json } from "./types.ts";
 
-const API_VERSION = "3.0.0";
-const METHODS = ["GET", "POST", "PATCH", "DELETE", "HEAD", "OPTIONS"] as const;
+export const API_VERSION = "3.0.0";
+export const METHODS = ["GET", "POST", "PATCH", "DELETE", "HEAD", "OPTIONS"] as const;
 
 export function cors(request: Request) {
   const configured = (Deno.env.get("ALLOWED_ORIGINS") || Deno.env.get("SITE_URL") || "")

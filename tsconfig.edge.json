@@ -26,7 +26,6 @@
     "supabase/functions/_shared/api/http.ts",
     "supabase/functions/_shared/api/validation.ts",
     "supabase/functions/_shared/api/supabase.ts",
-    "supabase/functions/api-completa/index.ts",
     "supabase/functions/geocodificar-endereco/index.ts"
   ]
 }
