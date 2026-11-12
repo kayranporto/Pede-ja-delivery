@@ -3,6 +3,7 @@ declare const Deno: {
   serve(handler: (request: Request) => Response | Promise<Response>): void;
 };
 declare module "supabase" {
+  export type SupabaseClient = any;
   export function createClient(...args: any[]): any;
 }
 declare module "web-push" {
