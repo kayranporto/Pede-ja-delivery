@@ -21,6 +21,12 @@
     "supabase/functions/processar-reembolso/index.ts",
     "supabase/functions/enviar-push/index.ts",
     "supabase/functions/api-publica/index.ts",
-    "supabase/functions/ofertas-relampago/index.ts"
+    "supabase/functions/ofertas-relampago/index.ts",
+    "supabase/functions/_shared/api/types.ts",
+    "supabase/functions/_shared/api/http.ts",
+    "supabase/functions/_shared/api/validation.ts",
+    "supabase/functions/_shared/api/supabase.ts",
+    "supabase/functions/api-completa/index.ts",
+    "supabase/functions/geocodificar-endereco/index.ts"
   ]
 }
