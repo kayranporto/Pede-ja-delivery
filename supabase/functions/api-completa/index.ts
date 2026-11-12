@@ -1,8 +1,10 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.111.0";
+import type { SupabaseClient } from "supabase";
+import { API_VERSION, METHODS, cors, error, pathOf, response } from "../_shared/api/http.ts";
+import { bodyJson, int, str, uuid } from "../_shared/api/validation.ts";
+import { authUser, client } from "../_shared/api/supabase.ts";
+import type { Json } from "../_shared/api/types.ts";
 
-const API_VERSION = "3.0.0";
-const METHODS = ["GET", "POST", "PATCH", "DELETE", "HEAD", "OPTIONS"] as const;
 const PUBLIC_PREFIXES = [
   /^\/$/, /^\/v1\/?$/, /^\/v1\/status\/?$/,
   /^\/v1\/restaurantes\/?$/,
@@ -20,38 +22,6 @@ const RESTAURANT_FIELDS = "id,nome,descricao,categoria,tipo,logo,banner,taxa_ent
 
 type Json = Record<string, unknown>;
 type RouteContext = { request: Request; url: URL; path: string; db: SupabaseClient; userId: string | null };
-
-function cors(request: Request) {
-  const configured = (Deno.env.get("ALLOWED_ORIGINS") || Deno.env.get("SITE_URL") || "")
-    .split(",").map((v: string) => v.trim().replace(/\/$/, "")).filter(Boolean);
-  const origin = request.headers.get("origin")?.replace(/\/$/, "") || "";
-  const allowed = new Set([
-    ...configured,
-    "https://kayranporto.github.io",
-    "https://site-delivery-42.vercel.app",
-  ]);
-  return {
-    "Access-Control-Allow-Origin": origin && allowed.has(origin) ? origin : (configured.length === 0 ? "*" : ""),
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-request-id",
-    "Access-Control-Allow-Methods": METHODS.join(", "),
-    "Vary": "Origin",
-  };
-}
-function response(request: Request, body: Json | null, status = 200, cache = "no-store") {
-  const id = request.headers.get("x-request-id")?.slice(0, 100) || crypto.randomUUID();
-  return new Response(request.method === "HEAD" ? null : JSON.stringify(body ? { ...body, request_id: id } : null), {
-    status,
-    headers: { ...cors(request), "Content-Type": "application/json; charset=utf-8", "Cache-Control": cache, "X-API-Version": API_VERSION, "X-Request-Id": id, "X-Content-Type-Options": "nosniff" },
-  });
-}
-function error(request: Request, status: number, code: string, message: string, details?: unknown) { return response(request, { error: { code, message, ...(details === undefined ? {} : { details }) } }, status); }
-function pathOf(request: Request) { const p = new URL(request.url).pathname.replace(/\/+$/, "") || "/"; const marker = "/api-completa"; const i = p.indexOf(marker); return i >= 0 ? (p.slice(i + marker.length) || "/") : p; }
-function uuid(value: string | undefined) { return !!value && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value); }
-function bodyJson(request: Request) { return request.json().catch(() => null) as Promise<Json | null>; }
-function str(value: unknown, max = 5000) { return typeof value === "string" && value.trim().length <= max ? value.trim() : null; }
-function int(value: unknown, min = 1, max = 100) { const n = typeof value === "number" ? value : Number(value); return Number.isInteger(n) && n >= min && n <= max ? n : null; }
-function client(request: Request) { const url = Deno.env.get("SUPABASE_URL"); const key = Deno.env.get("SUPABASE_PUBLISHABLE_KEY") || Deno.env.get("SUPABASE_ANON_KEY"); if (!url || !key) return null; const authorization = request.headers.get("authorization") || undefined; return createClient(url, key, { global: { headers: authorization ? { Authorization: authorization } : {} }, auth: { persistSession: false, autoRefreshToken: false } }); }
-async function authUser(db: SupabaseClient) { const { data, error: e } = await db.auth.getUser(); return e || !data.user ? null : data.user; }
 
 const ADMIN_PERMISSION_KEYS = [
   "overview","pedidos","financeiro","entregas","areas","restaurantes","usuarios",
