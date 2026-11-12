@@ -197,3 +197,15 @@ test("pizzarias exigem escolha explícita do tamanho quando o produto tem varia�
     assert.match(painel, /Broto, Pequena, Média, Grande ou Família/);
     assert.match(restaurante, /js\/modules\/modal\.js\?v=4\.2\.3/);
 });
+
+test("API mantém os quatro dispatchers HTTP no entrypoint após a modularização", () => {
+    const api = fs.readFileSync(path.join(root, "supabase/functions/api-completa/index.ts"), "utf8");
+    for (const method of ["Get", "Post", "Patch", "Delete"]) {
+        assert.match(api, new RegExp(`async function handle${method}\\(ctx: RouteContext\\)`));
+    }
+    assert.match(api, /return handleGet\(ctx\)/);
+    assert.match(api, /return handlePost\(ctx\)/);
+    assert.match(api, /return handlePatch\(ctx\)/);
+    assert.match(api, /return handleDelete\(ctx\)/);
+});
+
