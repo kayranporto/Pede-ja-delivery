@@ -61,8 +61,8 @@ test("Home mostra as ofertas, validade, usos restantes e permite copiar o cupom"
   assert.ok(homeScript.includes("html/restaurante.html?id="));
   assert.ok(homeCss.includes(".flash-offer-card"));
   assert.ok(homeCss.includes("@media(max-width:620px)"));
-  assert.ok(sw.includes("./css/pages/home-marketplace.css?v=4.4.19"));
-  assert.ok(sw.includes("./js/pages/home.js?v=4.5.8"));
+  assert.ok(sw.includes("./css/pages/home-marketplace.css?v=4.4.20"));
+  assert.ok(sw.includes("./js/pages/home.js?v=4.5.9"));
 });
 
 test("restaurante publica a oferta usando o endpoint de cupons existente", () => {
@@ -73,8 +73,8 @@ test("restaurante publica a oferta usando o endpoint de cupons existente", () =>
   assert.ok(restaurantScript.includes("titulo_relampago: relampago ? tituloRelampago : null"));
   assert.ok(restaurantScript.includes("sincronizarCamposCupomRelampago"));
   assert.ok(restaurantScript.includes("flash-coupon-badge"));
-  assert.ok(restaurantHtml.includes("empresa-dashboard.js?v=4.4.11"));
-  assert.ok(restaurantHtml.includes("empresa-dashboard.css?v=4.5.3"));
+  assert.ok(restaurantHtml.includes("empresa-dashboard.js?v=4.4.12"));
+  assert.ok(restaurantHtml.includes("empresa-dashboard.css?v=4.5.4"));
 });
 
 test("endpoint público de ofertas é sem JWT apenas para leitura", () => {

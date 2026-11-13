@@ -124,6 +124,14 @@ const SUPABASE_PROJECT_REF = "wzxsjxdbxonrmlmzufpv";
                 const data = await apiRequest(`/v1/produtos/buscar?${params}`);
                 return Array.isArray(data) ? data : [];
             },
+            async combosDestaque(limite = 8) {
+                const params = new URLSearchParams({
+                    tipo: "combos",
+                    limite: String(Math.min(Math.max(Number(limite) || 8, 1), 20))
+                });
+                const data = await apiRequest(`/v1/produtos/destaques?${params}`);
+                return Array.isArray(data) ? data : [];
+            },
             async disponibilidade(empresaId, quando = new Date().toISOString()) {
                 return apiRequest(`/v1/restaurantes/${encodeURIComponent(String(empresaId))}/disponibilidade?quando=${encodeURIComponent(quando)}`);
             },

@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="../css/pages/empresa-dashboard.css?v=4.5.3"/>
+  <link rel="stylesheet" href="../css/pages/empresa-dashboard.css?v=4.5.4"/>
   <link rel="stylesheet" href="../css/modules/media-uploader.css?v=4.4.0"/>
   <link rel="stylesheet" href="../css/modules/image-cropper.css?v=4.4.0"/>
   <link rel="stylesheet" href="../css/core/accessibility.css?v=4.2.0"/>
@@ -195,6 +195,26 @@
           <div class="section-heading"><h3>Produtos cadastrados</h3><span id="resumoProdutos">0 produtos</span></div>
           <div class="table-wrap"><table><thead><tr><th>Produto</th><th>Categoria</th><th>Preço</th><th>Variações</th><th>Disponível</th><th>Ações</th></tr></thead><tbody id="produtosEmpresa"><tr><td colspan="6">Carregando...</td></tr></tbody></table></div>
         </article>
+        <article class="dashboard-card combo-management-card">
+          <div class="section-heading"><div><span class="section-kicker">OFERTAS</span><h3>Montar combos</h3><p>Combine de 2 a 10 produtos simples da mesma unidade. O estoque dos itens será baixado ao vender o combo.</p></div></div>
+          <form id="comboForm">
+            <input id="comboIdEdicao" type="hidden"/>
+            <div class="grid">
+              <div class="field"><label for="comboNome">Nome do combo</label><input id="comboNome" maxlength="120" placeholder="Ex.: Combo para dois" required/></div>
+              <div class="field"><label for="comboPreco">Preço do combo</label><input id="comboPreco" type="number" min="0.01" step="0.01" required/></div>
+              <div class="field"><label for="comboPromocao">Preço promocional</label><input id="comboPromocao" type="number" min="0.01" step="0.01" placeholder="Opcional"/></div>
+              <div class="field field-wide"><label for="comboDescricao">Descrição adicional</label><textarea id="comboDescricao" maxlength="400" rows="2" placeholder="Detalhes da oferta (opcional)"></textarea></div>
+            </div>
+            <div class="combo-item-picker">
+              <div class="field"><label for="comboProduto">Produto do combo</label><select id="comboProduto" required><option value="">Carregando produtos...</option></select></div>
+              <div class="field"><label for="comboQuantidade">Quantidade</label><input id="comboQuantidade" type="number" min="1" max="20" value="1" required/></div>
+              <button class="btn-mini secundario" id="comboAdicionarItem" type="button">Adicionar item</button>
+            </div>
+            <div class="combo-selected-items" id="comboItensSelecionados" aria-live="polite"><p class="empty">Adicione pelo menos dois produtos.</p></div>
+            <div class="combo-form-actions"><button class="btn" id="comboSalvar" type="submit">Criar combo</button><button class="btn-mini secundario" id="comboCancelarEdicao" type="button" hidden>Cancelar edição</button></div>
+          </form>
+          <div class="combo-list" id="combosEmpresa" aria-live="polite"><p class="empty">Carregando combos...</p></div>
+        </article>
         <article class="dashboard-card variants-card">
           <div class="section-heading"><div><h3>Tamanhos e variações</h3><p>Cadastre cada tamanho com seu próprio preço. Para pizzas, use nomes como Broto, Pequena, Média, Grande ou Família; o cliente escolhe o tamanho no cardápio.</p></div><span id="resumoVariantes">0 variações</span></div>
           <form id="varianteForm" class="variant-form">
@@ -361,7 +381,7 @@
   <script defer src="../js/core/config.js?v=4.4.9"></script>
   <script defer src="../js/core/monitoring.js?v=4.2.0"></script>
   <script defer src="../js/core/notifications.js?v=4.2.0"></script>
-  <script defer src="../js/pages/empresa-dashboard.js?v=4.4.11"></script>
+  <script defer src="../js/pages/empresa-dashboard.js?v=4.4.12"></script>
   <script defer src="../js/modules/operacao-empresa.js?v=4.4.7"></script>
   <script defer src="../js/core/product-import.js?v=4.4.7"></script>
   <script defer src="../js/modules/empresa-importacao.js?v=4.4.7"></script>

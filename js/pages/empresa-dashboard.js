@@ -12,6 +12,7 @@ let variantesProduto = [];
 let estoqueMovimentos = [];
 let cuponsEmpresa = [];
 let avaliacoesEmpresa = [];
+let comboItensEdicao = [];
 let filtroPeriodo = "hoje";
 let filtroStatusPedido = "todos";
 let buscaPedido = "";
@@ -313,6 +314,9 @@ function criarCardPedido(pedido, indice) {
         const linha = criarElemento("div", "order-item");
         linha.append(criarElemento("strong", "", `${item.quantidade || 1}x ${item.nome_produto || "Produto"}`));
         const detalhes = [];
+        if (Array.isArray(item.combo_itens) && item.combo_itens.length) {
+            detalhes.push(`Combo: ${item.combo_itens.map((componente) => `${Number(componente.quantidade) || 1}x ${componente.nome_produto || "Produto"}`).join(", ")}`);
+        }
         if (item.variante_nome) detalhes.push(item.variante_nome);
         if (Array.isArray(item.adicionais) && item.adicionais.length) detalhes.push(item.adicionais.map((adicional) => adicional.nome).filter(Boolean).join(", "));
         if (item.observacao) detalhes.push(`Obs.: ${item.observacao}`);
@@ -488,6 +492,9 @@ function criarTicketCozinha(pedido) {
         const nome = `${item.quantidade || 1}x ${item.nome_produto || "Produto"}${item.variante_nome ? ` • ${item.variante_nome}` : ""}`;
         linha.append(criarElemento("strong", "", nome));
         const detalhes = [];
+        if (Array.isArray(item.combo_itens) && item.combo_itens.length) {
+            detalhes.push(`Combo: ${item.combo_itens.map((componente) => `${Number(componente.quantidade) || 1}x ${componente.nome_produto || "Produto"}`).join(", ")}`);
+        }
         if (Array.isArray(item.adicionais) && item.adicionais.length) detalhes.push(item.adicionais.map((adicional) => adicional.nome).filter(Boolean).join(", "));
         if (item.observacao) detalhes.push(`Obs.: ${item.observacao}`);
         if (detalhes.length) linha.append(criarElemento("small", "", detalhes.join(" • ")));
@@ -658,13 +665,18 @@ function nomeCategoria(id) {
 
 function renderizarProdutos() {
     listaProdutos.replaceChildren();
-    if (!produtos.length) {
+    const produtosNormais = produtos.filter((produto) => produto.is_combo !== true);
+    if (!produtosNormais.length) {
         listaProdutos.append(linhaVazia(6, "Nenhum produto cadastrado."));
         atualizarIndicadores();
+        atualizarSelectsPersonalizacao();
+        atualizarSelectVariantes();
+        renderizarVariantes();
+        renderizarCombos();
         return;
     }
 
-    produtos.forEach((produto) => {
+    produtosNormais.forEach((produto) => {
         const tr = document.createElement("tr");
         const nome = document.createElement("td");
         const nomeProduto = document.createElement("strong");
@@ -745,6 +757,7 @@ function renderizarProdutos() {
     atualizarSelectsPersonalizacao();
     atualizarSelectVariantes();
     renderizarVariantes();
+    renderizarCombos();
 }
 
 function preencherSelect(select, itens, placeholder) {
@@ -763,17 +776,154 @@ function preencherSelect(select, itens, placeholder) {
     if ([...select.options].some((option) => option.value === valorAtual)) select.value = valorAtual;
 }
 
+function produtosElegiveisParaCombo() {
+    return produtos.filter((produto) => produto.is_combo !== true
+        && produto.disponivel !== false
+        && !variantesProduto.some((variante) => String(variante.produto_id) === String(produto.id))
+        && !vinculosProdutoGrupo.some((vinculo) => String(vinculo.produto_id) === String(produto.id)));
+}
+
+function renderizarItensComboSelecionados() {
+    const container = document.getElementById("comboItensSelecionados");
+    if (!container) return;
+    container.replaceChildren();
+    if (!comboItensEdicao.length) {
+        container.append(criarElemento("p", "empty", "Adicione pelo menos dois produtos."));
+        return;
+    }
+
+    comboItensEdicao.forEach((item, indice) => {
+        const linha = criarElemento("div", "combo-selected-item");
+        const produto = produtos.find((atual) => String(atual.id) === String(item.produto_id));
+        linha.append(criarElemento("span", "", `${item.quantidade}x ${produto?.nome || item.nome_produto || "Produto"}`));
+        const remover = criarElemento("button", "btn-mini perigo", "Remover");
+        remover.type = "button";
+        remover.setAttribute("aria-label", `Remover ${produto?.nome || item.nome_produto || "produto"} do combo`);
+        remover.addEventListener("click", () => {
+            comboItensEdicao.splice(indice, 1);
+            renderizarItensComboSelecionados();
+        });
+        linha.append(remover);
+        container.append(linha);
+    });
+}
+
+function cancelarEdicaoCombo() {
+    document.getElementById("comboForm").reset();
+    document.getElementById("comboIdEdicao").value = "";
+    document.getElementById("comboSalvar").textContent = "Criar combo";
+    document.getElementById("comboCancelarEdicao").hidden = true;
+    comboItensEdicao = [];
+    renderizarItensComboSelecionados();
+}
+
+function editarCombo(combo) {
+    document.getElementById("comboIdEdicao").value = String(combo.id);
+    document.getElementById("comboNome").value = combo.nome || "";
+    document.getElementById("comboDescricao").value = String(combo.descricao || "").split("\n").slice(1).join("\n");
+    document.getElementById("comboPreco").value = Number(combo.preco || 0).toFixed(2);
+    document.getElementById("comboPromocao").value = Number(combo.promocao || 0) > 0 ? Number(combo.promocao).toFixed(2) : "";
+    comboItensEdicao = (Array.isArray(combo.combo_itens) ? combo.combo_itens : []).map((item) => ({
+        produto_id: String(item.produto_id),
+        nome_produto: item.nome_produto || "",
+        quantidade: Number(item.quantidade)
+    }));
+    document.getElementById("comboSalvar").textContent = "Salvar alterações";
+    document.getElementById("comboCancelarEdicao").hidden = false;
+    renderizarItensComboSelecionados();
+    document.getElementById("comboForm").scrollIntoView({ behavior: "smooth", block: "center" });
+    document.getElementById("comboNome").focus({ preventScroll: true });
+}
+
+function renderizarCombos() {
+    const container = document.getElementById("combosEmpresa");
+    const produtoSelect = document.getElementById("comboProduto");
+    if (!container || !produtoSelect) return;
+    const elegiveis = produtosElegiveisParaCombo();
+    preencherSelect(produtoSelect, elegiveis, elegiveis.length ? "Selecione um produto" : "Cadastre produtos sem variações");
+
+    const combos = produtos.filter((produto) => produto.is_combo === true);
+    container.replaceChildren();
+    if (!combos.length) {
+        container.append(criarElemento("p", "empty", "Nenhum combo cadastrado ainda."));
+        return;
+    }
+
+    combos.forEach((combo) => {
+        const card = criarElemento("article", "combo-row");
+        const detalhes = criarElemento("div", "combo-row-details");
+        const componentes = (Array.isArray(combo.combo_itens) ? combo.combo_itens : [])
+            .map((item) => `${Number(item.quantidade) || 1}x ${item.nome_produto || "Produto"}`)
+            .join(" • ");
+        detalhes.append(
+            criarElemento("strong", "", combo.nome || "Combo"),
+            criarElemento("small", "", componentes || "Composição inválida"),
+            criarElemento("span", "combo-row-price", Number(combo.promocao || 0) > 0
+                ? `${App.dinheiro(combo.promocao)} • de ${App.dinheiro(combo.preco)}`
+                : App.dinheiro(combo.preco))
+        );
+        const acoes = criarElemento("div", "acoes-tabela");
+        const editar = criarElemento("button", "btn-mini secundario", "Editar");
+        editar.type = "button";
+        editar.addEventListener("click", () => editarCombo(combo));
+        const disponibilidade = criarElemento("button", "btn-mini secundario", combo.disponivel === false ? "Ativar" : "Pausar");
+        disponibilidade.type = "button";
+        disponibilidade.addEventListener("click", async () => {
+            disponibilidade.disabled = true;
+            try {
+                await window.DeliveryAPI.empresaPainelAcao({
+                    acao: "produto_disponibilidade",
+                    empresa_id: String(empresa.id),
+                    id: combo.id,
+                    disponivel: combo.disponivel === false
+                });
+            } catch (error) {
+                disponibilidade.disabled = false;
+                return alert(`Não foi possível atualizar o combo: ${App.mensagemErro(error)}`);
+            }
+            combo.disponivel = combo.disponivel === false;
+            renderizarCombos();
+            atualizarIndicadores();
+        });
+        const remover = criarElemento("button", "btn-mini perigo", "Excluir");
+        remover.type = "button";
+        remover.addEventListener("click", async () => {
+            if (!confirm(`Excluir o combo “${combo.nome}”?`)) return;
+            remover.disabled = true;
+            try {
+                await window.DeliveryAPI.empresaPainelAcao({
+                    acao: "produto_remover",
+                    empresa_id: String(empresa.id),
+                    id: combo.id
+                });
+            } catch (error) {
+                remover.disabled = false;
+                return alert(`Não foi possível excluir o combo: ${App.mensagemErro(error)}`);
+            }
+            produtos = produtos.filter((produto) => String(produto.id) !== String(combo.id));
+            if (String(document.getElementById("comboIdEdicao").value) === String(combo.id)) cancelarEdicaoCombo();
+            renderizarProdutos();
+            atualizarIndicadores();
+        });
+        acoes.append(editar, disponibilidade, remover);
+        card.append(detalhes, acoes);
+        container.append(card);
+    });
+}
+
 function atualizarSelectsPersonalizacao() {
     if (!adicionalGrupoSelect || !vinculoProdutoSelect || !vinculoGrupoSelect) return;
     preencherSelect(adicionalGrupoSelect, gruposAdicionais, gruposAdicionais.length ? "Selecione o grupo" : "Crie um grupo primeiro");
     preencherSelect(vinculoGrupoSelect, gruposAdicionais, gruposAdicionais.length ? "Selecione o grupo" : "Crie um grupo primeiro");
-    preencherSelect(vinculoProdutoSelect, produtos, produtos.length ? "Selecione o produto" : "Cadastre um produto primeiro");
+    const produtosNormais = produtos.filter((produto) => produto.is_combo !== true);
+    preencherSelect(vinculoProdutoSelect, produtosNormais, produtosNormais.length ? "Selecione o produto" : "Cadastre um produto primeiro");
 }
 
 
 function atualizarSelectVariantes() {
     if (!varianteProdutoSelect) return;
-    preencherSelect(varianteProdutoSelect, produtos, produtos.length ? "Selecione o produto" : "Cadastre um produto primeiro");
+    const produtosNormais = produtos.filter((produto) => produto.is_combo !== true);
+    preencherSelect(varianteProdutoSelect, produtosNormais, produtosNormais.length ? "Selecione o produto" : "Cadastre um produto primeiro");
 }
 
 function renderizarVariantes() {
@@ -1320,6 +1470,68 @@ document.getElementById("produtoForm").addEventListener("submit", async (event) 
     window.MediaUploader?.refreshAll();
     renderizarProdutos();
     renderizarGruposAdicionais();
+});
+
+document.getElementById("comboAdicionarItem").addEventListener("click", () => {
+    const produtoId = document.getElementById("comboProduto").value;
+    const quantidade = Number(document.getElementById("comboQuantidade").value);
+    const produto = produtosElegiveisParaCombo().find((item) => String(item.id) === produtoId);
+    if (!produto) return alert("Selecione um produto disponível e sem personalizações.");
+    if (!Number.isInteger(quantidade) || quantidade < 1 || quantidade > 20) return alert("A quantidade deve ficar entre 1 e 20.");
+    if (comboItensEdicao.some((item) => String(item.produto_id) === produtoId)) return alert("Esse produto já está no combo. Altere a quantidade ou escolha outro.");
+    if (comboItensEdicao.length >= 10) return alert("Cada combo pode ter até 10 produtos diferentes.");
+    comboItensEdicao.push({ produto_id: produtoId, nome_produto: produto.nome, quantidade });
+    document.getElementById("comboQuantidade").value = "1";
+    renderizarItensComboSelecionados();
+});
+
+document.getElementById("comboCancelarEdicao").addEventListener("click", cancelarEdicaoCombo);
+
+document.getElementById("comboForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!empresa) return;
+    const form = event.currentTarget;
+    const nome = document.getElementById("comboNome").value.trim();
+    const preco = Number(document.getElementById("comboPreco").value);
+    const promocaoTexto = document.getElementById("comboPromocao").value;
+    const promocao = promocaoTexto === "" ? null : Number(promocaoTexto);
+    if (!nome) return alert("Informe o nome do combo.");
+    if (!Number.isFinite(preco) || preco <= 0) return alert("Informe um preço maior que zero.");
+    if (promocao !== null && (!Number.isFinite(promocao) || promocao <= 0 || promocao >= preco)) {
+        return alert("O preço promocional deve ser maior que zero e menor que o preço do combo.");
+    }
+    if (comboItensEdicao.length < 2 || comboItensEdicao.length > 10) {
+        return alert("Adicione de 2 a 10 produtos ao combo.");
+    }
+
+    const botao = document.getElementById("comboSalvar");
+    App.definirCarregando(botao, true, document.getElementById("comboIdEdicao").value ? "Salvando..." : "Criando...");
+    let data;
+    try {
+        data = await window.DeliveryAPI.empresaOperacaoAcao({
+            acao: "combo_salvar",
+            empresa_id: String(empresa.id),
+            unidade_id: document.getElementById("unidadePainelSelect")?.value || null,
+            id: document.getElementById("comboIdEdicao").value || "",
+            nome,
+            descricao: document.getElementById("comboDescricao").value.trim() || null,
+            preco,
+            promocao,
+            combo_itens: comboItensEdicao.map(({ produto_id, quantidade }) => ({ produto_id, quantidade }))
+        });
+    } catch (error) {
+        App.definirCarregando(botao, false);
+        return alert(`Não foi possível salvar o combo: ${App.mensagemErro(error)}`);
+    }
+    App.definirCarregando(botao, false);
+    const indice = produtos.findIndex((produto) => String(produto.id) === String(data.id));
+    if (indice >= 0) produtos[indice] = data;
+    else produtos.push(data);
+    produtos.sort((a, b) => String(a.nome).localeCompare(String(b.nome), "pt-BR"));
+    cancelarEdicaoCombo();
+    renderizarProdutos();
+    atualizarIndicadores();
+    window.AppToast?.("Combo salvo", `${data.nome} está no cardápio da sua unidade.`, "success");
 });
 
 document.getElementById("varianteForm").addEventListener("submit", async (event) => {

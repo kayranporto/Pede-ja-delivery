@@ -122,7 +122,7 @@ function criarCard(pedido, indice) {
     topo.append(titulo, data);
     const restaurante = criar("p", "order-store", pedido.empresa_nome || "Restaurante");
     const itens = criar("p", "order-items", (pedido.pedido_itens || [])
-        .map((item) => `${Number(item?.quantidade) || 1}x ${item?.nome_produto || "Produto"}${item?.variante_nome ? ` • ${item.variante_nome}` : ""}`)
+        .map((item) => `${Number(item?.quantidade) || 1}x ${item?.nome_produto || "Produto"}${item?.variante_nome ? ` • ${item.variante_nome}` : ""}${Array.isArray(item?.combo_itens) && item.combo_itens.length ? ` (combo: ${item.combo_itens.map((componente) => `${Number(componente.quantidade) || 1}x ${componente.nome_produto || "Produto"}`).join(", ")})` : ""}`)
         .join(" • ") || "Itens do pedido");
     info.append(thumb, topo, restaurante, itens);
     const avaliacao = criarAvaliacao(pedido);

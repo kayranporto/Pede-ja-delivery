@@ -1646,6 +1646,36 @@
 .home-page .produto-destaque strong{
   font-size:.7rem!important;
 }
+.home-page .combo-produto-destaque:before{
+  content:"COMBO";
+  position:absolute;
+  z-index:2;
+  top:8px;
+  left:8px;
+  padding:4px 7px;
+  border-radius:999px;
+  background:#f6c94b;
+  color:#473500;
+  font-size:.55rem;
+  font-weight:800;
+  letter-spacing:.04em;
+}
+.home-page .combo-restaurante-nome{
+  color:#555e68!important;
+}
+.home-page .combo-destaque-precos{
+  display:flex;
+  align-items:baseline;
+  gap:6px;
+  margin-top:3px;
+}
+.home-page .combo-destaque-precos strong{
+  margin-top:0;
+}
+.home-page .combo-destaque-precos del{
+  color:#858b93;
+  font-size:.58rem;
+}
 
 /* Footer */
 .home-page footer{

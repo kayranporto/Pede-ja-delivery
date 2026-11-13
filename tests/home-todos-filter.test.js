@@ -27,8 +27,8 @@ test("selecionar Todos remove o filtro de categoria e preserva os filtros de bus
 });
 
 test("service worker carrega a versão atualizada do script da Home", () => {
-  assert.match(html, /home\.js\?v=4\.5\.8/);
-  assert.match(worker, /\.\/js\/pages\/home\.js\?v=4\.5\.8/);
+  assert.match(html, /home\.js\?v=4\.5\.9/);
+  assert.match(worker, /\.\/js\/pages\/home\.js\?v=4\.5\.9/);
 });
 
 test("somente a categoria marcada como selecionada recebe o estilo vermelho", () => {

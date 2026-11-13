@@ -203,7 +203,41 @@ async function searchPublicProducts(ctx: RouteContext) {
   return response(ctx.request, { data }, 200, "public, max-age=15, stale-while-revalidate=30");
 }
 
-async function publicHighlights(ctx: RouteContext) { const restaurantQuery = await ctx.db.from("empresas_catalogo").select("id").eq("status", true).order("nome").limit(20); if (restaurantQuery.error) return error(ctx.request, 502, "falha_catalogo", "Não foi possível consultar os destaques."); const ids = (restaurantQuery.data || []).map((item: any) => String(item.id)); if (!ids.length) return response(ctx.request, { data: [] }, 200, "public, max-age=30, stale-while-revalidate=60"); const { data, error: e } = await ctx.db.from("produtos").select("id,nome,descricao,imagem,preco,promocao,empresa_id").in("empresa_id", ids).eq("disponivel", true).order("nome").limit(6); if (e) return error(ctx.request, 502, "falha_catalogo", "Não foi possível consultar os produtos em destaque."); return response(ctx.request, { data: data || [] }, 200, "public, max-age=30, stale-while-revalidate=60"); }
+async function publicComboHighlights(ctx: RouteContext) {
+  const limit = int(ctx.url.searchParams.get("limite") || 8, 1, 20);
+  if (limit === null) return error(ctx.request, 400, "parametro_invalido", "Limite de combos inválido.");
+  const { data: combos, error: comboError } = await ctx.db.from("produtos")
+    .select("id,nome,imagem,preco,promocao,empresa_id,created_at")
+    .eq("is_combo", true)
+    .eq("disponivel", true)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (comboError) return error(ctx.request, 502, "falha_catalogo", "Não foi possível consultar os combos.");
+  const empresaIds = [...new Set((combos || []).map((item: any) => String(item.empresa_id)))];
+  if (!empresaIds.length) return response(ctx.request, { data: [] }, 200, "public, max-age=30, stale-while-revalidate=60");
+
+  const { data: empresas, error: empresaError } = await ctx.db.from("empresas_catalogo")
+    .select("id,nome")
+    .eq("status", true)
+    .in("id", empresaIds);
+  if (empresaError) return error(ctx.request, 502, "falha_catalogo", "Não foi possível consultar os restaurantes dos combos.");
+  const nomesEmpresas = new Map((empresas || []).map((item: any) => [String(item.id), String(item.nome || "Restaurante")]));
+  const data = (combos || [])
+    .filter((combo: any) => nomesEmpresas.has(String(combo.empresa_id)))
+    .map((combo: any) => ({ ...combo, empresa_nome: nomesEmpresas.get(String(combo.empresa_id)) }));
+  return response(ctx.request, { data }, 200, "public, max-age=30, stale-while-revalidate=60");
+}
+
+async function publicHighlights(ctx: RouteContext) {
+  if (ctx.url.searchParams.get("tipo") === "combos") return publicComboHighlights(ctx);
+  const restaurantQuery = await ctx.db.from("empresas_catalogo").select("id").eq("status", true).order("nome").limit(20);
+  if (restaurantQuery.error) return error(ctx.request, 502, "falha_catalogo", "Não foi possível consultar os destaques.");
+  const ids = (restaurantQuery.data || []).map((item: any) => String(item.id));
+  if (!ids.length) return response(ctx.request, { data: [] }, 200, "public, max-age=30, stale-while-revalidate=60");
+  const { data, error: e } = await ctx.db.from("produtos").select("id,nome,descricao,imagem,preco,promocao,empresa_id").in("empresa_id", ids).eq("disponivel", true).order("nome").limit(6);
+  if (e) return error(ctx.request, 502, "falha_catalogo", "Não foi possível consultar os produtos em destaque.");
+  return response(ctx.request, { data: data || [] }, 200, "public, max-age=30, stale-while-revalidate=60");
+}
 async function loyalty(ctx: RouteContext) { const result=await ctx.db.rpc("meus_beneficios_fidelidade"); if(result.error) return error(ctx.request,502,"fidelidade_indisponivel","Não foi possível consultar a fidelidade."); const saldos=result.data||[]; const ids=saldos.map((item:any)=>String(item.empresa_id)).filter(Boolean); const empresas=ids.length?await ctx.db.from("empresas_catalogo").select("id,nome").in("id",ids):{data:[],error:null}; if(empresas.error) return error(ctx.request,502,"fidelidade_indisponivel","Não foi possível carregar os restaurantes da fidelidade."); const nomes=new Map((empresas.data||[]).map((item:any)=>[String(item.id),item.nome])); return response(ctx.request,{data:saldos.map((item:any)=>({...item,empresa_nome:nomes.get(String(item.empresa_id))||"Restaurante"}))}); }
 async function companyUnits(ctx: RouteContext) {
   const empresaId = str(ctx.url.searchParams.get("empresa_id"), 100);
@@ -293,7 +327,7 @@ async function companyOperationAction(ctx: RouteContext, body: Json) {
   const acao = str(body.acao, 50), empresaId = str(body.empresa_id, 100); let unidadeId = str(body.unidade_id, 100);
   if (!acao || !empresaId) return error(ctx.request, 400, "parametro_invalido", "acao e empresa_id são obrigatórios.");
   if (unidadeId && !uuid(unidadeId)) return error(ctx.request, 400, "parametro_invalido", "unidade_id inválido.");
-  if (!unidadeId && ["horarios","pausa_criar","pausa_remover","regiao_criar","regiao_toggle","regiao_remover","categoria_criar","produto_salvar"].includes(acao)) {
+  if (!unidadeId && ["horarios","pausa_criar","pausa_remover","regiao_criar","regiao_toggle","regiao_remover","categoria_criar","produto_salvar","combo_salvar"].includes(acao)) {
     const principal = await ctx.db.from("empresa_unidades").select("id").eq("empresa_id", empresaId).eq("principal", true).eq("ativa", true).maybeSingle();
     if (principal.error || !principal.data?.id) return error(ctx.request, 400, "unidade_indisponivel", "A empresa não possui unidade principal ativa.");
     unidadeId = String(principal.data.id);
@@ -305,6 +339,99 @@ async function companyOperationAction(ctx: RouteContext, body: Json) {
     if (!nome) return error(ctx.request,400,"parametro_invalido","nome é obrigatório.");
     const { data, error: e } = await unit(ctx.db.from("categorias").insert({ empresa_id: empresaId, unidade_id: unidadeId, nome, ordem: Number(body.ordem ?? 0), ativo: true }).select("*").single());
     return e ? error(ctx.request,e.code==="23505"?409:400,e.code==="23505"?"categoria_duplicada":"categoria_recusada",e.message) : response(ctx.request,{data});
+  }
+  if (acao === "combo_salvar") {
+    const id = str(body.id, 100);
+    const nome = str(body.nome, 120);
+    const descricao = str(body.descricao, 400) || "";
+    const preco = Number(body.preco);
+    const promocao = body.promocao === null || body.promocao === undefined || body.promocao === ""
+      ? null
+      : Number(body.promocao);
+    const requestedItems = Array.isArray(body.combo_itens) ? body.combo_itens : [];
+    if (!uuid(unidadeId) || (id && !uuid(id)) || !nome || nome.length > 120
+      || !Number.isFinite(preco) || preco <= 0
+      || (promocao !== null && (!Number.isFinite(promocao) || promocao <= 0 || promocao >= preco))
+      || requestedItems.length < 2 || requestedItems.length > 10) {
+      return error(ctx.request, 400, "combo_invalido", "Informe nome, preço e de 2 a 10 produtos para o combo.");
+    }
+
+    const normalizedItems = requestedItems.map((item: any) => ({
+      produto_id: str(item?.produto_id, 100),
+      quantidade: int(item?.quantidade, 1, 20)
+    }));
+    const ids = normalizedItems.map((item: any) => item.produto_id);
+    if (normalizedItems.some((item: any) => !uuid(item.produto_id) || item.quantidade === null)
+      || new Set(ids).size !== ids.length) {
+      return error(ctx.request, 400, "combo_itens_invalidos", "Os produtos e quantidades do combo são inválidos ou repetidos.");
+    }
+
+    const componentQuery = await ctx.db.from("produtos")
+      .select("id,nome,imagem,empresa_id,unidade_id,disponivel,is_combo,controle_estoque,estoque")
+      .eq("empresa_id", empresaId)
+      .eq("unidade_id", unidadeId)
+      .eq("disponivel", true)
+      .in("id", ids);
+    if (componentQuery.error) return error(ctx.request, 502, "combo_indisponivel", "Não foi possível validar os produtos do combo.");
+    const components = componentQuery.data || [];
+    const componentById = new Map(components.map((item: any) => [String(item.id), item]));
+    if (components.length !== ids.length || components.some((item: any) => item.is_combo)
+      || normalizedItems.some((item: any) => {
+        const component = componentById.get(item.produto_id) as any;
+        return component?.controle_estoque && Number(component.estoque) < item.quantidade;
+      })) {
+      return error(ctx.request, 400, "combo_produto_indisponivel", "Use produtos disponíveis da mesma unidade; combos não podem conter outros combos.");
+    }
+
+    const [variantsQuery, linksQuery] = await Promise.all([
+      ctx.db.from("produto_variantes").select("produto_id").in("produto_id", ids),
+      ctx.db.from("produto_grupos").select("produto_id").in("produto_id", ids)
+    ]);
+    if (variantsQuery.error || linksQuery.error) {
+      return error(ctx.request, 502, "combo_indisponivel", "Não foi possível validar variações e personalizações dos produtos.");
+    }
+    if ((variantsQuery.data || []).length || (linksQuery.data || []).length) {
+      return error(ctx.request, 400, "combo_personalizacao_indisponivel", "Combos aceitam apenas produtos sem variações ou personalizações.");
+    }
+
+    const comboItems = normalizedItems.map((item: any) => {
+      const component = componentById.get(item.produto_id) as any;
+      return { produto_id: item.produto_id, nome_produto: component.nome, quantidade: item.quantidade };
+    });
+    const description = [
+      `Combo: ${comboItems.map((item: any) => `${item.quantidade}x ${item.nome_produto}`).join(" • ")}`,
+      descricao
+    ].filter(Boolean).join("\n");
+    let category = await ctx.db.from("categorias").select("id")
+      .eq("empresa_id", empresaId).eq("unidade_id", unidadeId).eq("nome", "Combos").maybeSingle();
+    if (category.error) return error(ctx.request, 502, "combo_indisponivel", "Não foi possível preparar a categoria de combos.");
+    if (!category.data) {
+      category = await ctx.db.from("categorias")
+        .insert({ empresa_id: empresaId, unidade_id: unidadeId, nome: "Combos", ordem: 0, ativo: true })
+        .select("id").single();
+      if (category.error || !category.data) return error(ctx.request, 400, "combo_categoria_recusada", "Não foi possível criar a categoria de combos.");
+    }
+    const payload = {
+      empresa_id: empresaId,
+      unidade_id: unidadeId,
+      categoria_id: category.data.id,
+      nome,
+      descricao: description,
+      imagem: components[0]?.imagem || null,
+      preco,
+      promocao,
+      disponivel: body.disponivel !== false,
+      controle_estoque: false,
+      estoque: 0,
+      estoque_minimo: 0,
+      is_combo: true,
+      combo_itens: comboItems
+    };
+    const query = id
+      ? ctx.db.from("produtos").update(payload).eq("id", id).eq("empresa_id", empresaId).eq("unidade_id", unidadeId).eq("is_combo", true).select("*").single()
+      : ctx.db.from("produtos").insert(payload).select("*").single();
+    const { data, error: saveError } = await query;
+    return saveError ? error(ctx.request, 400, "combo_recusado", saveError.message) : response(ctx.request, { data });
   }
   if (acao === "produto_salvar") {
     if (!unidadeId) return error(ctx.request,400,"parametro_invalido","unidade_id é obrigatório.");
@@ -480,6 +607,9 @@ async function companyPanelAction(ctx: RouteContext, body: Json) {
   }
   if (acao === "produto_remover") {
     const id=str(body.id,100); if(!uuid(id)) return error(ctx.request,400,"parametro_invalido","id do produto inválido.");
+    const combos = await ctx.db.from("produtos").select("id,nome").eq("empresa_id",empresaId).eq("is_combo",true).contains("combo_itens",[{produto_id:id}]);
+    if(combos.error) return error(ctx.request,502,"combo_indisponivel","Não foi possível verificar se o produto faz parte de um combo.");
+    if((combos.data||[]).length) return error(ctx.request,409,"produto_em_combo","Este produto faz parte de um combo. Edite ou exclua o combo antes de remover o produto.");
     const a=await ctx.db.from("produto_grupos").delete().eq("produto_id",id); if(a.error) return error(ctx.request,400,"produto_recusado",a.error.message);
     const b=await ctx.db.from("produto_variantes").delete().eq("produto_id",id); if(b.error) return error(ctx.request,400,"produto_recusado",b.error.message);
     const d=await ctx.db.from("produtos").delete().eq("id",id).eq("empresa_id",empresaId);

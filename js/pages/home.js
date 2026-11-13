@@ -699,6 +699,62 @@ async function carregarDestaques() {
     }
 }
 
+async function carregarCombosDestaque() {
+    const section = document.getElementById("combosDestaqueSection");
+    const container = document.getElementById("listaCombosDestaque");
+    if (!section || !container) return;
+
+    container.setAttribute("aria-busy", "true");
+    try {
+        const combos = await window.DeliveryAPI.combosDestaque(8);
+        container.replaceChildren();
+        if (!combos.length) {
+            container.setAttribute("aria-busy", "false");
+            section.hidden = true;
+            return;
+        }
+
+        combos.forEach((combo) => {
+            const card = document.createElement("a");
+            card.className = "produto-destaque combo-produto-destaque";
+            card.href = `html/restaurante.html?id=${encodeURIComponent(combo.empresa_id)}`;
+            card.setAttribute("aria-label", `Ver ${combo.nome} no cardápio de ${combo.empresa_nome}`);
+            card.append(criarImagemOpcional(
+                combo.imagem,
+                combo.imagem ? `Foto de ${combo.nome || "combo"}` : "",
+                "product-cover",
+                "product-cover-placeholder"
+            ));
+
+            const corpo = document.createElement("div");
+            corpo.append(
+                criarTexto("h3", "", combo.nome || "Combo"),
+                criarTexto("p", "combo-restaurante-nome", combo.empresa_nome || "Restaurante")
+            );
+            const promocao = Number(combo.promocao || 0);
+            const precos = document.createElement("div");
+            precos.className = "combo-destaque-precos";
+            precos.append(criarTexto("strong", "", dinheiro(promocao > 0 ? promocao : combo.preco)));
+            if (promocao > 0) {
+                const precoOriginal = document.createElement("del");
+                precoOriginal.textContent = dinheiro(combo.preco);
+                precos.append(precoOriginal);
+            }
+            corpo.append(precos);
+            card.append(corpo);
+            container.append(card);
+        });
+
+        section.hidden = false;
+        container.setAttribute("aria-busy", "false");
+    } catch (error) {
+        console.warn("Não foi possível carregar os combos em destaque:", error);
+        container.replaceChildren(criarTexto("p", "sem-restaurantes", "Não foi possível carregar os combos agora."));
+        container.setAttribute("aria-busy", "false");
+        section.hidden = false;
+    }
+}
+
 
 function formatarFimOferta(fim) {
     const data = new Date(fim);
@@ -1148,7 +1204,7 @@ carts.forEach((cart) => {
     atualizarContadoresCarrinho();
     iniciarAnimacoes();
     iniciarHeroInterativo();
-    const conteudo = Promise.allSettled([carregarEmpresas(), carregarDestaques(), carregarOfertasRelampago()]);
+    const conteudo = Promise.allSettled([carregarEmpresas(), carregarDestaques(), carregarCombosDestaque(), carregarOfertasRelampago()]);
     const usuario = window.db.auth.getUser()
         .then(({ data }) => data?.user || null)
         .catch(() => null);
