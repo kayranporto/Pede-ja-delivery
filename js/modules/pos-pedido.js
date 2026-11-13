@@ -25,7 +25,7 @@
         }
     }
 
-    async function pedirNovamente(pedido, botao) {
+    async function pedirNovamente(pedido, botao, { prefixoRotas = "" } = {}) {
         if (!pedido?.empresa_id || !Array.isArray(pedido.pedido_itens) || !pedido.pedido_itens.length) {
             avisar("Pedido indisponível", "Não foi possível recuperar os itens deste pedido.", "error");
             return;
@@ -141,7 +141,7 @@
 
             if (!carrinho.length) {
                 avisar("Itens indisponíveis", "Os itens deste pedido não estão mais disponíveis. Vamos abrir o cardápio para você escolher outras opções.", "warning", 6500);
-                setTimeout(() => { location.href = `restaurante.html?id=${encodeURIComponent(empresa.id)}`; }, 900);
+                setTimeout(() => { location.href = `${prefixoRotas}restaurante.html?id=${encodeURIComponent(empresa.id)}`; }, 900);
                 return;
             }
 
@@ -169,7 +169,7 @@
                     `${itensIgnorados} ${itensIgnorados === 1 ? "item indisponível foi removido" : "itens indisponíveis foram removidos"} do pedido repetido.`
                 );
             }
-            location.href = "checkout.html";
+            location.href = `${prefixoRotas}checkout.html`;
         } catch (error) {
             console.error("Erro ao repetir pedido:", error);
             avisar("Não foi possível repetir o pedido", App.mensagemErro(error), "error", 6500);

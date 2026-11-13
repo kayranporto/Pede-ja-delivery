@@ -1660,6 +1660,65 @@
   height:48px;
 }
 
+/* Repeat the customer's most recent order */
+.home-page .repeat-order{
+  padding-top:18px;
+  padding-bottom:0;
+}
+.home-page .repeat-order-card{
+  min-height:0;
+}
+.home-page .repeat-order-summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  padding:18px 22px;
+  border:1px solid #eceef1;
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 6px 18px rgba(32,36,43,.05);
+}
+.home-page .repeat-order-details{
+  min-width:0;
+}
+.home-page .repeat-order-restaurant{
+  margin:0;
+  color:#20242b;
+  font-size:.92rem;
+  font-weight:700;
+}
+.home-page .repeat-order-items{
+  margin:5px 0;
+  color:#69707d;
+  font-size:.7rem;
+}
+.home-page .repeat-order-total{
+  color:#20242b;
+  font-size:.75rem;
+  font-weight:700;
+}
+.home-page .repeat-order-button{
+  flex:0 0 auto;
+  min-height:42px;
+  padding:9px 18px;
+  border:0;
+  border-radius:999px;
+  background:var(--pj-red);
+  color:#fff;
+  font:inherit;
+  font-size:.72rem;
+  font-weight:700;
+  cursor:pointer;
+}
+.home-page .repeat-order-button:hover{background:var(--pj-red-dark)}
+.home-page .repeat-order-button:disabled{opacity:.7;cursor:wait}
+.home-page .repeat-order-message{
+  margin:0;
+  color:#69707d;
+  font-size:.75rem;
+}
+
 /* Responsive mobile — modelo da referência */
 @media(max-width:680px){
   .home-page .container-header,
@@ -1769,6 +1828,13 @@
   .home-page .market-section-header h2{
     font-size:1.08rem!important;
   }
+  .home-page .repeat-order-summary{
+    align-items:stretch;
+    flex-direction:column;
+    gap:12px;
+    padding:15px;
+  }
+  .home-page .repeat-order-button{width:100%}
   .home-page .cards{
     grid-template-columns:1fr!important;
     gap:9px!important;

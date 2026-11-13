@@ -154,6 +154,7 @@ let aliasesCategoriaSelecionada = [];
 let resumoAvaliacoesEmpresas = new Map();
 const favoritos = new Set();
 const cacheBuscaProdutos = new Map();
+let pedidoAnteriorHome = null;
 let temporizadorBuscaProdutos = null;
 let sequenciaBuscaProdutos = 0;
 let empresasCarregadas = false;
@@ -195,6 +196,77 @@ function criarTexto(tag, classe, texto) {
     elemento.textContent = texto;
     return elemento;
 }
+
+function renderizarPedidoAnterior(pedido) {
+    const container = document.getElementById("pedidoAnteriorCard");
+    if (!container) return;
+
+    const itens = pedido.pedido_itens.slice(0, 3).map((item) =>
+        `${Number(item?.quantidade) || 1}x ${item?.nome_produto || item?.nome || "Produto"}`
+    );
+    if (pedido.pedido_itens.length > 3) itens.push(`e mais ${pedido.pedido_itens.length - 3}`);
+
+    const card = document.createElement("article");
+    card.className = "repeat-order-summary";
+    const detalhes = document.createElement("div");
+    detalhes.className = "repeat-order-details";
+    detalhes.append(
+        criarTexto("h3", "repeat-order-restaurant", pedido.empresa_nome || "Restaurante"),
+        criarTexto("p", "repeat-order-items", itens.join(" • ")),
+        criarTexto("span", "repeat-order-total", dinheiro(pedido.total))
+    );
+
+    const repetir = document.createElement("button");
+    repetir.type = "button";
+    repetir.className = "repeat-order-button";
+    repetir.dataset.pedirNovamenteHome = "true";
+    repetir.textContent = "Pedir novamente";
+    card.append(detalhes, repetir);
+    container.replaceChildren(card);
+    container.setAttribute("aria-busy", "false");
+}
+
+async function carregarPedidoAnterior(user) {
+    const section = document.getElementById("pedidoAnteriorSection");
+    const container = document.getElementById("pedidoAnteriorCard");
+    if (!section || !container || !user) return;
+
+    try {
+        const pedidos = await window.DeliveryAPI.meusPedidos();
+        const elegiveis = (Array.isArray(pedidos) ? pedidos : [])
+            .filter((pedido) => ["entregue", "cancelado"].includes(String(pedido?.status))
+                && pedido?.empresa_id
+                && Array.isArray(pedido?.pedido_itens)
+                && pedido.pedido_itens.length);
+        elegiveis.sort((a, b) => {
+            const dataA = Date.parse(a.created_at || "") || 0;
+            const dataB = Date.parse(b.created_at || "") || 0;
+            return dataB - dataA;
+        });
+
+        pedidoAnteriorHome = elegiveis[0] || null;
+        if (pedidoAnteriorHome) {
+            renderizarPedidoAnterior(pedidoAnteriorHome);
+            section.hidden = false;
+        }
+    } catch (error) {
+        console.warn("Não foi possível carregar o pedido anterior:", error);
+        container.replaceChildren(criarTexto("p", "repeat-order-message", "Não foi possível carregar seu pedido anterior agora."));
+        container.setAttribute("aria-busy", "false");
+        section.hidden = false;
+    }
+}
+
+document.getElementById("pedidoAnteriorCard")?.addEventListener("click", (event) => {
+    const botao = event.target.closest("button[data-pedir-novamente-home]");
+    if (!botao || !pedidoAnteriorHome) return;
+    if (typeof window.PosPedido?.pedirNovamente !== "function") {
+        console.error("O recurso para repetir pedido não está disponível.");
+        window.AppToast?.("Não foi possível repetir", "Tente novamente ou acesse seus pedidos.", "error");
+        return;
+    }
+    void window.PosPedido.pedirNovamente(pedidoAnteriorHome, botao, { prefixoRotas: "html/" });
+});
 
 function criarCapaVazia(classe) {
     const placeholder = document.createElement("div");
@@ -1087,7 +1159,8 @@ carts.forEach((cart) => {
     const [salvos] = await Promise.all([
         favoritosSalvos,
         atualizarEndereco(user),
-        atualizarMenuUsuario(user)
+        atualizarMenuUsuario(user),
+        carregarPedidoAnterior(user)
     ]);
     favoritos.clear();
     salvos.forEach((id) => favoritos.add(String(id)));
