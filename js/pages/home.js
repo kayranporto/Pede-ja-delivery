@@ -749,9 +749,9 @@ async function carregarCombosDestaque() {
         container.setAttribute("aria-busy", "false");
     } catch (error) {
         console.warn("Não foi possível carregar os combos em destaque:", error);
-        container.replaceChildren(criarTexto("p", "sem-restaurantes", "Não foi possível carregar os combos agora."));
+        container.replaceChildren();
         container.setAttribute("aria-busy", "false");
-        section.hidden = false;
+        section.hidden = true;
     }
 }
 

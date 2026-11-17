@@ -48,9 +48,11 @@ test("Home exibe combos ativos de restaurantes publicados e leva ao cardápio", 
     assert.match(home, /DeliveryAPI\.combosDestaque\(8\)/);
     assert.match(home, /className = "produto-destaque combo-produto-destaque"/);
     assert.match(home, /empresa_nome \|\| "Restaurante"/);
+    assert.match(home, /container\.replaceChildren\(\);\s*container\.setAttribute\("aria-busy", "false"\);\s*section\.hidden = true;/);
     assert.match(client, /tipo: "combos"/);
     assert.match(html, /supabase\.js\?v=4\.4\.10/);
     assert.match(api, /async function publicComboHighlights/);
+    assert.match(api, /\\\/v1\\\/produtos\\\/destaques\\\/\?\$/);
     assert.match(api, /\.eq\("is_combo", true\)/);
     assert.match(api, /\.eq\("disponivel", true\)/);
     assert.match(api, /\.eq\("status", true\)/);
