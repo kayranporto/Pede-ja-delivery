@@ -409,8 +409,8 @@ test("migrations históricas ausentes foram recuperadas do registro remoto origi
     assert.match(categorias, /categorias_home_admin_atualizar/);
     assert.match(mensalidade, /set taxa_plataforma_percentual = 0/);
     assert.match(mensalidade, /empresas_sem_comissao_check/);
-    assert.match(categorias, /^begin;[\s\\S]*commit;\s*$/im);
-    assert.match(mensalidade, /^begin;[\s\\S]*commit;\s*$/im);
+    assert.match(categorias, /^begin;[\s\S]*commit;\s*$/im);
+    assert.match(mensalidade, /^begin;[\s\S]*commit;\s*$/im);
 });
 
 test("administradores legados sem permissões mantêm acesso total por compatibilidade", () => {
