@@ -34,6 +34,12 @@ Migrations posteriores usam exatamente os timestamps registrados no ambiente rem
 
 Não volte a criar migrations com prefixos sequenciais curtos. Para novas alterações, gere um timestamp único e mantenha o mesmo arquivo/versionamento em todos os ambientes.
 
+### Reconciliação de novembro de 2026
+
+A preparação da reconciliação GitHub × Supabase está documentada em [RECONCILIACAO-MIGRATIONS-SUPABASE-2026-11](../docs/operations/RECONCILIACAO-MIGRATIONS-SUPABASE-2026-11.md). Ela alinha sete timestamps, recupera dois SQLs do histórico remoto e organiza duas correções de segurança em timestamps novos.
+
+**Não execute `supabase db push` antes de concluir as precondições da documentação.** Em especial, a migration de reembolso exige que os administradores legados tenham uma lista explícita de `app_metadata.admin_permissions`; a permissão `financeiro` não deve ser concedida automaticamente. A versão de combos `20261113190000` precisa ser reconhecida como já aplicada com revisão prévia, sem reaplicar seu SQL.
+
 ## Instalação nova
 
 1. Crie o projeto Supabase.
