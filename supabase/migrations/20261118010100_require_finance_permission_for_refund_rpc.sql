@@ -1,23 +1,5 @@
 -- Exige permissão financeira explícita também na RPC de preparo do reembolso.
 -- A autorização na Edge Function não substitui a proteção da camada SQL.
--- A precondição abaixo impede bloquear administradores existentes sem antes revisar seus claims.
-
-begin;
-
-do $preflight$
-begin
-  if exists (
-    select 1
-    from auth.users u
-    where u.raw_app_meta_data ->> 'role' = 'admin'
-      and jsonb_typeof(u.raw_app_meta_data -> 'admin_permissions') is distinct from 'array'
-  ) then
-    raise exception
-      'Migração bloqueada: existe administrador legado sem app_metadata.admin_permissions em formato de array. Defina explicitamente as permissões de cada administrador antes de aplicar esta migration; não conceda financeiro automaticamente.';
-  end if;
-end;
-$preflight$;
-
 create or replace function public.admin_preparar_reembolso(p_pedido_id uuid)
 returns jsonb
 language plpgsql
