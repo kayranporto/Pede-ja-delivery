@@ -85,23 +85,28 @@ test("restauração de MFA altera somente os três campos autorizados", () => {
     assert.doesNotMatch(script, /console\.log\([^\n]*accessToken/);
 });
 
-test("backup lógico exige segredo no ambiente e grava somente em pasta ignorada", () => {
+test("backup lógico usa link protegido, pasta externa e manifesto SHA-256", () => {
     const script = read("scripts/backup-supabase.ps1");
-    const gitignore = read(".gitignore");
     const packageJson = JSON.parse(read("package.json"));
     assert.match(script, /SUPABASE_DB_PASSWORD/);
-    assert.match(script, /supabase@2\.115\.0/);
+    assert.match(script, /supabase@\$cliVersion/);
+    assert.match(script, /"link", "--project-ref", \$ProjectRef/);
+    assert.match(script, /"db", "dump", "--linked"/);
     assert.match(script, /--role-only/);
     assert.match(script, /--data-only/);
     assert.match(script, /--use-copy/);
     assert.match(script, /storage\.buckets_vectors/);
     assert.match(script, /storage\.vector_indexes/);
-    assert.match(script, /StartsWith\(\$repositoryRoot/);
-    assert.match(gitignore, /^backups\/$/m);
+    assert.match(script, /Get-FileHash[\s\S]*SHA256/);
+    assert.match(script, /manifest\.json/);
+    assert.match(script, /Backups/);
+    assert.match(script, /StartsWith\(\$repositoryPrefix/);
+    assert.doesNotMatch(script, /--password/);
+    assert.match(script, /Supabase-managed auth schema and Auth user records/);
     assert.equal(packageJson.scripts["backup:supabase"], "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/backup-supabase.ps1");
 });
 
-test("restauração exige projeto temporário, confirmação explícita e transação atômica", () => {
+test("restauração valida manifesto e SHA-256 antes de usar projeto temporário", () => {
     const script = read("scripts/restore-supabase.ps1");
     const packageJson = JSON.parse(read("package.json"));
     assert.match(script, /TargetProjectRef/);
@@ -109,10 +114,15 @@ test("restauração exige projeto temporário, confirmação explícita e transa
     assert.match(script, /SUPABASE_RESTORE_DB_PASSWORD/);
     assert.match(script, /SUPABASE_RESTORE_CONFIRM/);
     assert.match(script, /RESTORE:\$TargetProjectRef/);
+    assert.match(script, /manifest\.json/);
+    assert.match(script, /Get-FileHash[\s\S]*SHA256/);
+    assert.match(script, /source_project_ref/);
+    assert.match(script, /\.pooler\.supabase\.com/);
     assert.match(script, /--single-transaction/);
     assert.match(script, /ON_ERROR_STOP=1/);
     assert.match(script, /session_replication_role = replica/);
-    assert.match(script, /supabase_migrations\.schema_migrations/);
+    assert.match(script, /public_tables/);
+    assert.doesNotMatch(script, /supabase_migrations\.schema_migrations/);
     assert.equal(packageJson.scripts["restore:supabase"], "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/restore-supabase.ps1");
 });
 
