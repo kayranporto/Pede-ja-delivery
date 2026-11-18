@@ -38,7 +38,7 @@ Não volte a criar migrations com prefixos sequenciais curtos. Para novas altera
 
 A preparação da reconciliação GitHub × Supabase está documentada em [RECONCILIACAO-MIGRATIONS-SUPABASE-2026-11](../docs/operations/RECONCILIACAO-MIGRATIONS-SUPABASE-2026-11.md). Ela alinha sete timestamps, recupera dois SQLs do histórico remoto e organiza duas correções de segurança em timestamps novos.
 
-**Não execute `supabase db push` antes de concluir as precondições da documentação.** Em especial, a migration de reembolso exige que os administradores legados tenham uma lista explícita de `app_metadata.admin_permissions`; a permissão `financeiro` não deve ser concedida automaticamente. A versão de combos `20261113190000` precisa ser reconhecida como já aplicada com revisão prévia, sem reaplicar seu SQL.
+**Não execute `supabase db push` antes de concluir as verificações da documentação.** A RPC de reembolso exige que a claim `app_metadata.admin_permissions` seja um array que contenha `financeiro`; ausência de lista ou da permissão nega a operação, sem concessão automática. A migration pode ser aplicada sem alterar administradores legados; conceda `financeiro` apenas quando houver decisão explícita. A versão de combos `20261113190000` precisa ser reconhecida como já aplicada com revisão prévia, sem reaplicar seu SQL.
 
 ## Instalação nova
 
