@@ -79,11 +79,25 @@ O Security Advisor ainda informa que a proteção contra senhas vazadas está de
 
 A organização está no plano **Free**. Conforme a documentação do Supabase, backups diários automáticos são fornecidos nos planos Pro, Team e Enterprise; para projetos Free, o Supabase recomenda exportações regulares usando `supabase db dump` e cópias externas. Backups do banco não incluem os objetos armazenados pela Storage API, portanto arquivos/imagens precisam de estratégia de backup própria.
 
-**Não foi criado nem restaurado um backup nesta auditoria.** As ferramentas conectadas disponíveis não ofereceram uma operação de backup/restauração verificável para esse projeto. Antes de uma nova alteração de schema ou dados em produção:
-1. Gere um dump lógico com a CLI compatível com o ambiente.
-2. Armazene uma cópia fora do projeto Supabase.
-3. Faça backup separado dos objetos de Storage.
-4. Restaure em um projeto isolado e valide tabelas, funções, policies e arquivos.
+**Não foi criado nem restaurado um backup nesta auditoria.** A sessão atual também não dispõe de Supabase CLI, Docker, `pg_dump`, token de acesso ou string de conexão configurada; portanto, não é possível produzir o dump por esta sessão. Para executar o procedimento em um terminal confiável com acesso ao projeto, siga a orientação oficial:
+
+```bash
+# Defina a string de conexão localmente no terminal; não a publique nem a envie no chat.
+export CONNECTION_STRING='postgresql://...'
+
+supabase db dump --db-url "$CONNECTION_STRING" -f roles.sql --role-only
+supabase db dump --db-url "$CONNECTION_STRING" -f schema.sql
+supabase db dump --db-url "$CONNECTION_STRING" -f data.sql --use-copy --data-only
+```
+
+O comando usa `pg_dump` por meio de um container Docker e aplica filtros específicos do Supabase. Depois de exportar:
+1. Armazene os três arquivos em local seguro fora do projeto Supabase.
+2. Faça backup separado dos objetos de Storage (o dump do banco contém metadados, não os arquivos).
+3. Restaure primeiro em um projeto isolado de teste.
+4. Valide tabelas, dados, funções, triggers, policies e os fluxos críticos de autenticação e Web Push.
+5. Só considere o backup apto a recuperação depois de validar a restauração.
+
+Antes de uma nova alteração de schema ou dados em produção, mantenha cópias externas dos dumps e dos objetos de Storage.
 
 Não considere o histórico de migrations, o Preview, nem a existência de backups automáticos como prova de que há um backup restaurável.
 
