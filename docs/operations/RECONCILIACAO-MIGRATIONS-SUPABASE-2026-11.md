@@ -24,17 +24,13 @@ A leitura inicial encontrou 70 registros remotos e 71 arquivos locais de migrati
    - `20261118010000_harden_authenticated_variant_catalog.sql`
    - `20261118010100_require_finance_permission_for_refund_rpc.sql`
 4. As referências de caminhos nos testes automatizados foram atualizadas.
-5. Os testes de prontidão agora verificam também a recuperação dos dois SQLs históricos e a precondição da migration de reembolso.
+5. Os testes de prontidão verificam a recuperação dos dois SQLs históricos e a exigência de permissão financeira explícita na RPC.
 
-## Precondição da correção financeira
+## Autorização financeira explícita
 
-A consulta de metadados de 17/11/2026 encontrou um administrador em `auth.users` cujo `raw_app_meta_data.admin_permissions` ainda não é um array. O código atual da API mantém compatibilidade com administradores legados sem lista, mas a RPC SQL de reembolso passa a exigir a permissão explícita `financeiro`.
+A consulta de metadados de 17/11/2026 encontrou um administrador em `auth.users` cujo `raw_app_meta_data.admin_permissions` ainda não é um array. A Edge Function `processar-reembolso` já rejeita administradores sem uma lista válida que contenha `financeiro`; a nova migration aplica a mesma regra também na RPC SQL, impedindo que alguém contorne a validação chamando a RPC diretamente.
 
-Por isso, a nova migration de reembolso contém uma verificação prévia: ela aborta a própria migration enquanto existir administrador legado sem uma lista explícita de permissões.
-
-A verificação **não concede** a permissão `financeiro`. É necessário decidir explicitamente quais permissões esse administrador deve possuir, atualizar `app_metadata.admin_permissions` pelo fluxo administrativo apropriado e renovar a sessão para que o JWT reflita as permissões. A RPC exige que a claim inclua `financeiro`.
-
-A migration não deve ser publicada enquanto essa decisão não estiver concluída.
+A migration **não concede** a permissão `financeiro` e não precisa bloquear a implantação por causa de administradores legados. Para um administrador sem a claim, ou com uma lista que não inclua `financeiro`, o reembolso permanece negado. Caso o administrador deva processar reembolsos, a permissão precisa ser atribuída explicitamente pelo fluxo administrativo apropriado e a sessão deve ser renovada para que o JWT reflita a alteração.
 
 ## Reconciliação da migration de combos
 
@@ -59,11 +55,11 @@ A contagem final é uma expectativa condicionada à revisão, merge e publicaç�
 
 1. Revisar esta branch e executar os testes e verificações do projeto.
 2. Fazer backup e confirmar que a restauração é possível.
-3. Classificar explicitamente as permissões do administrador legado; não conceder `financeiro` automaticamente.
-4. Integrar esta branch à `main`.
-5. Confirmar novamente o histórico remoto e marcar `20261113190000` como aplicada, sem executar seu SQL.
-6. Executar `supabase migration list` e `supabase db push --dry-run`; revisar cada migration pendente.
-7. Aplicar somente após aprovação explícita e verificar RLS, RPC e testes com contas de administrador com e sem `financeiro`.
+3. Integrar esta branch à `main` após revisão.
+4. Confirmar novamente o histórico remoto e marcar `20261113190000` como aplicada, sem executar seu SQL.
+5. Executar `supabase migration list` e `supabase db push --dry-run`; revisar cada migration pendente.
+6. Aplicar somente após backup verificável e aprovação explícita; verificar RLS, RPC e testes com contas de administrador com e sem `financeiro`.
+7. Atribuir `financeiro` apenas aos administradores que devam processar reembolsos, pelo fluxo administrativo apropriado.
 
 ## Estado atual e limites
 
@@ -74,4 +70,4 @@ A contagem final é uma expectativa condicionada à revisão, merge e publicaç�
 - Nenhuma alteração foi feita diretamente na branch `main`.
 - Esta branch foi aberta como Pull Request de rascunho [#86](https://github.com/kayranporto/Pede-ja-delivery/pull/86) e ainda não foi integrada à `main`.
 
-As migrations novas estão versionadas no GitHub, mas só devem ser executadas após a conclusão das precondições acima.
+As migrations novas estão versionadas no GitHub, mas só devem ser executadas após revisão, backup verificável e aprovação da publicação.
