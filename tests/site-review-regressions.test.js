@@ -142,7 +142,7 @@ test("filtros da Home são configuráveis por administradores e lidos de uma tab
     const admin = read("js/pages/admin.js");
     const manager = read("js/modules/admin-categorias-filtros.js");
     const shared = read("js/core/categorias-filtros.js");
-    const migration = read("supabase/migrations/20261022232000_admin_categorias_filtros.sql");
+    const migration = read("supabase/migrations/20261023001630_20261022232000_admin_categorias_filtros.sql");
     assert.match(html, /id="categorias_filtros"[^>]*data-admin-view/);
     assert.match(html, /id="filtroCategoriaForm"/);
     assert.match(html, /id="adminCategoriasFiltros"/);
