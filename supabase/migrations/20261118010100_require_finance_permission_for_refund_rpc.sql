@@ -1,5 +1,8 @@
 -- Exige permissão financeira explícita também na RPC de preparo do reembolso.
 -- A autorização na Edge Function não substitui a proteção da camada SQL.
+
+begin;
+
 create or replace function public.admin_preparar_reembolso(p_pedido_id uuid)
 returns jsonb
 language plpgsql
