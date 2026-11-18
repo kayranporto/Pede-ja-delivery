@@ -94,9 +94,16 @@ Procedimento para executar no Windows, a partir da raiz do clone:
 
 ```powershell
 npx --yes supabase@2.115.0 login
-$env:SUPABASE_DB_PASSWORD = Read-Host "Senha do banco Supabase"
-npm run backup:supabase
-Remove-Item Env:SUPABASE_DB_PASSWORD
+$securePassword = Read-Host "Senha do banco Supabase" -AsSecureString
+$passwordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
+try {
+    $env:SUPABASE_DB_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPointer)
+    npm run backup:supabase
+}
+finally {
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($passwordPointer)
+    Remove-Item Env:SUPABASE_DB_PASSWORD -ErrorAction SilentlyContinue
+}
 ```
 
 O resultado é gravado em `$HOME\Backups\PedeJa\<project-ref>-<timestamp>\`. Copie essa pasta para armazenamento seguro fora do computador/clone. Antes de qualquer alteração de schema ou dados em produção, restaure esse dump em um projeto isolado e registre os resultados. Para a recuperação integral, complemente o backup com Auth, Storage, Edge Functions, segredos e configuração externa.
