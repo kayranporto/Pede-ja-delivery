@@ -1,11 +1,12 @@
 # Reconciliação de migrations — GitHub × Supabase
 
 **Data da preparação:** 17/11/2026  
+**Atualização de permissões:** 17/11/2026  
 **Repositório:** `kayranporto/Pede-ja-delivery`  
 **Branch:** `chore/supabase-migration-reconciliation`  
 **Base:** `6a5f7cf9a3e5b6fa7197b3ac208f6b20c9dc80ff`  
 **Projeto Supabase:** `wzxsjxdbxonrmlmzufpv`  
-**Modo desta preparação:** alterações somente no GitHub; Supabase sem alterações.
+**Estado:** alterações versionadas no GitHub e atualização pontual de metadados Auth; nenhuma migration de schema aplicada.
 
 ## Resultado da comparação
 
@@ -28,9 +29,11 @@ A leitura inicial encontrou 70 registros remotos e 71 arquivos locais de migrati
 
 ## Autorização financeira explícita
 
-A consulta de metadados de 17/11/2026 encontrou um administrador em `auth.users` cujo `raw_app_meta_data.admin_permissions` ainda não é um array. A Edge Function `processar-reembolso` já rejeita administradores sem uma lista válida que contenha `financeiro`; a nova migration aplica a mesma regra também na RPC SQL, impedindo que alguém contorne a validação chamando a RPC diretamente.
+A consulta de metadados de 17/11/2026 encontrou um único administrador em `auth.users` cujo `raw_app_meta_data.admin_permissions` ainda não era um array. A Edge Function `processar-reembolso` já rejeitava administradores sem uma lista válida que contenha `financeiro`; a nova migration aplica a mesma regra também na RPC SQL, impedindo que alguém contorne a validação chamando a RPC diretamente.
 
-A migration **não concede** a permissão `financeiro` e não precisa bloquear a implantação por causa de administradores legados. Para um administrador sem a claim, ou com uma lista que não inclua `financeiro`, o reembolso permanece negado. Caso o administrador deva processar reembolsos, a permissão precisa ser atribuída explicitamente pelo fluxo administrativo apropriado e a sessão deve ser renovada para que o JWT reflita a alteração.
+Após autorização expressa, a lista foi atualizada para os 14 identificadores administrativos já reconhecidos pelo projeto: `overview`, `pedidos`, `financeiro`, `entregas`, `areas`, `restaurantes`, `usuarios`, `cupons`, `marketing`, `relatorios`, `suporte`, `configuracoes`, `administradores` e `categorias_filtros`. Isso preserva o acesso amplo que esse administrador já recebia pelo fallback de compatibilidade quando a lista estava ausente e torna explícita a permissão `financeiro`. Nenhum outro administrador foi alterado.
+
+A verificação posterior confirmou um administrador, uma lista explícita de 14 permissões e `financeiro` presente. A sessão/JWT existente pode continuar com claims antigas até ser renovada; o administrador deve sair e entrar novamente ou renovar a sessão antes de testar a operação.
 
 ## Reconciliação da migration de combos
 
@@ -59,13 +62,13 @@ A contagem final é uma expectativa condicionada à revisão, merge e publicaç�
 4. Confirmar novamente o histórico remoto e marcar `20261113190000` como aplicada, sem executar seu SQL.
 5. Executar `supabase migration list` e `supabase db push --dry-run`; revisar cada migration pendente.
 6. Aplicar somente após backup verificável e aprovação explícita; verificar RLS, RPC e testes com contas de administrador com e sem `financeiro`.
-7. Atribuir `financeiro` apenas aos administradores que devam processar reembolsos, pelo fluxo administrativo apropriado.
+7. Confirmar que as sessões administrativas foram renovadas e testar a RPC com a conta autorizada; não atribuir `financeiro` a outras contas sem autorização explícita.
 
 ## Estado atual e limites
 
 - Nenhuma migration foi aplicada ao banco remoto.
 - Nenhum registro de `supabase_migrations.schema_migrations` foi inserido ou removido.
-- Nenhum dado de Auth foi alterado.
+- Metadados Auth foram atualizados para um único administrador: lista explícita das 14 permissões já reconhecidas pelo projeto, incluindo `financeiro`; nenhum outro usuário foi modificado.
 - Nenhuma Edge Function foi publicada.
 - Nenhuma alteração foi feita diretamente na branch `main`.
 - Esta branch foi aberta como Pull Request de rascunho [#86](https://github.com/kayranporto/Pede-ja-delivery/pull/86) e ainda não foi integrada à `main`.
