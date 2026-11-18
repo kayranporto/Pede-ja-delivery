@@ -46,7 +46,7 @@ A reconciliação GitHub × Supabase foi concluída pela [PR #86](https://github
 
 A RPC de reembolso exige que `app_metadata.admin_permissions` seja um array que contenha explicitamente `financeiro`; sem a lista ou sem essa permissão, a operação é negada. Após autorização expressa, a permissão foi incluída na lista do único administrador existente, preservando as demais permissões. O administrador deve renovar a sessão (sair e entrar novamente) para obter as claims atualizadas.
 
-**Antes de qualquer nova alteração no banco de produção:** obtenha um dump lógico fora do projeto, mantenha uma cópia externa e valide a restauração. A organização está no plano Free, que não inclui backups automáticos diários; consulte a seção de backup deste relatório. Não trate o histórico de migrations ou o Preview como substituto de backup restaurável.
+**Antes de qualquer nova alteração no banco de produção:** execute `npm run backup:supabase` em um terminal Windows com Supabase CLI autenticado, Docker ativo e `SUPABASE_DB_PASSWORD` definida somente no ambiente. O script existente gera um dump lógico com manifesto e hashes SHA-256 fora do clone, em `$HOME\Backups\PedeJa`. A CLI exclui os schemas gerenciados `auth` e `storage` e schemas de extensões; portanto, o dump não contém usuários Auth, Storage, Edge Functions ou configurações externas. Faça exportações separadas desses itens e valide a restauração em projeto temporário. Consulte [PRODUCAO.md](../docs/operations/PRODUCAO.md) e o [relatório de reconciliação](../docs/operations/RECONCILIACAO-MIGRATIONS-SUPABASE-2026-11.md).
 
 ## Instalação nova
 
