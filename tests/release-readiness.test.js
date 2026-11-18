@@ -273,6 +273,8 @@ test("RPC SQL de preparo de reembolso exige permissão financeira explícita", (
     assert.match(sql, /from auth\.users u/);
     assert.match(sql, /raw_app_meta_data ->> 'role' = 'admin'/);
     assert.match(sql, /raw_app_meta_data -> 'admin_permissions'/);
+    assert.match(sql, /jsonb_typeof\(u\.raw_app_meta_data -> 'admin_permissions'\) is distinct from 'array'/);
+    assert.match(sql, /não conceda financeiro automaticamente/);
     assert.match(sql, /Migração bloqueada/);
     assert.match(sql, /not private\.is_admin\(\)/);
     assert.match(sql, /jsonb_typeof\(v_permissoes\) is distinct from 'array'/);
