@@ -14,7 +14,7 @@ A leitura inicial encontrou 70 registros remotos e 71 arquivos locais de migrati
 - Sete pares com timestamps diferentes foram comparados diretamente entre o SQL do arquivo e `supabase_migrations.schema_migrations.statements`. Os sete conteúdos SQL são equivalentes.
 - Os SQLs originais das versões `20261022232700` (`categorias_home_admin`) e `20261026225301` (`empresas_sem_comissao`) foram recuperados do histórico remoto, sem reconstrução presumida.
 - A migration local `20261113190000_combos_restaurante.sql` não está registrada no histórico remoto, mas seus objetos foram encontrados no schema. As quatro funções do arquivo foram comparadas com as definições remotas e seus corpos são equivalentes.
-- A policy autenticada de variantes e a RPC de preparo de reembolso continuam precisando das correções de segurança descritas abaixo.
+- As correções de segurança para a policy autenticada de variantes e para a RPC de preparo de reembolso foram preparadas nesta branch. Elas ainda não foram aplicadas ao Supabase.
 
 ## Alterações preparadas nesta branch
 
@@ -28,7 +28,7 @@ A leitura inicial encontrou 70 registros remotos e 71 arquivos locais de migrati
 
 ## Precondição da correção financeira
 
-A consulta de metadados de 17/11/2026 encontrou um administrador em `auth.users` cujo `raw_app_meta_data.admin_permissions` ainda não é um array.
+A consulta de metadados de 17/11/2026 encontrou um administrador em `auth.users` cujo `raw_app_meta_data.admin_permissions` ainda não é um array. O código atual da API mantém compatibilidade com administradores legados sem lista, mas a RPC SQL de reembolso passa a exigir a permissão explícita `financeiro`.
 
 Por isso, a nova migration de reembolso contém uma verificação prévia: ela aborta a própria migration enquanto existir administrador legado sem uma lista explícita de permissões.
 
@@ -72,6 +72,6 @@ A contagem final é uma expectativa condicionada à revisão, merge e publicaç�
 - Nenhum dado de Auth foi alterado.
 - Nenhuma Edge Function foi publicada.
 - Nenhuma alteração foi feita diretamente na branch `main`.
-- Esta branch ainda não foi aberta como Pull Request nem integrada.
+- Esta branch foi aberta como Pull Request de rascunho [#86](https://github.com/kayranporto/Pede-ja-delivery/pull/86) e ainda não foi integrada à `main`.
 
 As migrations novas estão versionadas no GitHub, mas só devem ser executadas após a conclusão das precondições acima.
