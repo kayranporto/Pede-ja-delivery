@@ -63,7 +63,7 @@ O Advisor também identifica 70 funções acessíveis a `authenticated`. A consu
 
 ### Extensão pg_net
 
-A extensão `pg_net` está na versão `0.20.4`, registrada no schema `public`, e não é relocatable (`extrelocatable = false`). A documentação do Supabase orienta recriá-la no schema `extensions`, em vez de tentar `ALTER EXTENSION ... SET SCHEMA`. Essa operação remove objetos da extensão e pode interromper webhooks, funções, triggers ou jobs que dependam de `net.http_*`; portanto, não foi feita nesta auditoria. Só planeje essa mudança após mapear todos os consumidores e validar backup/restauração.
+A extensão `pg_net` está na versão `0.20.4`, registrada no schema `public`, e não é relocatable (`extrelocatable = false`). A documentação do Supabase orienta recriá-la no schema `extensions`, em vez de tentar `ALTER EXTENSION ... SET SCHEMA`. A consulta encontrou um consumidor ativo: `private.encaminhar_push_notificacao()` chama `net.http_post` e é acionada pelo trigger `notificacoes_web_push` (`AFTER INSERT` em `public.notificacoes`). A recriação pode interromper esse fluxo e outros consumidores de `net.http_*`; portanto, não foi feita nesta auditoria. Só planeje essa mudança após mapear todos os consumidores e validar backup/restauração.
 
 ### Proteção de senhas vazadas
 
