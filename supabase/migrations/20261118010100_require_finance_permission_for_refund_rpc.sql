@@ -10,13 +10,10 @@ begin
     select 1
     from auth.users u
     where u.raw_app_meta_data ->> 'role' = 'admin'
-      and (
-        jsonb_typeof(u.raw_app_meta_data -> 'admin_permissions') is distinct from 'array'
-        or not coalesce((u.raw_app_meta_data -> 'admin_permissions') ? 'financeiro', false)
-      )
+      and jsonb_typeof(u.raw_app_meta_data -> 'admin_permissions') is distinct from 'array'
   ) then
     raise exception
-      'Migração bloqueada: existe administrador sem a permissão financeira explícita em app_metadata.admin_permissions. Revise e atualize os claims antes de aplicar esta migration.';
+      'Migração bloqueada: existe administrador legado sem app_metadata.admin_permissions em formato de array. Defina explicitamente as permissões de cada administrador antes de aplicar esta migration; não conceda financeiro automaticamente.';
   end if;
 end;
 $preflight$;
