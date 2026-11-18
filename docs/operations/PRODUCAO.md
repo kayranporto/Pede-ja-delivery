@@ -34,9 +34,16 @@ O projeto está no plano Free; não há backups automáticos diários incluídos
 npx --yes supabase@2.115.0 login
 
 # A senha é lida como variável do processo, não como argumento de linha de comando.
-$env:SUPABASE_DB_PASSWORD = Read-Host "Senha do banco Supabase"
-npm run backup:supabase
-Remove-Item Env:SUPABASE_DB_PASSWORD
+$securePassword = Read-Host "Senha do banco Supabase" -AsSecureString
+$passwordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
+try {
+    $env:SUPABASE_DB_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPointer)
+    npm run backup:supabase
+}
+finally {
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($passwordPointer)
+    Remove-Item Env:SUPABASE_DB_PASSWORD -ErrorAction SilentlyContinue
+}
 ```
 
 O script vincula o clone ao projeto `wzxsjxdbxonrmlmzufpv`, gera `roles.sql`, `schema.sql`, `data.sql` e `manifest.json` em `$HOME\Backups\PedeJa\`. O manifesto registra o projeto de origem, a versão do CLI, tamanhos e hashes SHA-256. Mantenha essa pasta em armazenamento seguro fora do clone e faça uma segunda cópia externa.
