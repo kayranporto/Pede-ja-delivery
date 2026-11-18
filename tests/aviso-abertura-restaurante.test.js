@@ -6,7 +6,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const root = path.resolve(__dirname, "..");
-const migration = fs.readFileSync(path.join(root, "supabase/migrations/20261027090000_avisos_abertura_restaurante.sql"), "utf8");
+const migration = fs.readFileSync(path.join(root, "supabase/migrations/20261027224607_avisos_abertura_restaurante.sql"), "utf8");
 const api = fs.readFileSync(path.join(root, "supabase/functions/api-completa/index.ts"), "utf8");
 const client = fs.readFileSync(path.join(root, "js/core/supabase.js"), "utf8");
 const moduleCode = fs.readFileSync(path.join(root, "js/modules/aviso-abertura-restaurante.js"), "utf8");

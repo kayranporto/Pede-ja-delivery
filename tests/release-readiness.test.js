@@ -268,8 +268,9 @@ test("webhook valida assinatura e reconcilia valor, moeda e idempotência no ban
 });
 
 test("RPC SQL de preparo de reembolso exige permissão financeira explícita", () => {
-    const sql = read("supabase/migrations/20261021235000_require_finance_permission_for_refund_rpc.sql");
+    const sql = read("supabase/migrations/20261118010100_require_finance_permission_for_refund_rpc.sql");
     assert.match(sql, /create or replace function public\.admin_preparar_reembolso\(p_pedido_id uuid\)/);
+    assert.doesNotMatch(sql, /Migração bloqueada/);
     assert.match(sql, /not private\.is_admin\(\)/);
     assert.match(sql, /jsonb_typeof\(v_permissoes\) is distinct from 'array'/);
     assert.match(sql, /not \(v_permissoes \? 'financeiro'\)/);
@@ -396,6 +397,19 @@ test("criar-pagamento exige ativação explícita no servidor", () => {
     assert.match(read("js/core/config.js"), /pagamentoOnlineAtivo:\s*false/);
 });
 
+
+
+test("migrations históricas ausentes foram recuperadas do registro remoto original", () => {
+    const categorias = read("supabase/migrations/20261022232700_categorias_home_admin.sql");
+    const mensalidade = read("supabase/migrations/20261026225301_empresas_sem_comissao.sql");
+    assert.match(categorias, /create table if not exists public\.categorias_home/);
+    assert.match(categorias, /categorias_home_admin_atualizar/);
+    assert.match(mensalidade, /set taxa_plataforma_percentual = 0/);
+    assert.match(mensalidade, /empresas_sem_comissao_check/);
+    assert.match(categorias, /^begin;[\s\S]*commit;\s*$/im);
+    assert.match(mensalidade, /^begin;[\s\S]*commit;\s*$/im);
+});
+
 test("administradores legados sem permissões mantêm acesso total por compatibilidade", () => {
     const api = read("supabase/functions/api-completa/index.ts");
     assert.match(api, /function normalizeAdminPermissions\(value: unknown\): Set<string>/);
@@ -405,7 +419,7 @@ test("administradores legados sem permissões mantêm acesso total por compatibi
 });
 
 test("catálogo autenticado não expõe variantes de produtos indisponíveis", () => {
-    const migration = read("supabase/migrations/20261021223000_harden_authenticated_variant_catalog.sql");
+    const migration = read("supabase/migrations/20261118010000_harden_authenticated_variant_catalog.sql");
     assert.match(migration, /create policy catalogo_variantes_authenticated[\s\S]*?and p\.disponivel = true/i);
     assert.match(migration, /drop policy if exists catalogo_variantes_authenticated/i);
 });
