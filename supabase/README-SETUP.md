@@ -36,9 +36,17 @@ Não volte a criar migrations com prefixos sequenciais curtos. Para novas altera
 
 ### Reconciliação de novembro de 2026
 
-A preparação da reconciliação GitHub × Supabase está documentada em [RECONCILIACAO-MIGRATIONS-SUPABASE-2026-11](../docs/operations/RECONCILIACAO-MIGRATIONS-SUPABASE-2026-11.md). Ela alinha sete timestamps, recupera dois SQLs do histórico remoto e organiza duas correções de segurança em timestamps novos.
+A reconciliação GitHub × Supabase foi concluída pela [PR #86](https://github.com/kayranporto/Pede-ja-delivery/pull/86), integrada à `main` no commit `920d8c7ede13d98dc23037a56fe9eb048a656011`. O relatório detalhado está em [RECONCILIACAO-MIGRATIONS-SUPABASE-2026-11](../docs/operations/RECONCILIACAO-MIGRATIONS-SUPABASE-2026-11.md).
 
-**Não execute `supabase db push` antes de concluir as verificações da documentação.** A RPC de reembolso exige que a claim `app_metadata.admin_permissions` seja um array que contenha `financeiro`; ausência de lista ou da permissão nega a operação, sem concessão automática. A migration pode ser aplicada sem alterar administradores legados; conceda `financeiro` apenas quando houver decisão explícita. A versão de combos `20261113190000` precisa ser reconhecida como já aplicada com revisão prévia, sem reaplicar seu SQL.
+**Estado verificado em 17/11/2026:**
+- 73 arquivos SQL em `supabase/migrations`.
+- 73 registros em `supabase_migrations.schema_migrations`.
+- Os conjuntos de versões são idênticos: nenhuma migration local ausente no remoto e nenhuma versão remota sem arquivo local.
+- As versões `20261113190000`, `20261118010000` e `20261118010100` constam no histórico remoto. Não execute novamente o SQL de combos nem use `migration repair` para essa versão.
+
+A RPC de reembolso exige que `app_metadata.admin_permissions` seja um array que contenha explicitamente `financeiro`; sem a lista ou sem essa permissão, a operação é negada. Após autorização expressa, a permissão foi incluída na lista do único administrador existente, preservando as demais permissões. O administrador deve renovar a sessão (sair e entrar novamente) para obter as claims atualizadas.
+
+**Antes de qualquer nova alteração no banco de produção:** execute `npm run backup:supabase` em um terminal Windows com Supabase CLI autenticado, Docker ativo e `SUPABASE_DB_PASSWORD` definida somente no ambiente. O script existente gera um dump lógico com manifesto e hashes SHA-256 fora do clone, em `$HOME\Backups\PedeJa`. A CLI exclui os schemas gerenciados `auth` e `storage` e schemas de extensões; portanto, o dump não contém usuários Auth, Storage, Edge Functions ou configurações externas. Faça exportações separadas desses itens e valide a restauração em projeto temporário. Consulte [PRODUCAO.md](../docs/operations/PRODUCAO.md) e o [relatório de reconciliação](../docs/operations/RECONCILIACAO-MIGRATIONS-SUPABASE-2026-11.md).
 
 ## Instalação nova
 
