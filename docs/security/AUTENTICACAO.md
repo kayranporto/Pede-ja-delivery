@@ -38,9 +38,9 @@ Desativar confirmação de e-mail aumenta a facilidade de criar contas com ender
 O e-mail continua necessário para recuperação de senha e comunicações operacionais. Alterar o e-mail da conta continua sendo uma operação confirmada.
 
 
-## URLs oficiais do GitHub Pages
+## URLs oficiais de recuperação
 
-O PedeJá usa o site de projeto do GitHub Pages em `https://kayranporto.github.io/Pede-ja-delivery/`. A página de redefinição fica em `https://kayranporto.github.io/Pede-ja-delivery/html/nova-senha.html`.
+A produção do PedeJá está no Vercel em `https://site-delivery-42.vercel.app/`, e a página de redefinição fica em `https://site-delivery-42.vercel.app/html/nova-senha.html`. O GitHub Pages é mantido como canal secundário em `https://kayranporto.github.io/Pede-ja-delivery/`.
 
 Para aplicar no projeto Supabase hospedado sem substituir outras configurações de autenticação ou apagar destinos de redirecionamento já usados, crie um token pessoal do Supabase com permissão para alterar a configuração de Auth e execute localmente:
 
@@ -50,7 +50,7 @@ npm run configure:auth:github-pages
 Remove-Item Env:SUPABASE_ACCESS_TOKEN
 ```
 
-O script atualiza somente a URL principal e adiciona a URL exata de redefinição à lista de destinos permitidos; em seguida, consulta novamente a API para confirmar os dois valores. O token é lido do ambiente e nunca é exibido ou salvo no repositório. Não compartilhe esse token no chat.
+O script atualiza somente a URL principal para a produção Vercel e adiciona os destinos exatos de redefinição da Vercel e do GitHub Pages à lista permitida; em seguida, consulta novamente a API para confirmar os valores. O token é lido do ambiente e nunca é exibido ou salvo no repositório. Não compartilhe esse token no chat.
 
 ## Configuração dos rate limits
 
@@ -58,8 +58,8 @@ O CAPTCHA permanecerá desativado por decisão de produto. O suporte opcional ex
 
 As URLs e os limites recomendados estão versionados em `supabase/config.toml`:
 
-- URL principal oficial (GitHub Pages): `https://kayranporto.github.io/Pede-ja-delivery/`;
-- redirect exato de recuperação: `https://kayranporto.github.io/Pede-ja-delivery/html/nova-senha.html`;
+- URL principal oficial (Vercel): `https://site-delivery-42.vercel.app/`;
+- redirects exatos de recuperação: `https://site-delivery-42.vercel.app/html/nova-senha.html` e `https://kayranporto.github.io/Pede-ja-delivery/html/nova-senha.html`;
 - login/cadastro: 30 requisições por 5 minutos por IP;
 - renovação de token: 150 requisições por 5 minutos por IP;
 - verificação de token/OTP: 30 requisições por 5 minutos por IP;

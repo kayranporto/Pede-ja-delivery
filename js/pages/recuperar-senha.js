@@ -2,8 +2,10 @@
 
 const form = document.getElementById("recuperarForm");
 
-// Este é o destino exato autorizado em supabase/config.toml e no Supabase Auth.
-const URL_RECUPERACAO_SENHA = "https://kayranporto.github.io/Pede-ja-delivery/html/nova-senha.html";
+// Os destinos precisam corresponder exatamente à lista permitida no Supabase Auth.
+const URL_RECUPERACAO_SENHA = window.location.hostname === "site-delivery-42.vercel.app"
+    ? "https://site-delivery-42.vercel.app/html/nova-senha.html"
+    : "https://kayranporto.github.io/Pede-ja-delivery/html/nova-senha.html";
 
 function avisarRecuperacao(titulo, mensagem, tipo = "info", campo = null, tempo = 5000) {
     window.AppToast?.(titulo, mensagem, tipo, tempo);
@@ -15,7 +17,9 @@ form.addEventListener("submit", async (event) => {
     const emailCampo = document.getElementById("email");
     const email = emailCampo.value.trim().toLowerCase();
     const botao = form.querySelector("button[type='submit']");
+    emailCampo.removeAttribute("aria-invalid");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        emailCampo.setAttribute("aria-invalid", "true");
         avisarRecuperacao("E-mail inválido", "Informe um endereço de e-mail válido para recuperar a senha.", "error", emailCampo);
         return;
     }

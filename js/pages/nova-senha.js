@@ -14,14 +14,70 @@ function senhaValida(senha) {
 }
 
 async function verificarRecuperacao() {
-    const { data: { session }, error } = await db.auth.getSession();
-    if (error || !session) {
-        statusRecuperacao.textContent = "Este link é inválido ou expirou. Solicite uma nova recuperação.";
+    const url = new URL(window.location.href);
+    const parametrosHash = new URLSearchParams(url.hash.replace(/^#/, ""));
+    const codigo = url.searchParams.get("code");
+    const erroUrl = url.searchParams.get("error") || parametrosHash.get("error");
+    const descricaoErro = url.searchParams.get("error_description") || parametrosHash.get("error_description");
+    const codigoErro = url.searchParams.get("error_code") || parametrosHash.get("error_code");
+
+    if (erroUrl || codigoErro) {
+        let mensagem = "Este link é inválido ou expirou. Solicite uma nova recuperação.";
+        if (codigoErro === "otp_expired") {
+            mensagem = "Este link expirou ou já foi usado. Solicite uma nova recuperação de senha.";
+        } else if (descricaoErro) {
+            try {
+                mensagem = decodeURIComponent(descricaoErro.replace(/\+/g, " "));
+            } catch {
+                mensagem = descricaoErro;
+            }
+        }
+        statusRecuperacao.textContent = mensagem;
         novoLink.hidden = false;
         return;
     }
-    statusRecuperacao.textContent = "Digite e confirme sua nova senha.";
-    formNovaSenha.hidden = false;
+
+    try {
+        if (codigo) {
+            const { error } = await db.auth.exchangeCodeForSession(codigo);
+            if (error) throw error;
+            url.searchParams.delete("code");
+            window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
+        }
+    } catch (error) {
+        statusRecuperacao.textContent = "Este link não pôde ser validado ou já expirou. Solicite uma nova recuperação.";
+        novoLink.hidden = false;
+        window.AppToast?.("Link inválido", "Solicite uma nova recuperação de senha.", "error");
+        console.error("Erro ao validar o link de recuperação:", error);
+        return;
+    }
+
+    let sessaoEncontrada = false;
+
+    const atualizarSessao = (session) => {
+        if (!session) return;
+        sessaoEncontrada = true;
+        statusRecuperacao.textContent = "Digite e confirme sua nova senha.";
+        formNovaSenha.hidden = false;
+    };
+
+    const { data: { subscription } } = db.auth.onAuthStateChange((evento, session) => {
+        if (evento === "PASSWORD_RECOVERY" || (evento === "SIGNED_IN" && session)) {
+            atualizarSessao(session);
+        }
+    });
+
+    const { data: { session }, error } = await db.auth.getSession();
+    if (!error && session) atualizarSessao(session);
+
+    if (!sessaoEncontrada) {
+        statusRecuperacao.textContent = "Este link é inválido ou expirou. Solicite uma nova recuperação.";
+        novoLink.hidden = false;
+    }
+
+    if (subscription) {
+        window.addEventListener("beforeunload", () => subscription.unsubscribe(), { once: true });
+    }
 }
 
 formNovaSenha.addEventListener("submit", async (event) => {

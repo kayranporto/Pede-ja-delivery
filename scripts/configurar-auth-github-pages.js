@@ -1,11 +1,14 @@
 "use strict";
 
-// Atualiza somente a URL principal do site e acrescenta o redirect exato
-// de recuperação, preservando os demais destinos e configurações do Auth.
+// Atualiza somente a URL principal e acrescenta os redirects exatos de recuperação,
+// preservando os demais destinos e configurações do Auth.
 const projectRef = process.env.PROJECT_REF || "wzxsjxdbxonrmlmzufpv";
 const accessToken = String(process.env.SUPABASE_ACCESS_TOKEN || "").trim();
-const siteUrl = "https://kayranporto.github.io/Pede-ja-delivery/";
-const recoveryRedirectUrl = `${siteUrl}html/nova-senha.html`;
+const siteUrl = "https://site-delivery-42.vercel.app/";
+const recoveryRedirectUrls = [
+    `${siteUrl}html/nova-senha.html`,
+    "https://kayranporto.github.io/Pede-ja-delivery/html/nova-senha.html"
+];
 const authConfigUrl = `https://api.supabase.com/v1/projects/${projectRef}/config/auth`;
 
 if (!accessToken) {
@@ -37,27 +40,32 @@ function parseAllowList(value) {
 async function main() {
     const before = await request("GET");
     const allowList = parseAllowList(before.uri_allow_list);
-    const hasRedirect = allowList.includes(recoveryRedirectUrl);
-    const nextAllowList = hasRedirect ? allowList : [...allowList, recoveryRedirectUrl];
+    const missingRedirects = recoveryRedirectUrls.filter((url) => !allowList.includes(url));
+    const nextAllowList = [...allowList, ...missingRedirects];
     const patch = {};
 
     if (before.site_url !== siteUrl) patch.site_url = siteUrl;
-    if (!hasRedirect) patch.uri_allow_list = nextAllowList.join(",");
+    if (missingRedirects.length) patch.uri_allow_list = nextAllowList.join(",");
 
     if (Object.keys(patch).length) await request("PATCH", patch);
 
     const after = await request("GET");
     const finalAllowList = parseAllowList(after.uri_allow_list);
-    const verified = after.site_url === siteUrl && finalAllowList.includes(recoveryRedirectUrl);
+    const allowedRedirects = recoveryRedirectUrls.every((url) => finalAllowList.includes(url));
+    const verified = after.site_url === siteUrl && allowedRedirects;
     if (!verified) {
-        throw new Error("A verificação da URL principal ou do redirect do GitHub Pages falhou.");
+        throw new Error("A verificação da URL principal ou dos redirects de recuperação falhou.");
     }
 
     console.log(JSON.stringify({
         site_url: after.site_url,
-        recovery_redirect_allowed: finalAllowList.includes(recoveryRedirectUrl)
+        recovery_redirects_allowed: recoveryRedirectsStatus(finalAllowList)
     }, null, 2));
-    console.log("URLs do GitHub Pages confirmadas no Supabase Auth.");
+    console.log("URLs de produção e compatibilidade confirmadas no Supabase Auth.");
+}
+
+function recoveryRedirectsStatus(allowList) {
+    return Object.fromEntries(recoveryRedirectUrls.map((url) => [url, allowList.includes(url)]));
 }
 
 main().catch((error) => {

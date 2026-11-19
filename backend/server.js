@@ -1,4 +1,5 @@
 "use strict";
+global.WebSocket = require('ws');
 
 const path = require("node:path");
 const dotenv = require("dotenv");
