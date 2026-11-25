@@ -137,7 +137,7 @@ test("painel administrativo exibe apenas a seção escolhida e separa o conteúd
 });
 
 
-test("somente kayranpoero12@gmail.com pode alterar permissões de outros administradores", () => {
+test("somente kayranporto12@gmail.com pode alterar permissões de outros administradores", () => {
     const js = read("js/pages/admin.js");
     const edge = read("supabase/functions/admin-usuarios/index.ts");
 
