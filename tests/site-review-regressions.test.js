@@ -141,11 +141,11 @@ test("somente kayranporto12@gmail.com pode alterar permissões de outros adminis
     const js = read("js/pages/admin.js");
     const edge = read("supabase/functions/admin-usuarios/index.ts");
 
-    assert.match(js, /const ADMIN_EMAIL_GESTOR_PERMISSOES = "kayranpoero12@gmail\.com"/);
+    assert.match(js, /const ADMIN_EMAIL_GESTOR_PERMISSOES = "kayranporto@gmail\.com"/);
     assert.match(js, /function podeEditarPermissoesAdmin\(\)/);
     assert.match(js, /emailAdminAtual = String\(user\?\.email \|\| ""\)\.trim\(\)\.toLowerCase\(\)/);
     assert.match(js, /permissao\.disabled = admin\.id === window\.__ADMIN_USER_ID__ \|\| !podeEditarPermissoes/);
-    assert.match(edge, /const PERMISSION_MANAGER_EMAIL = "kayranpoero12@gmail\.com"/);
+    assert.match(edge, /const PERMISSION_MANAGER_EMAIL = "kayranporto@gmail\.com"/);
     assert.match(edge, /function canEditAdminPermissions\(user: any\): boolean/);
     assert.match(edge, /acao === "salvar_permissoes" && !gestorPermissoes/);
     assert.match(edge, /usuarioId === user\.id\) return fail\("Você só pode alterar as permissões de outros administradores\.", 403\)/);
