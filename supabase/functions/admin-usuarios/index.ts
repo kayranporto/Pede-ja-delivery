@@ -19,6 +19,11 @@ const ADMIN_PERMISSIONS = [
 
 type AdminPermission = typeof ADMIN_PERMISSIONS[number];
 
+const ADMIN_INVITE_REDIRECTS: Record<string, string> = {
+  "https://site-delivery-42.vercel.app": "https://site-delivery-42.vercel.app/html/admin.html",
+  "https://kayranporto.github.io": "https://kayranporto.github.io/Pede-ja-delivery/html/admin.html"
+};
+
 function normalizePermissions(input: unknown): AdminPermission[] {
   if (!Array.isArray(input)) return [...ADMIN_PERMISSIONS];
   const normalized = [...new Set(
@@ -108,7 +113,12 @@ Deno.serve(async (req) => {
       if (error) return fail(error.message, 400);
       return reply({ mensagem: "O usuário existente recebeu acesso administrativo.", permissoes: metadata.admin_permissions });
     }
-    const { data: invited, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, { data: { nome: "Administrador PedeJá" } });
+    const redirectTo = ADMIN_INVITE_REDIRECTS[req.headers.get("origin") || ""];
+    if (!redirectTo) return fail("Origem do convite não permitida.", 400);
+    const { data: invited, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
+      redirectTo,
+      data: { nome: "Administrador PedeJá" }
+    });
     if (inviteError || !invited.user) return fail(inviteError?.message || "Não foi possível enviar o convite.", 400);
     const { error: roleError } = await adminClient.auth.admin.updateUserById(invited.user.id, {
       app_metadata: adminMetadata(invited.user, [...ADMIN_PERMISSIONS])

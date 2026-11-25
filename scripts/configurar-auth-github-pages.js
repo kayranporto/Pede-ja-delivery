@@ -1,6 +1,6 @@
 "use strict";
 
-// Atualiza somente a URL principal e acrescenta os redirects exatos de recuperação,
+// Atualiza somente a URL principal e acrescenta os destinos exatos do Auth,
 // preservando os demais destinos e configurações do Auth.
 const projectRef = process.env.PROJECT_REF || "wzxsjxdbxonrmlmzufpv";
 const accessToken = String(process.env.SUPABASE_ACCESS_TOKEN || "").trim();
@@ -9,6 +9,11 @@ const recoveryRedirectUrls = [
     `${siteUrl}html/nova-senha.html`,
     "https://kayranporto.github.io/Pede-ja-delivery/html/nova-senha.html"
 ];
+const adminInviteRedirectUrls = [
+    `${siteUrl}html/admin.html`,
+    "https://kayranporto.github.io/Pede-ja-delivery/html/admin.html"
+];
+const authRedirectUrls = [...recoveryRedirectUrls, ...adminInviteRedirectUrls];
 const authConfigUrl = `https://api.supabase.com/v1/projects/${projectRef}/config/auth`;
 
 if (!accessToken) {
@@ -40,7 +45,7 @@ function parseAllowList(value) {
 async function main() {
     const before = await request("GET");
     const allowList = parseAllowList(before.uri_allow_list);
-    const missingRedirects = recoveryRedirectUrls.filter((url) => !allowList.includes(url));
+    const missingRedirects = authRedirectUrls.filter((url) => !allowList.includes(url));
     const nextAllowList = [...allowList, ...missingRedirects];
     const patch = {};
 
@@ -51,21 +56,27 @@ async function main() {
 
     const after = await request("GET");
     const finalAllowList = parseAllowList(after.uri_allow_list);
-    const allowedRedirects = recoveryRedirectUrls.every((url) => finalAllowList.includes(url));
-    const verified = after.site_url === siteUrl && allowedRedirects;
+    const recoveryRedirectsAllowed = recoveryRedirectUrls.every((url) => finalAllowList.includes(url));
+    const adminInviteRedirectsAllowed = adminInviteRedirectUrls.every((url) => finalAllowList.includes(url));
+    const verified = after.site_url === siteUrl && recoveryRedirectsAllowed && adminInviteRedirectsAllowed;
     if (!verified) {
-        throw new Error("A verificação da URL principal ou dos redirects de recuperação falhou.");
+        throw new Error("A verificação da URL principal ou dos redirects do Auth falhou.");
     }
 
     console.log(JSON.stringify({
         site_url: after.site_url,
-        recovery_redirects_allowed: recoveryRedirectsStatus(finalAllowList)
+        recovery_redirects_allowed: recoveryRedirectsStatus(finalAllowList),
+        admin_invite_redirects_allowed: adminInviteRedirectsStatus(finalAllowList)
     }, null, 2));
     console.log("URLs de produção e compatibilidade confirmadas no Supabase Auth.");
 }
 
 function recoveryRedirectsStatus(allowList) {
     return Object.fromEntries(recoveryRedirectUrls.map((url) => [url, allowList.includes(url)]));
+}
+
+function adminInviteRedirectsStatus(allowList) {
+    return Object.fromEntries(adminInviteRedirectUrls.map((url) => [url, allowList.includes(url)]));
 }
 
 main().catch((error) => {
