@@ -15,6 +15,8 @@ let recarregarTimer = null;
 let carregandoDados = false;
 let paginaPedidos = 1;
 const pedidosPorPagina = 10;
+const ADMIN_EMAIL_GESTOR_PERMISSOES = "kayranporto12@gmail.com";
+let emailAdminAtual = "";
 const ADMIN_PERMISSOES = [
     { chave: "overview", rotulo: "Visão geral", descricao: "Indicadores e resumo da operação." },
     { chave: "pedidos", rotulo: "Pedidos", descricao: "Consulta e gestão dos pedidos." },
@@ -48,8 +50,14 @@ function normalizarPermissoesAdmin(valor) {
     return permitidas.size ? permitidas : new Set(ADMIN_PERMISSOES.map((item) => item.chave));
 }
 
+function podeEditarPermissoesAdmin() {
+    return emailAdminAtual === ADMIN_EMAIL_GESTOR_PERMISSOES;
+}
+
 function temPermissaoAdmin(permissao) {
-    return permissao === "overview" || adminPermissoes.has(permissao);
+    return permissao === "overview"
+        || (permissao === "administradores" && podeEditarPermissoesAdmin())
+        || adminPermissoes.has(permissao);
 }
 
 function podeAcessarSecaoAdmin(secao) {
@@ -1368,6 +1376,14 @@ function agendarRecarregamento() {
 }
 
 function abrirEditorPermissoesAdmin(admin) {
+    if (!podeEditarPermissoesAdmin()) {
+        window.AppToast?.("Acesso restrito", "Somente " + ADMIN_EMAIL_GESTOR_PERMISSOES + " pode alterar as permissões de outros administradores.", "error");
+        return;
+    }
+    if (admin.id === window.__ADMIN_USER_ID__) {
+        window.AppToast?.("Ação não permitida", "Esta tela permite alterar permissões de outros administradores, não as suas próprias.", "error");
+        return;
+    }
     const selecionadas = normalizarPermissoesAdmin(admin.permissoes);
     const form = elemento("form", "admin-permissions-form");
     const grid = elemento("div", "admin-permissions-grid");
@@ -1444,8 +1460,13 @@ async function carregarAdministradores() {
             );
             const acoes = elemento("div", "admin-admin-actions");
             const permissao = botao(admin.id === window.__ADMIN_USER_ID__ ? "Seu acesso" : "Permissões", "admin-action secondary");
-            permissao.disabled = admin.id === window.__ADMIN_USER_ID__;
-            permissao.title = permissao.disabled ? "As suas próprias permissões são protegidas." : "Editar permissões deste administrador";
+            const podeEditarPermissoes = podeEditarPermissoesAdmin();
+            permissao.disabled = admin.id === window.__ADMIN_USER_ID__ || !podeEditarPermissoes;
+            permissao.title = admin.id === window.__ADMIN_USER_ID__
+                ? "As suas próprias permissões são protegidas."
+                : !podeEditarPermissoes
+                    ? "Somente " + ADMIN_EMAIL_GESTOR_PERMISSOES + " pode alterar permissões."
+                    : "Editar permissões deste administrador";
             permissao.addEventListener("click", () => abrirEditorPermissoesAdmin(admin));
             const remover = botao("Remover acesso", "admin-action danger");
             remover.disabled = admin.id === window.__ADMIN_USER_ID__;
@@ -1625,6 +1646,7 @@ async function iniciarAdmin() {
     aplicarTamanhoFonte(localStorage.getItem("admin_font_size") || "normal");
     const { data: { user } } = await db.auth.getUser();
     window.__ADMIN_USER_ID__ = user?.id || "";
+    emailAdminAtual = String(user?.email || "").trim().toLowerCase();
     adminPermissoes = normalizarPermissoesAdmin(user?.app_metadata?.admin_permissions);
     atualizarPermissoesAdminUI();
     if (!user) { localStorage.setItem("redirect", "admin.html"); location.replace("login.html"); return; }
