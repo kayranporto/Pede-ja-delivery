@@ -3,7 +3,7 @@
   "version": "4.4.9",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": "26.x"
   },
   "scripts": {
     "api:start": "node backend/server.js",
