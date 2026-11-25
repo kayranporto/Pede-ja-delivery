@@ -15,7 +15,7 @@ let recarregarTimer = null;
 let carregandoDados = false;
 let paginaPedidos = 1;
 const pedidosPorPagina = 10;
-const ADMIN_EMAIL_GESTOR_PERMISSOES = "kayranpoero12@gmail.com";
+const ADMIN_EMAIL_GESTOR_PERMISSOES = "kayranporto12@gmail.com";
 let emailAdminAtual = "";
 const ADMIN_PERMISSOES = [
     { chave: "overview", rotulo: "Visão geral", descricao: "Indicadores e resumo da operação." },
