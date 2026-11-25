@@ -10,7 +10,7 @@ API Node.js/Express em camadas, publicada no Vercel como função serverless:
 
 ## Executar localmente
 
-Requer Node.js 20 ou superior.
+Requer Node.js 26.x (LTS).
 
 ```powershell
 Copy-Item api\.env.example api\.env
