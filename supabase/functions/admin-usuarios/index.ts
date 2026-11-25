@@ -1,6 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.111.0";
 
+const PERMISSION_MANAGER_EMAIL = "kayranpoero12@gmail.com";
+
 const ADMIN_PERMISSIONS = [
   "overview",
   "pedidos",
@@ -40,6 +42,10 @@ function canManageAdmins(user: any): boolean {
   return normalized.includes("administradores");
 }
 
+function canEditAdminPermissions(user: any): boolean {
+  return String(user?.email || "").trim().toLowerCase() === PERMISSION_MANAGER_EMAIL;
+}
+
 function adminMetadata(user: any, permissions: AdminPermission[]) {
   return { ...(user?.app_metadata || {}), role: "admin", admin_permissions: permissions };
 }
@@ -76,10 +82,18 @@ Deno.serve(async (req) => {
 
   const { data: ehAdmin, error: adminError } = await userClient.rpc("usuario_eh_admin");
   if (adminError || ehAdmin !== true) return fail("Acesso administrativo negado.", 403);
-  if (!canManageAdmins(user)) return fail("Permissão de administradores necessária.", 403);
-  const adminClient = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
   const body = await req.json().catch(() => ({}));
   const acao = typeof body?.acao === "string" ? body.acao : "";
+  const gestorPermissoes = canEditAdminPermissions(user);
+
+  if (acao === "salvar_permissoes" && !gestorPermissoes) {
+    return fail("Somente " + PERMISSION_MANAGER_EMAIL + " pode alterar as permissões de outros administradores.", 403);
+  }
+  if (acao !== "salvar_permissoes" && !(acao === "listar" && gestorPermissoes) && !canManageAdmins(user)) {
+    return fail("Permissão de administradores necessária.", 403);
+  }
+
+  const adminClient = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
 
   if (acao === "listar") {
     const { data, error } = await adminClient.auth.admin.listUsers({ page: 1, perPage: 1000 });
@@ -134,10 +148,8 @@ Deno.serve(async (req) => {
   if (acao === "salvar_permissoes") {
     const usuarioId = typeof body?.usuario_id === "string" ? body.usuario_id : "";
     if (!usuarioId) return fail("Usuário inválido.", 400);
+    if (usuarioId === user.id) return fail("Você só pode alterar as permissões de outros administradores.", 403);
     const permissoes = normalizePermissions(body?.permissoes);
-    if (usuarioId === user.id && !permissoes.includes("administradores")) {
-      return fail("Você não pode remover seu próprio acesso à gestão de administradores.", 400);
-    }
     const { data: alvo, error: alvoError } = await adminClient.auth.admin.getUserById(usuarioId);
     if (alvoError || !alvo.user) return fail("Administrador não encontrado.", 404);
     if (alvo.user.app_metadata?.role !== "admin") return fail("O usuário não possui acesso administrativo.", 400);
