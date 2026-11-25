@@ -4,7 +4,7 @@ Aplicação web integrada ao Supabase para marketplace de restaurantes, pedidos,
 
 ## Verificação local
 
-Requer Node.js 20 ou superior.
+Requer Node.js 26.x (LTS).
 
 ```bash
 npm ci
