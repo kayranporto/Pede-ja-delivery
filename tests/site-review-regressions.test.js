@@ -137,6 +137,20 @@ test("painel administrativo exibe apenas a seção escolhida e separa o conteúd
 });
 
 
+test("somente kayranpoero12@gmail.com pode alterar permissões de outros administradores", () => {
+    const js = read("js/pages/admin.js");
+    const edge = read("supabase/functions/admin-usuarios/index.ts");
+
+    assert.match(js, /const ADMIN_EMAIL_GESTOR_PERMISSOES = "kayranpoero12@gmail\.com"/);
+    assert.match(js, /function podeEditarPermissoesAdmin\(\)/);
+    assert.match(js, /emailAdminAtual = String\(user\?\.email \|\| ""\)\.trim\(\)\.toLowerCase\(\)/);
+    assert.match(js, /permissao\.disabled = admin\.id === window\.__ADMIN_USER_ID__ \|\| !podeEditarPermissoes/);
+    assert.match(edge, /const PERMISSION_MANAGER_EMAIL = "kayranpoero12@gmail\.com"/);
+    assert.match(edge, /function canEditAdminPermissions\(user: any\): boolean/);
+    assert.match(edge, /acao === "salvar_permissoes" && !gestorPermissoes/);
+    assert.match(edge, /usuarioId === user\.id\) return fail\("Você só pode alterar as permissões de outros administradores\.", 403\)/);
+});
+
 test("filtros da Home são configuráveis por administradores e lidos de uma tabela protegida", () => {
     const html = read("html/admin.html");
     const admin = read("js/pages/admin.js");
