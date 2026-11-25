@@ -723,3 +723,16 @@ body.admin-compact .admin-card,body.admin-compact .admin-settings-card{padding:1
 .admin-filter-category-empty{margin:0;padding:16px;color:var(--muted);font-size:11px;line-height:1.5}
 @media(max-width:880px){.admin-filter-categories-layout{grid-template-columns:1fr}}
 @media(max-width:560px){.admin-filter-category-editor,.admin-filter-category-list-card{padding:16px}.admin-filter-category-row{grid-template-columns:38px minmax(0,1fr);gap:9px}.admin-filter-category-emoji{width:38px;height:38px}.admin-filter-category-actions{grid-column:1/-1;justify-content:flex-start}.admin-filter-category-actions button{flex:1}}
+
+/* Correção definitiva do layout do editor de permissões administrativas */
+#adminModalBody{min-width:0;max-width:100%;overflow-x:hidden}
+#adminModalBody .admin-permissions-form{display:grid;gap:14px;width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+#adminModalBody .admin-permissions-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+#adminModalBody .admin-permission-option{display:grid;grid-template-columns:18px minmax(0,1fr);align-items:start;column-gap:11px;width:100%;min-width:0;max-width:100%;box-sizing:border-box;padding:14px;border:1px solid rgba(21,25,37,.1);border-radius:13px;background:#fafbfc;cursor:pointer}
+#adminModalBody .admin-permission-option:has(input[type="checkbox"]:checked){border-color:rgba(239,36,53,.28);background:#fff8f8}
+#adminModalBody .admin-permission-option input[type="checkbox"]{display:block;appearance:auto;-webkit-appearance:checkbox;width:18px!important;min-width:18px!important;max-width:18px!important;height:18px!important;min-height:18px!important;max-height:18px!important;margin:2px 0 0!important;padding:0!important;flex:none!important;accent-color:var(--red);cursor:pointer}
+#adminModalBody .admin-permission-option>span{display:block;width:100%;min-width:0;max-width:100%;overflow-wrap:anywhere}
+#adminModalBody .admin-permission-option strong{display:block;margin:0;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+#adminModalBody .admin-permission-option small{display:block;margin-top:4px;color:var(--muted);font-size:10px;line-height:1.45;overflow-wrap:anywhere}
+@media(max-width:760px){#adminModalBody .admin-permissions-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:420px){#adminModalBody .admin-permission-option{padding:12px;column-gap:9px}#adminModalBody .admin-permission-option strong{font-size:11px}#adminModalBody .admin-permission-option small{font-size:9px}}
