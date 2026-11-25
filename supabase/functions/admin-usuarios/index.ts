@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.111.0";
 
-const PERMISSION_MANAGER_EMAIL = "kayranpoero12@gmail.com";
+const PERMISSION_MANAGER_EMAIL = "kayranporto12@gmail.com";
 
 const ADMIN_PERMISSIONS = [
   "overview",
