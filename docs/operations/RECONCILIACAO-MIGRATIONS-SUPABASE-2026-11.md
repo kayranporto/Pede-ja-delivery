@@ -1,76 +1,123 @@
 # Reconciliação de migrations — GitHub × Supabase
 
-**Data da preparação:** 17/11/2026  
-**Atualização de permissões:** 17/11/2026  
+**Preparação:** 17/11/2026  
+**Última verificação:** 17/11/2026  
 **Repositório:** `kayranporto/Pede-ja-delivery`  
-**Branch:** `chore/supabase-migration-reconciliation`  
-**Base:** `6a5f7cf9a3e5b6fa7197b3ac208f6b20c9dc80ff`  
+**PR de reconciliação:** [#86](https://github.com/kayranporto/Pede-ja-delivery/pull/86) — integrada à `main`  
+**Commit integrado:** `920d8c7ede13d98dc23037a56fe9eb048a656011`  
 **Projeto Supabase:** `wzxsjxdbxonrmlmzufpv`  
-**Estado:** alterações versionadas no GitHub e atualização pontual de metadados Auth; nenhuma migration de schema aplicada.
+**Estado atual:** histórico reconciliado, migrations alinhadas e permissões Auth atualizadas para um administrador; backup externo restaurável ainda não foi comprovado.
 
-## Resultado da comparação
+## Resultado inicial e resultado final
 
-A leitura inicial encontrou 70 registros remotos e 71 arquivos locais de migration na base consultada.
+A primeira leitura encontrou divergência entre arquivos locais e histórico remoto. Após a reconciliação e integração da PR #86, a verificação cruzada confirmou:
 
-- Sete pares com timestamps diferentes foram comparados diretamente entre o SQL do arquivo e `supabase_migrations.schema_migrations.statements`. Os sete conteúdos SQL são equivalentes.
-- Os SQLs originais das versões `20261022232700` (`categorias_home_admin`) e `20261026225301` (`empresas_sem_comissao`) foram recuperados do histórico remoto, sem reconstrução presumida.
-- A migration local `20261113190000_combos_restaurante.sql` não está registrada no histórico remoto, mas seus objetos foram encontrados no schema. As quatro funções do arquivo foram comparadas com as definições remotas e seus corpos são equivalentes.
-- As correções de segurança para a policy autenticada de variantes e para a RPC de preparo de reembolso foram preparadas nesta branch. Elas ainda não foram aplicadas ao Supabase.
+- **73 arquivos** SQL em `supabase/migrations`.
+- **73 registros** em `supabase_migrations.schema_migrations`.
+- **Zero versões ausentes no GitHub** e **zero versões ausentes no Supabase**.
+- Primeira versão: `20260801000100`.
+- Última versão: `20261118010100`.
 
-## Alterações preparadas nesta branch
+Sete pares com timestamps diferentes foram comparados diretamente entre o SQL dos arquivos e as declarações armazenadas em `supabase_migrations.schema_migrations.statements`; os conteúdos eram equivalentes. Dois SQLs históricos (`20261022232700` e `20261026225301`) foram recuperados do histórico remoto, sem reconstrução presumida.
 
-1. Sete arquivos de migration foram renomeados para corresponder aos timestamps e nomes registrados no histórico remoto. O conteúdo SQL foi preservado.
-2. Dois arquivos históricos foram recuperados exatamente dos comandos armazenados no Supabase.
-3. As duas migrations antigas de segurança com timestamps anteriores foram substituídas por migrations novas:
+A migration `20261113190000_combos_restaurante.sql` e as duas migrations de segurança `20261118010000` e `20261118010100` agora constam no histórico remoto. **Não execute novamente o SQL de combos e não rode `migration repair` para essa versão.**
+
+## Alterações integradas pela PR #86
+
+1. Sete arquivos de migration foram renomeados para corresponder aos timestamps registrados no Supabase, preservando o SQL.
+2. Dois arquivos históricos foram recuperados exatamente do histórico remoto.
+3. Duas migrations de segurança foram organizadas em timestamps novos:
    - `20261118010000_harden_authenticated_variant_catalog.sql`
    - `20261118010100_require_finance_permission_for_refund_rpc.sql`
-4. As referências de caminhos nos testes automatizados foram atualizadas.
-5. Os testes de prontidão verificam a recuperação dos dois SQLs históricos e a exigência de permissão financeira explícita na RPC.
+4. Testes, caminhos de referência e documentação foram atualizados.
+5. A RPC SQL de preparação de reembolso exige a permissão `financeiro` explícita, em linha com a validação da Edge Function.
 
 ## Autorização financeira explícita
 
-A consulta de metadados de 17/11/2026 encontrou um único administrador em `auth.users` cujo `raw_app_meta_data.admin_permissions` ainda não era um array. A Edge Function `processar-reembolso` já rejeitava administradores sem uma lista válida que contenha `financeiro`; a nova migration aplica a mesma regra também na RPC SQL, impedindo que alguém contorne a validação chamando a RPC diretamente.
+A consulta de metadados de 17/11/2026 encontrou um único administrador cuja lista `raw_app_meta_data.admin_permissions` não estava em formato de array. Após autorização expressa, a lista foi atualizada para os 14 identificadores administrativos reconhecidos pelo projeto, incluindo `financeiro`; as demais permissões foram preservadas e nenhum outro usuário foi alterado.
 
-Após autorização expressa, a lista foi atualizada para os 14 identificadores administrativos já reconhecidos pelo projeto: `overview`, `pedidos`, `financeiro`, `entregas`, `areas`, `restaurantes`, `usuarios`, `cupons`, `marketing`, `relatorios`, `suporte`, `configuracoes`, `administradores` e `categorias_filtros`. Isso preserva o acesso amplo que esse administrador já recebia pelo fallback de compatibilidade quando a lista estava ausente e torna explícita a permissão `financeiro`. Nenhum outro administrador foi alterado.
+A verificação posterior confirmou um administrador com 14 permissões explícitas e `financeiro` presente. A sessão/JWT existente pode continuar com claims antigas até ser renovada. O administrador deve sair e entrar novamente ou renovar a sessão antes de testar a operação financeira.
 
-A verificação posterior confirmou um administrador, uma lista explícita de 14 permissões e `financeiro` presente. A sessão/JWT existente pode continuar com claims antigas até ser renovada; o administrador deve sair e entrar novamente ou renovar a sessão antes de testar a operação.
+## Validação após a integração
 
-## Reconciliação da migration de combos
+O commit integrado é o HEAD da branch `main`. Os quatro checks do commit terminaram com sucesso:
 
-Depois de revisar a cadeia local e confirmar a correspondência integral dos objetos relevantes, a versão `20261113190000` deve ser marcada como aplicada no histórico remoto, sem reaplicar o SQL:
+- `verify`
+- `chromium`
+- `deploy`
+- `Supabase Preview`
 
-```bash
-supabase migration repair 20261113190000 --status applied
+O status de deploy do Vercel também foi concluído com sucesso. Esses resultados comprovam os checks automatizados executados no commit; não substituem backup nem a revisão contínua dos alertas de segurança.
+
+## Alertas de segurança ainda em acompanhamento
+
+### Tabelas com RLS e sem policies
+
+As tabelas `public.empresa_assinaturas` e `public.planos_plataforma` têm RLS habilitada e nenhuma policy. A consulta de privilégios confirmou que `anon` e `authenticated` não têm acesso direto de leitura; somente `postgres` e `service_role` têm esse privilégio. Não crie policies genéricas apenas para eliminar o aviso do Advisor.
+
+### Funções SECURITY DEFINER
+
+O Advisor identifica cinco funções acessíveis a `anon`: `calcular_entrega_empresa`, `calcular_entrega_unidade`, `empresa_disponibilidade`, `empresa_disponibilidade_unidade` e `empresa_unidades_publicas`. A revisão das definições mostrou que elas calculam entrega ou retornam disponibilidade/dados públicos de empresas publicadas e ativas. A exposição deve continuar intencional e limitada a esses dados públicos.
+
+O Advisor também identifica 70 funções acessíveis a `authenticated`. A consulta catalogal confirmou `search_path` fixado nas 78 funções `SECURITY DEFINER` do schema `public`. A amostra de funções que não continham verificações diretas de `auth.uid()`/JWT mostrou verificações administrativas por `private.is_admin()`, funções de catálogo público e uma função de runtime sem execução para `anon` ou `authenticated`. Não revogue grants em massa: cada RPC precisa ser analisada com seus chamadores e regras de autorização antes de qualquer alteração.
+
+### Extensão pg_net
+
+A extensão `pg_net` está na versão `0.20.4`, registrada no schema `public`, e não é relocatable (`extrelocatable = false`). A documentação do Supabase orienta recriá-la no schema `extensions`, em vez de tentar `ALTER EXTENSION ... SET SCHEMA`. A consulta encontrou um consumidor ativo: `private.encaminhar_push_notificacao()` chama `net.http_post` e é acionada pelo trigger `notificacoes_web_push` (`AFTER INSERT` em `public.notificacoes`). A recriação pode interromper esse fluxo e outros consumidores de `net.http_*`; portanto, não foi feita nesta auditoria. Só planeje essa mudança após mapear todos os consumidores e validar backup/restauração.
+
+### Proteção de senhas vazadas
+
+O Security Advisor ainda informa que a proteção contra senhas vazadas está desativada. A organização do projeto foi verificada no plano **Free**; a documentação atual do Supabase informa que essa proteção está disponível apenas nos planos Pro e superiores. No plano atual, revise no painel Auth as opções disponíveis de comprimento mínimo (não menos que 8 caracteres) e exigência de combinação de tipos de caracteres. Não tente ativar o recurso por migration SQL.
+
+## Performance: itens sem alteração
+
+- Sete índices aparecem como não utilizados. Não os remova sem período adequado de observação e análise das consultas reais.
+- O Advisor identifica 17 casos de múltiplas policies permissivas de SELECT. A consolidação só deve ocorrer após comparar os predicados, papéis e efeitos de cada policy.
+- Nenhum índice ou policy foi removido ou alterado nesta etapa.
+
+## Backup e recuperação
+
+A organização está no plano **Free**. A documentação do Supabase recomenda exportações regulares com `supabase db dump` e cópias externas para esse plano; backups automáticos diários estão disponíveis nos planos Pro, Team e Enterprise. A sessão conectada não dispõe de CLI/Docker nem acesso ao terminal local para produzir ou validar os arquivos. O backup **ainda não foi executado**.
+
+Foi revisado e endurecido o fluxo existente em `scripts/backup-supabase.ps1` e `scripts/restore-supabase.ps1`:
+
+- a senha é consumida por `SUPABASE_DB_PASSWORD` durante o comando de link e não é passada como argumento na linha de comando;
+- o script verifica a disponibilidade do Docker e usa a versão fixada do Supabase CLI;
+- gera `roles.sql`, `schema.sql` e `data.sql` fora do clone Git, na pasta `$HOME\Backups\PedeJa`;
+- cria `manifest.json` com projeto de origem, horário UTC, versão do CLI, tamanho e SHA-256 de cada arquivo;
+- o script de restauração exige caminho absoluto, projeto temporário diferente do projeto de origem, Session Pooler e confirmação explícita; valida manifesto, tamanho e hashes antes de executar SQL;
+- a restauração executa em transação única e faz smoke tests de tabelas, policies e funções públicas.
+
+**Limitação do dump:** a CLI do Supabase exclui os schemas gerenciados `auth` e `storage`, além dos schemas pertencentes a extensões. Portanto, esse conjunto não contém os usuários do Auth, dados/objetos de Storage, nem Edge Functions, segredos ou configuração de provedores Auth. Ele é um **backup lógico parcial do banco**, não um backup completo do projeto. Os objetos armazenados via Storage API também precisam de exportação independente. O manifesto e os avisos dos scripts registram esse limite.
+
+Procedimento para executar no Windows, a partir da raiz do clone:
+
+```powershell
+npx --yes supabase@2.115.0 login
+$securePassword = Read-Host "Senha do banco Supabase" -AsSecureString
+$passwordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
+try {
+    $env:SUPABASE_DB_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPointer)
+    npm run backup:supabase
+}
+finally {
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($passwordPointer)
+    Remove-Item Env:SUPABASE_DB_PASSWORD -ErrorAction SilentlyContinue
+}
 ```
 
-Esse comando altera o histórico remoto. Ele não foi executado nesta preparação.
+O resultado é gravado em `$HOME\Backups\PedeJa\<project-ref>-<timestamp>\`. Copie essa pasta para armazenamento seguro fora do computador/clone. Antes de qualquer alteração de schema ou dados em produção, restaure esse dump em um projeto isolado e registre os resultados. Para a recuperação integral, complemente o backup com Auth, Storage, Edge Functions, segredos e configuração externa.
 
-## Contagem esperada após uma futura publicação
+**Status:** backup não executado; restauração não testada. Nenhum arquivo de backup real foi criado por esta auditoria.
 
-- Arquivos locais nesta branch: 73.
-- Registros remotos atuais observados: 70.
-- Após reconhecer a migration de combos no histórico: 71.
-- Após aplicar as duas novas migrations de segurança: 73.
+## Estado e limites
 
-A contagem final é uma expectativa condicionada à revisão, merge e publicação, não o estado atual do projeto remoto.
-
-## Sequência recomendada para publicação
-
-1. Revisar esta branch e executar os testes e verificações do projeto.
-2. Fazer backup e confirmar que a restauração é possível.
-3. Integrar esta branch à `main` após revisão.
-4. Confirmar novamente o histórico remoto e marcar `20261113190000` como aplicada, sem executar seu SQL.
-5. Executar `supabase migration list` e `supabase db push --dry-run`; revisar cada migration pendente.
-6. Aplicar somente após backup verificável e aprovação explícita; verificar RLS, RPC e testes com contas de administrador com e sem `financeiro`.
-7. Confirmar que as sessões administrativas foram renovadas e testar a RPC com a conta autorizada; não atribuir `financeiro` a outras contas sem autorização explícita.
-
-## Estado atual e limites
-
-- Nenhuma migration foi aplicada ao banco remoto.
-- Nenhum registro de `supabase_migrations.schema_migrations` foi inserido ou removido.
-- Metadados Auth foram atualizados para um único administrador: lista explícita das 14 permissões já reconhecidas pelo projeto, incluindo `financeiro`; nenhum outro usuário foi modificado.
-- Nenhuma Edge Function foi publicada.
-- Nenhuma alteração foi feita diretamente na branch `main`.
-- Esta branch foi aberta como Pull Request de rascunho [#86](https://github.com/kayranporto/Pede-ja-delivery/pull/86) e ainda não foi integrada à `main`.
-
-As migrations novas estão versionadas no GitHub, mas só devem ser executadas após revisão, backup verificável e aprovação da publicação.
+- Reconciliação de migrations: **concluída**; 73/73 versões correspondentes entre GitHub e Supabase.
+- PR #86: integrada à `main` no commit `920d8c7ede13d98dc23037a56fe9eb048a656011`.
+- Migrations de combos e as duas migrations de segurança: presentes no histórico remoto.
+- Permissão `financeiro`: concedida ao único administrador após autorização expressa; renovar a sessão para atualizar as claims.
+- Checks `verify`, `chromium`, `deploy` e `Supabase Preview`: sucesso.
+- Backup externo restaurável: **pendente**; ainda não executado nem testado.
+- Proteção contra senhas vazadas: **pendente por limitação do plano Free**.
+- Remanejamento de `pg_net` e otimizações de policies/índices: **não executados**, dependem de análise e backup adequados.
+- Nenhuma Edge Function foi publicada por esta etapa.

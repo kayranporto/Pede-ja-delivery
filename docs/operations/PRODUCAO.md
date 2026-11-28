@@ -27,9 +27,36 @@ A migration `20260821214034_remove_historico_public_policy.sql` remove a leitura
 
 ### Backup e restauração
 
-O plano Free não apresentou backups físicos disponíveis e está com PITR desativado na consulta de 21/08/2026. Use `npm run backup:supabase` com `SUPABASE_DB_PASSWORD` definido somente no ambiente para gerar `roles.sql`, `schema.sql` e `data.sql` em `backups/`, diretório ignorado pelo Git. O dump de dados exclui `storage.buckets_vectors` e `storage.vector_indexes`, conforme o procedimento atual do Supabase para tabelas vetoriais gerenciadas.
+O projeto está no plano Free; não há backups automáticos diários incluídos. O repositório contém um fluxo de dump lógico com manifesto e verificação SHA-256. No Windows, no terminal PowerShell aberto na raiz do clone:
 
-Teste a restauração exclusivamente em um projeto Supabase temporário e vazio. Instale o cliente PostgreSQL atual (`psql`), obtenha no painel o host do Session Pooler e defina `SUPABASE_RESTORE_DB_HOST`, `SUPABASE_RESTORE_DB_PASSWORD` e `SUPABASE_RESTORE_CONFIRM=RESTORE:<PROJECT_REF_TEMPORARIO>` somente no ambiente. Execute `npm run restore:supabase -- -BackupDirectory backups/<timestamp> -TargetProjectRef <PROJECT_REF_TEMPORARIO>`. O script restaura `roles.sql` → `schema.sql` → `data.sql` em transação única, executa smoke tests e recusa explicitamente o project ref de produção. Registre as contagens antes de excluir o projeto temporário.
+```powershell
+# Autentique o Supabase CLI uma vez; isso abre o fluxo de login no navegador.
+npx --yes supabase@2.115.0 login
+
+# A senha é lida como variável do processo, não como argumento de linha de comando.
+$securePassword = Read-Host "Senha do banco Supabase" -AsSecureString
+$passwordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
+try {
+    $env:SUPABASE_DB_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPointer)
+    npm run backup:supabase
+}
+finally {
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($passwordPointer)
+    Remove-Item Env:SUPABASE_DB_PASSWORD -ErrorAction SilentlyContinue
+}
+```
+
+O script vincula o clone ao projeto `wzxsjxdbxonrmlmzufpv`, gera `roles.sql`, `schema.sql`, `data.sql` e `manifest.json` em `$HOME\Backups\PedeJa\`. O manifesto registra o projeto de origem, a versão do CLI, tamanhos e hashes SHA-256. Mantenha essa pasta em armazenamento seguro fora do clone e faça uma segunda cópia externa.
+
+**Limitação importante:** `supabase db dump` é um dump lógico filtrado; a CLI exclui os schemas gerenciados `auth` e `storage`, além dos schemas pertencentes a extensões. Portanto, o conjunto não contém usuários do Auth, dados/objetos do Storage, Edge Functions, segredos nem configuração dos provedores Auth. Não o trate como backup completo do projeto. Faça exportação separada desses componentes antes de declarar a recuperação integral coberta.
+
+Para testar o dump, crie um projeto Supabase temporário e vazio, com versão PostgreSQL e extensões compatíveis. Instale `psql`, use o host do **Session Pooler** do projeto temporário e defina no ambiente `SUPABASE_RESTORE_DB_HOST`, `SUPABASE_RESTORE_DB_PASSWORD`, `SUPABASE_RESTORE_CONFIRM=RESTORE:<PROJECT_REF_TEMPORARIO>` e, se necessário, `SUPABASE_RESTORE_DB_PORT=5432`. Execute:
+
+```powershell
+npm run restore:supabase -- -BackupDirectory "C:\caminho\completo\para\pasta-do-backup" -TargetProjectRef <PROJECT_REF_TEMPORARIO>
+```
+
+O script recusa o projeto de origem, verifica manifesto, tamanho e SHA-256 dos três arquivos, restaura apenas o escopo incluído no dump em uma transação e executa smoke tests de tabelas, policies e funções públicas. Esse teste confirma a restauração lógica parcial; não valida Auth, Storage, Edge Functions ou configurações externas. Registre os resultados antes de excluir o projeto temporário.
 
 ## 3. Edge Functions
 
